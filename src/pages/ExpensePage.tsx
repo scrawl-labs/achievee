@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
-import { Card } from '@astryxdesign/core/Card';
 import { Divider } from '@astryxdesign/core/Divider';
 import { EmptyState } from '@astryxdesign/core/EmptyState';
 import { Heading } from '@astryxdesign/core/Heading';
@@ -14,15 +13,12 @@ import { Text } from '@astryxdesign/core/Text';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { Token } from '@astryxdesign/core/Token';
 import { VStack } from '@astryxdesign/core/VStack';
-import { DateNav } from '../components/DateNav';
-import { toDateKey } from '../lib/date';
 import { formatWon } from '../lib/format';
 import { store, useAppData } from '../store';
-import { EXPENSE_CATEGORIES } from '../types';
+import { EXPENSE_CATEGORIES, type DateKey } from '../types';
 
-export function ExpensePage() {
+export function ExpensePage({ date }: { date: DateKey }) {
   const { expenses } = useAppData();
-  const [date, setDate] = useState(() => toDateKey(new Date()));
   const [amount, setAmount] = useState<number | null>(null);
   const [category, setCategory] = useState<string>(EXPENSE_CATEGORIES[0]);
   const [memo, setMemo] = useState('');
@@ -30,6 +26,7 @@ export function ExpensePage() {
 
   const day = expenses.filter((x) => x.date === date);
   const total = day.reduce((sum, x) => sum + x.amount, 0);
+  const monthTotal = expenses.filter((x) => x.date.slice(0, 7) === date.slice(0, 7)).reduce((s, x) => s + x.amount, 0);
 
   function submit() {
     try {
@@ -44,33 +41,24 @@ export function ExpensePage() {
 
   return (
     <VStack gap={4}>
-      <DateNav date={date} onChange={setDate} />
-      <Card>
-        <VStack gap={1} hAlign="center">
-          <Text type="supporting">이 날 쓴 돈</Text>
-          <Heading level={2}>{formatWon(total)}</Heading>
-        </VStack>
-      </Card>
-      <Card>
-        <VStack gap={3}>
-          <HStack gap={2} align="start">
-            <StackItem size="fill">
-              <NumberInput label="금액" value={amount} onChange={setAmount} />
-            </StackItem>
-            <StackItem size="fill">
-              <Selector
-                label="분류"
-                options={[...EXPENSE_CATEGORIES]}
-                value={category}
-                onChange={(v) => setCategory(v)}
-              />
-            </StackItem>
-          </HStack>
-          <TextInput label="메모" isOptional value={memo} onChange={(v) => setMemo(v)} onEnter={submit} />
-          {error && <Token color="red" label={error} />}
-          <Button label="기록" variant="primary" onClick={submit} />
-        </VStack>
-      </Card>
+      <VStack gap={0.5}>
+        <Text type="supporting">이 날 쓴 돈</Text>
+        <Heading level={2}>{formatWon(total)}</Heading>
+        <Text type="supporting">{Number(date.slice(5, 7))}월 합계 {formatWon(monthTotal)}</Text>
+      </VStack>
+      <VStack gap={3}>
+        <HStack gap={2} align="start">
+          <StackItem size="fill">
+            <NumberInput label="금액" value={amount} onChange={setAmount} />
+          </StackItem>
+          <StackItem size="fill">
+            <Selector label="분류" options={[...EXPENSE_CATEGORIES]} value={category} onChange={(v) => setCategory(v)} />
+          </StackItem>
+        </HStack>
+        <TextInput label="메모" isOptional value={memo} onChange={(v) => setMemo(v)} onEnter={submit} />
+        {error && <Token color="red" label={error} />}
+        <Button label="기록" variant="primary" onClick={submit} />
+      </VStack>
       {day.length === 0 ? (
         <EmptyState title="쓴 돈이 없어요" isCompact />
       ) : (

@@ -1,4 +1,4 @@
-import { overlaps, validateEventTimes } from '../lib/date';
+import { validateEventTimes } from '../lib/date';
 import type { DataStorage } from '../storage/storage';
 import type { AppData, CalEvent, DateKey, Expense, Todo } from '../types';
 
@@ -29,13 +29,11 @@ export class DataStore {
     this.listeners.forEach((l) => l());
   }
 
-  private checkEvent(input: EventInput, ignoreId?: string): EventInput {
+  private checkEvent(input: EventInput): EventInput {
     const title = input.title.trim();
     if (!title) throw new Error('제목을 입력해 주세요');
     const timeError = validateEventTimes(input.start, input.end);
     if (timeError) throw new Error(timeError);
-    const clash = this.data.events.find((o) => o.id !== ignoreId && o.date === input.date && overlaps(o, input));
-    if (clash) throw new Error(`"${clash.title}" 일정과 시간이 겹쳐요`);
     return { ...input, title };
   }
 
@@ -46,7 +44,7 @@ export class DataStore {
   }
 
   updateEvent(id: string, input: EventInput): void {
-    const checked = this.checkEvent(input, id);
+    const checked = this.checkEvent(input);
     this.commit({
       ...this.data,
       events: this.data.events.map((e) => (e.id === id ? { ...checked, id } : e)),

@@ -9,13 +9,11 @@ import { StackItem } from '@astryxdesign/core/Stack';
 import { Text } from '@astryxdesign/core/Text';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { VStack } from '@astryxdesign/core/VStack';
-import { DateNav } from '../components/DateNav';
-import { toDateKey } from '../lib/date';
 import { store, useAppData } from '../store';
+import type { DateKey } from '../types';
 
-export function TodoPage() {
+export function TodoPage({ date }: { date: DateKey }) {
   const { todos } = useAppData();
-  const [date, setDate] = useState(() => toDateKey(new Date()));
   const [title, setTitle] = useState('');
   const [error, setError] = useState('');
 
@@ -37,17 +35,13 @@ export function TodoPage() {
   }
 
   return (
-    <VStack gap={4}>
-      <DateNav date={date} onChange={setDate} />
-      <Text type="supporting">
-        {day.length === 0 ? '할 일이 없어요' : `${doneIds.length} / ${day.length} 완료`}
-      </Text>
+    <VStack gap={3}>
       <HStack gap={2} align="start">
         <StackItem size="fill">
           <TextInput
             label="할 일"
             isLabelHidden
-            placeholder="할 일을 적어 보아요"
+            placeholder="할 일 추가"
             value={title}
             onChange={(v) => setTitle(v)}
             onEnter={submit}
@@ -56,6 +50,7 @@ export function TodoPage() {
         </StackItem>
         <Button label="추가" variant="primary" onClick={submit} />
       </HStack>
+      <Text type="supporting">{day.length === 0 ? '할 일이 없어요' : `${doneIds.length} / ${day.length} 완료`}</Text>
       {day.length === 0 ? (
         <EmptyState title="아직 할 일이 없어요" isCompact />
       ) : (

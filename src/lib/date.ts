@@ -47,10 +47,6 @@ interface Span {
   end: string;
 }
 
-export function overlaps(a: Span, b: Span): boolean {
-  return timeToMinutes(a.start) < timeToMinutes(b.end) && timeToMinutes(b.start) < timeToMinutes(a.end);
-}
-
 export function hourRange(h: number): Span {
   return { start: `${pad(h)}:00`, end: h === 23 ? '23:59' : `${pad(h + 1)}:00` };
 }

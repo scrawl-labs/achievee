@@ -3,7 +3,6 @@ import {
   addDays,
   hourRange,
   monthGrid,
-  overlaps,
   parseDateKey,
   timeToMinutes,
   toDateKey,
@@ -61,15 +60,6 @@ describe('validateEventTimes', () => {
     expect(validateEventTimes('', '10:00')).toMatch(/입력/);
     expect(validateEventTimes('9:00', '10:00')).toMatch(/입력/);
     expect(validateEventTimes('09:00', '24:00')).toMatch(/입력/);
-  });
-});
-
-describe('overlaps', () => {
-  it('겹치면 true', () => {
-    expect(overlaps({ start: '10:00', end: '11:00' }, { start: '10:30', end: '12:00' })).toBe(true);
-  });
-  it('딱 맞닿으면 false', () => {
-    expect(overlaps({ start: '10:00', end: '11:00' }, { start: '11:00', end: '12:00' })).toBe(false);
   });
 });
 

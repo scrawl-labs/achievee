@@ -44,19 +44,20 @@ describe('일정', () => {
     expect(store.getSnapshot().events).toHaveLength(0);
   });
 
-  it('같은 날 시간이 겹치면 거부하고, 맞닿거나 다른 날이면 허용한다', () => {
+  it('시간이 겹치는 일정도 허용한다(구글 캘린더처럼)', () => {
     const store = new DataStore(memStorage());
     store.addEvent(ev());
-    expect(() => store.addEvent(ev({ start: '10:30', end: '12:00' }))).toThrow('겹쳐요');
-    expect(() => store.addEvent(ev({ start: '11:00', end: '12:00' }))).not.toThrow();
-    expect(() => store.addEvent(ev({ date: '2026-10-06' }))).not.toThrow();
+    expect(() => store.addEvent(ev({ start: '10:30', end: '12:00' }))).not.toThrow();
+    expect(store.getSnapshot().events).toHaveLength(2);
   });
 
-  it('수정할 때 자기 자신과는 겹침으로 보지 않는다', () => {
+  it('수정하면 시간과 날짜가 바뀐다', () => {
     const store = new DataStore(memStorage());
     const e = store.addEvent(ev());
     expect(() => store.updateEvent(e.id, ev({ start: '10:15', end: '10:45' }))).not.toThrow();
     expect(store.getSnapshot().events[0].start).toBe('10:15');
+    store.updateEvent(e.id, ev({ date: '2026-10-07' }));
+    expect(store.getSnapshot().events[0].date).toBe('2026-10-07');
   });
 
   it('삭제', () => {
