@@ -5,5 +5,5 @@ import { Heading } from '@astryxdesign/core/Heading';
 export function Logo() {
   const [failed, setFailed] = useState(false);
   if (failed) return <Heading level={1} type="display-3">플래너</Heading>;
-  return <img src="/logo.svg" alt="플래너" height={28} style={{ display: 'block', height: 28, width: 'auto' }} onError={() => setFailed(true)} />;
+  return <img src="/logo.svg" alt="플래너" height={44} style={{ display: 'block', height: 44, width: 'auto' }} onError={() => setFailed(true)} />;
 }
