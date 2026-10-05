@@ -36,12 +36,6 @@ function titleOf(date: DateKey, view: View): string {
   return view === 'day' ? `${base} ${d.getDate()}일` : base;
 }
 
-function newDraft(date: DateKey, today: DateKey): EventDraft {
-  const hour = date === today ? Math.min(new Date().getHours() + 1, 22) : 9;
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return { title: '', date, start: `${pad(hour)}:00`, end: `${pad(hour + 1)}:00` };
-}
-
 export default function App() {
   const wide = useIsWide();
   const { events } = useAppData();
@@ -94,9 +88,6 @@ export default function App() {
           wide && (
             <LayoutPanel width={264} hasDivider padding={3}>
               <VStack gap={4}>
-                <Button label="만들기" variant="secondary" size="lg" onClick={() => setDraft(newDraft(date, today))}>
-                  + 만들기
-                </Button>
                 <Calendar
                   mode="single"
                   value={date as ISODateString}
@@ -133,11 +124,6 @@ export default function App() {
       />
       {!wide && (
         <>
-          <div className="fab">
-            <Button label="일정 만들기" variant="primary" size="lg" elevation="high" onClick={() => setDraft(newDraft(date, today))}>
-              + 만들기
-            </Button>
-          </div>
           <BottomSheet isOpen={panelOpen} onOpenChange={setPanelOpen} label="할 일·가계부" height="tall">
             <VStack padding={4}>{panel}</VStack>
           </BottomSheet>

@@ -227,9 +227,3 @@
     grid-template-rows: repeat(var(--rows), minmax(110px, 1fr));
   }
 }
-.fab {
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  z-index: 5;
-}
