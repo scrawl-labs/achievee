@@ -10,6 +10,7 @@ import { Layout, LayoutContent, LayoutHeader, LayoutPanel } from '@astryxdesign/
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl';
 import { StackItem } from '@astryxdesign/core/Stack';
 import { VStack } from '@astryxdesign/core/VStack';
+import { Logo } from './components/Logo';
 import { EventDialog, type EventDraft } from './components/EventDialog';
 import { MonthView } from './components/MonthView';
 import { SidePanel, type PanelTab } from './components/SidePanel';
@@ -67,7 +68,7 @@ export default function App() {
         header={
           <LayoutHeader hasDivider>
             <HStack gap={2} align="center" wrap="wrap" paddingInline={3} paddingBlock={2}>
-              {wide && <Heading level={1} type="display-3">플래너</Heading>}
+              {wide && <Logo />}
               <Button label="오늘" variant="secondary" onClick={() => setDate(today)} />
               <IconButton label="이전" icon={<Icon icon="chevronLeft" />} variant="ghost" onClick={() => setDate(shift(date, view, -1))} />
               <IconButton label="다음" icon={<Icon icon="chevronRight" />} variant="ghost" onClick={() => setDate(shift(date, view, 1))} />
