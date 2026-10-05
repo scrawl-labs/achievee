@@ -107,8 +107,8 @@ export const neutralTheme = defineTheme({
     '--color-background-popover': [neutral.light[100], neutral.dark[10]],
     '--color-background-muted': [neutral.light[95], neutral.dark[10]],
 
-    '--color-accent': ['#1a73e8', '#8ab4f8'],
-    '--color-accent-muted': ['#e8f0fe', '#1f2b3d'],
+    '--color-accent': [neutral.light[10], neutral.dark[95]],
+    '--color-accent-muted': [neutral.light[95], neutral.dark[15]],
     '--color-neutral': [
       withAlpha(neutral.light[0], '0F'),
       withAlpha(neutral.dark[100], '1A'),
@@ -132,16 +132,16 @@ export const neutralTheme = defineTheme({
     '--color-text-primary': [neutral.light[0], neutral.dark[100]],
     '--color-text-secondary': [neutral.light[30], neutral.dark[65]],
     '--color-text-disabled': [neutral.light[60], neutral.dark[35]],
-    '--color-text-accent': ['#1a73e8', '#8ab4f8'],
+    '--color-text-accent': [neutral.light[10], neutral.dark[95]],
     '--color-on-dark': neutral.light[100],
     '--color-on-light': neutral.light[5],
-    '--color-on-accent': ['#ffffff', '#0a1f44'],
+    '--color-on-accent': [neutral.light[100], neutral.dark[5]],
     '--color-on-success': [neutral.light[100], neutral.dark[5]],
     '--color-on-error': [neutral.light[100], neutral.dark[5]],
     '--color-on-warning': neutral.light[5],
 
     // Icon
-    '--color-icon-accent': ['#1a73e8', '#8ab4f8'],
+    '--color-icon-accent': [neutral.light[10], neutral.dark[95]],
     '--color-icon-primary': [neutral.light[0], neutral.dark[100]],
     '--color-icon-secondary': [neutral.light[45], neutral.dark[65]],
     '--color-icon-disabled': [neutral.light[60], neutral.dark[35]],
