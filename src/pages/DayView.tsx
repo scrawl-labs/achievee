@@ -1,63 +1,76 @@
 import { useState } from 'react';
-import { hourRange, parseDateKey } from '../lib/date';
+import { Button } from '@astryxdesign/core/Button';
+import { Divider } from '@astryxdesign/core/Divider';
+import { Heading } from '@astryxdesign/core/Heading';
+import { HStack } from '@astryxdesign/core/HStack';
+import { Icon } from '@astryxdesign/core/Icon';
+import { IconButton } from '@astryxdesign/core/IconButton';
+import { StackItem } from '@astryxdesign/core/Stack';
+import { Text } from '@astryxdesign/core/Text';
+import { VStack } from '@astryxdesign/core/VStack';
+import { dateLabel } from '../components/DateNav';
+import { hourRange } from '../lib/date';
 import { formatWon } from '../lib/format';
 import { useAppData } from '../store';
 import type { DateKey } from '../types';
 import { EventForm, type EventDraft } from './EventForm';
 
-const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 const HOURS = Array.from({ length: 24 }, (_, h) => h);
 
 export function DayView({ date, onBack }: { date: DateKey; onBack: () => void }) {
   const { events, expenses, todos } = useAppData();
   const [draft, setDraft] = useState<EventDraft | null>(null);
 
-  const d = parseDateKey(date);
   const dayEvents = events.filter((e) => e.date === date).sort((a, b) => a.start.localeCompare(b.start));
   const spent = expenses.filter((x) => x.date === date).reduce((s, x) => s + x.amount, 0);
   const dayTodos = todos.filter((t) => t.date === date);
+  const doneCount = dayTodos.filter((t) => t.done).length;
 
   return (
-    <>
-      <div className="datenav">
-        <button className="btn btn--ghost" onClick={onBack}>← 달력</button>
-        <h2 className="datenav__label" style={{ margin: 0 }}>
-          {d.getMonth() + 1}월 {d.getDate()}일 ({WEEKDAYS[d.getDay()]})
-        </h2>
-      </div>
-      <div className="card muted">
-        🌱 할 일 {dayTodos.filter((t) => t.done).length}/{dayTodos.length} · 🪙 {formatWon(spent)}
-      </div>
-      {draft && <EventForm key={draft.id ?? draft.start} date={date} draft={draft} onClose={() => setDraft(null)} />}
-      <div className="card timetable">
+    <VStack gap={4}>
+      <HStack gap={2} align="center">
+        <IconButton label="달력으로" icon={<Icon icon="chevronLeft" />} variant="ghost" onClick={onBack} />
+        <Heading level={2}>{dateLabel(date)}</Heading>
+      </HStack>
+      <Text type="supporting">할 일 {doneCount}/{dayTodos.length} · 쓴 돈 {formatWon(spent)}</Text>
+      <VStack>
         {HOURS.map((h) => {
           const range = hourRange(h);
           const here = dayEvents.filter((e) => Number(e.start.slice(0, 2)) === h);
           return (
-            <div key={h} className="timetable__row">
-              <div className="timetable__hour">{String(h).padStart(2, '0')}:00</div>
-              <div className="timetable__slot">
-                {here.map((e) => (
-                  <button
-                    key={e.id}
-                    className="event"
-                    onClick={() => setDraft({ id: e.id, title: e.title, start: e.start, end: e.end })}
+            <VStack key={h}>
+              <Divider />
+              <HStack gap={3} align="start" paddingBlock={1.5}>
+                <VStack width={48}>
+                  <Text type="supporting" hasTabularNumbers>{String(h).padStart(2, '0')}:00</Text>
+                </VStack>
+                <StackItem size="fill">
+                  <VStack gap={1} hAlign="start">
+                  {here.map((e) => (
+                    <Button
+                      key={e.id}
+                      label={`${e.title}  ${e.start}~${e.end}`}
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setDraft({ id: e.id, title: e.title, start: e.start, end: e.end })}
+                    />
+                  ))}
+                  <Button
+                    label={`${range.start}에 일정 추가`}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setDraft({ title: '', ...range })}
                   >
-                    <strong>{e.title}</strong> <span>{e.start}~{e.end}</span>
-                  </button>
-                ))}
-                <button
-                  className="timetable__add"
-                  aria-label={`${range.start}에 일정 추가`}
-                  onClick={() => setDraft({ title: '', ...range })}
-                >
-                  +
-                </button>
-              </div>
-            </div>
+                    +
+                  </Button>
+                  </VStack>
+                </StackItem>
+              </HStack>
+            </VStack>
           );
         })}
-      </div>
-    </>
+      </VStack>
+      <EventForm date={date} draft={draft} onClose={() => setDraft(null)} />
+    </VStack>
   );
 }

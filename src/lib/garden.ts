@@ -8,7 +8,7 @@ export function gardenStage(done: number, total: number): GardenStage {
 }
 
 export const STAGE_EMOJI: Record<GardenStage, string> = {
-  empty: '🪴',
+  empty: '🌿',
   seed: '🌰',
   sprout: '🌱',
   bloom: '🌸',

@@ -1,41 +1,53 @@
 import { useState } from 'react';
-import { Playground } from './components/Playground';
+import { Heading } from '@astryxdesign/core/Heading';
+import { Layout, LayoutContent, LayoutHeader } from '@astryxdesign/core/Layout';
+import { Tab, TabList } from '@astryxdesign/core/TabList';
+import { VStack } from '@astryxdesign/core/VStack';
 import { CalendarPage } from './pages/CalendarPage';
 import { ExpensePage } from './pages/ExpensePage';
 import { TodoPage } from './pages/TodoPage';
 
 const TABS = [
-  { id: 'calendar', label: '캘린더', icon: '📅' },
-  { id: 'todo', label: '할 일', icon: '🌱' },
-  { id: 'expense', label: '가계부', icon: '🪙' },
+  { id: 'calendar', label: '캘린더' },
+  { id: 'todo', label: '할 일' },
+  { id: 'expense', label: '가계부' },
 ] as const;
-type Tab = (typeof TABS)[number]['id'];
+type TabId = (typeof TABS)[number]['id'];
 
 export default function App() {
-  const [tab, setTab] = useState<Tab>('calendar');
+  const [tab, setTab] = useState<TabId>(() => {
+    const id = window.location.hash.slice(1).split('/')[0];
+    return TABS.some((t) => t.id === id) ? (id as TabId) : 'calendar';
+  });
+  const changeTab = (id: TabId) => {
+    window.location.hash = id;
+    setTab(id);
+  };
   return (
-    <div className="app">
-      <nav className="nav">
-        <div className="brand">🌼 하루 정원</div>
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            className="nav__item"
-            aria-current={tab === t.id ? 'page' : undefined}
-            onClick={() => setTab(t.id)}
-          >
-            <span className="nav__icon">{t.icon}</span>
-            {t.label}
-          </button>
-        ))}
-      </nav>
-      <main className="main">
-        {tab === 'calendar' && <CalendarPage />}
-        {tab === 'todo' && <TodoPage />}
-        {tab === 'expense' && <ExpensePage />}
-        <div className="soil" aria-hidden />
-      </main>
-      <Playground />
-    </div>
+    <Layout
+      contentWidth={720}
+      padding={4}
+      header={
+        <LayoutHeader paddingBlockEnd={2}>
+          <VStack gap={3}>
+            <Heading level={1}>하루 정원</Heading>
+            <TabList value={tab} onChange={(v) => changeTab(v as TabId)} hasDivider layout="fill">
+              {TABS.map((t) => (
+                <Tab key={t.id} value={t.id} label={t.label} />
+              ))}
+            </TabList>
+          </VStack>
+        </LayoutHeader>
+      }
+      content={
+        <LayoutContent isScrollable>
+          <VStack paddingBlock={4}>
+            {tab === 'calendar' && <CalendarPage />}
+            {tab === 'todo' && <TodoPage />}
+            {tab === 'expense' && <ExpensePage />}
+          </VStack>
+        </LayoutContent>
+      }
+    />
   );
 }

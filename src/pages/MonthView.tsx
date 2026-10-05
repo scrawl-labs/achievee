@@ -1,3 +1,11 @@
+import { ClickableCard } from '@astryxdesign/core/ClickableCard';
+import { Grid } from '@astryxdesign/core/Grid';
+import { Heading } from '@astryxdesign/core/Heading';
+import { HStack } from '@astryxdesign/core/HStack';
+import { Icon } from '@astryxdesign/core/Icon';
+import { IconButton } from '@astryxdesign/core/IconButton';
+import { Text } from '@astryxdesign/core/Text';
+import { VStack } from '@astryxdesign/core/VStack';
 import { monthGrid } from '../lib/date';
 import { formatShortWon } from '../lib/format';
 import type { DaySummary } from '../lib/summary';
@@ -17,33 +25,37 @@ interface Props {
 export function MonthView({ year, month, today, summary, onSelect, onShift }: Props) {
   const cells = monthGrid(year, month).flat();
   return (
-    <section className="card month">
-      <header className="datenav">
-        <button className="btn btn--ghost" aria-label="이전 달" onClick={() => onShift(-1)}>◀</button>
-        <h2 className="datenav__label" style={{ margin: 0 }}>{year}년 {month + 1}월</h2>
-        <button className="btn btn--ghost" aria-label="다음 달" onClick={() => onShift(1)}>▶</button>
-      </header>
-      <div className="month__grid">
+    <VStack gap={3}>
+      <HStack justify="between" align="center">
+        <IconButton label="이전 달" icon={<Icon icon="chevronLeft" />} variant="ghost" onClick={() => onShift(-1)} />
+        <Heading level={2}>{year}년 {month + 1}월</Heading>
+        <IconButton label="다음 달" icon={<Icon icon="chevronRight" />} variant="ghost" onClick={() => onShift(1)} />
+      </HStack>
+      <Grid columns={7} gap={1}>
         {WEEKDAYS.map((w) => (
-          <div key={w} className="month__weekday">{w}</div>
+          <Text key={w} type="label" color="secondary" justify="center" display="block">{w}</Text>
         ))}
         {cells.map((key, i) => {
-          if (!key) return <span key={`empty-${i}`} className="cell cell--empty" />;
+          if (!key) return <VStack key={`empty-${i}`} />;
           const s = summary[key];
           return (
-            <button
+            <ClickableCard
               key={key}
-              className={`cell${key === today ? ' cell--today' : ''}`}
+              label={key}
+              padding={1}
+              height={68}
+              variant={key === today ? 'green' : 'default'}
               onClick={() => onSelect(key)}
-              aria-label={key}
             >
-              <span className="cell__num">{Number(key.slice(8))}</span>
-              {s && s.events > 0 && <span className="chip">📌{s.events}</span>}
-              {s && s.spent > 0 && <span className="chip chip--spent">{formatShortWon(s.spent)}</span>}
-            </button>
+              <VStack gap={0.5} hAlign="center">
+                <Text weight={key === today ? 'bold' : 'normal'}>{Number(key.slice(8))}</Text>
+                {s && s.events > 0 && <Text size="xsm" color="accent" weight="medium">일정 {s.events}</Text>}
+                {s && s.spent > 0 && <Text size="xsm" color="secondary">{formatShortWon(s.spent)}</Text>}
+              </VStack>
+            </ClickableCard>
           );
         })}
-      </div>
-    </section>
+      </Grid>
+    </VStack>
   );
 }

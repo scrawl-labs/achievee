@@ -1,7 +1,18 @@
 import { useState } from 'react';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { CheckboxList, CheckboxListItem } from '@astryxdesign/core/CheckboxList';
+import { EmptyState } from '@astryxdesign/core/EmptyState';
+import { HStack } from '@astryxdesign/core/HStack';
+import { Icon } from '@astryxdesign/core/Icon';
+import { IconButton } from '@astryxdesign/core/IconButton';
+import { StackItem } from '@astryxdesign/core/Stack';
+import { Text } from '@astryxdesign/core/Text';
+import { TextInput } from '@astryxdesign/core/TextInput';
+import { VStack } from '@astryxdesign/core/VStack';
 import { DateNav } from '../components/DateNav';
-import { gardenStage, STAGE_EMOJI } from '../lib/garden';
 import { toDateKey } from '../lib/date';
+import { gardenStage, STAGE_EMOJI } from '../lib/garden';
 import { store, useAppData } from '../store';
 
 export function TodoPage() {
@@ -11,11 +22,10 @@ export function TodoPage() {
   const [error, setError] = useState('');
 
   const day = todos.filter((t) => t.date === date);
-  const done = day.filter((t) => t.done).length;
-  const stage = gardenStage(done, day.length);
+  const doneIds = day.filter((t) => t.done).map((t) => t.id);
+  const stage = gardenStage(doneIds.length, day.length);
 
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
+  function submit() {
     try {
       store.addTodo(title, date);
       setTitle('');
@@ -25,39 +35,52 @@ export function TodoPage() {
     }
   }
 
+  function onChecked(values: string[]) {
+    for (const t of day) if (values.includes(t.id) !== t.done) store.toggleTodo(t.id);
+  }
+
   return (
-    <>
+    <VStack gap={4}>
       <DateNav date={date} onChange={setDate} />
-      <div className="card garden">
-        <div className={`garden__plant garden__plant--${stage}`} aria-hidden>
-          {STAGE_EMOJI[stage]}
-        </div>
-        <div className="muted">
-          {day.length === 0 ? '오늘의 씨앗을 심어 보아요' : `${done} / ${day.length} 개 완료했어요`}
-        </div>
-      </div>
-      <form className="card" onSubmit={submit}>
-        <div className="row">
-          <input
-            className="input"
+      <Card>
+        <VStack gap={1} hAlign="center">
+          <Text type="display-2">{STAGE_EMOJI[stage]}</Text>
+          <Text type="supporting">
+            {day.length === 0 ? '오늘의 씨앗을 심어 보아요' : `${doneIds.length} / ${day.length} 완료`}
+          </Text>
+        </VStack>
+      </Card>
+      <HStack gap={2} align="start">
+        <StackItem size="fill">
+          <TextInput
+            label="할 일"
+            isLabelHidden
             placeholder="할 일을 적어 보아요"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(v) => setTitle(v)}
+            onEnter={submit}
+            status={error ? { type: 'error', message: error } : undefined}
           />
-          <button className="btn" type="submit">심기</button>
-        </div>
-        {error && <p className="error">{error}</p>}
-      </form>
-      <ul className="card list">
-        {day.length === 0 && <li className="muted">아직 할 일이 없어요</li>}
-        {day.map((t) => (
-          <li key={t.id} className="row list__item">
-            <input type="checkbox" checked={t.done} onChange={() => store.toggleTodo(t.id)} aria-label={t.title} />
-            <span className={t.done ? 'done' : ''} style={{ flex: 1 }}>{t.title}</span>
-            <button className="btn btn--ghost" aria-label={`${t.title} 삭제`} onClick={() => store.deleteTodo(t.id)}>✕</button>
-          </li>
-        ))}
-      </ul>
-    </>
+        </StackItem>
+        <Button label="추가" variant="primary" onClick={submit} />
+      </HStack>
+      {day.length === 0 ? (
+        <EmptyState title="아직 할 일이 없어요" isCompact />
+      ) : (
+        <CheckboxList label="할 일 목록" isLabelHidden hasDividers value={doneIds} onChange={onChecked}>
+          {day.map((t) => (
+            <CheckboxListItem
+              key={t.id}
+              value={t.id}
+              aria-label={t.title}
+              label={<Text hasStrikethrough={t.done} color={t.done ? 'secondary' : 'primary'}>{t.title}</Text>}
+              endContent={
+                <IconButton label={`${t.title} 삭제`} icon={<Icon icon="close" />} variant="ghost" size="sm" onClick={() => store.deleteTodo(t.id)} />
+              }
+            />
+          ))}
+        </CheckboxList>
+      )}
+    </VStack>
   );
 }

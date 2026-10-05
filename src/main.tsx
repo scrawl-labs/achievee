@@ -1,11 +1,15 @@
+import '@astryxdesign/core/reset.css';
+import '@astryxdesign/core/astryx.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { Theme } from '@astryxdesign/core/theme';
 import App from './App';
-import './styles/tokens.css';
-import './styles/global.css';
+import { matchaTheme } from './theme/matchaTheme';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <Theme theme={matchaTheme}>
+      <App />
+    </Theme>
   </StrictMode>,
 );

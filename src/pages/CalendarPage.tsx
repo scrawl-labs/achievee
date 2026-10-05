@@ -13,7 +13,10 @@ export function CalendarPage() {
     const n = new Date();
     return { year: n.getFullYear(), month: n.getMonth() };
   });
-  const [selected, setSelected] = useState<DateKey | null>(null);
+  const [selected, setSelected] = useState<DateKey | null>(() => {
+    const day = window.location.hash.slice(1).split('/')[1];
+    return day && /^\d{4}-\d{2}-\d{2}$/.test(day) ? day : null;
+  });
   const summary = useMemo(() => summarizeByDate(data), [data]);
 
   const shift = (delta: number) =>
