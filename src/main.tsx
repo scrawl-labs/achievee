@@ -4,11 +4,11 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Theme } from '@astryxdesign/core/theme';
 import App from './App';
-import { matchaTheme } from './theme/matchaTheme';
+import { neutralTheme } from './theme/neutralTheme';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Theme theme={matchaTheme}>
+    <Theme theme={neutralTheme}>
       <App />
     </Theme>
   </StrictMode>,

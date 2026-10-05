@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Button } from '@astryxdesign/core/Button';
-import { Card } from '@astryxdesign/core/Card';
 import { CheckboxList, CheckboxListItem } from '@astryxdesign/core/CheckboxList';
 import { EmptyState } from '@astryxdesign/core/EmptyState';
 import { HStack } from '@astryxdesign/core/HStack';
@@ -12,7 +11,6 @@ import { TextInput } from '@astryxdesign/core/TextInput';
 import { VStack } from '@astryxdesign/core/VStack';
 import { DateNav } from '../components/DateNav';
 import { toDateKey } from '../lib/date';
-import { gardenStage, STAGE_EMOJI } from '../lib/garden';
 import { store, useAppData } from '../store';
 
 export function TodoPage() {
@@ -23,7 +21,6 @@ export function TodoPage() {
 
   const day = todos.filter((t) => t.date === date);
   const doneIds = day.filter((t) => t.done).map((t) => t.id);
-  const stage = gardenStage(doneIds.length, day.length);
 
   function submit() {
     try {
@@ -42,14 +39,9 @@ export function TodoPage() {
   return (
     <VStack gap={4}>
       <DateNav date={date} onChange={setDate} />
-      <Card>
-        <VStack gap={1} hAlign="center">
-          <Text type="display-2">{STAGE_EMOJI[stage]}</Text>
-          <Text type="supporting">
-            {day.length === 0 ? '오늘의 씨앗을 심어 보아요' : `${doneIds.length} / ${day.length} 완료`}
-          </Text>
-        </VStack>
-      </Card>
+      <Text type="supporting">
+        {day.length === 0 ? '할 일이 없어요' : `${doneIds.length} / ${day.length} 완료`}
+      </Text>
       <HStack gap={2} align="start">
         <StackItem size="fill">
           <TextInput

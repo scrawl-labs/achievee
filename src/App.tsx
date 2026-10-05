@@ -30,7 +30,7 @@ export default function App() {
       header={
         <LayoutHeader paddingBlockEnd={2}>
           <VStack gap={3}>
-            <Heading level={1}>하루 정원</Heading>
+            <Heading level={1}>플래너</Heading>
             <TabList value={tab} onChange={(v) => changeTab(v as TabId)} hasDivider layout="fill">
               {TABS.map((t) => (
                 <Tab key={t.id} value={t.id} label={t.label} />
