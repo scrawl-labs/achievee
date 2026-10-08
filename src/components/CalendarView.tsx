@@ -4,16 +4,11 @@ import type { MonthData, Stats } from "@/lib/types";
 import { todayStr } from "./App";
 import Summary from "./Summary";
 import Blob, { Confetti } from "./Blob";
+import { levelOf as level } from "@/lib/level";
 
 const WD = ["월", "화", "수", "목", "금", "토", "일"];
 const WD_LONG = ["일", "월", "화", "수", "목", "금", "토"];
 
-/** 0 = no tasks, 1..4 = completion ratio buckets */
-const level = (done: number, total: number) => {
-  if (!total || !done) return 0;
-  const r = done / total;
-  return r === 1 ? 4 : r >= 0.6 ? 3 : r >= 0.3 ? 2 : 1;
-};
 const won = (n: number) => n.toLocaleString("ko-KR") + "원";
 
 type Props = { ym: string; month: MonthData | null; stats: Stats | null; sel: string; setSel: (d: string) => void };

@@ -1,6 +1,7 @@
 "use client";
 import type { MonthData, Stats } from "@/lib/types";
 import Summary from "./Summary";
+import { levelOf } from "@/lib/level";
 
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 
@@ -19,7 +20,7 @@ export default function StatsView({ stats, month }: { stats: Stats | null; month
           <h3>요일</h3>
           <div className="vbars">
             {stats.byWeekday.map((w) => (
-              <div key={w.label}><div className="track"><i style={{ height: pct(w.rate) }} /></div><span>{w.label}</span><em>{pct(w.rate)}</em></div>
+              <div key={w.label}><div className="track"><i className={`l${levelOf(w.rate, 1)}`} style={{ height: pct(w.rate) }} /></div><span>{w.label}</span><em>{pct(w.rate)}</em></div>
             ))}
           </div>
         </section>
@@ -28,7 +29,7 @@ export default function StatsView({ stats, month }: { stats: Stats | null; month
           <div className="daily">
             {days.map((d) => (
               <div key={d.date} title={`${d.date}  ${d.done}/${d.total}`}>
-                <i style={{ height: d.total ? pct(d.done / d.total) : "2px" }} className={d.total ? "" : "off"} />
+                <i style={{ height: d.total ? pct(d.done / d.total) : "2px" }} className={d.total ? `l${levelOf(d.done, d.total)}` : "off"} />
               </div>
             ))}
           </div>

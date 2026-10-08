@@ -5,6 +5,7 @@ import Summary from "./Summary";
 
 type Row = { id: number; date: string; category: string; memo: string; amount: number; need: number };
 type Filter = "all" | "need" | "waste";
+const BARS = ["var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)", "var(--c5)", "var(--c6)"];
 const FILTERS: [Filter, string][] = [["all", "전체"], ["need", "필요"], ["waste", "불필요"]];
 const CATS = ["식비", "카페", "교통", "쇼핑", "문화", "기타"];
 const won = (n: number) => n.toLocaleString("ko-KR") + "원";
@@ -43,8 +44,10 @@ export default function ExpenseView({ ym, sel, setSel }: { ym: string; sel: stri
     <>
       <Summary items={[["이번 달", won(total)], ["필요", won(needSum)], ["불필요", won(wasteSum)], ["불필요 비율", total ? `${Math.round((wasteSum / total) * 100)}%` : "-"]]} />
       <div className="two wide-left">
-        <section className="list">
-          <form className="panel entry" onSubmit={add}>
+        <div className="stack-l">
+          <section>
+            <div className="sechead"><h3>새 지출</h3></div>
+            <form className="panel entry" onSubmit={add}>
             <input type="date" value={sel} onChange={(e) => e.target.value && setSel(e.target.value)} />
             <select value={category} onChange={(e) => setCategory(e.target.value)}>{CATS.map((c) => <option key={c}>{c}</option>)}</select>
             <input placeholder="메모" value={memo} onChange={(e) => setMemo(e.target.value)} />
@@ -55,11 +58,19 @@ export default function ExpenseView({ ym, sel, setSel }: { ym: string; sel: stri
             </div>
             <button className="btn primary">추가</button>
           </form>
-          <div className="seg three" role="tablist" aria-label="필터">
-            {FILTERS.map(([k, label]) => (
-              <button key={k} role="tab" aria-selected={filter === k} className={filter === k ? "on" : ""} onClick={() => setFilter(k)}>{label}</button>
-            ))}
-          </div>
+          </section>
+          <section>
+            <div className="sechead">
+              <h3>내역</h3>
+              <div className="tabs-t" role="tablist" aria-label="필터">
+                {FILTERS.map(([k, label]) => (
+                  <button key={k} role="tab" aria-selected={filter === k} className={filter === k ? "on" : ""} onClick={() => setFilter(k)}>
+                    {label}<em>{k === "all" ? rows.length : rows.filter((r) => (k === "need" ? r.need : !r.need)).length}</em>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="list">
           {shown.map((r) => (
             <div className="item static row between" key={r.id}>
               <span><b>{Number(r.date.slice(8))}일</b> {r.category}{r.memo && <em> {r.memo}</em>}</span>
@@ -69,12 +80,14 @@ export default function ExpenseView({ ym, sel, setSel }: { ym: string; sel: stri
                 <button className="btn icon ghost" onClick={() => del(r.id)} aria-label="삭제"><Icon name="close" size={16} /></button></span>
             </div>
           ))}
-        </section>
+            </div>
+          </section>
+        </div>
         <section className="panel">
           <h3>{filter === "all" ? "카테고리" : filter === "need" ? "필요한 지출" : "불필요한 지출"} {won(shownTotal)}</h3>
           {filter === "all" && total > 0 && <div className="split" aria-hidden="true"><i style={{ width: `${(needSum / total) * 100}%` }} /><i style={{ width: `${(wasteSum / total) * 100}%` }} /></div>}
           {byCat.map(({ c, v }) => (
-            <div className="hbar" key={c}><span>{c}</span><div><i style={{ width: `${(v / shownTotal) * 100}%` }} /></div><em>{won(v)}</em></div>
+            <div className="hbar" key={c}><span>{c}</span><div><i style={{ width: `${(v / shownTotal) * 100}%`, ["--bar" as string]: BARS[CATS.indexOf(c)] }} /></div><em>{won(v)}</em></div>
           ))}
         </section>
       </div>
