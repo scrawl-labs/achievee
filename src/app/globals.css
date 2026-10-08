@@ -34,7 +34,7 @@ small { font-size: 13px; font-weight: 500; color: var(--fg-3); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* Controls ---------------------------------------------------------- */
-.btn { height: 36px; padding: 0 var(--s4); border-radius: var(--r-s); background: var(--surface-2); border: 1px solid var(--line); font-weight: 500; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
+.btn { text-decoration: none; height: 36px; padding: 0 var(--s4); border-radius: var(--r-s); background: var(--surface-2); border: 1px solid var(--line); font-weight: 500; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
 .btn:hover { background: var(--line); }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
 .btn.primary:hover { filter: brightness(1.08); }

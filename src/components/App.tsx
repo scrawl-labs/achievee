@@ -8,7 +8,6 @@ import StatsView from "./StatsView";
 import DiaryView from "./DiaryView";
 import ExpenseView from "./ExpenseView";
 import GoogleCalView, { type GMode } from "./GoogleCalView";
-import GCalLogo from "./GCalLogo";
 import Icon, { Brand } from "./Icon";
 
 type Tab = "calendar" | "stats" | "diary" | "expense" | "google";
@@ -66,7 +65,7 @@ export default function App({ googleReady }: { googleReady: boolean }) {
         <nav className="nav">
           {TABS.map((t) => (
             <button key={t.key} className={tab === t.key ? "on" : ""} onClick={() => setTab(t.key)}>
-              {t.key === "google" ? <GCalLogo size={20} day={Number(todayStr().slice(8))} /> : <Icon name={t.icon} />}<span>{t.label}</span>
+              <Icon name={t.icon} /><span>{t.label}</span>
             </button>
           ))}
         </nav>
