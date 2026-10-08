@@ -9,7 +9,7 @@ export default function Blob({ level, label }: { level: number; label?: string |
         <circle cx="22" cy="22" r="11" />
       </g>
       {level === 4 && <path className="spark" d="M38 2l1.6 4.4L44 8l-4.4 1.6L38 14l-1.6-4.4L32 8l4.4-1.6z" />}
-      {face ? <Face level={level} /> : label !== undefined && label !== "" && (
+      {label !== undefined && label !== "" && (
         <text x="22" y="22" textAnchor="middle" dominantBaseline="central" className="lbl">{label}</text>
       )}
     </svg>
