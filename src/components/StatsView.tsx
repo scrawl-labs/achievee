@@ -1,33 +1,40 @@
 "use client";
 import type { MonthData, Stats } from "@/lib/types";
+import Summary from "./Summary";
+
+const pct = (n: number) => `${Math.round(n * 100)}%`;
 
 export default function StatsView({ stats, month }: { stats: Stats | null; month: MonthData | null }) {
-  if (!stats || !month) return <p className="hint">불러오는 중…</p>;
-  const events = Object.values(month.days).reduce((s, d) => s + d.events, 0);
+  if (!stats || !month) return null;
+  const days = Object.values(month.days);
+  const events = days.reduce((s, d) => s + d.events, 0);
   return (
-    <div className="stack">
-      <div className="summary">
-        <div><b>{Math.round(stats.rate * 100)}%</b><span>달성률</span></div>
-        <div><b>{stats.bestStreak}일</b><span>최장 연속</span></div>
-        <div><b>{events}</b><span>일정 수</span></div>
-      </div>
-      <div className="card">
-        <h3>요일별 달성률</h3>
-        {stats.byWeekday.map((w) => (
-          <div className="bar" key={w.label}>
-            <span>{w.label}</span>
-            <div><i style={{ width: `${Math.round(w.rate * 100)}%` }} /></div>
-            <em>{Math.round(w.rate * 100)}%</em>
+    <>
+      <Summary items={[
+        ["달성률", pct(stats.rate)], ["최장 연속", `${stats.bestStreak}일`],
+        ["최다 완료", stats.bestDay ? `${stats.bestDay.done}개` : "-"], ["일정", `${events}`],
+      ]} />
+      <div className="two">
+        <section className="panel">
+          <h3>요일</h3>
+          <div className="vbars">
+            {stats.byWeekday.map((w) => (
+              <div key={w.label}><div className="track"><i style={{ height: pct(w.rate) }} /></div><span>{w.label}</span><em>{pct(w.rate)}</em></div>
+            ))}
           </div>
-        ))}
+        </section>
+        <section className="panel">
+          <h3>일별</h3>
+          <div className="daily">
+            {days.map((d) => (
+              <div key={d.date} title={`${d.date}  ${d.done}/${d.total}`}>
+                <i style={{ height: d.total ? pct(d.done / d.total) : "2px" }} className={d.total ? "" : "off"} />
+              </div>
+            ))}
+          </div>
+          <div className="axis"><span>1</span><span>{days.length}</span></div>
+        </section>
       </div>
-      {stats.bestDay && (
-        <div className="card">
-          <h3>가장 많이 해낸 날</h3>
-          <p>{stats.bestDay.date} · {stats.bestDay.done}개 완료 (전체 {stats.bestDay.total}개)</p>
-        </div>
-      )}
-      <p className="hint">성공한 날 = 그날 태스크의 80% 이상 완료. 완료 여부는 Google Tasks 기준입니다.</p>
-    </div>
+    </>
   );
 }

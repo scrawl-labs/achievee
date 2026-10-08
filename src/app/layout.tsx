@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
+import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 import "./globals.css";
 import Providers from "@/components/Providers";
 
-export const metadata: Metadata = { title: "Achievee", description: "구글 캘린더 기반 성과 지표 + 일기 + 지출" };
-export const viewport: Viewport = { themeColor: "#000000", width: "device-width", initialScale: 1 };
+export const metadata: Metadata = { title: "Achievee" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, colorScheme: "dark light" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
