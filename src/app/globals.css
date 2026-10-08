@@ -169,13 +169,13 @@ button.item:hover, button.item.on { border-color: var(--accent); }
 }
 
 /* Expense necessity ------------------------------------------------- */
-:root { --need: #4cc38a; --waste: #ff7a7a; }
+:root { --need: var(--c3); --waste: var(--c1); }
 .seg.three { grid-template-columns: repeat(3, 1fr); }
 .seg.two { grid-template-columns: repeat(2, 1fr); }
-.seg button.on.need { background: var(--need); color: #07261a; } .seg button.on.waste { background: var(--waste); color: #2a0a0a; }
+.seg button.on.need { background: var(--need); color: var(--ink); } .seg button.on.waste { background: var(--waste); color: var(--ink); }
 .panel.entry .seg { grid-column: span 2; }
-.chip { flex: none; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 99px; border: 1px solid; background: none; }
-.chip.need { color: var(--need); border-color: color-mix(in oklab, var(--need) 45%, transparent); }
-.chip.waste { color: var(--waste); border-color: color-mix(in oklab, var(--waste) 45%, transparent); }
-.split { display: flex; height: 10px; border-radius: 9px; overflow: hidden; background: var(--surface-2); }
-.split i:first-child { background: var(--need); } .split i:last-child { background: var(--waste); }
+.chip { flex: none; font-size: 12px; font-weight: 700; line-height: 1; padding: 6px 9px; border-radius: 8px; border: 0; color: var(--ink); transition: transform .2s cubic-bezier(.34, 1.56, .64, 1); }
+.chip:hover { transform: scale(1.06); }
+.chip.need { background: var(--need); } .chip.waste { background: var(--waste); }
+.split { display: flex; gap: 3px; height: 10px; }
+.split i { border-radius: 9px; } .split i:first-child { background: var(--need); } .split i:last-child { background: var(--waste); }
