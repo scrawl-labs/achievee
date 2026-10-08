@@ -7,19 +7,21 @@ import CalendarView from "./CalendarView";
 import StatsView from "./StatsView";
 import DiaryView from "./DiaryView";
 import ExpenseView from "./ExpenseView";
+import GoogleCalView from "./GoogleCalView";
 import Icon, { Brand } from "./Icon";
 
-type Tab = "calendar" | "stats" | "diary" | "expense";
-const TABS: { key: Tab; label: string; icon: "calendar" | "chart" | "book" | "wallet" }[] = [
+type Tab = "calendar" | "stats" | "diary" | "expense" | "google";
+const TABS: { key: Tab; label: string; icon: "calendar" | "chart" | "book" | "wallet" | "external" }[] = [
   { key: "calendar", label: "달력", icon: "calendar" },
   { key: "stats", label: "통계", icon: "chart" },
   { key: "diary", label: "일기", icon: "book" },
   { key: "expense", label: "지출", icon: "wallet" },
+  { key: "google", label: "구글", icon: "external" },
 ];
 export const todayStr = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
 
 export default function App({ googleReady }: { googleReady: boolean }) {
-  const { status } = useSession();
+  const { status, data: session } = useSession();
   const [tab, setTab] = useState<Tab>("calendar");
   const [sel, setSel] = useState(todayStr());
   const ym = sel.slice(0, 7);
@@ -79,6 +81,7 @@ export default function App({ googleReady }: { googleReady: boolean }) {
         {tab === "calendar" && <CalendarView ym={ym} month={month} stats={stats} sel={sel} setSel={setSel} />}
         {tab === "stats" && <StatsView stats={stats} month={month} />}
         {tab === "diary" && <DiaryView ym={ym} sel={sel} setSel={setSel} />}
+        {tab === "google" && <GoogleCalView ym={ym} email={session?.user?.email} onSignIn={googleReady ? () => signIn("google") : undefined} />}
         {tab === "expense" && <ExpenseView ym={ym} sel={sel} setSel={setSel} />}
       </main>
     </div>
