@@ -1,270 +1,121 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { parseDateKey, timeToMinutes } from '../lib/date';
-import {
-  clampSpan,
-  dragSpan,
-  eventsByDate,
-  layoutDay,
-  minutesToTime,
-  moveSpan,
-  nowMinutes,
-  snapMinutes,
-  yToMinutes,
-  type Span,
-} from '../lib/timegrid';
-import { store } from '../store';
-import type { CalEvent, DateKey } from '../types';
+"use client";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { DayEvent } from "@/lib/types";
+import { WD_KO, dow } from "@/lib/dates";
+import { todayStr } from "./App";
 
-const PX = 48;
-const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
-const HOURS = Array.from({ length: 24 }, (_, h) => h);
-const floor30 = (m: number) => Math.floor(m / 30) * 30;
+const H = 56; // px per hour
+export const hhmm = (m: number) => `${String(Math.floor(m / 60) % 24).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 
-type Drag =
-  | { kind: 'create'; date: DateKey; anchor: number; cur: number; moved: boolean }
-  | { kind: 'move'; origin: CalEvent; date: DateKey; grab: number; span: Span; moved: boolean }
-  | { kind: 'resize'; origin: CalEvent; span: Span; moved: boolean };
-
-interface Props {
-  days: DateKey[];
-  today: DateKey;
-  events: CalEvent[];
-  onCreate: (date: DateKey, start: string, end: string) => void;
-  onOpen: (event: CalEvent) => void;
-  onDayClick: (date: DateKey) => void;
+/** Column-pack overlapping events: each overlapping cluster shares one column count. */
+function layout(events: DayEvent[]) {
+  const res: { e: DayEvent; col: number; cols: number }[] = [];
+  let cluster: { e: DayEvent; col: number }[] = [];
+  let clusterEnd = -1;
+  const flush = () => {
+    const cols = Math.max(1, ...cluster.map((c) => c.col + 1));
+    cluster.forEach((c) => res.push({ ...c, cols }));
+    cluster = [];
+  };
+  for (const e of events) {
+    if (cluster.length && e.startMin >= clusterEnd) { flush(); clusterEnd = -1; }
+    const used = cluster.filter((c) => c.e.endMin > e.startMin).map((c) => c.col);
+    let col = 0;
+    while (used.includes(col)) col++;
+    cluster.push({ e, col });
+    clusterEnd = Math.max(clusterEnd, e.endMin);
+  }
+  flush();
+  return res;
 }
 
-const isPointer = (e: { pointerType: string }) => e.pointerType === 'mouse' || e.pointerType === 'pen';
+export function nowMinutes(now: Date) {
+  const f = (o: Intl.DateTimeFormatOptions) => Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Seoul", hourCycle: "h23", ...o }).format(now));
+  return f({ hour: "2-digit" }) * 60 + f({ minute: "2-digit" });
+}
 
-export function TimeGrid({ days, today, events, onCreate, onOpen, onDayClick }: Props) {
-  const scroller = useRef<HTMLDivElement>(null);
-  const colRefs = useRef(new Map<DateKey, HTMLElement>());
-  const dragRef = useRef<Drag | null>(null);
-  const origin = useRef({ x: 0, y: 0 });
-  const [drag, setDrag] = useState<Drag | null>(null);
+/** Hour-grid for one or more days (day view = 1 column, week view = 7). */
+export default function TimeGrid({ days, events, error, onPickDay }: {
+  days: string[]; events: DayEvent[] | null; error?: string; onPickDay?: (d: string) => void;
+}) {
   const [now, setNow] = useState(() => new Date());
+  const scroller = useRef<HTMLDivElement>(null);
+  const today = todayStr();
+  useEffect(() => { const t = setInterval(() => setNow(new Date()), 60_000); return () => clearInterval(t); }, []);
 
-  const byDate = useMemo(() => eventsByDate(events), [events]);
+  const byDay = useMemo(() => {
+    const m: Record<string, DayEvent[]> = Object.fromEntries(days.map((d) => [d, []]));
+    (events ?? []).forEach((e) => m[e.date]?.push(e));
+    return m;
+  }, [days, events]);
+  const anyAllDay = days.some((d) => byDay[d].some((e) => e.allDay));
+  const nowMin = days.includes(today) ? nowMinutes(now) : -1;
+  const multi = days.length > 1;
+  const cols = { gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))` };
 
   useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 60_000);
-    return () => clearInterval(t);
-  }, []);
-
-  useEffect(() => {
-    if (scroller.current) scroller.current.scrollTop = Math.max(0, ((nowMinutes() - 60) / 60) * PX);
-  }, []);
-
-  const update = (d: Drag | null) => {
-    dragRef.current = d;
-    setDrag(d);
-  };
-
-  const minutesAt = (date: DateKey, clientY: number) => {
-    const el = colRefs.current.get(date);
-    return el ? yToMinutes(clientY - el.getBoundingClientRect().top, PX) : 0;
-  };
-
-  const dateAt = (clientX: number, fallback: DateKey): DateKey => {
-    for (const [d, el] of colRefs.current) {
-      const r = el.getBoundingClientRect();
-      if (clientX >= r.left && clientX < r.right) return d;
-    }
-    return fallback;
-  };
-
-  const moved = (e: PointerEvent, was: boolean) =>
-    was || Math.abs(e.clientX - origin.current.x) > 4 || Math.abs(e.clientY - origin.current.y) > 4;
-
-  function track(onMove: (e: PointerEvent) => void, onUp: () => void) {
-    const stop = () => {
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', up);
-      window.removeEventListener('pointercancel', cancel);
-    };
-    const up = () => {
-      stop();
-      onUp();
-    };
-    const cancel = () => {
-      stop();
-      update(null);
-    };
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', up);
-    window.addEventListener('pointercancel', cancel);
-  }
-
-  function startCreate(e: React.PointerEvent, date: DateKey) {
-    if (!isPointer(e) || e.button !== 0) return;
-    if ((e.target as HTMLElement).closest('.tg-event')) return;
-    const anchor = minutesAt(date, e.clientY);
-    origin.current = { x: e.clientX, y: e.clientY };
-    update({ kind: 'create', date, anchor, cur: anchor, moved: false });
-    track(
-      (ev) => {
-        const d = dragRef.current;
-        if (d?.kind !== 'create') return;
-        update({ ...d, cur: minutesAt(d.date, ev.clientY), moved: moved(ev, d.moved) });
-      },
-      () => {
-        const d = dragRef.current;
-        update(null);
-        if (d?.kind !== 'create') return;
-        const span = d.moved ? dragSpan(d.anchor, d.cur) : clampSpan(floor30(d.anchor), floor30(d.anchor) + 60);
-        onCreate(d.date, minutesToTime(span.start), minutesToTime(span.end));
-      },
-    );
-  }
-
-  function startMove(e: React.PointerEvent, ev: CalEvent) {
-    if (!isPointer(e) || e.button !== 0) return;
-    e.stopPropagation();
-    const s = timeToMinutes(ev.start);
-    const en = timeToMinutes(ev.end);
-    origin.current = { x: e.clientX, y: e.clientY };
-    update({ kind: 'move', origin: ev, date: ev.date, grab: minutesAt(ev.date, e.clientY) - s, span: { start: s, end: en }, moved: false });
-    track(
-      (pe) => {
-        const d = dragRef.current;
-        if (d?.kind !== 'move') return;
-        const date = dateAt(pe.clientX, d.date);
-        const start = snapMinutes(minutesAt(date, pe.clientY) - d.grab);
-        update({ ...d, date, span: moveSpan({ start: s, end: en }, start - s), moved: moved(pe, d.moved) });
-      },
-      () => {
-        const d = dragRef.current;
-        update(null);
-        if (d?.kind !== 'move') return;
-        if (!d.moved) return onOpen(ev);
-        store.updateEvent(ev.id, { title: ev.title, date: d.date, start: minutesToTime(d.span.start), end: minutesToTime(d.span.end) });
-      },
-    );
-  }
-
-  function startResize(e: React.PointerEvent, ev: CalEvent) {
-    if (!isPointer(e) || e.button !== 0) return;
-    e.stopPropagation();
-    const s = timeToMinutes(ev.start);
-    origin.current = { x: e.clientX, y: e.clientY };
-    update({ kind: 'resize', origin: ev, span: { start: s, end: timeToMinutes(ev.end) }, moved: false });
-    track(
-      (pe) => {
-        const d = dragRef.current;
-        if (d?.kind !== 'resize') return;
-        update({ ...d, span: clampSpan(s, snapMinutes(minutesAt(ev.date, pe.clientY))), moved: moved(pe, d.moved) });
-      },
-      () => {
-        const d = dragRef.current;
-        update(null);
-        if (d?.kind !== 'resize' || !d.moved) return;
-        store.updateEvent(ev.id, { title: ev.title, date: ev.date, start: ev.start, end: minutesToTime(d.span.end) });
-      },
-    );
-  }
-
-  const block = (key: string, span: Span, col: number, cols: number, children: React.ReactNode, extra?: React.HTMLAttributes<HTMLElement> & { ghost?: boolean }) => {
-    const { ghost, ...rest } = extra ?? {};
-    return (
-      <button
-        key={key}
-        type="button"
-        className={`tg-event${ghost ? ' tg-ghost' : ''}`}
-        style={{
-          top: (span.start / 60) * PX,
-          height: Math.max(((span.end - span.start) / 60) * PX, 18),
-          left: `${(col / cols) * 100}%`,
-          width: `calc(${100 / cols}% - 2px)`,
-        }}
-        {...rest}
-      >
-        {children}
-      </button>
-    );
-  };
-
-  const eventBody = (title: string, span: Span) => (
-    <>
-      <span className="tg-event-title">{title || '(제목 없음)'}</span>
-      <span className="tg-event-time">{minutesToTime(span.start)}~{minutesToTime(span.end)}</span>
-    </>
-  );
+    if (!events || !scroller.current) return;
+    const first = events.filter((e) => !e.allDay).reduce((m, e) => Math.min(m, e.startMin), 8 * 60);
+    scroller.current.scrollTop = Math.max(0, ((nowMin >= 0 ? nowMin : first) / 60) * H - 120);
+  }, [events, days.join()]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="tg" ref={scroller} style={{ ['--cols' as string]: days.length }}>
-      <div className="tg-head">
-        <div />
-        {days.map((d) => (
-          <button key={d} type="button" className="tg-headcell" data-today={d === today ? '' : undefined} onClick={() => onDayClick(d)}>
-            <span>{WEEKDAYS[parseDateKey(d).getDay()]}</span>
-            <span className="tg-daynum">{Number(d.slice(8))}</span>
-          </button>
-        ))}
-      </div>
-      <div className="tg-body">
-        <div className="tg-gutter">
-          {HOURS.slice(1).map((h) => (
-            <span key={h} className="tg-hour" style={{ top: h * PX }}>
-              {h < 12 ? `오전 ${h}시` : `오후 ${h === 12 ? 12 : h - 12}시`}
-            </span>
-          ))}
-        </div>
-        {days.map((d) => {
-          const dragged = drag && drag.kind !== 'create' ? drag.origin.id : null;
-          const placed = layoutDay((byDate[d] ?? []).filter((e) => e.id !== dragged));
-          return (
-            <div
-              key={d}
-              className="tg-col"
-              ref={(el) => {
-                if (el) colRefs.current.set(d, el);
-                else colRefs.current.delete(d);
-              }}
-              onPointerDown={(e) => startCreate(e, d)}
-              onClick={(e) => {
-                if (isPointer(e.nativeEvent as PointerEvent)) return;
-                const m = minutesAt(d, e.clientY);
-                const span = clampSpan(floor30(m), floor30(m) + 60);
-                onCreate(d, minutesToTime(span.start), minutesToTime(span.end));
-              }}
-            >
-              {placed.map(({ event: ev, col, cols }) =>
-                block(
-                  ev.id,
-                  { start: timeToMinutes(ev.start), end: timeToMinutes(ev.end) },
-                  col,
-                  cols,
-                  <>
-                    {eventBody(ev.title, { start: timeToMinutes(ev.start), end: timeToMinutes(ev.end) })}
-                    <span className="tg-event-resize" onPointerDown={(e) => startResize(e, ev)} />
-                  </>,
-                  {
-                    onPointerDown: (e) => startMove(e, ev),
-                    onClick: (e) => {
-                      e.stopPropagation();
-                      if (!isPointer(e.nativeEvent as PointerEvent)) onOpen(ev);
-                    },
-                  },
-                ),
-              )}
-              {drag?.kind === 'create' && drag.date === d &&
-                block(
-                  'ghost',
-                  drag.moved ? dragSpan(drag.anchor, drag.cur) : clampSpan(floor30(drag.anchor), floor30(drag.anchor) + 60),
-                  0,
-                  1,
-                  eventBody('', drag.moved ? dragSpan(drag.anchor, drag.cur) : clampSpan(floor30(drag.anchor), floor30(drag.anchor) + 60)),
-                  { ghost: true },
-                )}
-              {drag?.kind === 'move' && drag.date === d &&
-                block('ghost', drag.span, 0, 1, eventBody(drag.origin.title, drag.span), { ghost: true })}
-              {drag?.kind === 'resize' && drag.origin.date === d &&
-                block('ghost', drag.span, 0, 1, eventBody(drag.origin.title, drag.span), { ghost: true })}
-              {d === today && <div className="tg-now" style={{ top: (nowMinutes(now) / 60) * PX }} />}
+    <div className="tlbox">
+      <div className="tlscroll"><div className={multi ? "tlw multi" : "tlw"}>
+        {multi && (
+          <div className="tl-head">
+            <span className="gut" />
+            <div className="cols" style={cols}>
+              {days.map((d) => (
+                <button key={d} className={d === today ? "today" : ""} onClick={() => onPickDay?.(d)}>
+                  <small className={dow(d) === 0 ? "sun" : dow(d) === 6 ? "sat" : ""}>{WD_KO[dow(d)]}</small>
+                  <b>{Number(d.slice(8))}</b>
+                </button>
+              ))}
             </div>
-          );
-        })}
-      </div>
+          </div>
+        )}
+        {anyAllDay && (
+          <div className="tl-allday">
+            <span className="gut" />
+            <div className="cols" style={cols}>
+              {days.map((d) => (
+                <div key={d}>
+                  {byDay[d].filter((e) => e.allDay).map((e) => (
+                    <a key={e.id} className="chipday" href={e.link} target="_blank" rel="noreferrer" style={{ ["--ev" as string]: e.color }}>{e.title}</a>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {error && <p className="error" style={{ padding: 16 }}>{error}</p>}
+        <div className="tl" ref={scroller}>
+          <div className="tl-in" style={{ height: 24 * H }}>
+            {Array.from({ length: 24 }, (_, h) => (
+              <div key={h} className="hour" style={{ top: h * H, height: H }}><span>{h === 0 ? "" : `${h}시`}</span></div>
+            ))}
+            <div className="tl-cols" style={cols}>
+              {days.map((d) => (
+                <div key={d} className="tl-col">
+                  {layout(byDay[d].filter((e) => !e.allDay)).map(({ e, col, cols: n }) => (
+                    <a key={e.id} className="ev" href={e.link} target="_blank" rel="noreferrer"
+                      title={`${e.title}\n${hhmm(e.startMin)} - ${hhmm(e.endMin)}${e.location ? `\n${e.location}` : ""}\n${e.calendar}`}
+                      style={{
+                        top: (e.startMin / 60) * H, height: Math.max(((e.endMin - e.startMin) / 60) * H - 2, 22),
+                        left: `calc(100% * ${col / n} + 1px)`, width: `calc(100% / ${n} - 3px)`, ["--ev" as string]: e.color,
+                      }}>
+                      <b>{e.title}</b>
+                      {e.endMin - e.startMin >= 45 && <span>{hhmm(e.startMin)} - {hhmm(e.endMin)}</span>}
+                    </a>
+                  ))}
+                  {d === today && nowMin >= 0 && <div className="nowline" style={{ top: (nowMin / 60) * H }} />}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div></div>
     </div>
   );
 }

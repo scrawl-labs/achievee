@@ -1,3 +1,6 @@
 node_modules
-dist
-.superpowers
+.next
+.env.local
+data/
+next-env.d.ts
+*.tsbuildinfo
