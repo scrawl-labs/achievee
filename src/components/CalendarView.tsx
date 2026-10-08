@@ -3,13 +3,14 @@ import { useEffect, useState } from "react";
 import type { MonthData, Stats } from "@/lib/types";
 import { todayStr } from "./App";
 import Summary from "./Summary";
+import Blob from "./Blob";
 
 const WD = ["월", "화", "수", "목", "금", "토", "일"];
 const WD_LONG = ["일", "월", "화", "수", "목", "금", "토"];
 
 /** 0 = no tasks, 1..4 = completion ratio buckets */
 const level = (done: number, total: number) => {
-  if (!total) return 0;
+  if (!total || !done) return 0;
   const r = done / total;
   return r === 1 ? 4 : r >= 0.6 ? 3 : r >= 0.3 ? 2 : 1;
 };
@@ -55,7 +56,7 @@ export default function CalendarView({ ym, month, stats, sel, setSel }: Props) {
               return (
                 <button key={i} className={`cell${date === sel ? " sel" : ""}`} onClick={() => setSel(date)}>
                   <span className={`dnum${col === 5 ? " sat" : col === 6 ? " sun" : ""}${date === today ? " today" : ""}`}>{d}</span>
-                  <span className={`stamp l${v ? level(v.done, v.total) : 0}`}>{v && v.total ? v.done : ""}</span>
+                  <span className="stamp"><Blob level={v ? level(v.done, v.total) : 0} label={v && v.total ? v.done : ""} /></span>
                 </button>
               );
             })}
@@ -64,6 +65,7 @@ export default function CalendarView({ ym, month, stats, sel, setSel }: Props) {
 
         <aside className="detail">
           <h2>{sd.getUTCMonth() + 1}월 {sd.getUTCDate()}일 <small>{WD_LONG[sd.getUTCDay()]}요일</small></h2>
+          <div className="mascot"><Blob level={day ? level(day.done, day.total) : 0} face /></div>
           <div className="big">{day ? `${day.done}` : "-"}<span> / {day ? day.total : "-"}</span></div>
           <div className="meter"><i style={{ width: day && day.total ? `${(day.done / day.total) * 100}%` : 0 }} /></div>
           <ul className="facts">
