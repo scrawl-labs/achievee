@@ -1,15 +1,19 @@
 "use client";
-import { useState } from "react";
+import GCalLogo from "./GCalLogo";
 
-const MODES = [["MONTH", "월"], ["WEEK", "주"], ["AGENDA", "목록"]] as const;
-const ymd = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, "");
+export const GMODES = [["DAY", "일"], ["WEEK", "주"], ["MONTH", "월"], ["AGENDA", "목록"]] as const;
+export type GMode = (typeof GMODES)[number][0];
+
+const compact = (iso: string) => iso.replace(/-/g, "");
+const addDays = (iso: string, n: number) => new Date(new Date(iso + "T00:00:00Z").getTime() + n * 864e5).toISOString().slice(0, 10);
 
 /**
  * Google's official embed URL. Private calendars only render when the viewer is signed in to Google
  * in this browser (and third-party cookies aren't blocked).
  */
-export default function GoogleCalView({ ym, email, onSignIn }: { ym: string; email?: string | null; onSignIn?: () => void }) {
-  const [mode, setMode] = useState<(typeof MODES)[number][0]>("MONTH");
+export default function GoogleCalView({ sel, mode, setMode, email, onSignIn }: {
+  sel: string; mode: GMode; setMode: (m: GMode) => void; email?: string | null; onSignIn?: () => void;
+}) {
   if (!email) {
     return (
       <div className="panel" style={{ alignItems: "flex-start" }}>
@@ -18,22 +22,25 @@ export default function GoogleCalView({ ym, email, onSignIn }: { ym: string; ema
       </div>
     );
   }
-  const [y, m] = ym.split("-").map(Number);
+  const first = `${sel.slice(0, 7)}-01`;
+  const span = mode === "DAY" ? [sel, addDays(sel, 1)] : mode === "WEEK" ? [sel, addDays(sel, 7)] : [first, addDays(first, 31)];
   const q = new URLSearchParams({
     src: email, ctz: "Asia/Seoul", hl: "ko", mode, showTitle: "0", showPrint: "0", showTabs: "0", showCalendars: "0", showTz: "0",
-    dates: `${ymd(new Date(Date.UTC(y, m - 1, 1)))}/${ymd(new Date(Date.UTC(y, m, 1)))}`,
+    dates: `${compact(span[0])}/${compact(span[1])}`,
   });
   return (
     <>
       <div className="sechead">
         <div className="tabs-t" role="tablist">
-          {MODES.map(([k, label]) => (
+          {GMODES.map(([k, label]) => (
             <button key={k} role="tab" aria-selected={mode === k} className={mode === k ? "on" : ""} onClick={() => setMode(k)}>{label}</button>
           ))}
         </div>
-        <a className="btn" href={`https://calendar.google.com/calendar/u/0/r`} target="_blank" rel="noreferrer">새 창에서 열기</a>
+        <a className="btn gcal" href="https://calendar.google.com/calendar/u/0/r" target="_blank" rel="noreferrer">
+          <GCalLogo size={18} />구글 캘린더에서 보기
+        </a>
       </div>
-      <iframe key={`${ym}-${mode}`} className="gframe" title="Google Calendar" src={`https://calendar.google.com/calendar/embed?${q}`} />
+      <iframe key={`${sel}-${mode}`} className="gframe" title="Google Calendar" src={`https://calendar.google.com/calendar/embed?${q}`} />
     </>
   );
 }

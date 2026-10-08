@@ -190,3 +190,5 @@ button.item:hover, button.item.on { border-color: var(--accent); }
 .btn.add svg { transition: transform .25s cubic-bezier(.34, 1.56, .64, 1); } .btn.add.open svg { transform: rotate(45deg); }
 .sechead.flush { margin-bottom: calc(var(--s3) * -1); }
 .gframe { display: block; width: 100%; height: calc(100dvh - 200px); min-height: 520px; border: 1px solid var(--line); border-radius: var(--r-l); background: #fff; }
+.btn.gcal { gap: var(--s2); }
+@media (max-width: 860px) { .gframe { height: calc(100dvh - 230px); } }

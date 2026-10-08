@@ -7,7 +7,8 @@ import CalendarView from "./CalendarView";
 import StatsView from "./StatsView";
 import DiaryView from "./DiaryView";
 import ExpenseView from "./ExpenseView";
-import GoogleCalView from "./GoogleCalView";
+import GoogleCalView, { type GMode } from "./GoogleCalView";
+import GCalLogo from "./GCalLogo";
 import Icon, { Brand } from "./Icon";
 
 type Tab = "calendar" | "stats" | "diary" | "expense" | "google";
@@ -16,7 +17,7 @@ const TABS: { key: Tab; label: string; icon: "calendar" | "chart" | "book" | "wa
   { key: "stats", label: "통계", icon: "chart" },
   { key: "diary", label: "일기", icon: "book" },
   { key: "expense", label: "지출", icon: "wallet" },
-  { key: "google", label: "구글", icon: "external" },
+  { key: "google", label: "구글 캘린더", icon: "external" },
 ];
 export const todayStr = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
 
@@ -27,6 +28,7 @@ export default function App({ googleReady }: { googleReady: boolean }) {
   const ym = sel.slice(0, 7);
   const [month, setMonth] = useState<MonthData | null>(null);
   const [error, setError] = useState("");
+  const [gmode, setGmode] = useState<GMode>("DAY");
 
   useEffect(() => {
     if (status === "loading") return;
@@ -41,6 +43,10 @@ export default function App({ googleReady }: { googleReady: boolean }) {
   }, [ym, status]);
 
   const shift = (n: number) => {
+    if (tab === "google" && (gmode === "DAY" || gmode === "WEEK")) {
+      setSel(new Date(new Date(sel + "T00:00:00Z").getTime() + n * (gmode === "DAY" ? 1 : 7) * 864e5).toISOString().slice(0, 10));
+      return;
+    }
     const [y, m] = ym.split("-").map(Number);
     const d = new Date(Date.UTC(y, m - 1 + n, 1));
     const next = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
@@ -48,6 +54,10 @@ export default function App({ googleReady }: { googleReady: boolean }) {
   };
   const stats = useMemo(() => (month?.ym === ym ? computeStats(Object.values(month.days), todayStr()) : null), [month, ym]);
   const [y, m] = ym.split("-").map(Number);
+  const sd = new Date(sel + "T00:00:00Z");
+  const title = tab === "google" && gmode === "DAY"
+    ? `${sd.getUTCMonth() + 1}월 ${sd.getUTCDate()}일 ${"일월화수목금토"[sd.getUTCDay()]}요일`
+    : `${y}년 ${m}월`;
 
   return (
     <div className="shell">
@@ -56,7 +66,7 @@ export default function App({ googleReady }: { googleReady: boolean }) {
         <nav className="nav">
           {TABS.map((t) => (
             <button key={t.key} className={tab === t.key ? "on" : ""} onClick={() => setTab(t.key)}>
-              <Icon name={t.icon} /><span>{t.label}</span>
+              {t.key === "google" ? <GCalLogo size={20} day={Number(todayStr().slice(8))} /> : <Icon name={t.icon} />}<span>{t.label}</span>
             </button>
           ))}
         </nav>
@@ -70,7 +80,7 @@ export default function App({ googleReady }: { googleReady: boolean }) {
 
       <main className="page">
         <header className="pagehead">
-          <h1>{y}년 {m}월</h1>
+          <h1>{title}</h1>
           <div className="row gap-2">
             <button className="btn" onClick={() => setSel(todayStr())}>오늘</button>
             <button className="btn icon" onClick={() => shift(-1)} aria-label="이전 달"><Icon name="left" /></button>
@@ -81,7 +91,7 @@ export default function App({ googleReady }: { googleReady: boolean }) {
         {tab === "calendar" && <CalendarView ym={ym} month={month} stats={stats} sel={sel} setSel={setSel} />}
         {tab === "stats" && <StatsView stats={stats} month={month} />}
         {tab === "diary" && <DiaryView ym={ym} sel={sel} setSel={setSel} />}
-        {tab === "google" && <GoogleCalView ym={ym} email={session?.user?.email} onSignIn={googleReady ? () => signIn("google") : undefined} />}
+        {tab === "google" && <GoogleCalView sel={sel} mode={gmode} setMode={setGmode} email={session?.user?.email} onSignIn={googleReady ? () => signIn("google") : undefined} />}
         {tab === "expense" && <ExpenseView ym={ym} sel={sel} setSel={setSel} />}
       </main>
     </div>
