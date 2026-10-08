@@ -5,6 +5,7 @@ const P: Record<string, React.ReactNode> = {
   wallet: <><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3" /><rect x="4" y="8" width="16" height="11.5" rx="3" /><circle cx="16" cy="13.75" r="1" /></>,
   left: <path d="M14.5 6l-6 6 6 6" />,
   right: <path d="M9.5 6l6 6-6 6" />,
+  plus: <path d="M12 5v14M5 12h14" />,
   close: <path d="M6 6l12 12M18 6L6 18" />,
 };
 

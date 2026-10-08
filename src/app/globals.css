@@ -117,7 +117,7 @@ button.cell:hover .blob { transform: scale(1.14) rotate(-6deg); }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s5); align-items: start; }
 .two.wide-left { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
 .panel { border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); padding: var(--s5); display: flex; flex-direction: column; gap: var(--s4); }
-.panel.entry { display: grid; grid-template-columns: 1fr 96px; gap: var(--s2); padding: var(--s4); }
+.panel.entry { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); padding: var(--s4); }
 .panel.entry .btn { grid-column: span 2; }
 .list { display: flex; flex-direction: column; gap: var(--s2); }
 .item { width: 100%; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); padding: var(--s3) var(--s4); display: flex; flex-direction: column; gap: 4px; }
@@ -172,9 +172,7 @@ button.item:hover, button.item.on { border-color: var(--accent); }
 /* Expense necessity ------------------------------------------------- */
 :root { --need: var(--c3); --waste: var(--c1); }
 .seg.three { grid-template-columns: repeat(3, 1fr); }
-.seg.two { grid-template-columns: repeat(2, 1fr); }
-.seg button.on.need { background: var(--need); color: var(--ink); } .seg button.on.waste { background: var(--waste); color: var(--ink); }
-.panel.entry .seg { grid-column: span 2; }
+.panel.entry .wide { grid-column: span 2; }
 .chip { flex: none; font-size: 12px; font-weight: 700; line-height: 1; padding: 6px 9px; border-radius: 8px; border: 0; color: var(--ink); transition: transform .2s cubic-bezier(.34, 1.56, .64, 1); }
 .chip:hover { transform: scale(1.06); }
 .chip.need { background: var(--need); } .chip.waste { background: var(--waste); }
@@ -189,3 +187,5 @@ button.item:hover, button.item.on { border-color: var(--accent); }
 .tabs-t button:hover { color: var(--fg); }
 .tabs-t button.on { color: var(--fg); font-weight: 700; border-bottom-color: var(--fg); }
 .tabs-t em { font-style: normal; font-size: 12px; margin-left: 4px; color: var(--fg-3); }
+.btn.add svg { transition: transform .25s cubic-bezier(.34, 1.56, .64, 1); } .btn.add.open svg { transform: rotate(45deg); }
+.sechead.flush { margin-bottom: calc(var(--s3) * -1); }

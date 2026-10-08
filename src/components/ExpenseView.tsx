@@ -16,6 +16,7 @@ export default function ExpenseView({ ym, sel, setSel }: { ym: string; sel: stri
   const [memo, setMemo] = useState("");
   const [amount, setAmount] = useState("");
   const [need, setNeed] = useState(true);
+  const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
 
   const load = useCallback(() => fetch(`/api/expenses?ym=${ym}`).then((r) => r.json()).then(setRows), [ym]);
@@ -26,7 +27,7 @@ export default function ExpenseView({ ym, sel, setSel }: { ym: string; sel: stri
     const n = Number(amount.replace(/,/g, ""));
     if (!Number.isInteger(n) || n <= 0) return;
     await fetch("/api/expenses", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ date: sel, category, memo, amount: n, need }) });
-    setMemo(""); setAmount(""); load();
+    setMemo(""); setAmount(""); setOpen(false); load();
   };
   const toggle = async (r: Row) => {
     await fetch("/api/expenses", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: r.id, need: !r.need }) });
@@ -46,18 +47,23 @@ export default function ExpenseView({ ym, sel, setSel }: { ym: string; sel: stri
       <div className="two wide-left">
         <div className="stack-l">
           <section>
-            <div className="sechead"><h3>새 지출</h3></div>
-            <form className="panel entry" onSubmit={add}>
-            <input type="date" value={sel} onChange={(e) => e.target.value && setSel(e.target.value)} />
-            <select value={category} onChange={(e) => setCategory(e.target.value)}>{CATS.map((c) => <option key={c}>{c}</option>)}</select>
-            <input placeholder="메모" value={memo} onChange={(e) => setMemo(e.target.value)} />
-            <input placeholder="금액" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} />
-            <div className="seg two" role="radiogroup" aria-label="필요 여부">
-              <button type="button" role="radio" aria-checked={need} className={need ? "on need" : ""} onClick={() => setNeed(true)}>필요한 지출</button>
-              <button type="button" role="radio" aria-checked={!need} className={!need ? "on waste" : ""} onClick={() => setNeed(false)}>불필요한 지출</button>
+            <div className={`sechead${open ? "" : " flush"}`}>
+              <h3>새 지출</h3>
+              <button type="button" className={`btn icon add${open ? " open" : ""}`} aria-expanded={open} aria-label={open ? "닫기" : "지출 추가"} onClick={() => setOpen(!open)}><Icon name="plus" /></button>
             </div>
-            <button className="btn primary">추가</button>
-          </form>
+            {open && (
+              <form className="panel entry" onSubmit={add}>
+                <input type="date" value={sel} onChange={(e) => e.target.value && setSel(e.target.value)} />
+                <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="카테고리">{CATS.map((c) => <option key={c}>{c}</option>)}</select>
+                <select value={need ? "need" : "waste"} onChange={(e) => setNeed(e.target.value === "need")} aria-label="필요 여부">
+                  <option value="need">필요한 지출</option>
+                  <option value="waste">불필요한 지출</option>
+                </select>
+                <input placeholder="금액" inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} autoFocus />
+                <input className="wide" placeholder="메모" value={memo} onChange={(e) => setMemo(e.target.value)} />
+                <button className="btn primary">추가</button>
+              </form>
+            )}
           </section>
           <section>
             <div className="sechead">
