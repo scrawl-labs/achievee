@@ -10,6 +10,6 @@ export type Stats = {
 };
 
 export type DayEvent = {
-  id: string; title: string; calendar: string; color: string; link?: string; location?: string;
+  id: string; date: string; title: string; calendar: string; color: string; link?: string; location?: string;
   allDay: boolean; startMin: number; endMin: number; // minutes from 00:00, clamped to the day
 };

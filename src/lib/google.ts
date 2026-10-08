@@ -86,18 +86,22 @@ export async function fetchMonth(ym: string, token: string): Promise<Record<stri
   return days;
 }
 
-/** All visible calendars' events for one day, positioned in minutes (for the day timeline). */
-export async function fetchDay(date: string, token: string): Promise<DayEvent[]> {
-  const dayStart = new Date(`${date}T00:00:00+09:00`).getTime();
-  const dayEnd = dayStart + 864e5;
-  const minutes = (ms: number) => Math.max(0, Math.min(1440, Math.round((ms - dayStart) / 60000)));
+/**
+ * Events of all visible calendars between `from` and `to` (exclusive), split into one segment per day
+ * and positioned in minutes from 00:00 (KST) so views can lay them out directly.
+ */
+export async function fetchRange(from: string, to: string, token: string): Promise<DayEvent[]> {
+  const kst = (d: string) => new Date(`${d}T00:00:00+09:00`).getTime();
+  const rangeStart = kst(from), rangeEnd = kst(to);
+  const days: string[] = [];
+  for (let ms = rangeStart; ms < rangeEnd && days.length < 62; ms += 864e5) days.push(dayFmt.format(new Date(ms + 36e5)));
   const cals = await g<{ items?: { id: string; summary: string; summaryOverride?: string; backgroundColor?: string; selected?: boolean }[] }>(
     "https://www.googleapis.com/calendar/v3/users/me/calendarList?maxResults=250", token);
   const out: DayEvent[] = [];
   await Promise.all((cals.items ?? []).filter((c) => c.selected !== false).map(async (c) => {
     const q = new URLSearchParams({
-      singleEvents: "true", orderBy: "startTime", maxResults: "250",
-      timeMin: new Date(dayStart).toISOString(), timeMax: new Date(dayEnd).toISOString(),
+      singleEvents: "true", orderBy: "startTime", maxResults: "2500",
+      timeMin: new Date(rangeStart).toISOString(), timeMax: new Date(rangeEnd).toISOString(),
     });
     const r = await g<{ items?: {
       id: string; status?: string; summary?: string; htmlLink?: string; location?: string;
@@ -106,14 +110,23 @@ export async function fetchDay(date: string, token: string): Promise<DayEvent[]>
     }[] }>(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(c.id)}/events?${q}`, token);
     for (const e of r.items ?? []) {
       if (e.status === "cancelled" || e.attendees?.some((a) => a.self && a.responseStatus === "declined")) continue;
-      const allDay = !e.start?.dateTime;
-      out.push({
-        id: `${c.id}:${e.id}`, title: e.summary?.trim() || "(제목 없음)", calendar: c.summaryOverride ?? c.summary,
-        color: c.backgroundColor ?? "#8fb8ff", link: e.htmlLink, location: e.location, allDay,
-        startMin: allDay ? 0 : minutes(new Date(e.start!.dateTime!).getTime()),
-        endMin: allDay ? 1440 : Math.max(minutes(new Date(e.end?.dateTime ?? e.start!.dateTime!).getTime()), minutes(new Date(e.start!.dateTime!).getTime()) + 15),
-      });
+      const base = {
+        title: e.summary?.trim() || "(제목 없음)", calendar: c.summaryOverride ?? c.summary,
+        color: c.backgroundColor ?? "#8fb8ff", link: e.htmlLink, location: e.location,
+      };
+      if (!e.start?.dateTime) { // all-day: end.date is exclusive
+        for (const d of days) if (d >= e.start!.date! && d < (e.end?.date ?? e.start!.date!) ) out.push({ ...base, id: `${c.id}:${e.id}:${d}`, date: d, allDay: true, startMin: 0, endMin: 1440 });
+        continue;
+      }
+      const s0 = new Date(e.start.dateTime).getTime();
+      const e0 = Math.max(new Date(e.end?.dateTime ?? e.start.dateTime).getTime(), s0 + 15 * 60000);
+      for (const d of days) {
+        const ds = kst(d), de = ds + 864e5;
+        if (e0 <= ds || s0 >= de) continue;
+        out.push({ ...base, id: `${c.id}:${e.id}:${d}`, date: d, allDay: false,
+          startMin: Math.round((Math.max(s0, ds) - ds) / 60000), endMin: Math.round((Math.min(e0, de) - ds) / 60000) });
+      }
     }
   }));
-  return out.sort((a, b) => a.startMin - b.startMin || b.endMin - a.endMin);
+  return out.sort((a, b) => a.date.localeCompare(b.date) || a.startMin - b.startMin || b.endMin - a.endMin);
 }

@@ -8,6 +8,7 @@ import StatsView from "./StatsView";
 import DiaryView from "./DiaryView";
 import ExpenseView from "./ExpenseView";
 import GoogleCalView, { type GMode } from "./GoogleCalView";
+import { addDays, mondayOf } from "@/lib/dates";
 import Icon, { Brand } from "./Icon";
 
 type Tab = "calendar" | "stats" | "diary" | "expense" | "google";
@@ -21,7 +22,7 @@ const TABS: { key: Tab; label: string; icon: "calendar" | "chart" | "book" | "wa
 export const todayStr = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
 
 export default function App({ googleReady }: { googleReady: boolean }) {
-  const { status, data: session } = useSession();
+  const { status } = useSession();
   const [tab, setTab] = useState<Tab>("calendar");
   const [sel, setSel] = useState(todayStr());
   const ym = sel.slice(0, 7);
@@ -43,7 +44,7 @@ export default function App({ googleReady }: { googleReady: boolean }) {
 
   const shift = (n: number) => {
     if (tab === "google" && (gmode === "DAY" || gmode === "WEEK")) {
-      setSel(new Date(new Date(sel + "T00:00:00Z").getTime() + n * (gmode === "DAY" ? 1 : 7) * 864e5).toISOString().slice(0, 10));
+      setSel(addDays(sel, n * (gmode === "DAY" ? 1 : 7)));
       return;
     }
     const [y, m] = ym.split("-").map(Number);
@@ -54,8 +55,11 @@ export default function App({ googleReady }: { googleReady: boolean }) {
   const stats = useMemo(() => (month?.ym === ym ? computeStats(Object.values(month.days), todayStr()) : null), [month, ym]);
   const [y, m] = ym.split("-").map(Number);
   const sd = new Date(sel + "T00:00:00Z");
-  const title = tab === "google" && gmode === "DAY"
-    ? `${sd.getUTCMonth() + 1}월 ${sd.getUTCDate()}일 ${"일월화수목금토"[sd.getUTCDay()]}요일`
+  const md = (d: string) => `${Number(d.slice(5, 7))}월 ${Number(d.slice(8))}일`;
+  const wk = mondayOf(sel), we = addDays(wk, 6);
+  const title = tab !== "google" ? `${y}년 ${m}월`
+    : gmode === "DAY" ? `${md(sel)} ${"일월화수목금토"[sd.getUTCDay()]}요일`
+    : gmode === "WEEK" ? `${md(wk)} - ${wk.slice(5, 7) === we.slice(5, 7) ? `${Number(we.slice(8))}일` : md(we)}`
     : `${y}년 ${m}월`;
 
   return (
@@ -90,7 +94,7 @@ export default function App({ googleReady }: { googleReady: boolean }) {
         {tab === "calendar" && <CalendarView ym={ym} month={month} stats={stats} sel={sel} setSel={setSel} />}
         {tab === "stats" && <StatsView stats={stats} month={month} />}
         {tab === "diary" && <DiaryView ym={ym} sel={sel} setSel={setSel} />}
-        {tab === "google" && <GoogleCalView sel={sel} mode={gmode} setMode={setGmode} email={session?.user?.email} onSignIn={googleReady ? () => signIn("google") : undefined} tasks={month?.ym === ym ? month.days[sel]?.tasks ?? [] : []} />}
+        {tab === "google" && <GoogleCalView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} tasks={month?.ym === ym ? month.days[sel]?.tasks ?? [] : []} />}
         {tab === "expense" && <ExpenseView ym={ym} sel={sel} setSel={setSel} />}
       </main>
     </div>

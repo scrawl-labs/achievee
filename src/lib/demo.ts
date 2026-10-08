@@ -20,10 +20,10 @@ export function demoMonth(ym: string): Record<string, DayData> {
   return days;
 }
 
-export function demoDay(date: string): DayEvent[] {
+function demoDay(date: string): DayEvent[] {
   const seed = date.split("-").reduce((a, n) => a + Number(n), 0);
   const mk = (i: number, title: string, calendar: string, color: string, h: number, m: number, len: number): DayEvent =>
-    ({ id: `d${i}`, title, calendar, color, allDay: false, startMin: h * 60 + m, endMin: h * 60 + m + len });
+    ({ id: `${date}-${i}`, date, title, calendar, color, allDay: false, startMin: h * 60 + m, endMin: h * 60 + m + len });
   const list = [
     mk(1, "출근 이동", "개인", "#7986cb", 7, 0, 60),
     mk(2, "팀 미팅", "직장", "#8e24aa", 10, 0, 60),
@@ -34,6 +34,13 @@ export function demoDay(date: string): DayEvent[] {
     mk(7, "운동", "개인", "#f6bf26", 19, 0, 90),
   ];
   const events = list.filter((_, i) => (i + seed) % 4 !== 0);
-  if (seed % 3 === 0) events.unshift({ id: "ad", title: "휴가", calendar: "개인", color: "#e67c73", allDay: true, startMin: 0, endMin: 1440 });
+  if (seed % 3 === 0) events.unshift({ id: `${date}-ad`, date, title: "휴가", calendar: "개인", color: "#e67c73", allDay: true, startMin: 0, endMin: 1440 });
   return events;
+}
+
+export function demoRange(from: string, to: string): DayEvent[] {
+  const out: DayEvent[] = [];
+  for (let ms = new Date(from + "T00:00:00Z").getTime(); ms < new Date(to + "T00:00:00Z").getTime() && out.length < 2000; ms += 864e5)
+    out.push(...demoDay(new Date(ms).toISOString().slice(0, 10)));
+  return out;
 }
