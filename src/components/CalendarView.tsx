@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import type { MonthData, Stats } from "@/lib/types";
 import { todayStr } from "./App";
 import Summary from "./Summary";
-import Blob from "./Blob";
+import Blob, { Confetti } from "./Blob";
 
 const WD = ["월", "화", "수", "목", "금", "토", "일"];
 const WD_LONG = ["일", "월", "화", "수", "목", "금", "토"];
@@ -56,7 +56,10 @@ export default function CalendarView({ ym, month, stats, sel, setSel }: Props) {
               return (
                 <button key={i} className={`cell${date === sel ? " sel" : ""}`} onClick={() => setSel(date)}>
                   <span className={`dnum${col === 5 ? " sat" : col === 6 ? " sun" : ""}${date === today ? " today" : ""}`}>{d}</span>
-                  <span className="stamp"><Blob level={v ? level(v.done, v.total) : 0} label={v && v.total ? v.done : ""} /></span>
+                  <span className="stamp">
+                    <Blob level={v ? level(v.done, v.total) : 0} label={v && v.total ? v.done : ""} />
+                    {date === sel && v && level(v.done, v.total) === 4 && <Confetti key={sel} />}
+                  </span>
                 </button>
               );
             })}
