@@ -12,10 +12,17 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const { date, category, memo, amount } = await req.json();
+  const { date, category, memo, amount, need } = await req.json();
   if (!YMD.test(date) || !category || !Number.isInteger(amount) || amount <= 0)
     return NextResponse.json({ error: "bad input" }, { status: 400 });
-  expenses.add((await getUser()).id, date, String(category).slice(0, 20), String(memo ?? "").slice(0, 100), amount);
+  expenses.add((await getUser()).id, date, String(category).slice(0, 20), String(memo ?? "").slice(0, 100), amount, need !== false);
+  return NextResponse.json({ ok: true });
+}
+
+export async function PATCH(req: Request) {
+  const { id, need } = await req.json();
+  if (!Number.isInteger(id) || typeof need !== "boolean") return NextResponse.json({ error: "bad input" }, { status: 400 });
+  expenses.setNeed((await getUser()).id, id, need);
   return NextResponse.json({ ok: true });
 }
 

@@ -70,10 +70,19 @@ export default function CalendarView({ ym, month, stats, sel, setSel }: Props) {
           <h2>{sd.getUTCMonth() + 1}월 {sd.getUTCDate()}일 <small>{WD_LONG[sd.getUTCDay()]}요일</small></h2>
           <div className="big">{day ? `${day.done}` : "-"}<span> / {day ? day.total : "-"}</span></div>
           <div className="meter"><i style={{ width: day && day.total ? `${(day.done / day.total) * 100}%` : 0 }} /></div>
-          <ul className="facts">
-            <li><span>일정</span><b>{day ? day.events : "-"}</b></li>
-            <li><span>지출</span><b>{daySpent ? won(daySpent) : "-"}</b></li>
-          </ul>
+          {day && day.tasks.length > 0 && (
+            <ul className="tasks">
+              {day.tasks.map((t, i) => (
+                <li key={i} className={t.done ? "done" : ""}><span className="check" aria-hidden="true" />{t.title}</li>
+              ))}
+            </ul>
+          )}
+          {day && day.eventList.length > 0 && (
+            <ul className="events">
+              {day.eventList.map((e, i) => <li key={i}><time>{e.time}</time>{e.title}</li>)}
+            </ul>
+          )}
+          {daySpent > 0 && <div className="spent"><span>지출</span><b>{won(daySpent)}</b></div>}
           {note && <p className="note">{note}</p>}
         </aside>
       </div>

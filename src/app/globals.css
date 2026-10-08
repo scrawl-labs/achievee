@@ -103,8 +103,14 @@ button.cell:hover .blob { transform: scale(1.14) rotate(-6deg); }
 .big { font-size: 44px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
 .big span { font-size: 20px; color: var(--fg-3); font-weight: 600; }
 .meter { height: 6px; border-radius: 9px; background: var(--surface-2); overflow: hidden; } .meter i { display: block; height: 100%; background: var(--accent); border-radius: 9px; }
-.facts { list-style: none; padding: 0; display: flex; flex-direction: column; border-top: 1px solid var(--line); }
-.facts li { display: flex; justify-content: space-between; padding: var(--s3) 0; border-bottom: 1px solid var(--line); color: var(--fg-2); } .facts b { color: var(--fg); font-weight: 600; }
+.tasks, .events { list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--s2); }
+.tasks li { display: flex; align-items: center; gap: var(--s3); }
+.tasks li.done { color: var(--fg-3); text-decoration: line-through; }
+.check { flex: none; width: 18px; height: 18px; border-radius: 99px; border: 2px solid var(--line); }
+.tasks li.done .check { background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='M5 9.5l2.8 2.8L13 6.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/100% no-repeat; border-color: var(--accent); }
+.events { border-top: 1px solid var(--line); padding-top: var(--s3); color: var(--fg-2); }
+.events li { display: flex; gap: var(--s3); } .events time { flex: none; width: 40px; color: var(--fg-3); font-size: 13px; }
+.spent { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: var(--s3); color: var(--fg-2); } .spent b { color: var(--fg); }
 .note { color: var(--fg-2); white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
 
 /* Panels & lists ---------------------------------------------------- */
@@ -161,3 +167,15 @@ button.item:hover, button.item.on { border-color: var(--accent); }
   .detail { padding: var(--s4); } .big { font-size: 36px; }
   .panel { padding: var(--s4); }
 }
+
+/* Expense necessity ------------------------------------------------- */
+:root { --need: #4cc38a; --waste: #ff7a7a; }
+.seg.three { grid-template-columns: repeat(3, 1fr); }
+.seg.two { grid-template-columns: repeat(2, 1fr); }
+.seg button.on.need { background: var(--need); color: #07261a; } .seg button.on.waste { background: var(--waste); color: #2a0a0a; }
+.panel.entry .seg { grid-column: span 2; }
+.chip { flex: none; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 99px; border: 1px solid; background: none; }
+.chip.need { color: var(--need); border-color: color-mix(in oklab, var(--need) 45%, transparent); }
+.chip.waste { color: var(--waste); border-color: color-mix(in oklab, var(--waste) 45%, transparent); }
+.split { display: flex; height: 10px; border-radius: 9px; overflow: hidden; background: var(--surface-2); }
+.split i:first-child { background: var(--need); } .split i:last-child { background: var(--waste); }
