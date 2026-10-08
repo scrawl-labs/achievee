@@ -90,7 +90,7 @@ export default function App({ googleReady }: { googleReady: boolean }) {
         {tab === "calendar" && <CalendarView ym={ym} month={month} stats={stats} sel={sel} setSel={setSel} />}
         {tab === "stats" && <StatsView stats={stats} month={month} />}
         {tab === "diary" && <DiaryView ym={ym} sel={sel} setSel={setSel} />}
-        {tab === "google" && <GoogleCalView sel={sel} mode={gmode} setMode={setGmode} email={session?.user?.email} onSignIn={googleReady ? () => signIn("google") : undefined} />}
+        {tab === "google" && <GoogleCalView sel={sel} mode={gmode} setMode={setGmode} email={session?.user?.email} onSignIn={googleReady ? () => signIn("google") : undefined} tasks={month?.ym === ym ? month.days[sel]?.tasks ?? [] : []} />}
         {tab === "expense" && <ExpenseView ym={ym} sel={sel} setSel={setSel} />}
       </main>
     </div>

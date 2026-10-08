@@ -1,4 +1,4 @@
-import type { DayData } from "./types";
+import type { DayData, DayEvent } from "./types";
 
 const TZ = process.env.APP_TIMEZONE ?? "Asia/Seoul";
 const dayFmt = new Intl.DateTimeFormat("en-CA", { timeZone: TZ }); // YYYY-MM-DD
@@ -84,4 +84,36 @@ export async function fetchMonth(ym: string, token: string): Promise<Record<stri
     d.eventList.sort((a, b) => (a.time === "종일" ? "" : a.time).localeCompare(b.time === "종일" ? "" : b.time));
   }
   return days;
+}
+
+/** All visible calendars' events for one day, positioned in minutes (for the day timeline). */
+export async function fetchDay(date: string, token: string): Promise<DayEvent[]> {
+  const dayStart = new Date(`${date}T00:00:00+09:00`).getTime();
+  const dayEnd = dayStart + 864e5;
+  const minutes = (ms: number) => Math.max(0, Math.min(1440, Math.round((ms - dayStart) / 60000)));
+  const cals = await g<{ items?: { id: string; summary: string; summaryOverride?: string; backgroundColor?: string; selected?: boolean }[] }>(
+    "https://www.googleapis.com/calendar/v3/users/me/calendarList?maxResults=250", token);
+  const out: DayEvent[] = [];
+  await Promise.all((cals.items ?? []).filter((c) => c.selected !== false).map(async (c) => {
+    const q = new URLSearchParams({
+      singleEvents: "true", orderBy: "startTime", maxResults: "250",
+      timeMin: new Date(dayStart).toISOString(), timeMax: new Date(dayEnd).toISOString(),
+    });
+    const r = await g<{ items?: {
+      id: string; status?: string; summary?: string; htmlLink?: string; location?: string;
+      start?: { date?: string; dateTime?: string }; end?: { date?: string; dateTime?: string };
+      attendees?: { self?: boolean; responseStatus?: string }[];
+    }[] }>(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(c.id)}/events?${q}`, token);
+    for (const e of r.items ?? []) {
+      if (e.status === "cancelled" || e.attendees?.some((a) => a.self && a.responseStatus === "declined")) continue;
+      const allDay = !e.start?.dateTime;
+      out.push({
+        id: `${c.id}:${e.id}`, title: e.summary?.trim() || "(제목 없음)", calendar: c.summaryOverride ?? c.summary,
+        color: c.backgroundColor ?? "#8fb8ff", link: e.htmlLink, location: e.location, allDay,
+        startMin: allDay ? 0 : minutes(new Date(e.start!.dateTime!).getTime()),
+        endMin: allDay ? 1440 : Math.max(minutes(new Date(e.end?.dateTime ?? e.start!.dateTime!).getTime()), minutes(new Date(e.start!.dateTime!).getTime()) + 15),
+      });
+    }
+  }));
+  return out.sort((a, b) => a.startMin - b.startMin || b.endMin - a.endMin);
 }
