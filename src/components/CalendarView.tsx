@@ -68,7 +68,6 @@ export default function CalendarView({ ym, month, stats, sel, setSel }: Props) {
 
         <aside className="detail">
           <h2>{sd.getUTCMonth() + 1}월 {sd.getUTCDate()}일 <small>{WD_LONG[sd.getUTCDay()]}요일</small></h2>
-          <div className="mascot"><Blob level={day ? level(day.done, day.total) : 0} face /></div>
           <div className="big">{day ? `${day.done}` : "-"}<span> / {day ? day.total : "-"}</span></div>
           <div className="meter"><i style={{ width: day && day.total ? `${(day.done / day.total) * 100}%` : 0 }} /></div>
           <ul className="facts">
