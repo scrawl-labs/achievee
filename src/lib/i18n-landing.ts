@@ -19,6 +19,10 @@ const en = {
   "land.t3.t": "Encrypted", "land.t3.d": "Diary text and expense memos are encrypted at rest.",
   "land.t4.t": "Yours to delete", "land.t4.d": "Remove your data with one button, or revoke access in Google anytime.",
   "land.final.title": "Ready to see how much you've done?",
+  "land.nav.f": "Features", "land.nav.how": "How it works", "land.nav.privacy": "Privacy",
+  "land.final.sub": "Free to use. Sign in with Google and your progress is ready in seconds.",
+  "land.mock.e1": "Team meeting", "land.mock.e2": "Lunch with Jin", "land.mock.e3": "Workout",
+  "land.mock.note": "Good day. Finished everything!",
 } as const;
 
 type K = keyof typeof en;
@@ -41,6 +45,10 @@ const ko: Record<K, string> = {
   "land.t3.t": "암호화", "land.t3.d": "일기 본문과 지출 메모는 암호화해서 보관해요.",
   "land.t4.t": "언제든 삭제", "land.t4.d": "버튼 하나로 데이터를 지우고, Google에서 권한도 언제든 취소할 수 있어요.",
   "land.final.title": "얼마나 해냈는지 확인해 볼까요?",
+  "land.nav.f": "기능", "land.nav.how": "이렇게 써요", "land.nav.privacy": "개인정보",
+  "land.final.sub": "무료로 쓸 수 있어요. Google로 로그인하면 몇 초 만에 내 성취가 준비돼요.",
+  "land.mock.e1": "팀 미팅", "land.mock.e2": "진이랑 점심", "land.mock.e3": "운동",
+  "land.mock.note": "좋은 하루. 다 끝냈다!",
 };
 
 const ja: Record<K, string> = {
@@ -61,6 +69,10 @@ const ja: Record<K, string> = {
   "land.t3.t": "暗号化", "land.t3.d": "日記の本文と支出メモは暗号化して保管します。",
   "land.t4.t": "いつでも削除", "land.t4.d": "ボタンひとつでデータを削除でき、Google でいつでも権限を取り消せます。",
   "land.final.title": "どれだけ達成したか、見てみませんか？",
+  "land.nav.f": "機能", "land.nav.how": "使い方", "land.nav.privacy": "プライバシー",
+  "land.final.sub": "無料で使えます。Google でログインすれば、数秒で達成状況が見られます。",
+  "land.mock.e1": "チーム会議", "land.mock.e2": "ジンとランチ", "land.mock.e3": "運動",
+  "land.mock.note": "いい一日。全部終わった！",
 };
 
 const es: Record<K, string> = {
@@ -81,6 +93,10 @@ const es: Record<K, string> = {
   "land.t3.t": "Cifrado", "land.t3.d": "El texto del diario y las notas de gastos se cifran en reposo.",
   "land.t4.t": "Tú decides", "land.t4.d": "Borra tus datos con un botón o revoca el acceso en Google cuando quieras.",
   "land.final.title": "¿Listo para ver cuánto has logrado?",
+  "land.nav.f": "Funciones", "land.nav.how": "Cómo funciona", "land.nav.privacy": "Privacidad",
+  "land.final.sub": "Gratis. Entra con Google y tu progreso estará listo en segundos.",
+  "land.mock.e1": "Reunión de equipo", "land.mock.e2": "Comida con Jin", "land.mock.e3": "Ejercicio",
+  "land.mock.note": "Buen día. ¡Lo terminé todo!",
 };
 
 export type LandKey = K;
