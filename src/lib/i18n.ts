@@ -1,3 +1,5 @@
+import { LAND, type LandKey } from "./i18n-landing";
+
 export const LOCALES = ["en", "ko", "ja", "es"] as const;
 export type Locale = (typeof LOCALES)[number];
 export const LOCALE_NAMES: Record<Locale, string> = { en: "English", ko: "한국어", ja: "日本語", es: "Español" };
@@ -36,10 +38,12 @@ const en = {
   "g.more": "+{n} more", "hour": "{h}:00",
 } as const;
 
-export type Key = keyof typeof en;
+type BaseKey = keyof typeof en;
+export type Key = BaseKey | LandKey;
+type BaseDict = Record<BaseKey, string>;
 type Dict = Record<Key, string>;
 
-const ko: Dict = {
+const ko: BaseDict = {
   "nav.calendar": "달력", "nav.stats": "통계", "nav.diary": "일기", "nav.expense": "지출", "nav.google": "구글 캘린더",
   "login.tagline": "구글 캘린더와 할 일을 매일의 성취로 바꿔 보세요.",
   "login.cta": "Google로 계속하기",
@@ -62,7 +66,7 @@ const ko: Dict = {
   "g.more": "+{n}개", "hour": "{h}시",
 };
 
-const ja: Dict = {
+const ja: BaseDict = {
   "nav.calendar": "カレンダー", "nav.stats": "統計", "nav.diary": "日記", "nav.expense": "支出", "nav.google": "Google カレンダー",
   "login.tagline": "Google カレンダーとタスクを、毎日の達成感に。",
   "login.cta": "Google で続ける",
@@ -85,7 +89,7 @@ const ja: Dict = {
   "g.more": "+{n}件", "hour": "{h}時",
 };
 
-const es: Dict = {
+const es: BaseDict = {
   "nav.calendar": "Calendario", "nav.stats": "Estadísticas", "nav.diary": "Diario", "nav.expense": "Gastos", "nav.google": "Google Calendar",
   "login.tagline": "Convierte tu Google Calendar y tus tareas en progreso diario.",
   "login.cta": "Continuar con Google",
@@ -108,7 +112,9 @@ const es: Dict = {
   "g.more": "+{n} más", "hour": "{h}:00",
 };
 
-export const DICT: Record<Locale, Dict> = { en, ko, ja, es };
+export const DICT: Record<Locale, Dict> = {
+  en: { ...en, ...LAND.en }, ko: { ...ko, ...LAND.ko }, ja: { ...ja, ...LAND.ja }, es: { ...es, ...LAND.es },
+};
 
 export const CATEGORIES = ["food", "cafe", "transport", "shopping", "culture", "other"] as const;
 export type Category = (typeof CATEGORIES)[number];
