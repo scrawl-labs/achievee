@@ -1,14 +1,16 @@
 "use client";
 import type { DayEvent } from "@/lib/types";
-import { WD_KO, addDays, addMonths, dow, monthStart } from "@/lib/dates";
+import { addDays, addMonths, dow, monthStart } from "@/lib/dates";
 import { useEvents } from "./useEvents";
 import { hhmm } from "./TimeGrid";
-import { todayStr } from "./App";
+import { todayStr } from "@/lib/clientTime";
+import { useI18n } from "./I18n";
 
 const MAX = 3;
 const order = (a: DayEvent, b: DayEvent) => Number(b.allDay) - Number(a.allDay) || a.startMin - b.startMin;
 
 export default function MonthEventView({ date, onPickDay }: { date: string; onPickDay: (d: string) => void }) {
+  const { t, fmt } = useI18n();
   const first = monthStart(date), next = addMonths(first, 1);
   const { events, error } = useEvents(first, next);
   const today = todayStr();
@@ -20,8 +22,8 @@ export default function MonthEventView({ date, onPickDay }: { date: string; onPi
 
   return (
     <div className="mgrid">
-      {error && <p className="error" style={{ padding: 16 }}>{error}</p>}
-      <div className="cal-head">{[1, 2, 3, 4, 5, 6, 0].map((d) => <span key={d} className={d === 6 ? "sat" : d === 0 ? "sun" : ""}>{WD_KO[d]}</span>)}</div>
+      {error && <p className="error" style={{ padding: 16 }}>{t("common.loadFail")}</p>}
+      <div className="cal-head">{[1, 2, 3, 4, 5, 6, 0].map((d) => <span key={d} className={d === 6 ? "sat" : d === 0 ? "sun" : ""}>{fmt.weekdayShort(d)}</span>)}</div>
       <div className="mcells">
         {cells.map((d, i) => {
           if (!d) return <div key={i} className="mcell empty" />;
@@ -31,10 +33,10 @@ export default function MonthEventView({ date, onPickDay }: { date: string; onPi
               <span className={`dnum${dow(d) === 6 ? " sat" : dow(d) === 0 ? " sun" : ""}${d === today ? " today" : ""}`}>{Number(d.slice(8))}</span>
               {list.slice(0, MAX).map((e) => (
                 <span key={e.id} className={`mev${e.allDay ? " all" : ""}`} style={{ ["--ev" as string]: e.color }}>
-                  {!e.allDay && <time>{hhmm(e.startMin)}</time>}{e.title}
+                  {!e.allDay && <time>{hhmm(e.startMin)}</time>}{e.title || t("common.untitled")}
                 </span>
               ))}
-              {list.length > MAX && <span className="more">+{list.length - MAX}개</span>}
+              {list.length > MAX && <span className="more">{t("g.more", { n: list.length - MAX })}</span>}
             </button>
           );
         })}

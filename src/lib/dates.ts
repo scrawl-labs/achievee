@@ -14,4 +14,3 @@ export const eachDay = (from: string, toExclusive: string) => {
   for (let d = from; d < toExclusive && out.length < 62; d = addDays(d, 1)) out.push(d);
   return out;
 };
-export const WD_KO = ["일", "월", "화", "수", "목", "금", "토"];

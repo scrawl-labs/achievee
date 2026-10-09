@@ -1,8 +1,5 @@
 import type { DayData, DayEvent } from "./types";
-
-const TZ = process.env.APP_TIMEZONE ?? "Asia/Seoul";
-const dayFmt = new Intl.DateTimeFormat("en-CA", { timeZone: TZ }); // YYYY-MM-DD
-const timeFmt = new Intl.DateTimeFormat("en-GB", { timeZone: TZ, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+import { dayStart, localDate, localTime } from "./tz";
 
 async function g<T>(url: string, token: string): Promise<T> {
   const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
@@ -22,7 +19,7 @@ function range(ym: string) {
  *  - Google Calendar events have no "done" state, so they are only counted as `events`.
  *  - Completion comes from Google Tasks (due date → day; falls back to completion date).
  */
-export async function fetchMonth(ym: string, token: string): Promise<Record<string, DayData>> {
+export async function fetchMonth(ym: string, token: string, tz: string): Promise<Record<string, DayData>> {
   const { first, last, count } = range(ym);
   const days: Record<string, DayData> = {};
   for (let d = 1; d <= count; d++) {
@@ -30,7 +27,7 @@ export async function fetchMonth(ym: string, token: string): Promise<Record<stri
     days[date] = { date, done: 0, total: 0, events: 0, tasks: [], eventList: [] };
   }
 
-  // Tasks
+  const loadTasks = async () => {
   const lists = await g<{ items?: { id: string }[] }>(
     "https://tasks.googleapis.com/tasks/v1/users/@me/lists?maxResults=100", token);
   await Promise.all((lists.items ?? []).map(async (l) => {
@@ -50,38 +47,42 @@ export async function fetchMonth(ym: string, token: string): Promise<Record<stri
         const done = t.status === "completed";
         day.total++;
         if (done) day.done++;
-        day.tasks.push({ title: t.title?.trim() || "(제목 없음)", done });
+        day.tasks.push({ title: t.title?.trim() ?? "", done });
       }
       pageToken = r.nextPageToken ?? "";
     } while (pageToken);
   }));
+  };
 
-  // Events (primary calendar)
+  const loadEvents = async () => {
   let pageToken = "";
   do {
     const q = new URLSearchParams({
       singleEvents: "true", maxResults: "250",
-      timeMin: new Date(`${first}T00:00:00+09:00`).toISOString(),
-      timeMax: new Date(new Date(`${last}T00:00:00+09:00`).getTime() + 864e5).toISOString(),
+      timeMin: new Date(dayStart(first, tz)).toISOString(),
+      timeMax: new Date(dayStart(`${ym}-${String(count).padStart(2, "0")}`, tz) + 864e5).toISOString(),
     });
     if (pageToken) q.set("pageToken", pageToken);
     const r = await g<{ items?: { summary?: string; start?: { date?: string; dateTime?: string } }[]; nextPageToken?: string }>(
       `https://www.googleapis.com/calendar/v3/calendars/primary/events?${q}`, token);
     for (const e of r.items ?? []) {
-      const date = e.start?.date ?? (e.start?.dateTime ? dayFmt.format(new Date(e.start.dateTime)) : "");
+      const date = e.start?.date ?? (e.start?.dateTime ? localDate(Date.parse(e.start.dateTime), tz) : "");
       if (!days[date]) continue;
       days[date].events++;
       days[date].eventList.push({
-        title: e.summary?.trim() || "(제목 없음)",
-        time: e.start?.dateTime ? timeFmt.format(new Date(e.start.dateTime)) : "종일",
+        title: e.summary?.trim() ?? "",
+        time: e.start?.dateTime ? localTime(Date.parse(e.start.dateTime), tz) : null,
       });
     }
     pageToken = r.nextPageToken ?? "";
   } while (pageToken);
+  };
+
+  await Promise.all([loadTasks(), loadEvents()]);
 
   for (const d of Object.values(days)) {
     d.tasks.sort((a, b) => Number(a.done) - Number(b.done)); // unfinished first
-    d.eventList.sort((a, b) => (a.time === "종일" ? "" : a.time).localeCompare(b.time === "종일" ? "" : b.time));
+    d.eventList.sort((a, b) => (a.time ?? "").localeCompare(b.time ?? ""));
   }
   return days;
 }
@@ -90,11 +91,11 @@ export async function fetchMonth(ym: string, token: string): Promise<Record<stri
  * Events of all visible calendars between `from` and `to` (exclusive), split into one segment per day
  * and positioned in minutes from 00:00 (KST) so views can lay them out directly.
  */
-export async function fetchRange(from: string, to: string, token: string): Promise<DayEvent[]> {
-  const kst = (d: string) => new Date(`${d}T00:00:00+09:00`).getTime();
+export async function fetchRange(from: string, to: string, token: string, tz: string): Promise<DayEvent[]> {
+  const kst = (d: string) => dayStart(d, tz);
   const rangeStart = kst(from), rangeEnd = kst(to);
   const days: string[] = [];
-  for (let ms = rangeStart; ms < rangeEnd && days.length < 62; ms += 864e5) days.push(dayFmt.format(new Date(ms + 36e5)));
+  for (let d = from; d < to && days.length < 62; d = new Date(Date.parse(`${d}T00:00:00Z`) + 864e5).toISOString().slice(0, 10)) days.push(d);
   const cals = await g<{ items?: { id: string; summary: string; summaryOverride?: string; backgroundColor?: string; selected?: boolean }[] }>(
     "https://www.googleapis.com/calendar/v3/users/me/calendarList?maxResults=250", token);
   const out: DayEvent[] = [];
@@ -111,7 +112,7 @@ export async function fetchRange(from: string, to: string, token: string): Promi
     for (const e of r.items ?? []) {
       if (e.status === "cancelled" || e.attendees?.some((a) => a.self && a.responseStatus === "declined")) continue;
       const base = {
-        title: e.summary?.trim() || "(제목 없음)", calendar: c.summaryOverride ?? c.summary,
+        title: e.summary?.trim() ?? "", calendar: c.summaryOverride ?? c.summary,
         color: c.backgroundColor ?? "#8fb8ff", link: e.htmlLink, location: e.location,
       };
       if (!e.start?.dateTime) { // all-day: end.date is exclusive
@@ -121,7 +122,7 @@ export async function fetchRange(from: string, to: string, token: string): Promi
       const s0 = new Date(e.start.dateTime).getTime();
       const e0 = Math.max(new Date(e.end?.dateTime ?? e.start.dateTime).getTime(), s0 + 15 * 60000);
       for (const d of days) {
-        const ds = kst(d), de = ds + 864e5;
+        const ds = kst(d), de = kst(new Date(Date.parse(`${d}T00:00:00Z`) + 864e5).toISOString().slice(0, 10));
         if (e0 <= ds || s0 >= de) continue;
         out.push({ ...base, id: `${c.id}:${e.id}:${d}`, date: d, allDay: false,
           startMin: Math.round((Math.max(s0, ds) - ds) / 60000), endMin: Math.round((Math.min(e0, de) - ds) / 60000) });

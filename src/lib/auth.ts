@@ -1,7 +1,10 @@
 import type { NextAuthOptions } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
+import { getToken } from "next-auth/jwt";
 import { getServerSession } from "next-auth";
+import { cookies, headers } from "next/headers";
+import { cache } from "react";
 
 const SCOPES = [
   "openid", "email", "profile",
@@ -44,6 +47,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   session: { strategy: "jwt" },
+  pages: { signIn: "/" },
   callbacks: {
     async jwt({ token, account }) {
       if (account) {
@@ -58,20 +62,34 @@ export const authOptions: NextAuthOptions = {
       return token.refreshToken ? refresh(token) : { ...token, error: "RefreshFailed" };
     },
     async session({ session, token }) {
-      (session as any).accessToken = token.accessToken;
+      // The Google access token stays server-side (read via getToken in getUser); the client only learns who is signed in.
+      (session as any).userId = token.sub;
       (session as any).error = token.error;
       return session;
     },
   },
 };
 
-export const googleConfigured = () => !!process.env.GOOGLE_CLIENT_ID && !!process.env.GOOGLE_CLIENT_SECRET;
-
-/** Resolve the caller: real Google session, or the demo user when Google isn't configured / not signed in. */
+/** The signed-in Google user (id = Google account id) with a fresh access token, or null → callers answer 401. */
 export async function getUser() {
-  const s = (await getServerSession(authOptions)) as any;
-  if (s?.user?.email && s.accessToken && !s.error) {
-    return { id: s.user.email as string, accessToken: s.accessToken as string, demo: false };
+  const token = await getToken({
+    req: {
+      headers: Object.fromEntries(headers()),
+      cookies: Object.fromEntries(cookies().getAll().map((c) => [c.name, c.value])),
+    } as any,
+  });
+  if (!token?.sub || token.error) return null;
+  let t: JWT = token;
+  if (Date.now() >= ((t.expiresAt as number) ?? 0) - 60_000) {
+    if (!t.refreshToken) return null;
+    t = await refresh(t); // persisted into the cookie by the next /api/auth/session call
+    if (t.error) return null;
   }
-  return { id: "demo", accessToken: null, demo: true };
+  return { id: token.sub, accessToken: t.accessToken as string };
 }
+
+/** Signed-in session for server components (cached per request); null when logged out or the Google token can no longer be refreshed. */
+export const getSession = cache(async () => {
+  const s = (await getServerSession(authOptions)) as any;
+  return s?.user && !s.error ? s : null;
+});

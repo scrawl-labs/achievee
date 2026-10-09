@@ -1,7 +1,5 @@
 import type { DayData, Stats } from "./types";
 
-const LABELS = ["월", "화", "수", "목", "금", "토", "일"];
-
 /** A day "counts" when it had tasks; a day is a success when ≥ 80% were done. */
 export function computeStats(days: DayData[], today: string): Stats {
   const sorted = [...days].sort((a, b) => a.date.localeCompare(b.date));
@@ -20,10 +18,10 @@ export function computeStats(days: DayData[], today: string): Stats {
     else if (!(i === 0 && d.date === today)) break;
   }
 
-  const wd = LABELS.map((label, i) => {
+  const wd = Array.from({ length: 7 }, (_, i) => {
     const ds = withTasks.filter((d) => (new Date(d.date + "T00:00:00Z").getUTCDay() + 6) % 7 === i);
     const t = ds.reduce((s, d) => s + d.total, 0);
-    return { label, rate: t ? ds.reduce((s, d) => s + d.done, 0) / t : 0 };
+    return { rate: t ? ds.reduce((s, d) => s + d.done, 0) / t : 0 };
   });
   const bestDay = withTasks.reduce<DayData | null>((b, d) => (!b || d.done > b.done ? d : b), null);
 

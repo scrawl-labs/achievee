@@ -249,3 +249,30 @@ button.mcell:hover { background: var(--surface-2); } .mcell.sel { background: co
   .agenda section { grid-template-columns: 1fr; gap: var(--s2); }
   .agenda li a { grid-template-columns: 10px 1fr; } .agenda li time { grid-column: 2; } .agenda li small { display: none; }
 }
+
+/* login, language select, mobile footer */
+.login { min-height: 100dvh; display: grid; place-items: center; padding: var(--s5); }
+.login-card { width: min(420px, 100%); display: flex; flex-direction: column; align-items: center; gap: var(--s5); text-align: center; }
+.login-card .brand { padding: 0; font-size: 22px; }
+.login-tag { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; margin: 0; }
+.login-cta { height: 46px; gap: var(--s2); padding: 0 var(--s5); font-size: 15px; }
+.login-note { font-size: 13px; margin: 0; }
+.lang { height: 36px; padding: 0 var(--s3); border-radius: var(--r-s); background: var(--surface-2); border: 1px solid var(--line); color: var(--fg); font: inherit; }
+.account { flex-wrap: wrap; }
+.account .who { flex-basis: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pagefoot { display: none; }
+@media (max-width: 860px) {
+  .pagefoot { display: flex; gap: var(--s2); justify-content: space-between; padding: var(--s5) 0 calc(80px + env(safe-area-inset-bottom)); }
+}
+
+/* legal pages + account links */
+.legal { max-width: 720px; margin: 0 auto; padding: var(--s6) var(--s5) 96px; line-height: 1.7; }
+.legal header { margin-bottom: var(--s6); }
+.legal header .brand { padding: 0; }
+.legal h1 { font-size: 28px; letter-spacing: -0.03em; margin: 0 0 var(--s2); }
+.legal h2 { font-size: 17px; margin: var(--s6) 0 var(--s2); }
+.legal p { margin: 0 0 var(--s3); word-break: break-word; }
+.legal a { color: var(--accent); }
+.legal-links { flex-basis: 100%; display: flex; gap: var(--s3); font-size: 12px; }
+.legal-links a, .legal-links button { color: var(--fg-3); background: none; border: 0; padding: 0; font: inherit; cursor: pointer; text-decoration: underline; }
+.legal-links a:hover, .legal-links button:hover { color: var(--fg); }

@@ -1,6 +1,7 @@
 import App from "@/components/App";
-import { googleConfigured } from "@/lib/auth";
+import Login from "@/components/Login";
+import { getSession } from "@/lib/auth";
 
-export default function Page() {
-  return <App googleReady={googleConfigured()} />;
+export default async function Page() {
+  return (await getSession()) ? <App /> : <Login />;
 }

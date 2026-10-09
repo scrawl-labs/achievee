@@ -2,30 +2,33 @@
 import type { MonthData, Stats } from "@/lib/types";
 import Summary from "./Summary";
 import { levelOf } from "@/lib/level";
+import { useI18n } from "./I18n";
 
 const pct = (n: number) => `${Math.round(n * 100)}%`;
+const MON_FIRST = [1, 2, 3, 4, 5, 6, 0];
 
 export default function StatsView({ stats, month }: { stats: Stats | null; month: MonthData | null }) {
+  const { t, fmt } = useI18n();
   if (!stats || !month) return null;
   const days = Object.values(month.days);
   const events = days.reduce((s, d) => s + d.events, 0);
   return (
     <>
       <Summary items={[
-        ["달성률", pct(stats.rate)], ["최장 연속", `${stats.bestStreak}일`],
-        ["최다 완료", stats.bestDay ? `${stats.bestDay.done}개` : "-"], ["일정", `${events}`],
+        [t("cal.rate"), pct(stats.rate)], [t("stats.bestStreak"), t("cal.days", { n: stats.bestStreak })],
+        [t("stats.mostDone"), stats.bestDay ? t("stats.count", { n: stats.bestDay.done }) : "-"], [t("stats.events"), `${events}`],
       ]} />
       <div className="two">
         <section className="panel">
-          <h3>요일</h3>
+          <h3>{t("stats.weekday")}</h3>
           <div className="vbars">
-            {stats.byWeekday.map((w) => (
-              <div key={w.label}><div className="track"><i className={`l${levelOf(w.rate, 1)}`} style={{ height: pct(w.rate) }} /></div><span>{w.label}</span><em>{pct(w.rate)}</em></div>
+            {stats.byWeekday.map((w, i) => (
+              <div key={i}><div className="track"><i className={`l${levelOf(w.rate, 1)}`} style={{ height: pct(w.rate) }} /></div><span>{fmt.weekdayShort(MON_FIRST[i])}</span><em>{pct(w.rate)}</em></div>
             ))}
           </div>
         </section>
         <section className="panel">
-          <h3>일별</h3>
+          <h3>{t("stats.daily")}</h3>
           <div className="daily">
             {days.map((d) => (
               <div key={d.date} title={`${d.date}  ${d.done}/${d.total}`}>
