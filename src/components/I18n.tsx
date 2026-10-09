@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
-import { DICT, type Key, type Locale, makeFormat } from "@/lib/i18n";
+import { DICT, HTML_LANG, type Key, type Locale, makeFormat } from "@/lib/i18n";
 
 type Ctx = {
   locale: Locale;
@@ -15,7 +15,7 @@ export function I18nProvider({ initial, children }: { initial: Locale; children:
   const setLocale = useCallback((l: Locale) => {
     set(l);
     document.cookie = `locale=${l};path=/;max-age=31536000;samesite=lax`;
-    document.documentElement.lang = l;
+    document.documentElement.lang = HTML_LANG[l];
   }, []);
   const value = useMemo<Ctx>(() => ({
     locale, setLocale, fmt: makeFormat(locale),

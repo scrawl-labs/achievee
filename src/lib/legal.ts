@@ -1,4 +1,5 @@
 import type { Locale } from "./i18n";
+import { PRIVACY_ZH } from "./legal-zh";
 
 export type LegalDoc = { title: string; updated: string; sections: { h: string; p: string[] }[] };
 
@@ -7,6 +8,7 @@ const GOOGLE_POLICY = "https://developers.google.com/terms/api-services-user-dat
 
 /** {contact} is replaced with NEXT_PUBLIC_CONTACT_EMAIL. */
 export const PRIVACY: Record<Locale, LegalDoc> = {
+  zh: PRIVACY_ZH,
   en: {
     title: "Privacy Policy", updated: "Last updated",
     sections: [

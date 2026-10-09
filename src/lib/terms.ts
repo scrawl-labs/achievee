@@ -1,10 +1,12 @@
 import type { Locale } from "./i18n";
 import type { LegalDoc } from "./legal";
+import { TERMS_ZH } from "./legal-zh";
 
 export const TERMS_UPDATED = "2026-10-09";
 
 /** {contact} is replaced with NEXT_PUBLIC_CONTACT_EMAIL. */
 export const TERMS: Record<Locale, LegalDoc> = {
+  zh: TERMS_ZH,
   en: {
     title: "Terms of Service", updated: "Last updated",
     sections: [

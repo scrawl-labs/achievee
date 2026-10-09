@@ -1,6 +1,6 @@
 "use client";
 import { signIn } from "next-auth/react";
-import type { Key } from "@/lib/i18n";
+import { GOOGLE_HL, type Key } from "@/lib/i18n";
 import Blob from "./Blob";
 import Footer from "./Footer";
 import GoogleG from "./GoogleG";
@@ -38,7 +38,7 @@ const TRUST: { t: Key; d: Key }[] = [
 
 export default function Landing() {
   const { t, fmt, locale } = useI18n();
-  const go = () => signIn("google", undefined, { hl: locale });
+  const go = () => signIn("google", undefined, { hl: GOOGLE_HL[locale] });
   const gbtn = (cls = "") => (
     <button className={`gbtn ${cls}`} onClick={go}><GoogleG size={18} />{t("login.cta")}</button>
   );

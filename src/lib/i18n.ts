@@ -1,8 +1,12 @@
 import { LAND, type LandKey } from "./i18n-landing";
+import { ZH } from "./i18n-zh";
 
-export const LOCALES = ["en", "ko", "ja", "es"] as const;
+export const LOCALES = ["en", "ko", "ja", "es", "zh"] as const;
 export type Locale = (typeof LOCALES)[number];
-export const LOCALE_NAMES: Record<Locale, string> = { en: "English", ko: "한국어", ja: "日本語", es: "Español" };
+export const LOCALE_NAMES: Record<Locale, string> = { en: "English", ko: "한국어", ja: "日本語", es: "Español", zh: "繁體中文" };
+/** Value for <html lang> and for Google's hl= (so the consent screen follows the app language). */
+export const HTML_LANG: Record<Locale, string> = { en: "en", ko: "ko", ja: "ja", es: "es", zh: "zh-Hant" };
+export const GOOGLE_HL: Record<Locale, string> = { en: "en", ko: "ko", ja: "ja", es: "es", zh: "zh-TW" };
 export const DEFAULT_LOCALE: Locale = "en";
 export const isLocale = (v: unknown): v is Locale => LOCALES.includes(v as Locale);
 
@@ -114,6 +118,7 @@ const es: BaseDict = {
 
 export const DICT: Record<Locale, Dict> = {
   en: { ...en, ...LAND.en }, ko: { ...ko, ...LAND.ko }, ja: { ...ja, ...LAND.ja }, es: { ...es, ...LAND.es },
+  zh: { ...(ZH as BaseDict), ...LAND.zh },
 };
 
 export const CATEGORIES = ["food", "cafe", "transport", "shopping", "culture", "other"] as const;
@@ -122,8 +127,8 @@ export type Category = (typeof CATEGORIES)[number];
 const LEGACY_CAT: Record<string, Category> = { 식비: "food", 카페: "cafe", 교통: "transport", 쇼핑: "shopping", 문화: "culture", 기타: "other" };
 export const categoryOf = (v: string): Category => ((CATEGORIES as readonly string[]).includes(v) ? (v as Category) : LEGACY_CAT[v] ?? "other");
 
-const CURRENCY: Record<Locale, string> = { en: "USD", ko: "KRW", ja: "JPY", es: "EUR" };
-const INTL: Record<Locale, string> = { en: "en-US", ko: "ko-KR", ja: "ja-JP", es: "es-ES" };
+const CURRENCY: Record<Locale, string> = { en: "USD", ko: "KRW", ja: "JPY", es: "EUR", zh: "TWD" };
+const INTL: Record<Locale, string> = { en: "en-US", ko: "ko-KR", ja: "ja-JP", es: "es-ES", zh: "zh-TW" };
 
 /** Locale-aware formatters; calendar dates are plain YYYY-MM-DD so everything formats in UTC. */
 export function makeFormat(locale: Locale) {

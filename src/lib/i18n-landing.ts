@@ -1,4 +1,5 @@
 import type { Locale } from "./i18n";
+import { ZH_LAND } from "./i18n-zh";
 
 // Landing page copy. Merged into the main dictionary in i18n.ts.
 const en = {
@@ -92,4 +93,4 @@ const es: Record<K, string> = {
 };
 
 export type LandKey = K;
-export const LAND: Record<Locale, Record<K, string>> = { en, ko, ja, es };
+export const LAND: Record<Locale, Record<K, string>> = { en, ko, ja, es, zh: ZH_LAND };
