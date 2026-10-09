@@ -11,7 +11,8 @@ import StatsView from "./StatsView";
 import DiaryView from "./DiaryView";
 import ExpenseView from "./ExpenseView";
 import GoogleCalView, { type GMode } from "./GoogleCalView";
-import Icon, { Brand } from "./Icon";
+import Icon from "./Icon";
+import Wordmark from "./Wordmark";
 import Footer from "./Footer";
 import { useI18n } from "./I18n";
 import { prefetch, useApi } from "./useApi";
@@ -78,7 +79,7 @@ function Main() {
   return (
     <div className="shell">
       <aside className="side">
-        <div className="brand"><Brand /><span>Achievee</span></div>
+        <div className="brand"><Wordmark height={22} /></div>
         <nav className="nav">
           {TABS.map((tb) => (
             <button key={tb.key} className={tab === tb.key ? "on" : ""} onClick={() => setTab(tb.key)}>

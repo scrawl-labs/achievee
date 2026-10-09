@@ -1,10 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Achievee logo">
-  <!-- app icon background -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Achievee">
   <rect width="512" height="512" rx="115" fill="#0F1115"/>
-  <!-- three stacked layers, centred -->
-  <g transform="translate(256 256) scale(1.18) translate(-120 -162.5)">
-    <rect x="0" y="190" width="240" height="135" rx="36" fill="#3A3F47" stroke="#555B65" stroke-width="4.5"/>
-    <rect x="0" y="95" width="240" height="135" rx="36" fill="#E5E8EB" stroke="#CED3D9" stroke-width="4.5"/>
-    <rect x="0" y="0" width="240" height="135" rx="36" fill="#FFFFFF" stroke="#E2E6EA" stroke-width="4.5"/>
-  </g>
+  <path fill="#FFFFFF" stroke="#FFFFFF" stroke-width="46" stroke-linejoin="round" stroke-linecap="round" transform="translate(133.5 362.3) scale(0.3367 -0.3367)" d="M46 -129Q34 -126 26.5 -113.5Q19 -101 23 -89Q25 -83 29 -71.5Q33 -60 34 -54Q73 64 123 196Q147 260 199 387Q210 413 231.5 463.5Q253 514 263 540Q268 550 276 570L277 571L279 577Q281 580 282.5 584.5Q284 589 286 591Q289 600 296 618Q303 636 307 645Q328 701 338 737Q344 759 369 761Q391 763 401 737Q433 641 462 562Q511 424 581 237Q589 226 589 216L589 214Q613 151 704 -89Q709 -101 701.5 -113Q694 -125 682 -129Q671 -132 657 -125Q645 -118 642 -105Q589 31 576 66Q568 85 554.5 123.5Q541 162 533 181Q496 179 474 179Q439 178 341.5 182Q244 186 191 182L188 182Q186 177 182 166.5Q178 156 176 151Q131 30 86 -106Q81 -119 70 -125.5Q59 -132 46 -129ZM253 349Q226 284 213 250L273 250Q289 250 376 246.5Q463 243 509 245Q500 270 480.5 321.5Q461 373 452 399Q369 627 369 627Q369 625 367 621Q365 617 364 615Q355 591 313 492Q311 487 306.5 475.5Q302 464 299 459L292 441L288 431Q290 435 290 435Q288 431 287 429Q281 415 270 388.5Q259 362 253 349Z"/>
 </svg>

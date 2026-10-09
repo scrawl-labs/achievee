@@ -299,3 +299,6 @@ button.mcell:hover { background: var(--surface-2); } .mcell.sel { background: co
 
 /* the sidebar brand is hidden on mobile; keep it on the login and legal pages */
 @media (max-width: 860px) { .login-card .brand, .legal .brand { display: flex; } }
+
+.brand { color: var(--fg); }
+.legal header .brand { text-decoration: none; }
