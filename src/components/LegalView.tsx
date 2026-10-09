@@ -16,9 +16,8 @@ export default function LegalView({ kind, contact }: { kind: "privacy" | "terms"
   const updated = kind === "privacy" ? PRIVACY_UPDATED : TERMS_UPDATED;
   return (
     <main className="legal">
-      <header className="row between">
+      <header>
         <Link href="/" className="brand"><Brand /><span>Achievee</span></Link>
-        <LanguageSelect />
       </header>
       <h1>{doc.title}</h1>
       <p className="muted">{doc.updated}: {updated}</p>
@@ -28,6 +27,7 @@ export default function LegalView({ kind, contact }: { kind: "privacy" | "terms"
           {s.p.map((p, i) => <p key={i}>{linkify(p.replace("{contact}", contact))}</p>)}
         </section>
       ))}
+      <footer><LanguageSelect /></footer>
     </main>
   );
 }

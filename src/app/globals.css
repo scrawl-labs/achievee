@@ -282,3 +282,6 @@ button.mcell:hover { background: var(--surface-2); } .mcell.sel { background: co
 .account .lang { margin-right: auto; }
 .legal-links { flex-wrap: wrap; }
 .login-card .legal-links { justify-content: center; }
+
+.lang { width: auto; background: var(--surface-2); }
+.legal footer { margin-top: var(--s6); padding-top: var(--s4); border-top: 1px solid var(--line); }
