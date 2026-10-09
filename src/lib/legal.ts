@@ -14,7 +14,7 @@ export const PRIVACY: Record<Locale, LegalDoc> = {
       { h: "Data we access from Google", p: [
         "With your consent, Achievee reads (read-only) your Google Calendar events and calendar list, and your Google Tasks. We also receive your Google account ID, email address and name to sign you in.",
         "We never create, edit or delete anything in your Google account.",
-        "Calendar and Tasks data is fetched on demand to draw your screens. It is not stored in our database.",
+        "Google Calendar and Google Tasks data is fetched on demand to draw your screens. It is not stored in our database.",
       ] },
       { h: "Data we store", p: [
         "Only what you type into Achievee: diary entries (with mood) and expenses (category, amount, memo), linked to your Google account ID. Diary text and expense memos are encrypted at rest.",
@@ -36,11 +36,11 @@ export const PRIVACY: Record<Locale, LegalDoc> = {
   ko: {
     title: "개인정보처리방침", updated: "최종 수정일",
     sections: [
-      { h: "Achievee란", p: ["Achievee는 Google 캘린더 일정과 Google 할 일을 하루하루의 성취로 보여주고, 일기와 지출을 기록할 수 있는 서비스입니다."] },
+      { h: "Achievee란", p: ["Achievee는 Google Calendar 일정과 Google Tasks를 하루하루의 성취로 보여주고, 일기와 지출을 기록할 수 있는 서비스입니다."] },
       { h: "Google에서 가져오는 정보", p: [
-        "동의하신 경우에 한해 Google 캘린더의 일정과 캘린더 목록, Google 할 일을 읽기 전용으로 가져옵니다. 로그인을 위해 Google 계정 ID, 이메일 주소, 이름도 받습니다.",
+        "동의하신 경우에 한해 Google Calendar의 일정과 캘린더 목록, Google Tasks를 읽기 전용으로 가져옵니다. 로그인을 위해 Google 계정 ID, 이메일 주소, 이름도 받습니다.",
         "Google 계정의 어떤 정보도 생성, 수정, 삭제하지 않습니다.",
-        "캘린더와 할 일 정보는 화면을 그릴 때마다 가져오며, 저희 데이터베이스에 저장하지 않습니다.",
+        "Google Calendar와 Google Tasks 정보는 화면을 그릴 때마다 가져오며, 저희 데이터베이스에 저장하지 않습니다.",
       ] },
       { h: "저장하는 정보", p: [
         "이용자가 Achievee에 직접 입력한 일기(기분 포함)와 지출(카테고리, 금액, 메모)만 Google 계정 ID와 연결해 저장합니다. 일기 본문과 지출 메모는 암호화해서 보관합니다.",
@@ -62,11 +62,11 @@ export const PRIVACY: Record<Locale, LegalDoc> = {
   ja: {
     title: "プライバシーポリシー", updated: "最終更新日",
     sections: [
-      { h: "Achievee について", p: ["Achievee は、Google カレンダーの予定と Google ToDo リストを毎日の達成状況として表示し、日記や支出を記録できるサービスです。"] },
+      { h: "Achievee について", p: ["Achievee は、Google Calendar の予定と Google Tasks を毎日の達成状況として表示し、日記や支出を記録できるサービスです。"] },
       { h: "Google から取得する情報", p: [
-        "ご同意いただいた場合に限り、Google カレンダーの予定とカレンダー一覧、Google ToDo リストを読み取り専用で取得します。ログインのため、Google アカウント ID、メールアドレス、氏名も受け取ります。",
+        "ご同意いただいた場合に限り、Google Calendar の予定とカレンダー一覧、Google Tasks を読み取り専用で取得します。ログインのため、Google アカウント ID、メールアドレス、氏名も受け取ります。",
         "Google アカウント内の情報を作成・編集・削除することはありません。",
-        "カレンダーとタスクの情報は画面表示のたびに取得し、当社のデータベースには保存しません。",
+        "Google Calendar と Google Tasks の情報は画面表示のたびに取得し、当社のデータベースには保存しません。",
       ] },
       { h: "保存する情報", p: [
         "ユーザーが Achievee に入力した日記（気分を含む）と支出（カテゴリ、金額、メモ）のみを Google アカウント ID と紐付けて保存します。日記本文と支出メモは暗号化して保管します。",
@@ -92,7 +92,7 @@ export const PRIVACY: Record<Locale, LegalDoc> = {
       { h: "Datos que obtenemos de Google", p: [
         "Con tu consentimiento, Achievee lee (solo lectura) los eventos y la lista de tus calendarios de Google Calendar y tus Google Tasks. También recibimos el ID de tu cuenta de Google, tu correo electrónico y tu nombre para iniciar sesión.",
         "Nunca creamos, editamos ni eliminamos nada en tu cuenta de Google.",
-        "Los datos de Calendar y Tasks se obtienen en el momento para mostrar tus pantallas. No se guardan en nuestra base de datos.",
+        "Los datos de Google Calendar y Google Tasks se obtienen en el momento para mostrar tus pantallas. No se guardan en nuestra base de datos.",
       ] },
       { h: "Datos que almacenamos", p: [
         "Solo lo que escribes en Achievee: entradas de diario (con estado de ánimo) y gastos (categoría, importe, nota), vinculados al ID de tu cuenta de Google. El texto del diario y las notas de los gastos se cifran en reposo.",

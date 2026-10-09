@@ -65,9 +65,7 @@ export default function Landing() {
 
         <div className="hero-copy">
           <h1>{t("login.tagline")}</h1>
-          <p>{t("land.hero.sub")}</p>
           {gbtn()}
-          <small>{t("land.hero.note")}</small>
         </div>
 
         <div className="win" aria-hidden="true">

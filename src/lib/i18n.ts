@@ -17,7 +17,7 @@ export function fromAcceptLanguage(h: string | null): Locale {
 
 const en = {
   "nav.calendar": "Calendar", "nav.stats": "Stats", "nav.diary": "Diary", "nav.expense": "Spending", "nav.google": "Google Calendar",
-  "login.tagline": "Turn your Google Calendar and Tasks into daily progress.",
+  "login.tagline": "Turn your Google Calendar and Google Tasks into daily progress.",
   "login.cta": "Continue with Google",
   "login.note": "Achievee reads your calendar and tasks (read-only) to show your progress. It never changes them.",
   "legal.privacy": "Privacy Policy", "legal.terms": "Terms of Service", "account.delete": "Delete my data", "account.deleteConfirm": "Permanently delete your diary and spending data and sign out? This can't be undone.",
@@ -34,7 +34,7 @@ const en = {
   "exp.category": "Category", "exp.needOrNot": "Needed or not", "exp.needOpt": "Needed expense", "exp.wasteOpt": "Unneeded expense",
   "exp.amount": "Amount", "exp.memo": "Memo", "exp.toggle": "Click to switch",
   "cat.food": "Food", "cat.cafe": "Café", "cat.transport": "Transport", "cat.shopping": "Shopping", "cat.culture": "Culture", "cat.other": "Other",
-  "g.day": "Day", "g.week": "Week", "g.month": "Month", "g.agenda": "List", "g.open": "Open in Google Calendar", "g.tasks": "Tasks",
+  "g.day": "Day", "g.week": "Week", "g.month": "Month", "g.agenda": "List", "g.open": "Open in Google Calendar", "g.tasks": "Google Tasks",
   "g.more": "+{n} more", "hour": "{h}:00",
 } as const;
 
@@ -44,10 +44,10 @@ type BaseDict = Record<BaseKey, string>;
 type Dict = Record<Key, string>;
 
 const ko: BaseDict = {
-  "nav.calendar": "달력", "nav.stats": "통계", "nav.diary": "일기", "nav.expense": "지출", "nav.google": "구글 캘린더",
-  "login.tagline": "구글 캘린더와 할 일을 매일의 성취로 바꿔 보세요.",
+  "nav.calendar": "달력", "nav.stats": "통계", "nav.diary": "일기", "nav.expense": "지출", "nav.google": "Google Calendar",
+  "login.tagline": "Google Calendar와 Google Tasks를 매일의 성취로 바꿔 보세요.",
   "login.cta": "Google로 계속하기",
-  "login.note": "Achievee는 진행 상황을 보여주기 위해 캘린더와 할 일을 읽기 전용으로만 가져오며, 절대 수정하지 않아요.",
+  "login.note": "Achievee는 진행 상황을 보여주기 위해 Google Calendar와 Google Tasks를 읽기 전용으로만 가져오며, 절대 수정하지 않아요.",
   "legal.privacy": "개인정보처리방침", "legal.terms": "이용약관", "account.delete": "내 데이터 삭제", "account.deleteConfirm": "일기와 지출 데이터를 모두 영구 삭제하고 로그아웃할까요? 되돌릴 수 없어요.",
   "account.signOut": "로그아웃", "account.language": "언어",
   "common.today": "오늘", "common.prev": "이전", "common.next": "다음", "common.save": "저장", "common.add": "추가",
@@ -62,15 +62,15 @@ const ko: BaseDict = {
   "exp.category": "카테고리", "exp.needOrNot": "필요 여부", "exp.needOpt": "필요한 지출", "exp.wasteOpt": "불필요한 지출",
   "exp.amount": "금액", "exp.memo": "메모", "exp.toggle": "눌러서 바꾸기",
   "cat.food": "식비", "cat.cafe": "카페", "cat.transport": "교통", "cat.shopping": "쇼핑", "cat.culture": "문화", "cat.other": "기타",
-  "g.day": "일", "g.week": "주", "g.month": "월", "g.agenda": "목록", "g.open": "구글 캘린더에서 보기", "g.tasks": "할 일",
+  "g.day": "일", "g.week": "주", "g.month": "월", "g.agenda": "목록", "g.open": "Google Calendar에서 보기", "g.tasks": "Google Tasks",
   "g.more": "+{n}개", "hour": "{h}시",
 };
 
 const ja: BaseDict = {
-  "nav.calendar": "カレンダー", "nav.stats": "統計", "nav.diary": "日記", "nav.expense": "支出", "nav.google": "Google カレンダー",
-  "login.tagline": "Google カレンダーとタスクを、毎日の達成感に。",
+  "nav.calendar": "カレンダー", "nav.stats": "統計", "nav.diary": "日記", "nav.expense": "支出", "nav.google": "Google Calendar",
+  "login.tagline": "Google Calendar と Google Tasks を、毎日の達成感に。",
   "login.cta": "Google で続ける",
-  "login.note": "Achievee は進捗を表示するためにカレンダーとタスクを読み取り専用で取得します。変更することはありません。",
+  "login.note": "Achievee は進捗を表示するために Google Calendar と Google Tasks を読み取り専用で取得します。変更することはありません。",
   "legal.privacy": "プライバシーポリシー", "legal.terms": "利用規約", "account.delete": "データを削除", "account.deleteConfirm": "日記と支出のデータをすべて完全に削除してログアウトしますか？ 元に戻せません。",
   "account.signOut": "ログアウト", "account.language": "言語",
   "common.today": "今日", "common.prev": "前へ", "common.next": "次へ", "common.save": "保存", "common.add": "追加",
@@ -85,15 +85,15 @@ const ja: BaseDict = {
   "exp.category": "カテゴリ", "exp.needOrNot": "必要かどうか", "exp.needOpt": "必要な支出", "exp.wasteOpt": "不要な支出",
   "exp.amount": "金額", "exp.memo": "メモ", "exp.toggle": "クリックで切り替え",
   "cat.food": "食費", "cat.cafe": "カフェ", "cat.transport": "交通", "cat.shopping": "買い物", "cat.culture": "文化", "cat.other": "その他",
-  "g.day": "日", "g.week": "週", "g.month": "月", "g.agenda": "リスト", "g.open": "Google カレンダーで開く", "g.tasks": "タスク",
+  "g.day": "日", "g.week": "週", "g.month": "月", "g.agenda": "リスト", "g.open": "Google Calendar で開く", "g.tasks": "Google Tasks",
   "g.more": "+{n}件", "hour": "{h}時",
 };
 
 const es: BaseDict = {
   "nav.calendar": "Calendario", "nav.stats": "Estadísticas", "nav.diary": "Diario", "nav.expense": "Gastos", "nav.google": "Google Calendar",
-  "login.tagline": "Convierte tu Google Calendar y tus tareas en progreso diario.",
+  "login.tagline": "Convierte tu Google Calendar y tus Google Tasks en progreso diario.",
   "login.cta": "Continuar con Google",
-  "login.note": "Achievee lee tu calendario y tus tareas (solo lectura) para mostrar tu progreso. Nunca los modifica.",
+  "login.note": "Achievee lee tu Google Calendar y tus Google Tasks (solo lectura) para mostrar tu progreso. Nunca los modifica.",
   "legal.privacy": "Política de privacidad", "legal.terms": "Términos del servicio", "account.delete": "Eliminar mis datos", "account.deleteConfirm": "¿Eliminar de forma permanente tu diario y tus gastos y cerrar sesión? No se puede deshacer.",
   "account.signOut": "Cerrar sesión", "account.language": "Idioma",
   "common.today": "Hoy", "common.prev": "Anterior", "common.next": "Siguiente", "common.save": "Guardar", "common.add": "Añadir",
@@ -108,7 +108,7 @@ const es: BaseDict = {
   "exp.category": "Categoría", "exp.needOrNot": "¿Necesario?", "exp.needOpt": "Gasto necesario", "exp.wasteOpt": "Gasto innecesario",
   "exp.amount": "Importe", "exp.memo": "Nota", "exp.toggle": "Clic para cambiar",
   "cat.food": "Comida", "cat.cafe": "Café", "cat.transport": "Transporte", "cat.shopping": "Compras", "cat.culture": "Cultura", "cat.other": "Otros",
-  "g.day": "Día", "g.week": "Semana", "g.month": "Mes", "g.agenda": "Lista", "g.open": "Abrir en Google Calendar", "g.tasks": "Tareas",
+  "g.day": "Día", "g.week": "Semana", "g.month": "Mes", "g.agenda": "Lista", "g.open": "Abrir en Google Calendar", "g.tasks": "Google Tasks",
   "g.more": "+{n} más", "hour": "{h}:00",
 };
 

@@ -2,8 +2,6 @@ import type { Locale } from "./i18n";
 
 // Landing page copy. Merged into the main dictionary in i18n.ts.
 const en = {
-  "land.hero.sub": "Achievee reads your Google Calendar and Google Tasks and shows what you got done — day by day, streak by streak.",
-  "land.hero.note": "Free · Read-only access · Your Google data is never stored",
   "land.f.title": "Everything about your day, in one calm place",
   "land.f1.t": "Daily progress", "land.f1.d": "Finished tasks bloom on a calendar of badges. The fuller the badge, the better the day.",
   "land.f2.t": "Streaks & stats", "land.f2.d": "Completion rate, longest streak and the weekdays you shine on.",
@@ -15,7 +13,7 @@ const en = {
   "land.s3.t": "Keep your day", "land.s3.d": "Add a diary entry or an expense whenever you like.",
   "land.trust.title": "Built to respect your data",
   "land.t1.t": "Read-only", "land.t1.d": "We can't create, edit or delete anything in your Google account.",
-  "land.t2.t": "Not stored", "land.t2.d": "Calendar and Tasks are fetched when you open the app, not saved.",
+  "land.t2.t": "Not stored", "land.t2.d": "Google Calendar and Google Tasks are fetched when you open the app, not saved.",
   "land.t3.t": "Encrypted", "land.t3.d": "Diary text and expense memos are encrypted at rest.",
   "land.t4.t": "Yours to delete", "land.t4.d": "Remove your data with one button, or revoke access in Google anytime.",
   "land.final.title": "Ready to see how much you've done?",
@@ -28,12 +26,10 @@ const en = {
 type K = keyof typeof en;
 
 const ko: Record<K, string> = {
-  "land.hero.sub": "Achievee는 Google 캘린더와 Google 할 일을 읽어서, 하루하루 그리고 연속으로 얼마나 해냈는지 보여줘요.",
-  "land.hero.note": "무료 · 읽기 전용 · Google 데이터는 저장하지 않아요",
   "land.f.title": "하루의 모든 기록을 한곳에서",
   "land.f1.t": "하루 성취", "land.f1.d": "끝낸 할 일이 배지로 피어나요. 배지가 가득할수록 좋은 하루예요.",
   "land.f2.t": "연속 달성과 통계", "land.f2.d": "달성률, 최장 연속, 그리고 유난히 잘 해내는 요일까지.",
-  "land.f3.t": "내 구글 캘린더", "land.f3.d": "쓰고 있는 모든 캘린더를 일, 주, 월, 목록으로 보세요.",
+  "land.f3.t": "Google Calendar", "land.f3.d": "쓰고 있는 모든 캘린더를 일, 주, 월, 목록으로 보세요.",
   "land.f4.t": "일기와 지출", "land.f4.d": "기분과 함께 하루를 적고, 돈이 어디로 가는지도 챙겨요.",
   "land.how.title": "이렇게 써요",
   "land.s1.t": "Google로 로그인", "land.s1.d": "클릭 한 번. 읽기 전용 권한만 요청해요.",
@@ -41,7 +37,7 @@ const ko: Record<K, string> = {
   "land.s3.t": "하루 기록", "land.s3.d": "원할 때 일기나 지출을 남겨요.",
   "land.trust.title": "내 데이터를 먼저 생각해요",
   "land.t1.t": "읽기 전용", "land.t1.d": "Google 계정의 어떤 것도 만들거나 고치거나 지울 수 없어요.",
-  "land.t2.t": "저장 안 함", "land.t2.d": "캘린더와 할 일은 앱을 열 때만 가져오고, 저장하지 않아요.",
+  "land.t2.t": "저장 안 함", "land.t2.d": "Google Calendar와 Google Tasks는 앱을 열 때만 가져오고, 저장하지 않아요.",
   "land.t3.t": "암호화", "land.t3.d": "일기 본문과 지출 메모는 암호화해서 보관해요.",
   "land.t4.t": "언제든 삭제", "land.t4.d": "버튼 하나로 데이터를 지우고, Google에서 권한도 언제든 취소할 수 있어요.",
   "land.final.title": "얼마나 해냈는지 확인해 볼까요?",
@@ -52,12 +48,10 @@ const ko: Record<K, string> = {
 };
 
 const ja: Record<K, string> = {
-  "land.hero.sub": "Achievee は Google カレンダーと Google ToDo リストを読み取り、毎日の達成と連続記録を見せてくれます。",
-  "land.hero.note": "無料 · 読み取り専用 · Google のデータは保存しません",
   "land.f.title": "一日のすべてを、ひとつの場所で",
   "land.f1.t": "毎日の達成", "land.f1.d": "終えたタスクがバッジになって咲きます。バッジが満ちるほど、いい一日。",
   "land.f2.t": "連続記録と統計", "land.f2.d": "達成率、最長連続、得意な曜日までわかります。",
-  "land.f3.t": "Google カレンダー", "land.f3.d": "使っているすべてのカレンダーを日、週、月、リストで表示。",
+  "land.f3.t": "Google Calendar", "land.f3.d": "使っているすべてのカレンダーを日、週、月、リストで表示。",
   "land.f4.t": "日記と支出", "land.f4.d": "気分と一緒に一日を記録し、お金の流れもチェック。",
   "land.how.title": "使い方",
   "land.s1.t": "Google でログイン", "land.s1.d": "ワンクリック。求めるのは読み取り専用の権限だけです。",
@@ -65,7 +59,7 @@ const ja: Record<K, string> = {
   "land.s3.t": "一日を記録", "land.s3.d": "好きなときに日記や支出を追加できます。",
   "land.trust.title": "あなたのデータを大切に",
   "land.t1.t": "読み取り専用", "land.t1.d": "Google アカウントの内容を作成・編集・削除することはできません。",
-  "land.t2.t": "保存しません", "land.t2.d": "カレンダーとタスクはアプリを開いたときに取得するだけで、保存しません。",
+  "land.t2.t": "保存しません", "land.t2.d": "Google Calendar と Google Tasks はアプリを開いたときに取得するだけで、保存しません。",
   "land.t3.t": "暗号化", "land.t3.d": "日記の本文と支出メモは暗号化して保管します。",
   "land.t4.t": "いつでも削除", "land.t4.d": "ボタンひとつでデータを削除でき、Google でいつでも権限を取り消せます。",
   "land.final.title": "どれだけ達成したか、見てみませんか？",
@@ -76,12 +70,10 @@ const ja: Record<K, string> = {
 };
 
 const es: Record<K, string> = {
-  "land.hero.sub": "Achievee lee tu Google Calendar y tus Google Tasks y te muestra lo que lograste, día a día y racha a racha.",
-  "land.hero.note": "Gratis · Acceso de solo lectura · Tus datos de Google no se guardan",
   "land.f.title": "Todo tu día, en un solo lugar tranquilo",
   "land.f1.t": "Progreso diario", "land.f1.d": "Las tareas terminadas florecen en un calendario de insignias. Cuanto más llena, mejor el día.",
   "land.f2.t": "Rachas y estadísticas", "land.f2.d": "Cumplimiento, mejor racha y los días de la semana en que más brillas.",
-  "land.f3.t": "Tu Google Calendar", "land.f3.d": "Vistas de día, semana, mes y lista de todos tus calendarios.",
+  "land.f3.t": "Google Calendar", "land.f3.d": "Vistas de día, semana, mes y lista de todos tus calendarios.",
   "land.f4.t": "Diario y gastos", "land.f4.d": "Anota tu día con tu estado de ánimo y controla en qué gastas.",
   "land.how.title": "Cómo funciona",
   "land.s1.t": "Entra con Google", "land.s1.d": "Un clic. Solo pedimos acceso de solo lectura.",
@@ -89,7 +81,7 @@ const es: Record<K, string> = {
   "land.s3.t": "Guarda tu día", "land.s3.d": "Añade una entrada de diario o un gasto cuando quieras.",
   "land.trust.title": "Hecho para respetar tus datos",
   "land.t1.t": "Solo lectura", "land.t1.d": "No podemos crear, editar ni borrar nada de tu cuenta de Google.",
-  "land.t2.t": "No se guardan", "land.t2.d": "Calendar y Tasks se obtienen al abrir la app y no se almacenan.",
+  "land.t2.t": "No se guardan", "land.t2.d": "Google Calendar y Google Tasks se obtienen al abrir la app y no se almacenan.",
   "land.t3.t": "Cifrado", "land.t3.d": "El texto del diario y las notas de gastos se cifran en reposo.",
   "land.t4.t": "Tú decides", "land.t4.d": "Borra tus datos con un botón o revoca el acceso en Google cuando quieras.",
   "land.final.title": "¿Listo para ver cuánto has logrado?",
