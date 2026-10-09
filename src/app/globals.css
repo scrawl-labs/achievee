@@ -276,3 +276,9 @@ button.mcell:hover { background: var(--surface-2); } .mcell.sel { background: co
 .legal-links { flex-basis: 100%; display: flex; gap: var(--s3); font-size: 12px; }
 .legal-links a, .legal-links button { color: var(--fg-3); background: none; border: 0; padding: 0; font: inherit; cursor: pointer; text-decoration: underline; }
 .legal-links a:hover, .legal-links button:hover { color: var(--fg); }
+
+/* language select: small, last item of the account area */
+.lang { height: 28px; padding: 0 var(--s2); font-size: 12px; color: var(--fg-2); }
+.account .lang { margin-right: auto; }
+.legal-links { flex-wrap: wrap; }
+.login-card .legal-links { justify-content: center; }

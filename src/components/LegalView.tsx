@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { PRIVACY, PRIVACY_UPDATED } from "@/lib/legal";
+import { TERMS, TERMS_UPDATED } from "@/lib/terms";
 import { Brand } from "./Icon";
 import LanguageSelect from "./LanguageSelect";
 import { useI18n } from "./I18n";
@@ -9,9 +10,10 @@ const URL_RE = /(https?:\/\/[^\s)]+)/g;
 const linkify = (text: string) =>
   text.split(URL_RE).map((part, i) => (i % 2 ? <a key={i} href={part} target="_blank" rel="noreferrer">{part}</a> : part));
 
-export default function PrivacyView({ contact }: { contact: string }) {
+export default function LegalView({ kind, contact }: { kind: "privacy" | "terms"; contact: string }) {
   const { locale } = useI18n();
-  const doc = PRIVACY[locale];
+  const doc = (kind === "privacy" ? PRIVACY : TERMS)[locale];
+  const updated = kind === "privacy" ? PRIVACY_UPDATED : TERMS_UPDATED;
   return (
     <main className="legal">
       <header className="row between">
@@ -19,7 +21,7 @@ export default function PrivacyView({ contact }: { contact: string }) {
         <LanguageSelect />
       </header>
       <h1>{doc.title}</h1>
-      <p className="muted">{doc.updated}: {PRIVACY_UPDATED}</p>
+      <p className="muted">{doc.updated}: {updated}</p>
       {doc.sections.map((s) => (
         <section key={s.h}>
           <h2>{s.h}</h2>

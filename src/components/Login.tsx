@@ -17,8 +17,8 @@ export default function Login() {
           <GCalLogo size={18} />{t("login.cta")}
         </button>
         <p className="muted login-note">{t("login.note")}</p>
+        <span className="legal-links"><Link href="/privacy">{t("legal.privacy")}</Link><Link href="/terms">{t("legal.terms")}</Link></span>
         <LanguageSelect />
-        <Link className="muted login-note" href="/privacy">{t("legal.privacy")}</Link>
       </div>
     </main>
   );

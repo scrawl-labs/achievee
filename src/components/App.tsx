@@ -78,12 +78,13 @@ function Main() {
 
   const account = (
     <>
-      <LanguageSelect />
       <button className="btn" onClick={() => signOut()}>{t("account.signOut")}</button>
       <span className="legal-links">
         <Link href="/privacy">{t("legal.privacy")}</Link>
+        <Link href="/terms">{t("legal.terms")}</Link>
         <button type="button" onClick={deleteData}>{t("account.delete")}</button>
       </span>
+      <LanguageSelect />
     </>
   );
 
