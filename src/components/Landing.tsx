@@ -22,7 +22,7 @@ const NAV: { icon: "calendar" | "chart" | "book" | "wallet" | "external"; k: Key
 ];
 const FLOATERS = [
   { l: "6%", t: "30%", s: 78, lv: 4, n: 5, r: -10, d: 0 }, { l: "15%", t: "56%", s: 56, lv: 3, n: 4, r: 8, d: 1.2 },
-  { l: "82%", t: "27%", s: 64, lv: 2, n: 3, r: 10, d: 0.6 }, { l: "90%", t: "52%", s: 84, lv: 4, n: 6, r: -8, d: 1.8 },
+  { l: "90%", t: "17%", s: 58, lv: 2, n: 3, r: 10, d: 0.6 }, { l: "90%", t: "52%", s: 84, lv: 4, n: 6, r: -8, d: 1.8 },
 ];
 const START_FLOATERS = [
   { l: "7%", t: "22%", s: 70, lv: 4, n: 5, r: -10, d: 0 }, { l: "17%", t: "62%", s: 48, lv: 3, n: 4, r: 8, d: 1 },
