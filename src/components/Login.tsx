@@ -7,13 +7,13 @@ import LanguageSelect from "./LanguageSelect";
 import { useI18n } from "./I18n";
 
 export default function Login() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   return (
     <main className="login">
       <div className="login-card">
         <div className="brand"><Brand size={36} /><span>Achievee</span></div>
         <p className="login-tag">{t("login.tagline")}</p>
-        <button className="btn primary login-cta" onClick={() => signIn("google")}>
+        <button className="btn primary login-cta" onClick={() => signIn("google", undefined, { hl: locale })}>
           <GCalLogo size={18} />{t("login.cta")}
         </button>
         <p className="muted login-note">{t("login.note")}</p>
