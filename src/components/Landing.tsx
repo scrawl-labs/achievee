@@ -24,6 +24,10 @@ const FLOATERS = [
   { l: "6%", t: "30%", s: 78, lv: 4, n: 5, r: -10, d: 0 }, { l: "15%", t: "56%", s: 56, lv: 3, n: 4, r: 8, d: 1.2 },
   { l: "82%", t: "27%", s: 64, lv: 2, n: 3, r: 10, d: 0.6 }, { l: "90%", t: "52%", s: 84, lv: 4, n: 6, r: -8, d: 1.8 },
 ];
+const START_FLOATERS = [
+  { l: "7%", t: "22%", s: 70, lv: 4, n: 5, r: -10, d: 0 }, { l: "17%", t: "62%", s: 48, lv: 3, n: 4, r: 8, d: 1 },
+  { l: "84%", t: "20%", s: 56, lv: 2, n: 3, r: 10, d: 0.5 }, { l: "91%", t: "58%", s: 76, lv: 4, n: 6, r: -8, d: 1.6 },
+];
 const STEPS: { t: Key; d: Key }[] = [
   { t: "land.s1.t", d: "land.s1.d" }, { t: "land.s2.t", d: "land.s2.d" }, { t: "land.s3.t", d: "land.s3.d" },
 ];
@@ -42,9 +46,9 @@ export default function Landing() {
   return (
     <div className="land">
       <div className="hero">
-        <nav className="pill">
+        <nav className="topbar">
           <div className="brand"><Wordmark height={24} /></div>
-          <div className="pill-links">
+          <div className="topbar-links">
             <a href="#features">{t("land.nav.f")}</a>
             <a href="#how">{t("land.nav.how")}</a>
             <a href="#privacy">{t("land.nav.privacy")}</a>
@@ -138,10 +142,14 @@ export default function Landing() {
       </section>
 
       <section className="start">
-        <div>
-          <h2>{t("land.final.title")}</h2>
-          <p>{t("land.final.sub")}</p>
-        </div>
+        {START_FLOATERS.map((f, i) => (
+          <span key={i} className="floater" aria-hidden="true"
+            style={{ left: f.l, top: f.t, width: f.s, height: f.s, transform: `rotate(${f.r}deg)`, animationDelay: `${f.d}s` }}>
+            <Blob level={f.lv} label={f.n} />
+          </span>
+        ))}
+        <h2>{t("land.final.title")}</h2>
+        <p>{t("land.final.sub")}</p>
         {gbtn()}
       </section>
 
