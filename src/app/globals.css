@@ -251,8 +251,9 @@ button.mcell:hover { background: var(--surface-2); } .mcell.sel { background: co
 }
 
 /* login, language select, mobile footer */
-.login { min-height: 100dvh; display: grid; place-items: center; padding: var(--s5); }
-.login-card { width: min(420px, 100%); display: flex; flex-direction: column; align-items: center; gap: var(--s5); text-align: center; }
+.login { min-height: 100dvh; display: flex; flex-direction: column; padding: var(--s5); }
+.login .appfoot { width: min(960px, 100%); margin: 0 auto; }
+.login-card { margin: auto; width: min(420px, 100%); display: flex; flex-direction: column; align-items: center; gap: var(--s5); text-align: center; }
 .login-card .brand { padding: 0; font-size: 22px; }
 .login-tag { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; margin: 0; }
 .login-cta { height: 46px; gap: var(--s2); padding: 0 var(--s5); font-size: 15px; }
@@ -295,3 +296,6 @@ button.mcell:hover { background: var(--surface-2); } .mcell.sel { background: co
   .appfoot { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
   .appfoot-signout { display: inline-flex; }
 }
+
+/* the sidebar brand is hidden on mobile; keep it on the login and legal pages */
+@media (max-width: 860px) { .login-card .brand, .legal .brand { display: flex; } }

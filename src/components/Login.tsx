@@ -1,9 +1,8 @@
 "use client";
-import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { Brand } from "./Icon";
 import GCalLogo from "./GCalLogo";
-import LanguageSelect from "./LanguageSelect";
+import Footer from "./Footer";
 import { useI18n } from "./I18n";
 
 export default function Login() {
@@ -17,9 +16,8 @@ export default function Login() {
           <GCalLogo size={18} />{t("login.cta")}
         </button>
         <p className="muted login-note">{t("login.note")}</p>
-        <span className="legal-links"><Link href="/privacy">{t("legal.privacy")}</Link><Link href="/terms">{t("legal.terms")}</Link></span>
-        <LanguageSelect />
       </div>
+      <Footer />
     </main>
   );
 }
