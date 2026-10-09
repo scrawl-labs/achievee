@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PRIVACY, PRIVACY_UPDATED } from "@/lib/legal";
 import { TERMS, TERMS_UPDATED } from "@/lib/terms";
 import { Brand } from "./Icon";
-import LanguageSelect from "./LanguageSelect";
+import Footer from "./Footer";
 import { useI18n } from "./I18n";
 
 const URL_RE = /(https?:\/\/[^\s)]+)/g;
@@ -27,7 +27,7 @@ export default function LegalView({ kind, contact }: { kind: "privacy" | "terms"
           {s.p.map((p, i) => <p key={i}>{linkify(p.replace("{contact}", contact))}</p>)}
         </section>
       ))}
-      <footer><LanguageSelect /></footer>
+      <Footer />
     </main>
   );
 }

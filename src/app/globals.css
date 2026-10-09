@@ -260,10 +260,6 @@ button.mcell:hover { background: var(--surface-2); } .mcell.sel { background: co
 .lang { height: 36px; padding: 0 var(--s3); border-radius: var(--r-s); background: var(--surface-2); border: 1px solid var(--line); color: var(--fg); font: inherit; }
 .account { flex-wrap: wrap; }
 .account .who { flex-basis: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pagefoot { display: none; }
-@media (max-width: 860px) {
-  .pagefoot { display: flex; gap: var(--s2); justify-content: space-between; padding: var(--s5) 0 calc(80px + env(safe-area-inset-bottom)); }
-}
 
 /* legal pages + account links */
 .legal { max-width: 720px; margin: 0 auto; padding: var(--s6) var(--s5) 96px; line-height: 1.7; }
@@ -279,9 +275,23 @@ button.mcell:hover { background: var(--surface-2); } .mcell.sel { background: co
 
 /* language select: small, last item of the account area */
 .lang { height: 28px; padding: 0 var(--s2); font-size: 12px; color: var(--fg-2); }
-.account .lang { margin-right: auto; }
 .legal-links { flex-wrap: wrap; }
 .login-card .legal-links { justify-content: center; }
 
 .lang { width: auto; background: var(--surface-2); }
-.legal footer { margin-top: var(--s6); padding-top: var(--s4); border-top: 1px solid var(--line); }
+
+/* footer + page body (footer sticks to the bottom on short pages) */
+.page { display: flex; flex-direction: column; min-height: 100dvh; }
+.pagebody { flex: 1; padding-bottom: var(--s6); }
+.appfoot { margin-top: var(--s6); padding-top: var(--s4); border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s3); font-size: 12px; }
+.appfoot-links { display: flex; flex-wrap: wrap; gap: var(--s4); }
+.appfoot-links a, .appfoot-links button { color: var(--fg-3); background: none; border: 0; padding: 0; font: inherit; cursor: pointer; text-decoration: none; }
+.appfoot-links a:hover, .appfoot-links button:hover { color: var(--fg); text-decoration: underline; }
+.appfoot-end { display: flex; align-items: center; gap: var(--s2); }
+.appfoot-signout { display: none; height: 28px; padding: 0 var(--s3); font-size: 12px; }
+.legal { display: flex; flex-direction: column; min-height: 100dvh; }
+.legal .appfoot { margin-top: auto; }
+@media (max-width: 860px) {
+  .appfoot { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+  .appfoot-signout { display: inline-flex; }
+}

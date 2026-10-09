@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import type { MonthData } from "@/lib/types";
 import { computeStats } from "@/lib/stats";
@@ -13,7 +12,7 @@ import DiaryView from "./DiaryView";
 import ExpenseView from "./ExpenseView";
 import GoogleCalView, { type GMode } from "./GoogleCalView";
 import Icon, { Brand } from "./Icon";
-import LanguageSelect from "./LanguageSelect";
+import Footer from "./Footer";
 import { useI18n } from "./I18n";
 import { prefetch, useApi } from "./useApi";
 
@@ -76,18 +75,6 @@ function Main() {
     if (r.ok) signOut();
   };
 
-  const account = (
-    <>
-      <button className="btn" onClick={() => signOut()}>{t("account.signOut")}</button>
-      <span className="legal-links">
-        <Link href="/privacy">{t("legal.privacy")}</Link>
-        <Link href="/terms">{t("legal.terms")}</Link>
-        <button type="button" onClick={deleteData}>{t("account.delete")}</button>
-      </span>
-      <LanguageSelect />
-    </>
-  );
-
   return (
     <div className="shell">
       <aside className="side">
@@ -101,7 +88,7 @@ function Main() {
         </nav>
         <div className="account">
           {session?.user?.email && <small className="muted who" title={session.user.email}>{session.user.email}</small>}
-          {account}
+          <button className="btn" onClick={() => signOut()}>{t("account.signOut")}</button>
         </div>
       </aside>
 
@@ -114,13 +101,15 @@ function Main() {
             <button className="btn icon" onClick={() => shift(1)} aria-label={t("common.next")}><Icon name="right" /></button>
           </div>
         </header>
+        <div className="pagebody">
         {error && <p className="error">{t("common.loadFail")}</p>}
         {tab === "calendar" && <CalendarView ym={ym} month={month} stats={stats} sel={sel} setSel={setSel} />}
         {tab === "stats" && <StatsView stats={stats} month={month} />}
         {tab === "diary" && <DiaryView ym={ym} sel={sel} setSel={setSel} />}
         {tab === "google" && <GoogleCalView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} tasks={month?.ym === ym ? month.days[sel]?.tasks ?? [] : []} />}
         {tab === "expense" && <ExpenseView ym={ym} sel={sel} setSel={setSel} />}
-        <footer className="pagefoot">{account}</footer>
+        </div>
+        <Footer onSignOut={() => signOut()} onDelete={deleteData} />
       </main>
     </div>
   );
