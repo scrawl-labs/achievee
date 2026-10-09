@@ -18,10 +18,6 @@ export default function Icon({ name, size = 20 }: { name: keyof typeof P; size?:
 }
 
 export function Brand({ size = 28 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-      <rect width="32" height="32" rx="9" fill="var(--accent)" />
-      <path d="M9.5 16.5l4.5 4.5 8.5-9.5" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src="/logo.svg" width={size} height={size} alt="" aria-hidden="true" />;
 }
