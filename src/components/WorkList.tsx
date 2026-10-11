@@ -25,7 +25,7 @@ export default function WorkList({ items }: { items: WorkItem[] }) {
     <ul>
       {sorted.map((w) => (
         <li key={w.id}>
-          {w.source === "github" ? <GithubMark /> : <i className="src jira">Jira</i>}
+          {w.source === "github" ? <GithubMark /> : <img className="src-mark jira" src="/jira.png" width={14} height={14} alt="Jira" />}
           <span className="kind">{t(KIND[w.kind], { n: w.count ?? 0 })}</span>
           <a href={w.url} target="_blank" rel="noreferrer"><b>{w.ref}</b>{w.title && ` ${w.title}`}</a>
         </li>

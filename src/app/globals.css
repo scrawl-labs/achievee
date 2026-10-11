@@ -669,3 +669,10 @@ select {
 .workday .src-mark { flex: none; align-self: center; color: var(--fg-2); }
 .workday .src.jira { align-self: center; font-size: 10px; }
 .workday .kind { flex: none; font-size: 11px; font-weight: 700; color: var(--fg-2); background: var(--surface-2); padding: 1px 6px; border-radius: 4px; white-space: nowrap; }
+
+/* work list rows: icon | kind | text, icon and kind stay on the first line when the title wraps */
+.workday li { display: grid; grid-template-columns: 16px 84px minmax(0, 1fr); column-gap: var(--s2); align-items: start; }
+.workday .src-mark { align-self: start; margin-top: 3px; width: 14px; height: 14px; }
+.workday .kind { justify-self: start; margin-top: 1px; max-width: 84px; overflow: hidden; text-overflow: ellipsis; }
+.workday .src-mark.jira { filter: invert(1); mix-blend-mode: screen; }
+@media (prefers-color-scheme: light) { .workday .src-mark.jira { filter: none; mix-blend-mode: multiply; } }
