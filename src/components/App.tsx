@@ -116,7 +116,7 @@ function Main() {
         </header>
         <div className="pagebody">
         {error && <p className="error">{t("common.loadFail")}</p>}
-        {tab === "calendar" && <CalendarView ym={ym} month={month} stats={stats} sel={sel} setSel={setSel} />}
+        {tab === "calendar" && <CalendarView ym={ym} month={month} stats={stats} sel={sel} setSel={setSel} onDiary={() => setTab("diary")} />}
         {tab === "stats" && <StatsView stats={stats} month={month} />}
         {tab === "diary" && <DiaryView ym={ym} sel={sel} setSel={setSel} />}
         {tab === "google" && <GoogleCalView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} tasks={month?.ym === ym ? month.days[sel]?.tasks ?? [] : []} />}

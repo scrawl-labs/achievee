@@ -12,13 +12,14 @@ import WorkList from "./WorkList";
 import { addDays } from "@/lib/dates";
 import { browserTz } from "@/lib/clientTime";
 import type { WorkItem } from "@/lib/integrations/types";
+import { emoLang, wordText } from "@/lib/emotions";
 
 const MON_FIRST = [1, 2, 3, 4, 5, 6, 0];
 
-type Props = { ym: string; month: MonthData | null; stats: Stats | null; sel: string; setSel: (d: string) => void };
+type Props = { ym: string; month: MonthData | null; stats: Stats | null; sel: string; setSel: (d: string) => void; onDiary: () => void };
 
-export default function CalendarView({ ym, month, stats, sel, setSel }: Props) {
-  const { t, fmt } = useI18n();
+export default function CalendarView({ ym, month, stats, sel, setSel, onDiary }: Props) {
+  const { t, fmt, locale } = useI18n();
   const [y, m] = ym.split("-").map(Number);
   const lead = (new Date(Date.UTC(y, m - 1, 1)).getUTCDay() + 6) % 7;
   const count = new Date(Date.UTC(y, m, 0)).getUTCDate();
@@ -27,10 +28,12 @@ export default function CalendarView({ ym, month, stats, sel, setSel }: Props) {
   const data = month?.ym === ym ? month : null;
   const day = data?.days[sel];
 
-  const diary = useApi<{ date: string; body: string }[]>(`/api/diary?ym=${ym}`).data ?? [];
+  const diary = useApi<{ date: string; body: string; emotions?: string[] }[]>(`/api/diary?ym=${ym}`).data ?? [];
   const spent = useApi<{ date: string; amount: number }[]>(`/api/expenses?ym=${ym}`).data ?? [];
   const work = useApi<{ items: WorkItem[]; errors: string[]; connected: string[] }>(`/api/work?from=${sel}&to=${addDays(sel, 1)}&tz=${encodeURIComponent(browserTz())}`).data;
-  const note = diary.find((d) => d.date === sel)?.body;
+  const entry = diary.find((d) => d.date === sel);
+  const note = entry?.body;
+  const diaryDays = new Set(diary.map((d) => d.date));
   const [openNote, setOpenNote] = useState<string | null>(null); // the day whose diary is shown in full
   const daySpent = spent.filter((s) => s.date === sel).reduce((a, s) => a + s.amount, 0);
 
@@ -51,7 +54,7 @@ export default function CalendarView({ ym, month, stats, sel, setSel }: Props) {
               const v = data?.days[date];
               const col = i % 7;
               return (
-                <button key={i} className={`cell${date === sel ? " sel" : ""}`} onClick={() => setSel(date)}>
+                <button key={i} className={`cell${date === sel ? " sel" : ""}${diaryDays.has(date) ? " has-diary" : ""}`} onClick={() => setSel(date)}>
                   <span className={`dnum${col === 5 ? " sat" : col === 6 ? " sun" : ""}${date === today ? " today" : ""}`}>{d}</span>
                   <span className="stamp">
                     <Blob level={v ? level(v.done, v.total) : 0} label={v && v.total ? v.done : ""} />
@@ -86,7 +89,14 @@ export default function CalendarView({ ym, month, stats, sel, setSel }: Props) {
             </section>
           )}
           {daySpent > 0 && <div className="spent"><span>{t("cal.spent")}</span><b>{fmt.money(daySpent)}</b></div>}
-          {note && <button type="button" className={`note${openNote === sel ? " open" : ""}`} aria-expanded={openNote === sel} onClick={() => setOpenNote(openNote === sel ? null : sel)}>{note}</button>}
+          <section className="dayDiary">
+            <div className="row between">
+              <h4>{t("nav.diary")}</h4>
+              <button type="button" className="btn" onClick={onDiary}>{note || entry?.emotions?.length ? t("common.edit") : t("cal.writeDiary")}</button>
+            </div>
+            {entry?.emotions && entry.emotions.length > 0 && <span className="emo-tags">{entry.emotions.map((id) => <i key={id}>{wordText(id, emoLang(locale))}</i>)}</span>}
+            {note && <button type="button" className={`note${openNote === sel ? " open" : ""}`} aria-expanded={openNote === sel} onClick={() => setOpenNote(openNote === sel ? null : sel)}>{note}</button>}
+          </section>
         </aside>
       </div>
     </>

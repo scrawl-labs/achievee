@@ -63,6 +63,8 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
   const [f, setF] = useState({ good: "", hard: "", plan: "", note: "" });
   const [dirty, setDirty] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [openWeeks, setOpenWeeks] = useState<Set<string>>(new Set()); // past reviews shown in full
+  const toggleWeek = (w: string) => setOpenWeeks((o) => { const n = new Set(o); if (n.has(w)) n.delete(w); else n.add(w); return n; });
   useEffect(() => {
     setF({ good: data?.good ?? "", hard: data?.hard ?? "", plan: data?.plan ?? "", note: data?.note ?? "" });
     setDirty(false);
@@ -125,12 +127,24 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
         <section className="list">
           <h3>{t("wk.past")}</h3>
           {(past.data ?? []).length === 0 && <p className="muted">{t("wk.empty")}</p>}
-          {(past.data ?? []).map((r) => (
-            <button key={r.week} className={`item${r.week === week ? " on" : ""}`} onClick={() => setSel(r.week)}>
-              <span className="row between"><b>{fmt.monthDay(r.week)} – {fmt.monthDay(addDays(r.week, 6))}</b></span>
-              <p>{r.good || r.hard || r.plan || r.note}</p>
-            </button>
-          ))}
+          {(past.data ?? []).map((r) => {
+            const isOpen = openWeeks.has(r.week);
+            const answers: [string, string][] = [[t("wk.good"), r.good], [t("wk.hard"), r.hard], [t("wk.plan"), r.plan], [t("wk.note"), r.note]];
+            return (
+              <div key={r.week} className={`item entry${r.week === week ? " on" : ""}${isOpen ? " open" : ""}`}>
+                <button type="button" className="entry-head" aria-expanded={isOpen} onClick={() => toggleWeek(r.week)}>
+                  <span className="row between"><b>{fmt.monthDay(r.week)} – {fmt.monthDay(addDays(r.week, 6))}</b><Icon name="right" size={16} /></span>
+                  {!isOpen && <p>{r.good || r.hard || r.plan || r.note}</p>}
+                </button>
+                {isOpen && (
+                  <div className="entry-body">
+                    {answers.filter(([, v]) => v).map(([label, v]) => <div key={label}><small>{label}</small><p>{v}</p></div>)}
+                    <div className="row end"><button type="button" className="btn" onClick={() => { setSel(r.week); window.scrollTo({ top: 0, behavior: "smooth" }); }}>{t("common.edit")}</button></div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </section>
       </div>
     </div>

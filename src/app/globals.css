@@ -766,3 +766,14 @@ button.note.open { display: block; -webkit-line-clamp: unset; overflow: visible;
 
 .num.sav { color: var(--c6); }
 .sav-rate { margin-left: var(--s2); font-weight: 500; }
+
+/* diary in the calendar day panel */
+.dayDiary { margin-top: var(--s4); display: flex; flex-direction: column; gap: var(--s2); }
+.dayDiary h4 { margin: 0; font-size: 13px; color: var(--fg-2); }
+.dayDiary .btn { height: 28px; padding: 0 var(--s3); font-size: 12px; }
+.dayDiary .emo-tags { margin: 0; }
+.cell.has-diary::after { content: ""; position: absolute; top: 6px; right: 6px; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+
+.entry-body { padding: 0 var(--s4) var(--s3); display: flex; flex-direction: column; gap: var(--s3); }
+.entry-body p { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.65; margin: 2px 0 0; color: var(--fg); }
+.cell.has-diary { position: relative; }
