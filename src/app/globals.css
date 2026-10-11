@@ -674,5 +674,12 @@ select {
 .workday li { display: grid; grid-template-columns: 16px 84px minmax(0, 1fr); column-gap: var(--s2); align-items: start; }
 .workday .src-mark { align-self: start; margin-top: 3px; width: 14px; height: 14px; }
 .workday .kind { justify-self: start; margin-top: 1px; max-width: 84px; overflow: hidden; text-overflow: ellipsis; }
-.workday .src-mark.jira { filter: invert(1); mix-blend-mode: screen; }
-@media (prefers-color-scheme: light) { .workday .src-mark.jira { filter: none; mix-blend-mode: multiply; } }
+
+/* kind badges: one hue per kind */
+.workday .kind { --k: #8b949e; color: var(--k); background: color-mix(in oklab, var(--k) 18%, transparent); }
+.workday .k-merged { --k: #a371f7; }
+.workday .k-opened { --k: #3fb950; }
+.workday .k-review { --k: #58a6ff; }
+.workday .k-issue { --k: #f0883e; }
+.workday .k-closed, .workday .k-resolved { --k: #2dba9f; }
+@media (prefers-color-scheme: light) { .workday .kind { color: color-mix(in oklab, var(--k) 62%, #000); } }

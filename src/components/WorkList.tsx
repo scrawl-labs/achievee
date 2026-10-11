@@ -17,6 +17,15 @@ export function GithubMark({ size = 14 }: { size?: number }) {
   );
 }
 
+/** Jira's mark (Simple Icons, CC0, simpleicons.org). Drawn in the same single colour as the GitHub mark so the two match. */
+export function JiraMark({ size = 14 }: { size?: number }) {
+  return (
+    <svg className="src-mark" width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-label="Jira" role="img">
+      <path d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1.001-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 12.483V1.005A1.001 1.001 0 0 0 23.013 0Z" />
+    </svg>
+  );
+}
+
 /** What was done in connected tools on one day (or one range). Commits are only counted, per repository. */
 export default function WorkList({ items }: { items: WorkItem[] }) {
   const { t } = useI18n();
@@ -25,8 +34,8 @@ export default function WorkList({ items }: { items: WorkItem[] }) {
     <ul>
       {sorted.map((w) => (
         <li key={w.id}>
-          {w.source === "github" ? <GithubMark /> : <img className="src-mark jira" src="/jira.png" width={14} height={14} alt="Jira" />}
-          <span className="kind">{t(KIND[w.kind], { n: w.count ?? 0 })}</span>
+          {w.source === "github" ? <GithubMark /> : <JiraMark />}
+          <span className={`kind k-${w.kind}`}>{t(KIND[w.kind], { n: w.count ?? 0 })}</span>
           <a href={w.url} target="_blank" rel="noreferrer"><b>{w.ref}</b>{w.title && ` ${w.title}`}</a>
         </li>
       ))}
