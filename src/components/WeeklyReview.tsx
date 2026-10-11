@@ -5,18 +5,21 @@ import { addDays, mondayOf } from "@/lib/dates";
 import { browserTz } from "@/lib/clientTime";
 import Icon from "./Icon";
 import Summary from "./Summary";
+import { emoLang, wordText } from "@/lib/emotions";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 
 type Review = { week: string; good: string; hard: string; plan: string; note: string; saved?: boolean };
-type DiaryRow = { date: string; mood: string | null };
+type DiaryRow = { date: string; mood: string | null; emotions?: string[] };
+type Usage = { id: string; first: string; count: number }[];
 type Money = { date: string; amount: number }[];
 const monthUrl = (ym: string) => `/api/month?ym=${ym}&tz=${encodeURIComponent(browserTz())}`;
 const send = (method: string, body: unknown) => fetch("/api/review", { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 
 /** Sunday wrap-up: auto summary of the week (Mon–Sun) + a few free-text questions. */
 export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d: string) => void }) {
-  const { t, fmt } = useI18n();
+  const { t, fmt, locale } = useI18n();
+  const lang = emoLang(locale);
   const week = mondayOf(sel), end = addDays(week, 7);
   const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(week, i)), [week]);
   const yms = [...new Set([week.slice(0, 7), addDays(week, 6).slice(0, 7)])];
@@ -42,6 +45,14 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
     const moods = [...(d1 ?? []), ...(d2 ?? [])].filter((r) => days.includes(r.date)).map((r) => Number(r.mood)).filter((n) => n > 0);
     return { rate: total ? done / total : null, best, mood: moods.length ? moods.reduce((a, b) => a + b, 0) / moods.length : null };
   }, [m1, m2, d1, d2, days]);
+  // emotion words used this week, and how the user's vocabulary has grown (words first used this week / all-time total)
+  const usage = useApi<Usage>("/api/emotions").data;
+  const weekWords = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const r of [...(d1 ?? []), ...(d2 ?? [])]) if (days.includes(r.date)) for (const id of r.emotions ?? []) counts.set(id, (counts.get(id) ?? 0) + 1);
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  }, [d1, d2, days]);
+  const newWords = (usage ?? []).filter((u) => u.first >= week && u.first < end).length;
   const sum = (rows: Money | null) => (rows ?? []).reduce((s, r) => s + r.amount, 0);
 
   // ---- the review itself
@@ -84,6 +95,14 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
         [t("cal.spent"), fmt.money(sum(spent))],
         [t("wk.mood"), stats.mood === null ? "-" : stats.mood.toFixed(1)],
       ]} />
+
+      <section className="wk-emo">
+        <h3>{t("emo.weekTitle")}</h3>
+        {weekWords.length === 0 ? <small className="muted">{t("emo.none")}</small> : (
+          <div className="emo-tags big">{weekWords.map(([id, n]) => <i key={id}>{wordText(id, lang)}{n > 1 && <em>×{n}</em>}</i>)}</div>
+        )}
+        <small className="muted">{t("emo.newWords", { n: newWords })} · {t("emo.vocab", { n: usage?.length ?? 0 })}</small>
+      </section>
 
       <div className="two wide-left">
         <section className="panel wk-form">

@@ -13,6 +13,7 @@ async function sql() {
     s`CREATE TABLE IF NOT EXISTS diary (
       "user" TEXT NOT NULL, date TEXT NOT NULL, mood TEXT, body TEXT NOT NULL DEFAULT '',
       PRIMARY KEY ("user", date))`,
+    s`ALTER TABLE diary ADD COLUMN IF NOT EXISTS emotions TEXT NOT NULL DEFAULT ''`,
     s`CREATE TABLE IF NOT EXISTS expense (
       id SERIAL PRIMARY KEY, "user" TEXT NOT NULL, date TEXT NOT NULL, category TEXT NOT NULL,
       memo TEXT NOT NULL DEFAULT '', amount INTEGER NOT NULL, need INTEGER NOT NULL DEFAULT 1)`,
@@ -31,19 +32,28 @@ async function sql() {
 
 const bounds = (ym: string) => [`${ym}-01`, `${ym}-31`] as const;
 
-export type DiaryRow = { date: string; mood: string | null; body: string };
+export type DiaryRow = { date: string; mood: string | null; body: string; emotions: string[] };
+type DiaryDb = { date: string; mood: string | null; body: string; emotions: string };
+/** emotion word ids, stored as one encrypted comma-separated string */
+const splitIds = (v: string) => decrypt(v ?? "").split(",").filter(Boolean);
 export type ExpenseRow = { id: number; date: string; category: string; memo: string; amount: number; need: number };
 
 export const diary = {
   async month(user: string, ym: string): Promise<DiaryRow[]> {
     const s = await sql(), [a, b] = bounds(ym);
-    const rows = (await s`SELECT date, mood, body FROM diary WHERE "user"=${user} AND date BETWEEN ${a} AND ${b} ORDER BY date`) as DiaryRow[];
-    return rows.map((r) => ({ ...r, body: decrypt(r.body) }));
+    const rows = (await s`SELECT date, mood, body, emotions FROM diary WHERE "user"=${user} AND date BETWEEN ${a} AND ${b} ORDER BY date`) as DiaryDb[];
+    return rows.map((r) => ({ ...r, body: decrypt(r.body), emotions: splitIds(r.emotions) }));
   },
-  async upsert(user: string, date: string, mood: string | null, body: string) {
+  async upsert(user: string, date: string, mood: string | null, body: string, emotions: string[] = []) {
     const s = await sql();
-    await s`INSERT INTO diary ("user", date, mood, body) VALUES (${user}, ${date}, ${mood}, ${encrypt(body)})
-      ON CONFLICT ("user", date) DO UPDATE SET mood = EXCLUDED.mood, body = EXCLUDED.body`;
+    await s`INSERT INTO diary ("user", date, mood, body, emotions) VALUES (${user}, ${date}, ${mood}, ${encrypt(body)}, ${encrypt(emotions.join(","))})
+      ON CONFLICT ("user", date) DO UPDATE SET mood = EXCLUDED.mood, body = EXCLUDED.body, emotions = EXCLUDED.emotions`;
+  },
+  /** every day that has emotion words, oldest first (for vocabulary stats) */
+  async emotionDays(user: string): Promise<{ date: string; ids: string[] }[]> {
+    const s = await sql();
+    const rows = (await s`SELECT date, emotions FROM diary WHERE "user"=${user} AND emotions <> '' ORDER BY date`) as { date: string; emotions: string }[];
+    return rows.map((r) => ({ date: r.date, ids: splitIds(r.emotions) })).filter((r) => r.ids.length);
   },
   async remove(user: string, date: string) {
     const s = await sql();

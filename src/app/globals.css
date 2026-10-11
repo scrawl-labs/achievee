@@ -588,3 +588,40 @@ select {
   .erow > .chip { grid-area: chip; }
   .eside, .eside.income { grid-template-columns: 92px 60px; column-gap: 4px; }
 }
+
+/* emotion words: picker, dictionary, tags */
+.emo { display: flex; flex-direction: column; gap: var(--s3); }
+.emo-head { display: flex; flex-direction: column; gap: 2px; }
+.emo-sel { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
+.emo-chip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 var(--s3); border-radius: 999px; border: 1px solid var(--line);
+  background: var(--surface-2); color: var(--fg-2); font-weight: 500; font-size: 14px; }
+.emo-chip:hover:not(:disabled) { color: var(--fg); background: var(--line); }
+.emo-chip:disabled { opacity: .4; cursor: default; }
+.emo-chip.on { background: color-mix(in oklab, var(--accent) 22%, var(--surface-2)); border-color: var(--accent); color: var(--fg); font-weight: 600; }
+.emo-chip.focus:not(.on) { border-color: var(--fg-3); color: var(--fg); }
+.emo-panel { display: flex; flex-direction: column; gap: var(--s3); padding: var(--s4); border: 1px solid var(--line); border-radius: var(--r-l); background: var(--bg); }
+.emo-fams, .emo-words { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.emo-fams button { height: 30px; padding: 0 var(--s3); border-radius: var(--r-s); color: var(--fg-3); font-weight: 600; font-size: 13px; }
+.emo-fams button:hover { color: var(--fg); }
+.emo-fams button.on { background: var(--surface-2); color: var(--fg); }
+.emo-desc { padding: var(--s3) var(--s4); border-radius: var(--r-s); background: var(--surface); border: 1px solid var(--line); }
+.emo-desc b { font-size: 16px; }
+.emo-desc p { margin: 4px 0 var(--s3); color: var(--fg-2); line-height: 1.6; font-size: 14px; }
+.emo-near { display: flex; flex-direction: column; gap: var(--s2); }
+.emo-near > div { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.emo-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 2px; }
+.emo-tags i { font-style: normal; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: color-mix(in oklab, var(--accent) 18%, var(--surface-2)); color: var(--fg); }
+.emo-tags i em { font-style: normal; margin-left: 4px; color: var(--fg-3); }
+.emo-tags.big i { font-size: 14px; padding: 4px 12px; }
+.wk-emo { display: flex; flex-direction: column; gap: var(--s2); margin-bottom: var(--s5); padding: var(--s4) var(--s5); border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); }
+.emodict { display: flex; flex-direction: column; gap: var(--s5); }
+.emodict-intro { margin: 0; }
+.emodict-fam h3 { margin-bottom: var(--s2); }
+.emodict-fam dl { margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--s2); }
+.emodict-fam dl > div { padding: var(--s3) var(--s4); border: 1px solid var(--line); border-radius: var(--r-s); background: var(--surface); }
+.emodict-fam dt { font-weight: 700; }
+.emodict-fam dd { margin: 4px 0 0; color: var(--fg-2); font-size: 14px; line-height: 1.55; }
+.emodict-src { padding: var(--s4) var(--s5); border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); }
+.emodict-src p { margin: 6px 0 var(--s3); color: var(--fg-2); line-height: 1.6; font-size: 14px; }
+.emodict-src ul { margin: 0; padding-left: 18px; color: var(--fg-2); font-size: 14px; line-height: 1.7; }
+.emodict-src a { color: var(--accent); }

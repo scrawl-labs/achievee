@@ -1,0 +1,128 @@
+import type { Locale } from "./i18n";
+
+/**
+ * Emotion vocabulary for the diary ("what exactly am I feeling?").
+ * Every word, description and grouping below was written for this app. It is NOT derived from the EVOKE dataset
+ * (Jung, Shin & Bergen, 2026, arXiv:2602.10414, CC BY-NC 4.0); the idea of widening one's emotion vocabulary was
+ * inspired by that research and is credited in the app and README.
+ * Words are language-specific, not translations of each other: `ko` and `en` each name the closest feeling in that language.
+ */
+export type EmoLang = "ko" | "en";
+/** Korean has its own list; every other locale shows the English list for now. */
+export const emoLang = (l: Locale): EmoLang => (l === "ko" ? "ko" : "en");
+
+type Pair = [word: string, description: string];
+export type Family = { id: string; ko: string; en: string };
+export type Word = { id: string; family: string; ko: Pair; en: Pair; near?: string[] };
+
+export const FAMILIES: Family[] = [
+  { id: "joy", ko: "기쁨", en: "Joy" },
+  { id: "calm", ko: "편안함", en: "Calm" },
+  { id: "warm", ko: "따뜻함", en: "Warmth" },
+  { id: "sad", ko: "슬픔", en: "Sadness" },
+  { id: "hurt", ko: "서운함", en: "Hurt" },
+  { id: "anger", ko: "분노", en: "Anger" },
+  { id: "anx", ko: "불안", en: "Anxiety" },
+  { id: "lonely", ko: "외로움", en: "Loneliness" },
+  { id: "shame", ko: "부끄러움", en: "Shame" },
+  { id: "weary", ko: "지침", en: "Weariness" },
+  { id: "surprise", ko: "놀람", en: "Surprise" },
+];
+
+export const WORDS: Word[] = [
+  // ---- joy
+  { id: "glad", family: "joy", ko: ["기쁘다", "바라던 일이 이루어지거나 좋은 소식을 들어 마음이 환해질 때"], en: ["glad", "Good news, or something you hoped for, brightens your mood."], near: ["enjoy", "grateful", "excited"] },
+  { id: "enjoy", family: "joy", ko: ["즐겁다", "하고 있는 일이나 함께 있는 시간이 신나고 유쾌할 때"], en: ["cheerful", "You are enjoying what you are doing or who you are with."], near: ["glad", "excited", "light"] },
+  { id: "proud", family: "joy", ko: ["뿌듯하다", "애쓴 일이 결과로 이어져 가슴이 가득 찰 때"], en: ["proud", "Your effort paid off and it fills you up."], near: ["content", "glad", "relieved"] },
+  { id: "excited", family: "joy", ko: ["설레다", "곧 일어날 좋은 일을 기대하며 마음이 두근거릴 때"], en: ["excited", "You look forward to something good, with a flutter in your chest."], near: ["glad", "nervous", "enjoy"] },
+  { id: "grateful", family: "joy", ko: ["감사하다", "누군가의 도움이나 좋은 일에 고마운 마음이 들 때"], en: ["grateful", "You feel thankful for someone's help or for something good."], near: ["glad", "supported", "warm"] },
+  { id: "relieved", family: "joy", ko: ["후련하다", "답답하던 일이 풀려서 속이 시원할 때"], en: ["relieved", "A weight you were carrying is gone and you can breathe again."], near: ["light", "reassured", "proud"] },
+  { id: "light", family: "joy", ko: ["홀가분하다", "부담이나 걱정을 내려놓아 몸과 마음이 가벼울 때"], en: ["light", "You have set down a burden or a worry and feel light."], near: ["relieved", "relaxed", "reassured"] },
+  { id: "overjoyed", family: "joy", ko: ["벅차다", "기쁨이나 감동이 너무 커서 가슴이 가득 찰 때"], en: ["overwhelmed with joy", "Joy or emotion so big that your chest feels full."], near: ["glad", "proud", "chokedup"] },
+  // ---- calm
+  { id: "comfy", family: "calm", ko: ["편안하다", "몸도 마음도 긴장 없이 안정돼 있을 때"], en: ["comfortable", "Your body and mind are both at ease."], near: ["serene", "cozy", "relaxed"] },
+  { id: "serene", family: "calm", ko: ["평온하다", "마음이 잔잔해서 흔들리는 것이 없을 때"], en: ["serene", "Your mind is still and nothing is stirring it."], near: ["comfy", "content", "relaxed"] },
+  { id: "reassured", family: "calm", ko: ["안심되다", "걱정하던 일이 괜찮다는 걸 알게 되어 마음이 놓일 때"], en: ["reassured", "You learn the thing you feared is fine, and you can relax."], near: ["relieved", "supported", "light"] },
+  { id: "relaxed", family: "calm", ko: ["느긋하다", "서두를 것 없이 여유 있게 지낼 때"], en: ["relaxed", "There is no rush and you are taking it slow."], near: ["comfy", "light", "serene"] },
+  { id: "content", family: "calm", ko: ["만족스럽다", "지금 가진 것이나 상황이 충분하다고 느낄 때"], en: ["content", "What you have right now feels like enough."], near: ["proud", "serene", "grateful"] },
+  { id: "cozy", family: "calm", ko: ["포근하다", "따뜻하고 부드럽게 감싸 안긴 듯 아늑할 때"], en: ["cozy", "Warm and softly wrapped up."], near: ["comfy", "warm", "homey"] },
+  // ---- warm
+  { id: "warm", family: "warm", ko: ["따뜻하다", "다정한 말이나 손길에 마음이 훈훈해질 때"], en: ["warm", "A kind word or gesture makes you feel warm inside."], near: ["tender", "grateful", "cozy"] },
+  { id: "tender", family: "warm", ko: ["애틋하다", "소중한 사람이 안쓰럽고 정이 깊을 때"], en: ["tender", "Deep fondness mixed with a gentle ache for someone dear."], near: ["warm", "longing", "adoring"] },
+  { id: "supported", family: "warm", ko: ["든든하다", "믿고 기댈 사람이나 것이 있어서 마음이 놓일 때"], en: ["supported", "You have someone or something to lean on."], near: ["reassured", "grateful", "warm"] },
+  { id: "adoring", family: "warm", ko: ["사랑스럽다", "보고만 있어도 귀엽고 아끼고 싶을 때"], en: ["adoring", "Just looking at them makes you smile and want to cherish them."], near: ["tender", "warm", "glad"] },
+  { id: "gladtosee", family: "warm", ko: ["반갑다", "오랜만에 만나거나 좋은 소식을 접해 기쁠 때"], en: ["glad to see", "You are delighted to meet again or to hear something good."], near: ["glad", "warm", "excited"] },
+  { id: "homey", family: "warm", ko: ["정겹다", "익숙하고 다정한 분위기가 마음을 푸근하게 할 때"], en: ["homey", "A familiar, friendly atmosphere eases your heart."], near: ["cozy", "warm", "comfy"] },
+  // ---- sadness
+  { id: "sad", family: "sad", ko: ["슬프다", "소중한 것을 잃었거나 마음 아픈 일이 있을 때"], en: ["sad", "You lost something dear, or something hurts."], near: ["gloomy", "chokedup", "longing"] },
+  { id: "gloomy", family: "sad", ko: ["우울하다", "뚜렷한 이유가 없어도 마음이 가라앉고 어두울 때"], en: ["gloomy", "Your mood sinks, even without a clear reason."], near: ["sad", "listless", "empty"] },
+  { id: "deflated", family: "sad", ko: ["허탈하다", "애쓰던 일이 끝나거나 틀어져 힘이 쑥 빠질 때"], en: ["deflated", "After a lot of effort ends or falls through, the energy drains out."], near: ["disappointed", "wornout", "hollow"] },
+  { id: "longing", family: "sad", ko: ["그립다", "지금 곁에 없는 사람이나 때가 자꾸 떠오를 때"], en: ["longing", "Someone or some time that is no longer here keeps coming to mind."], near: ["tender", "sad", "lonely"] },
+  { id: "desolate", family: "sad", ko: ["쓸쓸하다", "주위가 텅 빈 듯 마음이 허하고 적적할 때"], en: ["desolate", "Everything around you feels empty and quiet."], near: ["lonely", "hollow", "sad"] },
+  { id: "chokedup", family: "sad", ko: ["먹먹하다", "슬픔이나 감동이 가슴을 막아 말이 잘 안 나올 때"], en: ["choked up", "Sadness or deep feeling blocks your chest and the words will not come."], near: ["sad", "overjoyed", "tender"] },
+  { id: "miserable", family: "sad", ko: ["비참하다", "처지가 초라하고 괴로워서 견디기 힘들 때"], en: ["miserable", "Your situation feels so wretched that it is hard to bear."], near: ["sad", "humiliated", "gloomy"] },
+  // ---- hurt (letting down / unmet expectation)
+  { id: "letdown", family: "hurt", ko: ["서운하다", "기대한 만큼 마음을 받지 못해 쓸쓸하고 아쉬울 때"], en: ["let down", "You did not get the care you expected, and it stings quietly."], near: ["anxious", "sad", "illwill", "wistful"] },
+  { id: "slighted", family: "hurt", ko: ["섭섭하다", "가까운 사람의 말이나 행동이 마음에 걸려 작게 아플 때"], en: ["slighted", "Something a close person said or did leaves a small ache."], near: ["letdown", "resentful", "hollow"] },
+  { id: "resentful", family: "hurt", ko: ["야속하다", "내 마음을 몰라주는 것 같아 원망스러울 때"], en: ["resentful", "It feels like they do not understand your heart, and you hold it against them."], near: ["slighted", "indignant", "illwill"] },
+  { id: "wistful", family: "hurt", ko: ["아쉽다", "더 잘할 수 있었거나 끝나버려서 미련이 남을 때"], en: ["wistful", "It could have gone better, or it ended, and a little regret lingers."], near: ["disappointed", "longing", "regret"] },
+  { id: "upset", family: "hurt", ko: ["속상하다", "일이 뜻대로 안 되거나 마음 아픈 일이 생겨 마음이 상할 때"], en: ["upset", "Things did not go your way, or something pained you."], near: ["sad", "irritated", "wronged"] },
+  { id: "wronged", family: "hurt", ko: ["억울하다", "잘못이 없는데 부당한 대우를 받았다고 느낄 때"], en: ["wronged", "You did nothing wrong and still feel treated unfairly."], near: ["indignant", "upset", "resentful"] },
+  { id: "hollow", family: "hurt", ko: ["허전하다", "있어야 할 것이 없어서 마음이 빈 듯할 때"], en: ["hollow", "Something that should be there is missing, and you feel empty."], near: ["empty", "lonely", "deflated"] },
+  { id: "disappointed", family: "hurt", ko: ["실망스럽다", "기대했던 것과 달라서 마음이 식을 때"], en: ["disappointed", "It turned out different from what you hoped."], near: ["wistful", "deflated", "letdown"] },
+  // ---- anger
+  { id: "irritated", family: "anger", ko: ["짜증나다", "작은 일이 거슬려서 신경질이 날 때"], en: ["irritated", "Small things grate on you."], near: ["angry", "stuck", "displeased"] },
+  { id: "angry", family: "anger", ko: ["화나다", "부당하거나 싫은 일에 거센 감정이 치밀 때"], en: ["angry", "Something unfair or unwanted brings up a strong heat."], near: ["indignant", "offended", "irritated"] },
+  { id: "stuck", family: "anger", ko: ["답답하다", "일이 안 풀리거나 말이 통하지 않아 속이 막힌 듯할 때"], en: ["frustrated", "Things stall or no one gets it, and you feel stuck."], near: ["irritated", "lost", "burdened"] },
+  { id: "illwill", family: "anger", ko: ["밉다", "누군가에게 좋지 않은 마음이 들어 외면하고 싶을 때"], en: ["ill will", "A sour feeling toward someone; you would rather not look at them."], near: ["resentful", "angry", "letdown"] },
+  { id: "indignant", family: "anger", ko: ["분하다", "당하기만 했다는 생각에 억울하고 화가 치밀 때"], en: ["indignant", "You feel wronged and it makes you burn."], near: ["angry", "wronged", "offended"] },
+  { id: "offended", family: "anger", ko: ["괘씸하다", "나를 얕보거나 예의 없이 대해 불쾌할 때"], en: ["offended", "Someone disrespected you and it riles you."], near: ["indignant", "displeased", "angry"] },
+  { id: "displeased", family: "anger", ko: ["불쾌하다", "기분이 상하고 불편한 느낌이 남을 때"], en: ["displeased", "Something leaves a bad, uneasy taste."], near: ["irritated", "offended", "awkward"] },
+  // ---- anxiety
+  { id: "anxious", family: "anx", ko: ["불안하다", "무슨 일이 생길지 몰라 마음이 놓이지 않을 때"], en: ["anxious", "You cannot settle because you do not know what will happen."], near: ["worried", "onedge", "afraid"] },
+  { id: "onedge", family: "anx", ko: ["초조하다", "기다리는 일 앞에서 마음이 급하고 안절부절못할 때"], en: ["on edge", "You are waiting for something and cannot sit still."], near: ["anxious", "nervous", "tense"] },
+  { id: "worried", family: "anx", ko: ["걱정되다", "일이 잘못될까 봐 자꾸 마음이 쓰일 때"], en: ["worried", "You keep thinking it might go wrong."], near: ["anxious", "burdened", "tense"] },
+  { id: "afraid", family: "anx", ko: ["두렵다", "무섭고 겁이 나서 피하고 싶을 때"], en: ["afraid", "You are frightened and want to get away."], near: ["anxious", "nervous", "lost"] },
+  { id: "lost", family: "anx", ko: ["막막하다", "어디서부터 어떻게 해야 할지 몰라 앞이 캄캄할 때"], en: ["lost", "You do not know where to start and the way ahead looks dark."], near: ["stuck", "afraid", "burdened"] },
+  { id: "nervous", family: "anx", ko: ["조마조마하다", "나쁜 일이 생길까 봐 가슴을 졸일 때"], en: ["nervous", "You brace yourself, afraid something bad is about to happen."], near: ["onedge", "excited", "tense"] },
+  { id: "burdened", family: "anx", ko: ["부담스럽다", "해야 할 일이나 기대가 무겁게 느껴질 때"], en: ["burdened", "A task or an expectation feels heavy."], near: ["worried", "stuck", "lost"] },
+  { id: "tense", family: "anx", ko: ["긴장되다", "중요한 순간 앞에서 몸이 굳고 신경이 곤두설 때"], en: ["tense", "Before something that matters, your body tightens."], near: ["onedge", "nervous", "worried"] },
+  // ---- loneliness
+  { id: "lonely", family: "lonely", ko: ["외롭다", "곁에 마음 나눌 사람이 없다고 느낄 때"], en: ["lonely", "You feel there is no one to share your heart with."], near: ["leftout", "empty", "longing"] },
+  { id: "leftout", family: "lonely", ko: ["소외되다", "무리에서 나만 빠진 것 같을 때"], en: ["left out", "You feel like the only one missing from the group."], near: ["lonely", "awkward", "slighted"] },
+  { id: "empty", family: "lonely", ko: ["공허하다", "마음속이 텅 비어 무엇으로도 채워지지 않는 듯할 때"], en: ["empty", "Inside you is empty and nothing seems to fill it."], near: ["hollow", "lonely", "gloomy"] },
+  { id: "awkward", family: "lonely", ko: ["어색하다", "상대나 상황이 편하지 않아 자연스럽지 못할 때"], en: ["awkward", "You cannot act naturally around someone or in a situation."], near: ["embarrassed", "distant", "tense"] },
+  { id: "distant", family: "lonely", ko: ["서먹하다", "친했던 사이가 멀어져 대하기 어색할 때"], en: ["distant", "A once-close relationship has drifted and feels stiff."], near: ["awkward", "leftout", "lonely"] },
+  // ---- shame / guilt
+  { id: "ashamed", family: "shame", ko: ["부끄럽다", "내 모습이나 행동이 떳떳하지 못하다고 느낄 때"], en: ["ashamed", "You feel you cannot hold your head up about who you are or what you did."], near: ["embarrassed", "guilty", "humiliated"] },
+  { id: "embarrassed", family: "shame", ko: ["민망하다", "뜻밖의 상황에서 얼굴이 화끈할 때"], en: ["embarrassed", "An unexpected moment makes your face go warm."], near: ["humiliated", "awkward", "ashamed"] },
+  { id: "humiliated", family: "shame", ko: ["창피하다", "남들 앞에서 체면이 깎인 것 같을 때"], en: ["humiliated", "You feel you lost face in front of others."], near: ["embarrassed", "ashamed", "miserable"] },
+  { id: "sorry", family: "shame", ko: ["미안하다", "누군가에게 폐를 끼쳤다는 마음이 들 때"], en: ["sorry", "You feel you have troubled someone."], near: ["guilty", "regret", "ashamed"] },
+  { id: "guilty", family: "shame", ko: ["죄스럽다", "잘못했다는 마음이 무겁게 가슴을 누를 때"], en: ["guilty", "A sense of having done wrong weighs on you."], near: ["sorry", "regret", "ashamed"] },
+  { id: "regret", family: "shame", ko: ["후회되다", "지난 선택을 되돌리고 싶을 때"], en: ["regretful", "You wish you could undo a past choice."], near: ["wistful", "guilty", "sorry"] },
+  // ---- weariness
+  { id: "tired", family: "weary", ko: ["피곤하다", "몸이 지쳐 쉬고 싶을 때"], en: ["tired", "Your body is spent and wants rest."], near: ["wornout", "listless", "bored"] },
+  { id: "wornout", family: "weary", ko: ["지치다", "오랫동안 애쓰느라 힘이 다 빠졌을 때"], en: ["worn out", "You have pushed for so long that you have run out."], near: ["tired", "deflated", "listless"] },
+  { id: "listless", family: "weary", ko: ["무기력하다", "아무것도 하고 싶은 의욕이 나지 않을 때"], en: ["listless", "You have no drive to do anything."], near: ["gloomy", "wornout", "bothered"] },
+  { id: "bothered", family: "weary", ko: ["귀찮다", "해야 하는 일이 번거로워서 하기 싫을 때"], en: ["can't be bothered", "A needed task feels like too much trouble."], near: ["listless", "bored", "tired"] },
+  { id: "bored", family: "weary", ko: ["지루하다", "시간이 더디게 가고 흥미가 생기지 않을 때"], en: ["bored", "Time drags and nothing holds your interest."], near: ["bothered", "tired", "listless"] },
+  { id: "blank", family: "weary", ko: ["멍하다", "생각이 멈춘 듯 정신이 없는 상태일 때"], en: ["blank", "Your mind feels switched off."], near: ["bewildered", "tired", "wornout"] },
+  // ---- surprise
+  { id: "surprised", family: "surprise", ko: ["놀랍다", "뜻밖의 일에 깜짝 놀랄 때"], en: ["surprised", "An unexpected thing startles you."], near: ["amazed", "flustered", "bewildered"] },
+  { id: "flustered", family: "surprise", ko: ["당황스럽다", "갑작스러운 일에 어찌할 바를 모를 때"], en: ["flustered", "A sudden turn leaves you not knowing what to do."], near: ["surprised", "embarrassed", "bewildered"] },
+  { id: "baffled", family: "surprise", ko: ["황당하다", "어이가 없어서 말이 안 나올 때"], en: ["baffled", "It is so absurd that you are speechless."], near: ["bewildered", "displeased", "surprised"] },
+  { id: "bewildered", family: "surprise", ko: ["어리둥절하다", "무슨 일인지 몰라 멍하고 헷갈릴 때"], en: ["bewildered", "You do not know what is going on and feel muddled."], near: ["baffled", "blank", "flustered"] },
+  { id: "amazed", family: "surprise", ko: ["신기하다", "처음 보는 것이 재미있고 놀라울 때"], en: ["amazed", "Something new strikes you as wonderful."], near: ["surprised", "excited", "enjoy"] },
+];
+
+export const WORD_IDS = new Set(WORDS.map((w) => w.id));
+export const MAX_EMOTIONS = 3;
+const byId = new Map(WORDS.map((w) => [w.id, w]));
+export const wordById = (id: string) => byId.get(id);
+export const familyById = (id: string) => FAMILIES.find((f) => f.id === id);
+export const wordsOfFamily = (family: string) => WORDS.filter((w) => w.family === family);
+/** The word's display text in the given language (falls back to the id for unknown/removed words). */
+export const wordText = (id: string, lang: EmoLang) => byId.get(id)?.[lang][0] ?? id;
+/** Keep only known ids, unique, at most MAX_EMOTIONS. */
+export const cleanEmotionIds = (ids: unknown): string[] =>
+  Array.isArray(ids) ? [...new Set(ids.filter((i): i is string => typeof i === "string" && WORD_IDS.has(i)))].slice(0, MAX_EMOTIONS) : [];
