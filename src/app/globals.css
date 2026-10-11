@@ -625,3 +625,11 @@ select {
 .emodict-src p { margin: 6px 0 var(--s3); color: var(--fg-2); line-height: 1.6; font-size: 14px; }
 .emodict-src ul { margin: 0; padding-left: 18px; color: var(--fg-2); font-size: 14px; line-height: 1.7; }
 .emodict-src a { color: var(--accent); }
+
+/* "is one of these closer?" rows: word + meaning + an explicit choose button */
+.emo-near .emo-nearrow { display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; gap: var(--s3);
+  padding: var(--s2) 0; border-top: 1px solid var(--line); }
+.emo-nearrow > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.emo-nearrow b { font-size: 15px; }
+.emo-nearrow span { color: var(--fg-2); font-size: 13px; line-height: 1.5; }
+.emo-nearrow .btn { height: 30px; padding: 0 var(--s3); font-size: 13px; flex: none; }

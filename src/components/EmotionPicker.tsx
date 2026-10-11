@@ -22,7 +22,10 @@ export default function EmotionPicker({ value, onChange }: { value: string[]; on
     if (value.includes(id)) onChange(value.filter((x) => x !== id));
     else if (value.length < MAX_EMOTIONS) onChange([...value, id]);
   };
-  const look = (id: string) => { const w = wordById(id); if (w) { setFocus(id); setFam(w.family); } };
+  const toggle = (id: string) => {
+    if (value.includes(id)) onChange(value.filter((x) => x !== id));
+    else if (value.length < MAX_EMOTIONS) onChange([...value, id]);
+  };
   const focused = focus ? wordById(focus) : null;
   const full = value.length >= MAX_EMOTIONS;
 
@@ -68,11 +71,19 @@ export default function EmotionPicker({ value, onChange }: { value: string[]; on
               {focused.near && (
                 <div className="emo-near">
                   <small>{t("emo.near")}</small>
-                  <div>
-                    {focused.near.map((id) => (
-                      <button key={id} type="button" className="emo-chip" onClick={() => look(id)}>{wordText(id, lang)}</button>
-                    ))}
-                  </div>
+                  {focused.near.map((id) => {
+                    const w = wordById(id);
+                    if (!w) return null;
+                    const on = value.includes(id);
+                    return (
+                      <div className="emo-nearrow" key={id}>
+                        <div><b>{w[lang][0]}</b><span>{w[lang][1]}</span></div>
+                        <button type="button" className={`btn${on ? " primary" : ""}`} disabled={!on && full} onClick={() => toggle(id)}>
+                          {on ? t("emo.chosen") : t("emo.choose")}
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
