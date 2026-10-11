@@ -640,3 +640,11 @@ select {
 .estats .summary dd small { font-size: 14px; color: var(--fg-3); font-weight: 500; }
 .estats .hbar em { white-space: nowrap; }
 .peaks { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: var(--s2); line-height: 1.55; }
+
+/* guided "help me find the word" */
+.emo-ask { display: flex; flex-direction: column; gap: var(--s3); }
+.emo-step { display: flex; flex-direction: column; gap: 2px; }
+.emo-step b { font-size: 17px; letter-spacing: -0.02em; }
+.emo-opts { display: flex; flex-direction: column; gap: var(--s2); }
+.emo-opts .btn { justify-content: flex-start; height: 44px; padding: 0 var(--s4); font-weight: 600; }
+.emo-back { align-self: flex-start; }

@@ -185,6 +185,69 @@ export function moodFromEmotions(ids: string[]): number | null {
   const mean = v.reduce((a, b) => a + b, 0) / v.length;
   return Math.min(5, Math.max(1, Math.round(3 + mean)));
 }
+/** Who or what a feeling is about: yourself, another person, or a situation. Our own judgement (a word with no tag fits any answer). */
+export type Focus = "self" | "other" | "situation";
+/** How energised the feeling is: wound-up / activated (high) vs heavy / quiet (low). Our own judgement. */
+export type Energy = "high" | "low";
+export const FOCUS: Record<string, Focus> = {
+  proud: "self", light: "self", happy: "self", comfy: "self", serene: "self", relaxed: "self", content: "self",
+  sad: "self", gloomy: "self", desolate: "self", miserable: "self", forlorn: "self", sorrowful: "self", down: "self",
+  downcast: "self", hollow: "self", unsettled: "self", restless: "self", inadequate: "self", lonely: "self", empty: "self",
+  ashamed: "self", embarrassed: "self", humiliated: "self", guilty: "self", regret: "self", selfblame: "self", tired: "self",
+  wornout: "self", listless: "self", blank: "self",
+  grateful: "other", thankful: "other", warm: "other", tender: "other", supported: "other", adoring: "other", gladtosee: "other",
+  sympathetic: "other", moved: "other", touched: "other", longing: "other", letdown: "other", slighted: "other", resentful: "other",
+  wronged: "other", betrayed: "other", angry: "other", illwill: "other", indignant: "other", offended: "other", grudging: "other",
+  blaming: "other", envious: "other", jealous: "other", leftout: "other", awkward: "other", distant: "other", sorry: "other",
+  glad: "situation", enjoy: "situation", excited: "situation", relieved: "situation", overjoyed: "situation", thrilled: "situation", exhilarated: "situation",
+  reassured: "situation", cozy: "situation", homey: "situation", pleased: "situation", awed: "situation", deflated: "situation", chokedup: "situation",
+  futile: "situation", pained: "situation", wistful: "situation", upset: "situation", disappointed: "situation", conflicted: "situation", bittersweet: "situation",
+  bitter: "situation", nostalgic: "situation", irritated: "situation", stuck: "situation", displeased: "situation", anxious: "situation", onedge: "situation",
+  worried: "situation", afraid: "situation", lost: "situation", nervous: "situation", burdened: "situation", tense: "situation", scared: "situation",
+  chilled: "situation", uneasy: "situation", impatient: "situation", bothered: "situation", bored: "situation", fedup: "situation", surprised: "situation",
+  flustered: "situation", baffled: "situation", bewildered: "situation", amazed: "situation",
+};
+
+export const ENERGY: Record<string, Energy> = {
+  glad: "high", enjoy: "high", proud: "high", excited: "high", overjoyed: "high", happy: "high", thrilled: "high",
+  exhilarated: "high", awed: "high", irritated: "high", angry: "high", stuck: "high", indignant: "high", offended: "high",
+  blaming: "high", grudging: "high", illwill: "high", jealous: "high", envious: "high", anxious: "high", onedge: "high",
+  worried: "high", afraid: "high", nervous: "high", tense: "high", scared: "high", chilled: "high", impatient: "high",
+  unsettled: "high", restless: "high", flustered: "high", baffled: "high", surprised: "high", amazed: "high", upset: "high",
+  embarrassed: "high", humiliated: "high", betrayed: "high", wronged: "high", resentful: "high",
+  relieved: "low", light: "low", comfy: "low", serene: "low", reassured: "low", relaxed: "low", content: "low",
+  cozy: "low", homey: "low", sad: "low", gloomy: "low", deflated: "low", longing: "low", desolate: "low",
+  miserable: "low", forlorn: "low", sorrowful: "low", futile: "low", down: "low", downcast: "low", hollow: "low",
+  wistful: "low", disappointed: "low", letdown: "low", slighted: "low", bitter: "low", nostalgic: "low", lonely: "low",
+  leftout: "low", empty: "low", distant: "low", regret: "low", selfblame: "low", tired: "low", wornout: "low",
+  listless: "low", bothered: "low", bored: "low", blank: "low", fedup: "low", burdened: "low", lost: "low",
+  pained: "low", sorry: "low",
+};
+
+export type Lean = "pos" | "neg" | "mixed";
+/**
+ * "Help me find the word": three easy answers narrow the list. The lean (pleasant / unpleasant / mixed) decides which
+ * words are considered; who-it-is-about and energy rank them. Answers left out (skipped) neither help nor hurt.
+ * These are suggestions to think with, not a diagnosis.
+ */
+export function suggestWords(a: { lean: Lean; focus?: Focus; energy?: Energy }, max = 6): Word[] {
+  const pool = WORDS.filter((w) => {
+    const v = VALENCE[w.id] ?? 0;
+    return a.lean === "pos" ? v > 0 : a.lean === "neg" ? v < 0 : v === 0 || w.family === "mixed";
+  });
+  const score = (w: Word) => {
+    let s = 0;
+    if (a.focus) s += FOCUS[w.id] === a.focus ? 2 : FOCUS[w.id] ? -1 : 0;
+    if (a.energy) s += ENERGY[w.id] === a.energy ? 2 : ENERGY[w.id] ? -1 : 0;
+    return s;
+  };
+  return pool
+    .map((w, i) => ({ w, s: score(w), strong: Math.abs(VALENCE[w.id] ?? 0), i }))
+    .sort((x, y) => y.s - x.s || y.strong - x.strong || x.i - y.i)
+    .slice(0, max)
+    .map((x) => x.w);
+}
+
 export const WORD_IDS = new Set(WORDS.map((w) => w.id));
 export const MAX_EMOTIONS = 3;
 const byId = new Map(WORDS.map((w) => [w.id, w]));
