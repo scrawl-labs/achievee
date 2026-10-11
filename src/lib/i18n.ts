@@ -161,6 +161,7 @@ export function makeFormat(locale: Locale) {
   const f = {
     monthYear: utc({ year: "numeric", month: "long" }),
     monthDay: utc({ month: "long", day: "numeric" }),
+    date: utc({ year: "numeric", month: "long", day: "numeric" }),
     full: utc({ weekday: "long", month: "long", day: "numeric" }),
     weekdayShort: utc({ weekday: "short" }),
     weekdayLong: utc({ weekday: "long" }),
@@ -171,6 +172,7 @@ export function makeFormat(locale: Locale) {
   return {
     monthYear: (ym: string) => f.monthYear.format(at(`${ym}-01`)),
     monthDay: (iso: string) => f.monthDay.format(at(iso)),
+    date: (iso: string) => f.date.format(at(iso)),
     full: (iso: string) => f.full.format(at(iso)),
     weekdayShort: (dow: number) => f.weekdayShort.format(sunday + dow * 864e5),
     weekdayLong: (dow: number) => f.weekdayLong.format(sunday + dow * 864e5),

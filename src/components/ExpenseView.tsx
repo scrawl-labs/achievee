@@ -6,6 +6,7 @@ import Icon from "./Icon";
 import Summary from "./Summary";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
+import DatePicker from "./DatePicker";
 
 type Row = { id: number; date: string; category: string; memo: string; amount: number; need: number };
 type Inc = { id: number; date: string; memo: string; amount: number };
@@ -104,7 +105,7 @@ export default function ExpenseView({ sel, setSel, startDay, onStartDay }: {
             </div>
             {open && (
               <form className="panel entry" onSubmit={add}>
-                <input type="date" value={sel} onChange={(e) => e.target.value && setSel(e.target.value)} />
+                <DatePicker value={sel} onChange={setSel} />
                 <select value={category} onChange={(e) => setCategory(e.target.value as Category)} aria-label={t("exp.category")}>{CATEGORIES.map((c) => <option key={c} value={c}>{catName(c)}</option>)}</select>
                 <select value={need ? "need" : "waste"} onChange={(e) => setNeed(e.target.value === "need")} aria-label={t("exp.needOrNot")}>
                   <option value="need">{t("exp.needOpt")}</option>
@@ -131,7 +132,7 @@ export default function ExpenseView({ sel, setSel, startDay, onStartDay }: {
             <div className="list">
               {shown.map((r) => editId === r.id ? (
                 <form className="panel entry" key={r.id} onSubmit={saveEdit}>
-                  <input type="date" value={draft.date} onChange={(e) => setDraft({ ...draft, date: e.target.value })} />
+                  <DatePicker value={draft.date} onChange={(d) => setDraft({ ...draft, date: d })} />
                   <select value={draft.category} onChange={(e) => setDraft({ ...draft, category: e.target.value as Category })} aria-label={t("exp.category")}>
                     {CATEGORIES.map((c) => <option key={c} value={c}>{catName(c)}</option>)}
                   </select>
@@ -172,7 +173,7 @@ export default function ExpenseView({ sel, setSel, startDay, onStartDay }: {
             </div>
             {iOpen && (
               <form className="panel entry" onSubmit={addInc}>
-                <input type="date" value={sel} onChange={(e) => e.target.value && setSel(e.target.value)} />
+                <DatePicker value={sel} onChange={setSel} />
                 <input placeholder={t("exp.amount")} inputMode="numeric" value={iAmount} onChange={(e) => setIAmount(e.target.value)} autoFocus />
                 <input className="wide" placeholder={t("exp.memo")} value={iMemo} onChange={(e) => setIMemo(e.target.value)} />
                 <button className="btn primary">{t("common.add")}</button>
@@ -182,7 +183,7 @@ export default function ExpenseView({ sel, setSel, startDay, onStartDay }: {
               {incRows.length === 0 && !iOpen && <p className="muted">{t("inc.empty")}</p>}
               {incRows.map((r) => iEditId === r.id ? (
                 <form className="panel entry" key={r.id} onSubmit={saveInc}>
-                  <input type="date" value={iDraft.date} onChange={(e) => setIDraft({ ...iDraft, date: e.target.value })} />
+                  <DatePicker value={iDraft.date} onChange={(d) => setIDraft({ ...iDraft, date: d })} />
                   <input placeholder={t("exp.amount")} inputMode="numeric" value={iDraft.amount} onChange={(e) => setIDraft({ ...iDraft, amount: e.target.value })} autoFocus />
                   <input className="wide" placeholder={t("exp.memo")} value={iDraft.memo} onChange={(e) => setIDraft({ ...iDraft, memo: e.target.value })} />
                   <div className="edit-actions">

@@ -4,6 +4,7 @@ import type { Key } from "@/lib/i18n";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 import Icon from "./Icon";
+import DatePicker from "./DatePicker";
 import WeeklyReview from "./WeeklyReview";
 import EmotionPicker from "./EmotionPicker";
 import EmotionDictionary from "./EmotionDictionary";
@@ -48,7 +49,7 @@ function DayDiary({ ym, sel, setSel }: Props) {
   return (
     <div className="two wide-left">
       <section className="panel">
-        <input type="date" value={sel} onChange={(e) => e.target.value && setSel(e.target.value)} />
+        <DatePicker value={sel} onChange={setSel} marksUrl={(m) => `/api/diary?ym=${m}`} />
         <EmotionPicker value={emotions} onChange={(v) => { setEmotions(v); setSaved(false); }} />
         <textarea rows={10} value={body} onChange={(e) => { setBody(e.target.value); setSaved(false); }} />
         <div className="row end"><button className="btn primary" disabled={saved} onClick={save}>{t("common.save")}</button></div>
