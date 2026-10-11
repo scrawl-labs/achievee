@@ -3,7 +3,7 @@ import { PRIVACY_ZH } from "./legal-zh";
 
 export type LegalDoc = { title: string; updated: string; sections: { h: string; p: string[] }[] };
 
-export const PRIVACY_UPDATED = "2026-10-09";
+export const PRIVACY_UPDATED = "2026-10-11";
 const GOOGLE_POLICY = "https://developers.google.com/terms/api-services-user-data-policy";
 
 /** {contact} is replaced with NEXT_PUBLIC_CONTACT_EMAIL. */
@@ -26,6 +26,11 @@ export const PRIVACY: Record<Locale, LegalDoc> = {
       { h: "How we use data", p: [
         "Solely to provide Achievee's features to you: showing your progress, statistics, diary and spending. We do not use your data for advertising, do not sell it, and do not use it to train AI models.",
         "Achievee's use and transfer of information received from Google APIs adheres to the Google API Services User Data Policy, including the Limited Use requirements (" + GOOGLE_POLICY + ").",
+      ] },
+      { h: "How we protect your data", p: [
+        "Data in transit is protected with HTTPS (TLS). Diary text, expense and income memos, weekly review text and the access tokens of connected tools are encrypted at rest with AES-256-GCM before they are saved. The encryption key is a server secret kept outside the database.",
+        "Your Google access token lives only inside your signed-in session (an encrypted, HTTP-only cookie) and is used on our server to call Google. It is never exposed to scripts in your browser and never saved in our database.",
+        "Every database request is limited to your own account ID, access to production systems is restricted to the developer, and Achievee requests read-only Google permissions only.",
       ] },
       { h: "Sharing", p: [
         "We do not share your data with third parties, except infrastructure providers that process it for us: Vercel (hosting) and Neon (database). Humans do not read your data unless you ask for support, it is required by law, or it is needed to protect security.",
@@ -54,6 +59,11 @@ export const PRIVACY: Record<Locale, LegalDoc> = {
         "진행 상황, 통계, 일기, 지출을 보여주는 등 Achievee의 기능을 제공하는 목적으로만 사용합니다. 광고에 쓰지 않고, 판매하지 않으며, AI 모델 학습에도 사용하지 않습니다.",
         "Achievee가 Google API로 받은 정보를 사용하고 다른 곳으로 전달하는 방식은 Limited Use 요건을 포함한 Google API 서비스 사용자 데이터 정책을 준수합니다 (" + GOOGLE_POLICY + ").",
       ] },
+      { h: "정보 보호 조치", p: [
+        "전송 중인 정보는 HTTPS(TLS)로 보호합니다. 일기 본문, 지출·수입 메모, 주간 회고 내용, 연동한 도구의 액세스 토큰은 저장하기 전에 AES-256-GCM으로 암호화합니다. 암호화 키는 데이터베이스와 분리된 서버 비밀값으로 보관합니다.",
+        "Google 액세스 토큰은 로그인 세션(암호화된 HTTP-only 쿠키) 안에만 있으며, 저희 서버가 Google을 호출할 때만 사용합니다. 브라우저의 스크립트에 노출되지 않고 데이터베이스에도 저장하지 않습니다.",
+        "모든 데이터베이스 요청은 이용자 본인의 계정 ID로 제한되고, 운영 시스템 접근은 개발자 본인으로 제한하며, Achievee는 읽기 전용 Google 권한만 요청합니다.",
+      ] },
       { h: "제3자 제공", p: [
         "이용자의 정보를 제3자에게 제공하지 않습니다. 다만 저희를 대신해 정보를 처리하는 인프라 업체인 Vercel(호스팅)과 Neon(데이터베이스)을 이용합니다. 이용자가 지원을 요청하거나, 법령상 필요하거나, 보안 보호에 필요한 경우를 제외하고 사람이 이용자의 정보를 열람하지 않습니다.",
       ] },
@@ -81,6 +91,11 @@ export const PRIVACY: Record<Locale, LegalDoc> = {
         "進捗、統計、日記、支出の表示など、Achievee の機能を提供する目的にのみ使用します。広告には使用せず、販売せず、AI モデルの学習にも使用しません。",
         "Achievee による Google API から取得した情報の利用および転送は、限定的な使用（Limited Use）の要件を含む Google API サービスのユーザーデータに関するポリシーを遵守します (" + GOOGLE_POLICY + ")。",
       ] },
+      { h: "データの保護", p: [
+        "通信中のデータは HTTPS（TLS）で保護します。日記本文、支出・収入のメモ、週間レビューの内容、連携したツールのアクセストークンは、保存する前に AES-256-GCM で暗号化します。暗号化キーはデータベースとは別にサーバーのシークレットとして保管します。",
+        "Google のアクセストークンはログインセッション（暗号化された HTTP-only Cookie）の中にのみ存在し、当サーバーが Google を呼び出すときだけ使用します。ブラウザのスクリプトには公開されず、データベースにも保存しません。",
+        "すべてのデータベース要求はご自身のアカウント ID に限定され、本番システムへのアクセスは開発者本人に限られ、Achievee は読み取り専用の Google 権限のみを要求します。",
+      ] },
       { h: "第三者提供", p: [
         "ユーザーの情報を第三者に提供しません。ただし、当社に代わって情報を処理するインフラ事業者として Vercel（ホスティング）と Neon（データベース）を利用します。サポートをご依頼いただいた場合、法令上必要な場合、セキュリティ保護に必要な場合を除き、人がユーザーの情報を閲覧することはありません。",
       ] },
@@ -107,6 +122,11 @@ export const PRIVACY: Record<Locale, LegalDoc> = {
       { h: "Cómo usamos los datos", p: [
         "Únicamente para ofrecerte las funciones de Achievee: mostrar tu progreso, estadísticas, diario y gastos. No usamos tus datos para publicidad, no los vendemos y no los usamos para entrenar modelos de IA.",
         "El uso y la transferencia que hace Achievee de la información recibida de las API de Google cumple la Política de datos de usuario de los servicios de API de Google, incluidos los requisitos de uso limitado (" + GOOGLE_POLICY + ").",
+      ] },
+      { h: "Cómo protegemos tus datos", p: [
+        "Los datos en tránsito se protegen con HTTPS (TLS). El texto del diario, las notas de gastos e ingresos, el texto de la revisión semanal y los tokens de acceso de las herramientas conectadas se cifran con AES-256-GCM antes de guardarse. La clave de cifrado es un secreto del servidor, guardado fuera de la base de datos.",
+        "Tu token de acceso de Google solo existe dentro de tu sesión iniciada (una cookie cifrada y HTTP-only) y se usa en nuestro servidor para llamar a Google. Nunca se expone a los scripts de tu navegador ni se guarda en nuestra base de datos.",
+        "Cada consulta a la base de datos se limita a tu propio ID de cuenta, el acceso a los sistemas de producción está restringido al desarrollador, y Achievee solo solicita permisos de Google de solo lectura.",
       ] },
       { h: "Compartir datos", p: [
         "No compartimos tus datos con terceros, salvo los proveedores de infraestructura que los procesan por nosotros: Vercel (alojamiento) y Neon (base de datos). Ninguna persona lee tus datos, salvo que solicites soporte, lo exija la ley o sea necesario para proteger la seguridad.",
