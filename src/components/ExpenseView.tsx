@@ -147,15 +147,19 @@ export default function ExpenseView({ sel, setSel, startDay, onStartDay }: {
                   </div>
                 </form>
               ) : (
-                <div className="item static row between" key={r.id}>
-                  <span><b>{fmt.monthDay(r.date)}</b> {catName(r.category)}{r.memo && <em> {r.memo}</em>}</span>
-                  <span className="row gap-2">
+                <div className="item static erow" key={r.id}>
+                  <div className="emain">
+                    <span className="etop"><b>{fmt.monthDay(r.date)}</b><span className="ecat">{catName(r.category)}</span></span>
+                    {r.memo && <span className="ememo">{r.memo}</span>}
+                  </div>
+                  <div className="eside">
                     <button className={`chip ${r.need ? "need" : "waste"}`} onClick={() => toggle(r)} title={t("exp.toggle")}>{r.need ? t("exp.need") : t("exp.waste")}</button>
                     <b className="num">{fmt.money(r.amount)}</b>
                     <span className="acts">
                       <button className="btn icon ghost" onClick={() => startEdit(r)} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
                       <button className="btn icon ghost" onClick={() => del(r.id)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button>
-                    </span></span>
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -187,14 +191,18 @@ export default function ExpenseView({ sel, setSel, startDay, onStartDay }: {
                   </div>
                 </form>
               ) : (
-                <div className="item static row between" key={r.id}>
-                  <span><b>{fmt.monthDay(r.date)}</b>{r.memo && <em> {r.memo}</em>}</span>
-                  <span className="row gap-2">
+                <div className="item static erow" key={r.id}>
+                  <div className="emain">
+                    <span className="etop"><b>{fmt.monthDay(r.date)}</b></span>
+                    {r.memo && <span className="ememo">{r.memo}</span>}
+                  </div>
+                  <div className="eside income">
                     <b className="num inc">{fmt.money(r.amount)}</b>
                     <span className="acts">
                       <button className="btn icon ghost" onClick={() => { setIEditId(r.id); setIDraft({ date: r.date, amount: String(r.amount), memo: r.memo }); }} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
                       <button className="btn icon ghost" onClick={() => delInc(r.id)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button>
-                    </span></span>
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
