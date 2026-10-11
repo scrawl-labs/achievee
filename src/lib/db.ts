@@ -61,6 +61,11 @@ export const expenses = {
     const s = await sql();
     await s`INSERT INTO expense ("user", date, category, memo, amount, need) VALUES (${user}, ${date}, ${category}, ${encrypt(memo)}, ${amount}, ${need ? 1 : 0})`;
   },
+  async update(user: string, id: number, f: { date: string; category: string; memo: string; amount: number; need: boolean }) {
+    const s = await sql();
+    await s`UPDATE expense SET date=${f.date}, category=${f.category}, memo=${encrypt(f.memo)}, amount=${f.amount}, need=${f.need ? 1 : 0}
+      WHERE "user"=${user} AND id=${id}`;
+  },
   async setNeed(user: string, id: number, need: boolean) {
     const s = await sql();
     await s`UPDATE expense SET need=${need ? 1 : 0} WHERE "user"=${user} AND id=${id}`;

@@ -21,6 +21,8 @@ export default function ExpenseView({ ym, sel, setSel }: { ym: string; sel: stri
   const [need, setNeed] = useState(true);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
+  const [editId, setEditId] = useState<number | null>(null);
+  const [draft, setDraft] = useState({ date: "", category: CATEGORIES[0] as Category, need: true, amount: "", memo: "" });
   const catName = (c: string) => t(`cat.${categoryOf(c)}` as Key);
 
   const add = async (e: React.FormEvent) => {
@@ -35,6 +37,18 @@ export default function ExpenseView({ ym, sel, setSel }: { ym: string; sel: stri
     reload();
   };
   const del = async (id: number) => { await fetch(`/api/expenses?id=${id}`, { method: "DELETE" }); reload(); };
+  const startEdit = (r: Row) => {
+    setEditId(r.id);
+    setDraft({ date: r.date, category: categoryOf(r.category), need: !!r.need, amount: String(r.amount), memo: r.memo });
+  };
+  const saveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const n = Number(draft.amount.replace(/[^\d]/g, ""));
+    if (editId === null || !draft.date || !Number.isInteger(n) || n <= 0) return;
+    await fetch("/api/expenses", { method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: editId, date: draft.date, category: draft.category, memo: draft.memo, amount: n, need: draft.need }) });
+    setEditId(null); reload();
+  };
 
   const sum = (rs: Row[]) => rs.reduce((s, r) => s + r.amount, 0);
   const total = sum(rows), needSum = sum(rows.filter((r) => r.need)), wasteSum = total - needSum;
@@ -78,12 +92,30 @@ export default function ExpenseView({ ym, sel, setSel }: { ym: string; sel: stri
               </div>
             </div>
             <div className="list">
-              {shown.map((r) => (
+              {shown.map((r) => editId === r.id ? (
+                <form className="panel entry" key={r.id} onSubmit={saveEdit}>
+                  <input type="date" value={draft.date} onChange={(e) => setDraft({ ...draft, date: e.target.value })} />
+                  <select value={draft.category} onChange={(e) => setDraft({ ...draft, category: e.target.value as Category })} aria-label={t("exp.category")}>
+                    {CATEGORIES.map((c) => <option key={c} value={c}>{catName(c)}</option>)}
+                  </select>
+                  <select value={draft.need ? "need" : "waste"} onChange={(e) => setDraft({ ...draft, need: e.target.value === "need" })} aria-label={t("exp.needOrNot")}>
+                    <option value="need">{t("exp.needOpt")}</option>
+                    <option value="waste">{t("exp.wasteOpt")}</option>
+                  </select>
+                  <input placeholder={t("exp.amount")} inputMode="numeric" value={draft.amount} onChange={(e) => setDraft({ ...draft, amount: e.target.value })} autoFocus />
+                  <input className="wide" placeholder={t("exp.memo")} value={draft.memo} onChange={(e) => setDraft({ ...draft, memo: e.target.value })} />
+                  <div className="edit-actions">
+                    <button type="button" className="btn" onClick={() => setEditId(null)}>{t("common.cancel")}</button>
+                    <button className="btn primary">{t("common.save")}</button>
+                  </div>
+                </form>
+              ) : (
                 <div className="item static row between" key={r.id}>
                   <span><b>{fmt.monthDay(r.date)}</b> {catName(r.category)}{r.memo && <em> {r.memo}</em>}</span>
                   <span className="row gap-2">
                     <button className={`chip ${r.need ? "need" : "waste"}`} onClick={() => toggle(r)} title={t("exp.toggle")}>{r.need ? t("exp.need") : t("exp.waste")}</button>
                     <b className="num">{fmt.money(r.amount)}</b>
+                    <button className="btn icon ghost" onClick={() => startEdit(r)} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
                     <button className="btn icon ghost" onClick={() => del(r.id)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button></span>
                 </div>
               ))}

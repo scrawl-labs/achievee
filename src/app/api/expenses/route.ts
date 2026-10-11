@@ -24,11 +24,15 @@ export async function POST(req: Request) {
 }
 
 export async function PATCH(req: Request) {
-  const { id, need } = await req.json();
+  const b = await req.json();
+  const { id, need } = b;
   if (!Number.isInteger(id) || typeof need !== "boolean") return bad("bad input");
+  const full = "date" in b || "category" in b || "amount" in b || "memo" in b;
+  if (full && (!YMD.test(b.date) || !b.category || !Number.isInteger(b.amount) || b.amount <= 0 || b.amount > 1_000_000_000)) return bad("bad input");
   const u = await getUser();
   if (!u) return unauthorized();
-  await expenses.setNeed(u.id, id, need);
+  if (full) await expenses.update(u.id, id, { date: b.date, category: String(b.category).slice(0, 20), memo: String(b.memo ?? "").slice(0, 100), amount: b.amount, need });
+  else await expenses.setNeed(u.id, id, need);
   return NextResponse.json({ ok: true });
 }
 
