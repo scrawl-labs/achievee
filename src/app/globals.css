@@ -711,3 +711,14 @@ select {
 .workday .k-edited { --k: #58a6ff; }
 .workday .k-messages { --k: #e8a33d; }
 .workday .k-mentions { --k: #e5609b; }
+
+/* diary list: each day opens in place */
+.item.entry { padding: 0; gap: 0; }
+.item.entry.on { border-color: var(--accent); }
+.entry-head { width: 100%; display: flex; flex-direction: column; gap: 4px; padding: var(--s3) var(--s4); text-align: left; border-radius: var(--r-m); }
+.entry-head svg { color: var(--fg-3); transition: transform .15s; }
+.entry.open .entry-head svg { transform: rotate(90deg); }
+.entry.open .entry-head p { display: block; -webkit-line-clamp: unset; overflow: visible; color: var(--fg); line-height: 1.65; overflow-wrap: anywhere; }
+.entry > .row.end { padding: 0 var(--s4) var(--s3); }
+button.note { display: -webkit-box; width: 100%; text-align: left; cursor: pointer; }
+button.note.open { display: block; -webkit-line-clamp: unset; overflow: visible; color: var(--fg); line-height: 1.65; overflow-wrap: anywhere; }

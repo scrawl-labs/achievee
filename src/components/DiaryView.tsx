@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { Key } from "@/lib/i18n";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
+import Icon from "./Icon";
 import WeeklyReview from "./WeeklyReview";
 import EmotionPicker from "./EmotionPicker";
 import EmotionDictionary from "./EmotionDictionary";
@@ -27,6 +28,8 @@ function DayDiary({ ym, sel, setSel }: Props) {
   const [emotions, setEmotions] = useState<string[]>([]);
   const [hadEmotions, setHadEmotions] = useState(false);
   const [saved, setSaved] = useState(true);
+  const [open, setOpen] = useState<Set<string>>(new Set()); // days shown in full in the list
+  const toggle = (d: string) => setOpen((o) => { const n = new Set(o); if (n.has(d)) n.delete(d); else n.add(d); return n; });
 
   useEffect(() => {
     const r = rows.find((x) => x.date === sel);
@@ -51,13 +54,19 @@ function DayDiary({ ym, sel, setSel }: Props) {
         <div className="row end"><button className="btn primary" disabled={saved} onClick={save}>{t("common.save")}</button></div>
       </section>
       <section className="list">
-        {rows.map((r) => (
-          <button key={r.date} className={`item${r.date === sel ? " on" : ""}`} onClick={() => setSel(r.date)}>
-            <span className="row between"><b>{fmt.monthDay(r.date)}</b>{r.mood && <Dots n={r.mood} />}</span>
-            {r.emotions && r.emotions.length > 0 && <span className="emo-tags">{r.emotions.map((id) => <i key={id}>{wordText(id, lang)}</i>)}</span>}
-            <p>{r.body}</p>
-          </button>
-        ))}
+        {rows.map((r) => {
+          const isOpen = open.has(r.date);
+          return (
+            <div key={r.date} className={`item entry${r.date === sel ? " on" : ""}${isOpen ? " open" : ""}`}>
+              <button type="button" className="entry-head" aria-expanded={isOpen} onClick={() => toggle(r.date)}>
+                <span className="row between"><b>{fmt.monthDay(r.date)}</b><span className="row gap-2">{r.mood && <Dots n={r.mood} />}<Icon name="right" size={16} /></span></span>
+                {r.emotions && r.emotions.length > 0 && <span className="emo-tags">{r.emotions.map((id) => <i key={id}>{wordText(id, lang)}</i>)}</span>}
+                <p>{r.body}</p>
+              </button>
+              {isOpen && <div className="row end"><button type="button" className="btn" onClick={() => { setSel(r.date); window.scrollTo({ top: 0, behavior: "smooth" }); }}>{t("common.edit")}</button></div>}
+            </div>
+          );
+        })}
       </section>
     </div>
   );

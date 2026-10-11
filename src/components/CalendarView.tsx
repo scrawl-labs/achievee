@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import type { MonthData, Stats } from "@/lib/types";
 import { todayStr } from "@/lib/clientTime";
 import { dow } from "@/lib/dates";
@@ -30,6 +31,7 @@ export default function CalendarView({ ym, month, stats, sel, setSel }: Props) {
   const spent = useApi<{ date: string; amount: number }[]>(`/api/expenses?ym=${ym}`).data ?? [];
   const work = useApi<{ items: WorkItem[]; errors: string[]; connected: string[] }>(`/api/work?from=${sel}&to=${addDays(sel, 1)}&tz=${encodeURIComponent(browserTz())}`).data;
   const note = diary.find((d) => d.date === sel)?.body;
+  const [openNote, setOpenNote] = useState<string | null>(null); // the day whose diary is shown in full
   const daySpent = spent.filter((s) => s.date === sel).reduce((a, s) => a + s.amount, 0);
 
   return (
@@ -84,7 +86,7 @@ export default function CalendarView({ ym, month, stats, sel, setSel }: Props) {
             </section>
           )}
           {daySpent > 0 && <div className="spent"><span>{t("cal.spent")}</span><b>{fmt.money(daySpent)}</b></div>}
-          {note && <p className="note">{note}</p>}
+          {note && <button type="button" className={`note${openNote === sel ? " open" : ""}`} aria-expanded={openNote === sel} onClick={() => setOpenNote(openNote === sel ? null : sel)}>{note}</button>}
         </aside>
       </div>
     </>
