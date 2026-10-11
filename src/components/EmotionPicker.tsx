@@ -101,7 +101,7 @@ export default function EmotionPicker({ value, onChange }: { value: string[]; on
             <>
           <div className="emo-fams" role="tablist">
             {FAMILIES.map((f) => (
-              <button key={f.id} role="tab" aria-selected={fam === f.id} type="button" className={fam === f.id ? "on" : ""} onClick={() => setFam(f.id)}>{f[lang]}</button>
+              <button key={f.id} role="tab" aria-selected={fam === f.id} type="button" className={fam === f.id ? "on" : ""} onClick={() => { setFam(f.id); setFocus(wordsOfFamily(f.id)[0]?.id ?? null); }}>{f[lang]}</button>
             ))}
           </div>
           <div className="emo-words">
