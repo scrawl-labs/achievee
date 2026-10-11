@@ -491,3 +491,5 @@ html:lang(ja) .land, html:lang(zh-Hant) .land { word-break: normal; line-break: 
 .trust article, .steps li, .card { min-width: 0; }
 @media (max-width: 900px) { .trust { grid-template-columns: repeat(2, minmax(0, 1fr)); } .steps { grid-template-columns: 1fr; } }
 @media (max-width: 560px) { .trust { grid-template-columns: 1fr; } }
+
+.start h2 { max-width: 15em; margin-inline: auto; }

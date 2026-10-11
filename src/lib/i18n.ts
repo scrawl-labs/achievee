@@ -49,7 +49,7 @@ type Dict = Record<Key, string>;
 
 const ko: BaseDict = {
   "nav.calendar": "달력", "nav.stats": "통계", "nav.diary": "일기", "nav.expense": "지출", "nav.google": "Google Calendar",
-  "login.tagline": "Google Calendar와 Google Tasks를 매일의 성취로 바꿔 보세요.",
+  "login.tagline": "Google Calendar와 Google Tasks로 예쁘고 알차게 기록해봐요!",
   "login.cta": "Google로 계속하기",
   "login.note": "Achievee는 진행 상황을 보여주기 위해 Google Calendar와 Google Tasks를 읽기 전용으로만 가져오며, 절대 수정하지 않아요.",
   "legal.privacy": "개인정보처리방침", "legal.terms": "이용약관", "account.delete": "내 데이터 삭제", "account.deleteConfirm": "일기와 지출 데이터를 모두 영구 삭제하고 로그아웃할까요? 되돌릴 수 없어요.",
