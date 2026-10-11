@@ -21,7 +21,7 @@ export function fromAcceptLanguage(h: string | null): Locale {
 
 const en = {
   "nav.calendar": "Calendar", "nav.stats": "Stats", "nav.diary": "Diary", "nav.expense": "Spending", "nav.google": "Google Calendar",
-  "login.tagline": "Turn your Google Calendar and Google Tasks into daily progress.",
+  "login.tagline": "Capture your days beautifully with Google Calendar and Google Tasks!",
   "login.cta": "Continue with Google",
   "login.note": "Achievee reads your calendar and tasks (read-only) to show your progress. It never changes them.",
   "legal.privacy": "Privacy Policy", "legal.terms": "Terms of Service", "account.delete": "Delete my data", "account.deleteConfirm": "Permanently delete your diary and spending data and sign out? This can't be undone.",
@@ -72,7 +72,7 @@ const ko: BaseDict = {
 
 const ja: BaseDict = {
   "nav.calendar": "カレンダー", "nav.stats": "統計", "nav.diary": "日記", "nav.expense": "支出", "nav.google": "Google Calendar",
-  "login.tagline": "Google Calendar と Google Tasks を、毎日の達成感に。",
+  "login.tagline": "Google Calendar と Google Tasks で、\nきれいに充実した記録を残そう！",
   "login.cta": "Google で続ける",
   "login.note": "Achievee は進捗を表示するために Google Calendar と Google Tasks を読み取り専用で取得します。変更することはありません。",
   "legal.privacy": "プライバシーポリシー", "legal.terms": "利用規約", "account.delete": "データを削除", "account.deleteConfirm": "日記と支出のデータをすべて完全に削除してログアウトしますか？ 元に戻せません。",
@@ -95,7 +95,7 @@ const ja: BaseDict = {
 
 const es: BaseDict = {
   "nav.calendar": "Calendario", "nav.stats": "Estadísticas", "nav.diary": "Diario", "nav.expense": "Gastos", "nav.google": "Google Calendar",
-  "login.tagline": "Convierte tu Google Calendar y tus Google Tasks en progreso diario.",
+  "login.tagline": "¡Registra tus días de forma bonita con Google Calendar y Google Tasks!",
   "login.cta": "Continuar con Google",
   "login.note": "Achievee lee tu Google Calendar y tus Google Tasks (solo lectura) para mostrar tu progreso. Nunca los modifica.",
   "legal.privacy": "Política de privacidad", "legal.terms": "Términos del servicio", "account.delete": "Eliminar mis datos", "account.deleteConfirm": "¿Eliminar de forma permanente tu diario y tus gastos y cerrar sesión? No se puede deshacer.",

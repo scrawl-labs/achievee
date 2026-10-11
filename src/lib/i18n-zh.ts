@@ -1,7 +1,7 @@
 // Traditional Chinese (zh-TW). Product names stay in English: Google Calendar / Google Tasks.
 export const ZH = {
   "nav.calendar": "日曆", "nav.stats": "統計", "nav.diary": "日記", "nav.expense": "支出", "nav.google": "Google Calendar",
-  "login.tagline": "把 Google Calendar 和 Google Tasks 變成每天的成就。",
+  "login.tagline": "用 Google Calendar 和 Google Tasks，\n漂亮又充實地記錄吧！",
   "login.cta": "使用 Google 繼續",
   "login.note": "Achievee 僅以唯讀方式取得 Google Calendar 與 Google Tasks 來顯示你的進度，絕不會修改。",
   "legal.privacy": "隱私權政策", "legal.terms": "服務條款", "account.delete": "刪除我的資料",
@@ -28,8 +28,8 @@ export const ZH_LAND = {
   "land.final.sub": "免費使用。用 Google 登入，幾秒鐘就能看到你的成就。",
   "land.mock.e1": "團隊會議", "land.mock.e2": "和小珍吃午餐", "land.mock.e3": "運動",
   "land.mock.note": "美好的一天。全部完成！",
-  "land.f.title": "你一天的所有紀錄，都在同一個地方",
-  "land.f1.t": "每日成就", "land.f1.d": "完成的待辦事項會化成徽章綻放。徽章越滿，今天就越棒。",
+  "land.f.title": "把一天的所有紀錄收集起來吧",
+  "land.f1.t": "每日成就", "land.f1.d": "完成的待辦事項會化成徽章綻放。一起把徽章集滿吧！",
   "land.f2.t": "連續紀錄與統計", "land.f2.d": "達成率、最長連續紀錄，還有你表現最好的星期幾。",
   "land.f3.t": "Google Calendar", "land.f3.d": "用日、週、月、列表檢視你使用的所有日曆。",
   "land.f4.t": "日記與支出", "land.f4.d": "寫下每天的心情，也看看錢花到哪裡去了。",
@@ -37,10 +37,10 @@ export const ZH_LAND = {
   "land.s1.t": "用 Google 登入", "land.s1.d": "點一下就好，只要求唯讀權限。",
   "land.s2.t": "查看成就", "land.s2.d": "你的待辦事項和行程會立刻出現。",
   "land.s3.t": "記錄你的一天", "land.s3.d": "想寫日記或記一筆支出時，隨時都能新增。",
-  "land.trust.title": "把你的資料放第一",
+  "land.trust.title": "資料管理",
   "land.t1.t": "唯讀", "land.t1.d": "無法在你的 Google 帳戶中建立、編輯或刪除任何內容。",
   "land.t2.t": "不儲存", "land.t2.d": "Google Calendar 與 Google Tasks 只在開啟 App 時讀取，不會儲存。",
   "land.t3.t": "加密", "land.t3.d": "日記內文與支出備註會加密保存。",
   "land.t4.t": "隨時刪除", "land.t4.d": "一鍵刪除你的資料，也可以隨時在 Google 取消授權。",
-  "land.final.title": "想看看你完成了多少嗎？",
+  "land.final.title": "想漂亮地看看自己完成了多少嗎？",
 } as const;

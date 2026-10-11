@@ -493,3 +493,20 @@ html:lang(ja) .land, html:lang(zh-Hant) .land { word-break: normal; line-break: 
 @media (max-width: 560px) { .trust { grid-template-columns: 1fr; } }
 
 .start h2 { max-width: 15em; margin-inline: auto; }
+
+.hero-copy h1 { white-space: pre-line; }
+
+.hero-copy { max-width: 980px; }
+.hero-copy h1 { font-size: clamp(32px, 5vw, 60px); }
+
+/* selects: draw our own chevron so it sits 12px from the right edge, mirroring the 12px text inset on the left */
+select {
+  -webkit-appearance: none; appearance: none; padding-right: 40px; cursor: pointer;
+  background-repeat: no-repeat; background-position: right 12px center; background-size: 16px 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0a2aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+@media (prefers-color-scheme: light) {
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235d5f68' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); }
+}
+.land select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235e5a57' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); }
+.lang { padding-right: 30px; background-position: right 9px center; background-size: 14px 14px; }
