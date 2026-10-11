@@ -38,3 +38,12 @@ Google Cloud Console에서 OAuth 클라이언트(Web)를 만들고 Calendar API,
 - 박인조, 민경환 (2005). 한국어 감정단어의 목록 작성과 차원 탐색. *한국심리학회지: 사회 및 성격*, 19(1), 109–129. — 흔히 쓰는 감정단어가 빠지지 않았는지 **범위를 점검하는 데만** 참고했고, 그 단어 목록과 평정값은 가져다 쓰지 않았습니다.
 
 로고 글자는 학교안심 둥근미소(한국교육학술정보원, SIL OFL 1.1)를 도형으로 변환한 것이며, 랜딩 제목에는 같은 폰트 Bold를 웹폰트로 사용합니다. 라이선스: `public/fonts/OFL-HakgyoansimDunggeunmiso.txt`
+
+## Google 권한(OAuth 범위)
+요청하는 범위는 우리가 호출하는 API가 허용하는 **가장 좁은 읽기 전용 범위**입니다 (`src/lib/auth.ts`).
+| 범위 | 사용하는 API | 용도 |
+|---|---|---|
+| `calendar.calendarlist.readonly` | `calendarList.list` | 사용자의 캘린더 이름, 색, 표시 여부 |
+| `calendar.events.readonly` | `events.list` | 일, 주, 월, 목록 보기와 날짜별 일정 수 |
+| `tasks.readonly` | `tasks.lists.list`, `tasks.list` | 할 일 제목, 기한, 완료 여부로 달성률 계산 |
+쓰기 범위(`calendar`, `calendar.events`, `tasks` 등)와 `calendar.readonly`, `calendar.acls`, `calendar.calendars` 등은 요청하지 않습니다. 데이터는 화면을 그릴 때 서버에서 읽어 전달하고 저장하지 않습니다.

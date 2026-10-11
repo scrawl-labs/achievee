@@ -6,9 +6,12 @@ import { getServerSession } from "next-auth";
 import { cookies, headers } from "next/headers";
 import { cache } from "react";
 
+// Narrowest read-only scopes that authorize the calls we make (see lib/google.ts):
+//   calendarList.list -> calendar.calendarlist.readonly, events.list -> calendar.events.readonly, tasks lists/tasks -> tasks.readonly
 const SCOPES = [
   "openid", "email", "profile",
-  "https://www.googleapis.com/auth/calendar.readonly",
+  "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
+  "https://www.googleapis.com/auth/calendar.events.readonly",
   "https://www.googleapis.com/auth/tasks.readonly",
 ].join(" ");
 
