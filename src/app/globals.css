@@ -515,3 +515,9 @@ select {
 .edit-actions { grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); }
 .panel.entry .edit-actions .btn { grid-column: auto; }
 .list .panel.entry { margin: var(--s2) 0; }
+
+/* income + pay-cycle setting */
+.num.inc { color: var(--c3); }
+.period { margin-top: var(--s5); padding-top: var(--s4); border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: var(--s2); }
+.period label { font-size: 13px; font-weight: 600; color: var(--fg-2); }
+.period small { line-height: 1.5; }

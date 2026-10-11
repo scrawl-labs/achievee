@@ -1,20 +1,33 @@
 "use client";
 import { useState } from "react";
 import { CATEGORIES, type Category, type Key, categoryOf } from "@/lib/i18n";
+import { periodOf } from "@/lib/period";
 import Icon from "./Icon";
 import Summary from "./Summary";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 
 type Row = { id: number; date: string; category: string; memo: string; amount: number; need: number };
+type Inc = { id: number; date: string; memo: string; amount: number };
 type Filter = "all" | "need" | "waste";
 const BARS = ["var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)", "var(--c5)", "var(--c6)"];
 const FILTERS: [Filter, Key][] = [["all", "exp.all"], ["need", "exp.need"], ["waste", "exp.waste"]];
+const DAYS = Array.from({ length: 28 }, (_, i) => i + 1);
+const send = (url: string, method: string, body?: unknown) =>
+  fetch(url, { method, headers: { "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
+const digits = (s: string) => Number(s.replace(/[^\d]/g, ""));
 
-export default function ExpenseView({ ym, sel, setSel }: { ym: string; sel: string; setSel: (d: string) => void }) {
+/** Spending + income for one "month" that starts on `startDay` (e.g. the 25th when the salary arrives on the 25th). */
+export default function ExpenseView({ sel, setSel, startDay, onStartDay }: {
+  sel: string; setSel: (d: string) => void; startDay: number; onStartDay: (d: number) => void;
+}) {
   const { t, fmt } = useI18n();
-  const { data, reload } = useApi<Row[]>(`/api/expenses?ym=${ym}`);
-  const rows = data ?? [];
+  const { from, to } = periodOf(sel, startDay);
+  const { data, reload } = useApi<Row[]>(`/api/expenses?from=${from}&to=${to}`);
+  const { data: incData, reload: reloadInc } = useApi<Inc[]>(`/api/income?from=${from}&to=${to}`);
+  const rows = data ?? [], incRows = incData ?? [];
+
+  // --- expenses
   const [category, setCategory] = useState<Category>(CATEGORIES[0]);
   const [memo, setMemo] = useState("");
   const [amount, setAmount] = useState("");
@@ -27,38 +40,61 @@ export default function ExpenseView({ ym, sel, setSel }: { ym: string; sel: stri
 
   const add = async (e: React.FormEvent) => {
     e.preventDefault();
-    const n = Number(amount.replace(/[^\d]/g, ""));
+    const n = digits(amount);
     if (!Number.isInteger(n) || n <= 0) return;
-    await fetch("/api/expenses", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ date: sel, category, memo, amount: n, need }) });
+    await send("/api/expenses", "POST", { date: sel, category, memo, amount: n, need });
     setMemo(""); setAmount(""); setOpen(false); reload();
   };
-  const toggle = async (r: Row) => {
-    await fetch("/api/expenses", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: r.id, need: !r.need }) });
-    reload();
-  };
-  const del = async (id: number) => { await fetch(`/api/expenses?id=${id}`, { method: "DELETE" }); reload(); };
+  const toggle = async (r: Row) => { await send("/api/expenses", "PATCH", { id: r.id, need: !r.need }); reload(); };
+  const del = async (id: number) => { await send(`/api/expenses?id=${id}`, "DELETE"); reload(); };
   const startEdit = (r: Row) => {
     setEditId(r.id);
     setDraft({ date: r.date, category: categoryOf(r.category), need: !!r.need, amount: String(r.amount), memo: r.memo });
   };
   const saveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const n = Number(draft.amount.replace(/[^\d]/g, ""));
+    const n = digits(draft.amount);
     if (editId === null || !draft.date || !Number.isInteger(n) || n <= 0) return;
-    await fetch("/api/expenses", { method: "PATCH", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: editId, date: draft.date, category: draft.category, memo: draft.memo, amount: n, need: draft.need }) });
+    await send("/api/expenses", "PATCH", { id: editId, date: draft.date, category: draft.category, memo: draft.memo, amount: n, need: draft.need });
     setEditId(null); reload();
   };
 
-  const sum = (rs: Row[]) => rs.reduce((s, r) => s + r.amount, 0);
+  // --- income
+  const [iOpen, setIOpen] = useState(false);
+  const [iAmount, setIAmount] = useState("");
+  const [iMemo, setIMemo] = useState("");
+  const [iEditId, setIEditId] = useState<number | null>(null);
+  const [iDraft, setIDraft] = useState({ date: "", amount: "", memo: "" });
+  const addInc = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const n = digits(iAmount);
+    if (!Number.isInteger(n) || n <= 0) return;
+    await send("/api/income", "POST", { date: sel, memo: iMemo, amount: n });
+    setIAmount(""); setIMemo(""); setIOpen(false); reloadInc();
+  };
+  const saveInc = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const n = digits(iDraft.amount);
+    if (iEditId === null || !iDraft.date || !Number.isInteger(n) || n <= 0) return;
+    await send("/api/income", "PATCH", { id: iEditId, date: iDraft.date, memo: iDraft.memo, amount: n });
+    setIEditId(null); reloadInc();
+  };
+  const delInc = async (id: number) => { await send(`/api/income?id=${id}`, "DELETE"); reloadInc(); };
+
+  // --- numbers
+  const sum = (rs: { amount: number }[]) => rs.reduce((s, r) => s + r.amount, 0);
   const total = sum(rows), needSum = sum(rows.filter((r) => r.need)), wasteSum = total - needSum;
+  const incomeTotal = sum(incRows);
   const shown = rows.filter((r) => filter === "all" || (filter === "need" ? r.need : !r.need));
   const shownTotal = sum(shown);
   const byCat = CATEGORIES.map((c) => ({ c, v: sum(shown.filter((r) => categoryOf(r.category) === c)) })).filter((x) => x.v).sort((a, b) => b.v - a.v);
 
   return (
     <>
-      <Summary items={[[t("exp.thisMonth"), fmt.money(total)], [t("exp.need"), fmt.money(needSum)], [t("exp.waste"), fmt.money(wasteSum)], [t("exp.wasteRatio"), total ? `${Math.round((wasteSum / total) * 100)}%` : "-"]]} />
+      <Summary items={[
+        [t("inc.income"), fmt.money(incomeTotal)], [t("cal.spent"), fmt.money(total)],
+        [t("inc.balance"), fmt.money(incomeTotal - total)], [t("exp.wasteRatio"), total ? `${Math.round((wasteSum / total) * 100)}%` : "-"],
+      ]} />
       <div className="two wide-left">
         <div className="stack-l">
           <section>
@@ -80,6 +116,7 @@ export default function ExpenseView({ ym, sel, setSel }: { ym: string; sel: stri
               </form>
             )}
           </section>
+
           <section>
             <div className="sechead">
               <h3>{t("exp.history")}</h3>
@@ -121,13 +158,58 @@ export default function ExpenseView({ ym, sel, setSel }: { ym: string; sel: stri
               ))}
             </div>
           </section>
+
+          <section>
+            <div className={`sechead${iOpen ? "" : " flush"}`}>
+              <h3>{t("inc.income")}</h3>
+              <button type="button" className={`btn icon add${iOpen ? " open" : ""}`} aria-expanded={iOpen} aria-label={iOpen ? t("common.close") : t("inc.addAria")} onClick={() => setIOpen(!iOpen)}><Icon name="plus" /></button>
+            </div>
+            {iOpen && (
+              <form className="panel entry" onSubmit={addInc}>
+                <input type="date" value={sel} onChange={(e) => e.target.value && setSel(e.target.value)} />
+                <input placeholder={t("exp.amount")} inputMode="numeric" value={iAmount} onChange={(e) => setIAmount(e.target.value)} autoFocus />
+                <input className="wide" placeholder={t("exp.memo")} value={iMemo} onChange={(e) => setIMemo(e.target.value)} />
+                <button className="btn primary">{t("common.add")}</button>
+              </form>
+            )}
+            <div className="list">
+              {incRows.length === 0 && !iOpen && <p className="muted">{t("inc.empty")}</p>}
+              {incRows.map((r) => iEditId === r.id ? (
+                <form className="panel entry" key={r.id} onSubmit={saveInc}>
+                  <input type="date" value={iDraft.date} onChange={(e) => setIDraft({ ...iDraft, date: e.target.value })} />
+                  <input placeholder={t("exp.amount")} inputMode="numeric" value={iDraft.amount} onChange={(e) => setIDraft({ ...iDraft, amount: e.target.value })} autoFocus />
+                  <input className="wide" placeholder={t("exp.memo")} value={iDraft.memo} onChange={(e) => setIDraft({ ...iDraft, memo: e.target.value })} />
+                  <div className="edit-actions">
+                    <button type="button" className="btn" onClick={() => setIEditId(null)}>{t("common.cancel")}</button>
+                    <button className="btn primary">{t("common.save")}</button>
+                  </div>
+                </form>
+              ) : (
+                <div className="item static row between" key={r.id}>
+                  <span><b>{fmt.monthDay(r.date)}</b>{r.memo && <em> {r.memo}</em>}</span>
+                  <span className="row gap-2">
+                    <b className="num inc">{fmt.money(r.amount)}</b>
+                    <button className="btn icon ghost" onClick={() => { setIEditId(r.id); setIDraft({ date: r.date, amount: String(r.amount), memo: r.memo }); }} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
+                    <button className="btn icon ghost" onClick={() => delInc(r.id)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button></span>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
+
         <section className="panel">
           <h3>{filter === "all" ? t("exp.category") : filter === "need" ? t("exp.needOpt") : t("exp.wasteOpt")} {fmt.money(shownTotal)}</h3>
           {filter === "all" && total > 0 && <div className="split" aria-hidden="true"><i style={{ width: `${(needSum / total) * 100}%` }} /><i style={{ width: `${(wasteSum / total) * 100}%` }} /></div>}
           {byCat.map(({ c, v }) => (
             <div className="hbar" key={c}><span>{catName(c)}</span><div><i style={{ width: `${(v / shownTotal) * 100}%`, ["--bar" as string]: BARS[CATEGORIES.indexOf(c)] }} /></div><em>{fmt.money(v)}</em></div>
           ))}
+          <div className="period">
+            <label htmlFor="startday">{t("inc.startDay")}</label>
+            <select id="startday" value={startDay} onChange={(e) => onStartDay(Number(e.target.value))}>
+              {DAYS.map((d) => <option key={d} value={d}>{t("inc.day", { n: d })}</option>)}
+            </select>
+            <small>{t("inc.startHint")}</small>
+          </div>
         </section>
       </div>
     </>

@@ -4,6 +4,7 @@ import { signOut, useSession } from "next-auth/react";
 import type { MonthData } from "@/lib/types";
 import { computeStats } from "@/lib/stats";
 import { addDays, mondayOf } from "@/lib/dates";
+import { periodOf } from "@/lib/period";
 import { browserTz, todayStr } from "@/lib/clientTime";
 import type { Key } from "@/lib/i18n";
 import CalendarView from "./CalendarView";
@@ -48,6 +49,12 @@ function Main() {
   const [gmode, setGmode] = useState<GMode>("DAY");
   const ym = sel.slice(0, 7);
   const { data: month, error } = useApi<MonthData>(monthUrl(ym));
+  const settings = useApi<{ monthStartDay: number }>("/api/settings");
+  const startDay = settings.data?.monthStartDay ?? 1;
+  const changeStartDay = async (d: number) => {
+    await fetch("/api/settings", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ monthStartDay: d }) });
+    settings.reload();
+  };
 
   // Once this month is on screen, warm the neighbours so month navigation is instant.
   useEffect(() => {
@@ -66,7 +73,9 @@ function Main() {
   };
   const stats = useMemo(() => (month?.ym === ym ? computeStats(Object.values(month.days), todayStr()) : null), [month, ym]);
   const wk = mondayOf(sel), we = addDays(wk, 6);
-  const title = tab === "google" && gmode === "DAY" ? fmt.full(sel)
+  const per = periodOf(sel, startDay);
+  const title = tab === "expense" && startDay > 1 ? `${fmt.monthDay(per.from)} – ${fmt.monthDay(addDays(per.to, -1))}`
+    : tab === "google" && gmode === "DAY" ? fmt.full(sel)
     : tab === "google" && gmode === "WEEK" ? `${fmt.monthDay(wk)} – ${fmt.monthDay(we)}`
     : fmt.monthYear(ym);
 
@@ -108,7 +117,7 @@ function Main() {
         {tab === "stats" && <StatsView stats={stats} month={month} />}
         {tab === "diary" && <DiaryView ym={ym} sel={sel} setSel={setSel} />}
         {tab === "google" && <GoogleCalView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} tasks={month?.ym === ym ? month.days[sel]?.tasks ?? [] : []} />}
-        {tab === "expense" && <ExpenseView ym={ym} sel={sel} setSel={setSel} />}
+        {tab === "expense" && <ExpenseView sel={sel} setSel={setSel} startDay={startDay} onStartDay={changeStartDay} />}
         </div>
         <Footer onSignOut={() => signOut()} onDelete={deleteData} />
       </main>

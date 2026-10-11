@@ -8,7 +8,7 @@ export const ZH = {
   "account.deleteConfirm": "要永久刪除你的日記與支出資料並登出嗎？此動作無法復原。",
   "account.signOut": "登出", "account.language": "語言",
   "common.today": "今天", "common.prev": "上一個", "common.next": "下一個", "common.save": "儲存", "common.add": "新增",
-  "common.close": "關閉", "common.edit": "編輯", "common.cancel": "取消", "common.delete": "刪除", "common.loadFail": "載入失敗，請再試一次。",
+  "common.close": "關閉", "common.edit": "編輯", "common.cancel": "取消", "inc.income": "收入", "inc.balance": "剩餘", "inc.new": "新增收入", "inc.addAria": "新增收入", "inc.empty": "還沒有收入", "inc.startDay": "每月起始日", "inc.startHint": "從這一天起算，到下個月的前一天為一個月。", "inc.day": "{n} 日", "common.delete": "刪除", "common.loadFail": "載入失敗，請再試一次。",
   "common.untitled": "（無標題）", "common.allDay": "全天", "common.none": "無", "common.noEvents": "沒有行程",
   "cal.rate": "達成率", "cal.done": "完成", "cal.streak": "連續達成", "cal.days": "{n} 天", "cal.spent": "支出",
   "stats.bestStreak": "最長連續", "stats.mostDone": "單日最多完成", "stats.events": "行程", "stats.weekday": "依星期",

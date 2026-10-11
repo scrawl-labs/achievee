@@ -7,7 +7,15 @@ export const dynamic = "force-dynamic";
 const YM = /^\d{4}-(0[1-9]|1[0-2])$/, YMD = /^\d{4}-\d{2}-\d{2}$/;
 
 export async function GET(req: Request) {
-  const ym = new URL(req.url).searchParams.get("ym") ?? "";
+  const p = new URL(req.url).searchParams;
+  const from = p.get("from"), to = p.get("to");
+  if (from || to) { // a custom month: [from, to)
+    if (!YMD.test(from ?? "") || !YMD.test(to ?? "") || to! <= from! || Date.parse(to!) - Date.parse(from!) > 62 * 864e5) return bad("bad range");
+    const u = await getUser();
+    if (!u) return unauthorized();
+    return NextResponse.json(await expenses.range(u.id, from!, to!));
+  }
+  const ym = p.get("ym") ?? "";
   if (!YM.test(ym)) return bad("bad ym");
   const u = await getUser();
   if (!u) return unauthorized();
