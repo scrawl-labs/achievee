@@ -29,23 +29,38 @@ export async function jiraVerify(cfg: JiraConfig): Promise<{ name: string }> {
   return { name: me.displayName || me.emailAddress || cfg.email };
 }
 
-type Issue = { key: string; fields: { summary?: string; status?: { name?: string }; resolutiondate?: string | null } };
+type Issue = { key: string; fields: { summary?: string; status?: { name?: string }; resolutiondate?: string | null; statuscategorychangedate?: string | null; created?: string } };
 
-/** Issues assigned to the user and resolved in [from, to) (dates in `tz`). JQL dates are in the Jira profile timezone, so widen by a day and filter locally. */
-export async function jiraItems(cfg: JiraConfig, from: string, to: string, tz: string): Promise<WorkItem[]> {
-  const jql = `assignee = currentUser() AND resolved >= "${addDays(from, -1)}" AND resolved < "${addDays(to, 1)}" ORDER BY resolved DESC`;
-  const res = await jira<{ issues: Issue[] }>(cfg, `/rest/api/3/search/jql?jql=${encodeURIComponent(jql)}&fields=summary,status,resolutiondate&maxResults=100`);
-  return mapJira(res.issues, normalizeSite(cfg.site)!, from, to, tz);
+async function search(cfg: JiraConfig, jql: string): Promise<Issue[]> {
+  const res = await jira<{ issues: Issue[] }>(cfg, `/rest/api/3/search/jql?jql=${encodeURIComponent(jql)}&fields=summary,status,resolutiondate,statuscategorychangedate,created&maxResults=100`);
+  return res.issues;
 }
 
-export function mapJira(issues: Issue[], site: string, from: string, to: string, tz: string): WorkItem[] {
+/**
+ * Issues assigned to the user that reached a "Done" status in [from, to), and issues the user created in it (dates in `tz`).
+ * "Done" uses the status category, so workflows that never set a Resolution still count. JQL dates are in the Jira profile timezone, so widen by a day and filter locally.
+ */
+export async function jiraItems(cfg: JiraConfig, from: string, to: string, tz: string): Promise<WorkItem[]> {
+  const a = `"${addDays(from, -1)}"`, b = `"${addDays(to, 1)}"`;
+  const [done, created] = await Promise.all([
+    search(cfg, `assignee = currentUser() AND statusCategory = Done AND statusCategoryChangedDate >= ${a} AND statusCategoryChangedDate < ${b} ORDER BY updated DESC`),
+    search(cfg, `reporter = currentUser() AND created >= ${a} AND created < ${b} ORDER BY created DESC`).catch(() => [] as Issue[]),
+  ]);
+  return mapJira(done, created, normalizeSite(cfg.site)!, from, to, tz);
+}
+
+export function mapJira(done: Issue[], created: Issue[], site: string, from: string, to: string, tz: string): WorkItem[] {
   const out: WorkItem[] = [];
-  for (const i of issues) {
-    const when = i.fields.resolutiondate;
-    if (!when) continue;
-    const date = localDate(Date.parse(when), tz);
-    if (date < from || date >= to) continue;
-    out.push({ id: `jira:${i.key}`, source: "jira", kind: "resolved", title: i.fields.summary ?? i.key, url: `${site}/browse/${i.key}`, ref: i.key, date, status: i.fields.status?.name });
-  }
+  const add = (list: Issue[], kind: WorkItem["kind"], at: (i: Issue) => string | null | undefined) => {
+    for (const i of list) {
+      const when = at(i);
+      if (!when) continue;
+      const date = localDate(Date.parse(when), tz);
+      if (date < from || date >= to) continue;
+      out.push({ id: `jira:${kind}:${i.key}`, source: "jira", kind, title: i.fields.summary ?? i.key, url: `${site}/browse/${i.key}`, ref: i.key, date, status: i.fields.status?.name });
+    }
+  };
+  add(done, "resolved", (i) => i.fields.statuscategorychangedate ?? i.fields.resolutiondate);
+  add(created, "issue", (i) => i.fields.created);
   return out.sort((a, b) => a.date.localeCompare(b.date));
 }
