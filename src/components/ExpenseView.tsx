@@ -152,8 +152,10 @@ export default function ExpenseView({ sel, setSel, startDay, onStartDay }: {
                   <span className="row gap-2">
                     <button className={`chip ${r.need ? "need" : "waste"}`} onClick={() => toggle(r)} title={t("exp.toggle")}>{r.need ? t("exp.need") : t("exp.waste")}</button>
                     <b className="num">{fmt.money(r.amount)}</b>
-                    <button className="btn icon ghost" onClick={() => startEdit(r)} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
-                    <button className="btn icon ghost" onClick={() => del(r.id)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button></span>
+                    <span className="acts">
+                      <button className="btn icon ghost" onClick={() => startEdit(r)} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
+                      <button className="btn icon ghost" onClick={() => del(r.id)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button>
+                    </span></span>
                 </div>
               ))}
             </div>
@@ -172,7 +174,7 @@ export default function ExpenseView({ sel, setSel, startDay, onStartDay }: {
                 <button className="btn primary">{t("common.add")}</button>
               </form>
             )}
-            <div className="list">
+            <div className="list inc-list">
               {incRows.length === 0 && !iOpen && <p className="muted">{t("inc.empty")}</p>}
               {incRows.map((r) => iEditId === r.id ? (
                 <form className="panel entry" key={r.id} onSubmit={saveInc}>
@@ -189,8 +191,10 @@ export default function ExpenseView({ sel, setSel, startDay, onStartDay }: {
                   <span><b>{fmt.monthDay(r.date)}</b>{r.memo && <em> {r.memo}</em>}</span>
                   <span className="row gap-2">
                     <b className="num inc">{fmt.money(r.amount)}</b>
-                    <button className="btn icon ghost" onClick={() => { setIEditId(r.id); setIDraft({ date: r.date, amount: String(r.amount), memo: r.memo }); }} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
-                    <button className="btn icon ghost" onClick={() => delInc(r.id)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button></span>
+                    <span className="acts">
+                      <button className="btn icon ghost" onClick={() => { setIEditId(r.id); setIDraft({ date: r.date, amount: String(r.amount), memo: r.memo }); }} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
+                      <button className="btn icon ghost" onClick={() => delInc(r.id)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button>
+                    </span></span>
                 </div>
               ))}
             </div>

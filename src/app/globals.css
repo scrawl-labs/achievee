@@ -521,3 +521,8 @@ select {
 .period { margin-top: var(--s5); padding-top: var(--s4); border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: var(--s2); }
 .period label { font-size: 13px; font-weight: 600; color: var(--fg-2); }
 .period small { line-height: 1.5; }
+
+/* edit + delete sit together; income list clears its heading */
+.acts { display: inline-flex; align-items: center; gap: 0; margin-left: 2px; }
+.acts .btn.icon { width: 30px; height: 30px; }
+.inc-list { margin-top: var(--s5); }
