@@ -576,3 +576,15 @@ select {
   .ememo { grid-area: memo; }
   .eside { grid-area: side; }
 }
+
+/* status chip leads the row (pinned to the left edge); amount + actions stay in fixed right-hand cells */
+.erow { grid-template-columns: 62px minmax(0, 1fr) auto; }
+.erow.noChip { grid-template-columns: minmax(0, 1fr) auto; }
+.erow > .chip { justify-self: stretch; text-align: center; padding-inline: 0; align-self: center; }
+.eside, .eside.income { grid-template-columns: 112px 62px; }
+@media (max-width: 520px) {
+  .erow { grid-template-columns: 54px minmax(0, 1fr) auto; grid-template-areas: "chip top side" ". memo memo"; column-gap: var(--s3); }
+  .erow.noChip { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "top side" "memo memo"; }
+  .erow > .chip { grid-area: chip; }
+  .eside, .eside.income { grid-template-columns: 92px 60px; column-gap: 4px; }
+}

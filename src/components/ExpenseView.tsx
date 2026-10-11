@@ -148,12 +148,12 @@ export default function ExpenseView({ sel, setSel, startDay, onStartDay }: {
                 </form>
               ) : (
                 <div className="item static erow" key={r.id}>
+                  <button className={`chip ${r.need ? "need" : "waste"}`} onClick={() => toggle(r)} title={t("exp.toggle")}>{r.need ? t("exp.need") : t("exp.waste")}</button>
                   <div className="emain">
                     <span className="etop"><b>{fmt.monthDay(r.date)}</b><span className="ecat">{catName(r.category)}</span></span>
                     {r.memo && <span className="ememo">{r.memo}</span>}
                   </div>
                   <div className="eside">
-                    <button className={`chip ${r.need ? "need" : "waste"}`} onClick={() => toggle(r)} title={t("exp.toggle")}>{r.need ? t("exp.need") : t("exp.waste")}</button>
                     <b className="num">{fmt.money(r.amount)}</b>
                     <span className="acts">
                       <button className="btn icon ghost" onClick={() => startEdit(r)} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
@@ -191,12 +191,12 @@ export default function ExpenseView({ sel, setSel, startDay, onStartDay }: {
                   </div>
                 </form>
               ) : (
-                <div className="item static erow" key={r.id}>
+                <div className="item static erow noChip" key={r.id}>
                   <div className="emain">
                     <span className="etop"><b>{fmt.monthDay(r.date)}</b></span>
                     {r.memo && <span className="ememo">{r.memo}</span>}
                   </div>
-                  <div className="eside income">
+                  <div className="eside">
                     <b className="num inc">{fmt.money(r.amount)}</b>
                     <span className="acts">
                       <button className="btn icon ghost" onClick={() => { setIEditId(r.id); setIDraft({ date: r.date, amount: String(r.amount), memo: r.memo }); }} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
