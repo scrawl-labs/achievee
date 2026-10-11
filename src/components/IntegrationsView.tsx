@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
-import type { Provider } from "@/lib/integrations/types";
+import type { Provider, WorkItem } from "@/lib/integrations/types";
+import { addDays } from "@/lib/dates";
+import { browserTz, todayStr } from "@/lib/clientTime";
 import { useI18n } from "./I18n";
 import { forget, useApi } from "./useApi";
 
@@ -15,6 +17,9 @@ export default function IntegrationsView() {
   const [busy, setBusy] = useState<Provider | null>(null);
   const [error, setError] = useState<Provider | null>(null);
   const [f, setF] = useState({ ghToken: "", site: "", email: "", jiraToken: "" });
+  const today = todayStr();
+  const work = useApi<{ items: WorkItem[]; errors: string[]; connected: string[] }>(
+    data && data.length > 0 ? `/api/work?from=${addDays(today, -29)}&to=${addDays(today, 1)}&tz=${encodeURIComponent(browserTz())}` : null).data;
   const by = (p: Provider) => (data ?? []).find((c) => c.provider === p);
 
   const connect = async (provider: Provider, body: Record<string, string>) => {
@@ -39,6 +44,12 @@ export default function IntegrationsView() {
         {c ? (
           <>
             <p className="muted">{t("int.as", { name: c.label })}</p>
+            {work && (work.errors.includes(provider)
+              ? <p className="error">{t("int.fetchFail", { name: title })}</p>
+              : <>
+                  <p className="muted">{t("int.recent", { n: work.items.filter((w) => w.source === provider).length })}</p>
+                  {work.items.every((w) => w.source !== provider) && <p className="muted">{t("int.noneHint")}</p>}
+                </>)}
             <div><button className="btn" onClick={() => disconnect(provider)}>{t("int.disconnect")}</button></div>
           </>
         ) : (
