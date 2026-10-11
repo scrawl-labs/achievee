@@ -707,3 +707,7 @@ select {
 .intok { display: inline-flex; align-items: center; gap: 6px; color: var(--c3); }
 .intok i { width: 7px; height: 7px; border-radius: 50%; background: var(--c3); }
 @media (prefers-color-scheme: light) { .intok { color: #1f9d55; } .intok i { background: #1f9d55; } }
+.workday .k-created { --k: #3fb950; }
+.workday .k-edited { --k: #58a6ff; }
+.workday .k-messages { --k: #e8a33d; }
+.workday .k-mentions { --k: #e5609b; }

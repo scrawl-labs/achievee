@@ -4,6 +4,8 @@ import { integrations } from "@/lib/db";
 import { bad, unauthorized } from "@/lib/api";
 import { githubVerify } from "@/lib/integrations/github";
 import { jiraVerify, normalizeSite } from "@/lib/integrations/jira";
+import { slackVerify } from "@/lib/integrations/slack";
+import { notionVerify } from "@/lib/integrations/notion";
 import { isProvider } from "@/lib/integrations/types";
 
 export const dynamic = "force-dynamic";
@@ -30,6 +32,21 @@ export async function PUT(req: Request) {
       const { login } = await githubVerify(token);
       await integrations.save(u.id, "github", { token, login, label: `@${login}` });
       return NextResponse.json({ ok: true, label: `@${login}` });
+    }
+    if (b.provider === "slack") {
+      const token = clip(b.token, 500);
+      if (!/^xoxp-/.test(token)) return bad("bad input"); // a user token; bot tokens (xoxb-) cannot search
+      const { userId, user, team, url } = await slackVerify(token);
+      const label = `@${user} · ${team}`;
+      await integrations.save(u.id, "slack", { token, userId, team, url, label });
+      return NextResponse.json({ ok: true, label });
+    }
+    if (b.provider === "notion") {
+      const token = clip(b.token, 500);
+      if (!token) return bad("bad input");
+      const { name } = await notionVerify(token);
+      await integrations.save(u.id, "notion", { token, label: name });
+      return NextResponse.json({ ok: true, label: name });
     }
     const site = normalizeSite(clip(b.site)), email = clip(b.email), token = clip(b.token, 500);
     if (!site || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !token) return bad("bad input");
