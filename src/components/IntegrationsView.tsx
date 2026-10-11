@@ -124,7 +124,6 @@ export default function IntegrationsView() {
         {soon("C", "Claude", "int.claudeDesc")}
       </div>
 
-      <p className="muted intnote">{t("int.privacy")}</p>
     </div>
   );
 }
