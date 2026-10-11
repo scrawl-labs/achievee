@@ -10,7 +10,7 @@ import { useApi } from "./useApi";
 type Row = { id: number; date: string; category: string; memo: string; amount: number; need: number };
 type Inc = { id: number; date: string; memo: string; amount: number };
 type Filter = "all" | "need" | "waste";
-const BARS = ["var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)", "var(--c5)", "var(--c6)"];
+const BARS = ["var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)", "var(--c5)", "var(--c6)", "#7fd6d0", "var(--fg-3)"]; // one per CATEGORIES entry
 const FILTERS: [Filter, Key][] = [["all", "exp.all"], ["need", "exp.need"], ["waste", "exp.waste"]];
 const DAYS = Array.from({ length: 28 }, (_, i) => i + 1);
 const send = (url: string, method: string, body?: unknown) =>

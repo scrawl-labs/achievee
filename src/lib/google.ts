@@ -107,13 +107,14 @@ export async function fetchRange(from: string, to: string, token: string, tz: st
     const r = await g<{ items?: {
       id: string; status?: string; summary?: string; htmlLink?: string; location?: string;
       start?: { date?: string; dateTime?: string }; end?: { date?: string; dateTime?: string };
-      attendees?: { self?: boolean; responseStatus?: string }[];
+      attendees?: { self?: boolean; responseStatus?: string; resource?: boolean }[]; hangoutLink?: string; conferenceData?: unknown;
     }[] }>(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(c.id)}/events?${q}`, token);
     for (const e of r.items ?? []) {
       if (e.status === "cancelled" || e.attendees?.some((a) => a.self && a.responseStatus === "declined")) continue;
       const base = {
         title: e.summary?.trim() ?? "", calendar: c.summaryOverride ?? c.summary,
         color: c.backgroundColor ?? "#8fb8ff", link: e.htmlLink, location: e.location,
+        meeting: (e.attendees?.filter((a) => !a.resource).length ?? 0) > 1 || !!e.hangoutLink || !!e.conferenceData,
       };
       if (!e.start?.dateTime) { // all-day: end.date is exclusive
         for (const d of days) if (d >= e.start!.date! && d < (e.end?.date ?? e.start!.date!) ) out.push({ ...base, id: `${c.id}:${e.id}:${d}`, date: d, allDay: true, startMin: 0, endMin: 1440 });

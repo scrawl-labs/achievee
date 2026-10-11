@@ -3,6 +3,7 @@ import type { MonthData, Stats } from "@/lib/types";
 import Summary from "./Summary";
 import { levelOf } from "@/lib/level";
 import { useI18n } from "./I18n";
+import FocusStats from "./FocusStats";
 
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 const MON_FIRST = [1, 2, 3, 4, 5, 6, 0];
@@ -39,6 +40,7 @@ export default function StatsView({ stats, month }: { stats: Stats | null; month
           <div className="axis"><span>1</span><span>{days.length}</span></div>
         </section>
       </div>
+      <FocusStats ym={month.ym} />
     </>
   );
 }

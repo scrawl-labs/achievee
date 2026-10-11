@@ -9,6 +9,7 @@ import { notionVerify } from "@/lib/integrations/notion";
 import { isProvider } from "@/lib/integrations/types";
 
 export const dynamic = "force-dynamic";
+const SLACK_ENABLED = false; // the Slack card is hidden until the unanswered-mentions version exists
 const clip = (v: unknown, n = 300) => String(v ?? "").trim().slice(0, n);
 
 /** Which tools are connected. Only a display label goes back to the browser; the token never does. */
@@ -33,6 +34,7 @@ export async function PUT(req: Request) {
       await integrations.save(u.id, "github", { token, login, label: `@${login}` });
       return NextResponse.json({ ok: true, label: `@${login}` });
     }
+    if (b.provider === "slack" && !SLACK_ENABLED) return bad("not available yet");
     if (b.provider === "slack") {
       const token = clip(b.token, 500);
       if (!/^xoxp-/.test(token)) return bad("bad input"); // a user token; bot tokens (xoxb-) cannot search

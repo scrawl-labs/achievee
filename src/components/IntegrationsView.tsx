@@ -7,12 +7,11 @@ import { browserTz, todayStr } from "@/lib/clientTime";
 import { useI18n } from "./I18n";
 import Icon from "./Icon";
 import { forget, useApi } from "./useApi";
-import { GithubMark, JiraMark, NotionMark, SlackMark } from "./WorkList";
+import { GithubMark, JiraMark, NotionMark } from "./WorkList";
 
 type Connected = { provider: Provider; label: string }[];
 const GITHUB_TOKEN_URL = "https://github.com/settings/personal-access-tokens/new";
 const JIRA_TOKEN_URL = "https://id.atlassian.com/manage-profile/security/api-tokens";
-const SLACK_TOKEN_URL = "https://api.slack.com/apps";
 const NOTION_TOKEN_URL = "https://www.notion.so/profile/integrations";
 
 /** Browse and connect tools. Google Calendar / Tasks are the base of the app (always on, read-only); work tools are optional and use personal tokens. */
@@ -119,9 +118,6 @@ export default function IntegrationsView() {
             <input type="password" placeholder={t("int.token")} value={f.jiraToken} onChange={(e) => setF({ ...f, jiraToken: e.target.value })} aria-label={t("int.token")} />
           </>,
           () => connect("jira", { site: f.site, email: f.email, token: f.jiraToken }), f.site.trim() !== "" && f.email.trim() !== "" && f.jiraToken.trim() !== "")}
-        {tool("slack", <SlackMark size={22} />, "Slack", "int.slackDesc", SLACK_TOKEN_URL,
-          <input type="password" placeholder={t("int.token")} value={f.slackToken} onChange={(e) => setF({ ...f, slackToken: e.target.value })} aria-label={t("int.token")} />,
-          () => connect("slack", { token: f.slackToken }), f.slackToken.trim().length > 0)}
         {tool("notion", <NotionMark size={22} />, "Notion", "int.notionDesc", NOTION_TOKEN_URL,
           <input type="password" placeholder={t("int.token")} value={f.notionToken} onChange={(e) => setF({ ...f, notionToken: e.target.value })} aria-label={t("int.token")} />,
           () => connect("notion", { token: f.notionToken }), f.notionToken.trim().length > 0)}
@@ -129,6 +125,7 @@ export default function IntegrationsView() {
 
       <h3 className="intsec">{t("int.secSoon")}</h3>
       <div className="intgrid">
+        {soon("S", "Slack", "int.slackDesc")}
         {soon("C", "Claude", "int.claudeDesc")}
       </div>
 
