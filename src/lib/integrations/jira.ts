@@ -45,7 +45,7 @@ export function mapJira(issues: Issue[], site: string, from: string, to: string,
     if (!when) continue;
     const date = localDate(Date.parse(when), tz);
     if (date < from || date >= to) continue;
-    out.push({ id: `jira:${i.key}`, source: "jira", kind: "done", title: i.fields.summary ?? i.key, url: `${site}/browse/${i.key}`, ref: i.key, date, status: i.fields.status?.name });
+    out.push({ id: `jira:${i.key}`, source: "jira", kind: "resolved", title: i.fields.summary ?? i.key, url: `${site}/browse/${i.key}`, ref: i.key, date, status: i.fields.status?.name });
   }
   return out.sort((a, b) => a.date.localeCompare(b.date));
 }

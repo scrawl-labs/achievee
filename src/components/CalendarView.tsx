@@ -7,6 +7,7 @@ import Blob, { Confetti } from "./Blob";
 import { levelOf as level } from "@/lib/level";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
+import WorkList from "./WorkList";
 import { addDays } from "@/lib/dates";
 import { browserTz } from "@/lib/clientTime";
 import type { WorkItem } from "@/lib/integrations/types";
@@ -79,9 +80,7 @@ export default function CalendarView({ ym, month, stats, sel, setSel }: Props) {
           {work && work.items.length > 0 && (
             <section className="workday">
               <h4>{t("int.workTitle")}</h4>
-              <ul>{work.items.map((w) => (
-                <li key={w.id}><i className={`src ${w.source}`}>{w.source === "github" ? "GH" : "JI"}</i><a href={w.url} target="_blank" rel="noreferrer"><b>{w.ref}</b> {w.title}</a></li>
-              ))}</ul>
+              <WorkList items={work.items} />
             </section>
           )}
           {daySpent > 0 && <div className="spent"><span>{t("cal.spent")}</span><b>{fmt.money(daySpent)}</b></div>}

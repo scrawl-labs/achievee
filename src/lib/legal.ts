@@ -21,7 +21,7 @@ export const PRIVACY: Record<Locale, LegalDoc> = {
       { h: "Data we store", p: [
         "Only what you type into Achievee: diary entries (with mood) and expenses (category, amount, memo), linked to your Google account ID. Diary text and expense memos are encrypted at rest.",
         "Your language choice is saved in a cookie on your device. Sign-in uses a session cookie.",
-        "Optional: if you connect GitHub or Jira, we store the access token you provide, encrypted, only to read the titles and links of the work you finished when you open a screen. That work data is not stored. Disconnecting deletes the token.",
+        "Optional: if you connect GitHub or Jira, we store the access token you provide, encrypted, only to read the titles, links and counts of your activity (such as pull requests, reviews, issues and commit counts) when you open a screen. That work data is not stored. Disconnecting deletes the token.",
       ] },
       { h: "How we use data", p: [
         "Solely to provide Achievee's features to you: showing your progress, statistics, diary and spending. We do not use your data for advertising, do not sell it, and do not use it to train AI models.",
@@ -48,7 +48,7 @@ export const PRIVACY: Record<Locale, LegalDoc> = {
       { h: "저장하는 정보", p: [
         "이용자가 Achievee에 직접 입력한 일기(기분 포함)와 지출(카테고리, 금액, 메모)만 Google 계정 ID와 연결해 저장합니다. 일기 본문과 지출 메모는 암호화해서 보관합니다.",
         "언어 설정은 이용자 기기의 쿠키에 저장되고, 로그인 유지에는 세션 쿠키를 사용합니다.",
-        "선택 사항: GitHub나 Jira를 연동하면, 화면을 열 때 끝낸 일의 제목과 링크를 읽기 위해서만 이용자가 입력한 액세스 토큰을 암호화해 저장합니다. 그렇게 읽은 업무 정보는 저장하지 않습니다. 연동을 해제하면 토큰이 삭제됩니다.",
+        "선택 사항: GitHub나 Jira를 연동하면, 화면을 열 때 활동(PR, 리뷰, 이슈, 커밋 개수 등)의 제목·링크·개수를 읽기 위해서만 이용자가 입력한 액세스 토큰을 암호화해 저장합니다. 그렇게 읽은 업무 정보는 저장하지 않습니다. 연동을 해제하면 토큰이 삭제됩니다.",
       ] },
       { h: "이용 목적", p: [
         "진행 상황, 통계, 일기, 지출을 보여주는 등 Achievee의 기능을 제공하는 목적으로만 사용합니다. 광고에 쓰지 않고, 판매하지 않으며, AI 모델 학습에도 사용하지 않습니다.",
@@ -75,7 +75,7 @@ export const PRIVACY: Record<Locale, LegalDoc> = {
       { h: "保存する情報", p: [
         "ユーザーが Achievee に入力した日記（気分を含む）と支出（カテゴリ、金額、メモ）のみを Google アカウント ID と紐付けて保存します。日記本文と支出メモは暗号化して保管します。",
         "言語設定はお使いの端末の Cookie に保存され、ログイン状態の維持にはセッション Cookie を使用します。",
-        "任意: GitHub または Jira を連携した場合、画面を開いたときに完了した作業のタイトルとリンクを読み取る目的に限り、入力されたアクセストークンを暗号化して保存します。読み取った作業情報は保存しません。連携を解除するとトークンは削除されます。",
+        "任意: GitHub または Jira を連携した場合、画面を開いたときに活動（PR、レビュー、課題、コミット数など）のタイトル・リンク・件数を読み取る目的に限り、入力されたアクセストークンを暗号化して保存します。読み取った作業情報は保存しません。連携を解除するとトークンは削除されます。",
       ] },
       { h: "利用目的", p: [
         "進捗、統計、日記、支出の表示など、Achievee の機能を提供する目的にのみ使用します。広告には使用せず、販売せず、AI モデルの学習にも使用しません。",
@@ -102,7 +102,7 @@ export const PRIVACY: Record<Locale, LegalDoc> = {
       { h: "Datos que almacenamos", p: [
         "Solo lo que escribes en Achievee: entradas de diario (con estado de ánimo) y gastos (categoría, importe, nota), vinculados al ID de tu cuenta de Google. El texto del diario y las notas de los gastos se cifran en reposo.",
         "Tu idioma se guarda en una cookie en tu dispositivo. El inicio de sesión usa una cookie de sesión.",
-        "Opcional: si conectas GitHub o Jira, guardamos cifrado el token de acceso que proporcionas, solo para leer los títulos y enlaces de tu trabajo terminado al abrir una pantalla. Esos datos de trabajo no se guardan. Al desconectar, el token se elimina.",
+        "Opcional: si conectas GitHub o Jira, guardamos cifrado el token de acceso que proporcionas, solo para leer los títulos, enlaces y recuentos de tu actividad (pull requests, revisiones, incidencias y número de commits) al abrir una pantalla. Esos datos de trabajo no se guardan. Al desconectar, el token se elimina.",
       ] },
       { h: "Cómo usamos los datos", p: [
         "Únicamente para ofrecerte las funciones de Achievee: mostrar tu progreso, estadísticas, diario y gastos. No usamos tus datos para publicidad, no los vendemos y no los usamos para entrenar modelos de IA.",

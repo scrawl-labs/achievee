@@ -1,12 +1,14 @@
-/** One thing the user did (or must do) in an external tool, normalised so the app can treat every source the same way. */
+/** One thing the user did in an external tool, normalised so the app can treat every source the same way. */
+export type WorkKind = "merged" | "opened" | "review" | "issue" | "closed" | "resolved" | "commits";
 export type WorkItem = {
   id: string;
   source: "github" | "jira";
-  kind: "done";             // merged PR / resolved issue; more kinds (e.g. "review requested") can follow
-  title: string;
+  kind: WorkKind;           // merged / opened PR, review given, issue opened / closed, Jira issue resolved, or a commit count
+  title: string;            // empty for "commits"
   url: string;
-  ref: string;              // "owner/repo#12" or "PROJ-34"
+  ref: string;              // "owner/repo#12", "owner/repo" (commits) or "PROJ-34"
   date: string;             // YYYY-MM-DD in the viewer's timezone
+  count?: number;           // "commits" only
   status?: string;
 };
 

@@ -665,3 +665,7 @@ select {
 .workday li a:hover { text-decoration: underline; }
 .workday li b { color: var(--fg-2); font-weight: 600; }
 .workday .src { font-style: normal; font-size: 10px; font-weight: 800; padding: 1px 5px; border-radius: 4px; background: var(--surface-2); color: var(--fg-2); flex: none; }
+
+.workday .src-mark { flex: none; align-self: center; color: var(--fg-2); }
+.workday .src.jira { align-self: center; font-size: 10px; }
+.workday .kind { flex: none; font-size: 11px; font-weight: 700; color: var(--fg-2); background: var(--surface-2); padding: 1px 6px; border-radius: 4px; white-space: nowrap; }

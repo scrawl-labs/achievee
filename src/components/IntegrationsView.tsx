@@ -47,7 +47,7 @@ export default function IntegrationsView() {
             {work && (work.errors.includes(provider)
               ? <p className="error">{t("int.fetchFail", { name: title })}</p>
               : <>
-                  <p className="muted">{t("int.recent", { n: work.items.filter((w) => w.source === provider).length })}</p>
+                  <p className="muted">{t("int.recent", { n: work.items.filter((w) => w.source === provider).reduce((s, w) => s + (w.count ?? 1), 0) })}</p>
                   {work.items.every((w) => w.source !== provider) && <p className="muted">{t("int.noneHint")}</p>}
                 </>)}
             <div><button className="btn" onClick={() => disconnect(provider)}>{t("int.disconnect")}</button></div>

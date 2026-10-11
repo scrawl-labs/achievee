@@ -99,7 +99,7 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
       ]} />
 
       {work && work.connected.length > 0 && (
-        <section className="wk-emo"><h3>{t("int.workTitle")}</h3><small className="muted">{t("int.weekWork", { n: work.items.length })}</small></section>
+        <section className="wk-emo"><h3>{t("int.workTitle")}</h3><small className="muted">{t("int.weekWork", { n: work.items.reduce((s, w) => s + (w.count ?? 1), 0) })}</small></section>
       )}
 
       <section className="wk-emo">
