@@ -50,7 +50,7 @@ export default function IntegrationsView() {
     </div>
   );
 
-  const tool = (provider: Provider, icon: React.ReactNode, name: string, desc: Key, how: Key, link: string, form: React.ReactNode, submit: () => void, ready: boolean) => {
+  const tool = (provider: Provider, icon: React.ReactNode, name: string, desc: Key, link: string, form: React.ReactNode, submit: () => void, ready: boolean) => {
     const c = by(provider);
     const n = work && !work.errors.includes(provider) ? work.items.filter((w) => w.source === provider).reduce((s, w) => s + (w.count ?? 1), 0) : null;
     return (
@@ -79,7 +79,7 @@ export default function IntegrationsView() {
         )}
         {!c && open === provider && (
           <form className="intform" autoComplete="off" onSubmit={(e) => { e.preventDefault(); if (ready) submit(); }}>
-            <p className="muted">{t(how)} <a href={link} target="_blank" rel="noreferrer">{t("int.createToken")}</a></p>
+            <p className="muted"><a href={link} target="_blank" rel="noreferrer">{t("int.createToken")}</a></p>
             {form}
             {error === provider && <p className="error">{t("int.invalid")}</p>}
             <button className="btn primary" disabled={!ready || busy === provider}>{busy === provider ? "…" : t("int.connect")}</button>
@@ -109,20 +109,20 @@ export default function IntegrationsView() {
 
       <h3 className="intsec">{t("int.secDev")}</h3>
       <div className="intgrid">
-        {tool("github", <GithubMark size={22} />, "GitHub", "int.ghDesc", "int.howGithub", GITHUB_TOKEN_URL,
+        {tool("github", <GithubMark size={22} />, "GitHub", "int.ghDesc", GITHUB_TOKEN_URL,
           <input type="password" placeholder={t("int.token")} value={f.ghToken} onChange={(e) => setF({ ...f, ghToken: e.target.value })} aria-label={t("int.token")} />,
           () => connect("github", { token: f.ghToken }), f.ghToken.trim().length > 0)}
-        {tool("jira", <JiraMark size={22} />, "Jira", "int.jiraDesc", "int.howJira", JIRA_TOKEN_URL,
+        {tool("jira", <JiraMark size={22} />, "Jira", "int.jiraDesc", JIRA_TOKEN_URL,
           <>
             <input placeholder={t("int.site")} value={f.site} onChange={(e) => setF({ ...f, site: e.target.value })} aria-label={t("int.site")} />
             <input type="email" placeholder={t("int.email")} value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} aria-label={t("int.email")} />
             <input type="password" placeholder={t("int.token")} value={f.jiraToken} onChange={(e) => setF({ ...f, jiraToken: e.target.value })} aria-label={t("int.token")} />
           </>,
           () => connect("jira", { site: f.site, email: f.email, token: f.jiraToken }), f.site.trim() !== "" && f.email.trim() !== "" && f.jiraToken.trim() !== "")}
-        {tool("slack", <SlackMark size={22} />, "Slack", "int.slackDesc", "int.howSlack", SLACK_TOKEN_URL,
+        {tool("slack", <SlackMark size={22} />, "Slack", "int.slackDesc", SLACK_TOKEN_URL,
           <input type="password" placeholder={t("int.token")} value={f.slackToken} onChange={(e) => setF({ ...f, slackToken: e.target.value })} aria-label={t("int.token")} />,
           () => connect("slack", { token: f.slackToken }), f.slackToken.trim().length > 0)}
-        {tool("notion", <NotionMark size={22} />, "Notion", "int.notionDesc", "int.howNotion", NOTION_TOKEN_URL,
+        {tool("notion", <NotionMark size={22} />, "Notion", "int.notionDesc", NOTION_TOKEN_URL,
           <input type="password" placeholder={t("int.token")} value={f.notionToken} onChange={(e) => setF({ ...f, notionToken: e.target.value })} aria-label={t("int.token")} />,
           () => connect("notion", { token: f.notionToken }), f.notionToken.trim().length > 0)}
       </div>
