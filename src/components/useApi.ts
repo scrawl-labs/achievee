@@ -5,6 +5,11 @@ import { signIn } from "next-auth/react";
 // Stale-while-revalidate: show the last response for a URL instantly, refresh it in the background.
 const cache = new Map<string, unknown>();
 
+/** Drop cached responses whose URL starts with `prefix` (e.g. after the data behind them changed). */
+export function forget(prefix: string) {
+  for (const k of [...cache.keys()]) if (k.startsWith(prefix)) cache.delete(k);
+}
+
 /** Warm the cache (e.g. next month) so navigating there renders without waiting for Google. */
 export function prefetch(url: string) {
   if (cache.has(url)) return;

@@ -7,6 +7,9 @@ import Blob, { Confetti } from "./Blob";
 import { levelOf as level } from "@/lib/level";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
+import { addDays } from "@/lib/dates";
+import { browserTz } from "@/lib/clientTime";
+import type { WorkItem } from "@/lib/integrations/types";
 
 const MON_FIRST = [1, 2, 3, 4, 5, 6, 0];
 
@@ -24,6 +27,7 @@ export default function CalendarView({ ym, month, stats, sel, setSel }: Props) {
 
   const diary = useApi<{ date: string; body: string }[]>(`/api/diary?ym=${ym}`).data ?? [];
   const spent = useApi<{ date: string; amount: number }[]>(`/api/expenses?ym=${ym}`).data ?? [];
+  const work = useApi<{ items: WorkItem[]; errors: string[]; connected: string[] }>(`/api/work?from=${sel}&to=${addDays(sel, 1)}&tz=${encodeURIComponent(browserTz())}`).data;
   const note = diary.find((d) => d.date === sel)?.body;
   const daySpent = spent.filter((s) => s.date === sel).reduce((a, s) => a + s.amount, 0);
 
@@ -71,6 +75,14 @@ export default function CalendarView({ ym, month, stats, sel, setSel }: Props) {
             <ul className="events">
               {day.eventList.map((e, i) => <li key={i}><time>{e.time ?? t("common.allDay")}</time>{e.title || t("common.untitled")}</li>)}
             </ul>
+          )}
+          {work && work.items.length > 0 && (
+            <section className="workday">
+              <h4>{t("int.workTitle")}</h4>
+              <ul>{work.items.map((w) => (
+                <li key={w.id}><i className={`src ${w.source}`}>{w.source === "github" ? "GH" : "JI"}</i><a href={w.url} target="_blank" rel="noreferrer"><b>{w.ref}</b> {w.title}</a></li>
+              ))}</ul>
+            </section>
           )}
           {daySpent > 0 && <div className="spent"><span>{t("cal.spent")}</span><b>{fmt.money(daySpent)}</b></div>}
           {note && <p className="note">{note}</p>}

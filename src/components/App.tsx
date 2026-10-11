@@ -11,6 +11,7 @@ import CalendarView from "./CalendarView";
 import StatsView from "./StatsView";
 import DiaryView from "./DiaryView";
 import ExpenseView from "./ExpenseView";
+import IntegrationsView from "./IntegrationsView";
 import GoogleCalView, { type GMode } from "./GoogleCalView";
 import Icon from "./Icon";
 import Wordmark from "./Wordmark";
@@ -18,13 +19,14 @@ import Footer from "./Footer";
 import { useI18n } from "./I18n";
 import { prefetch, useApi } from "./useApi";
 
-type Tab = "calendar" | "stats" | "diary" | "expense" | "google";
-const TABS: { key: Tab; label: Key; icon: "calendar" | "chart" | "book" | "wallet" | "external" }[] = [
+type Tab = "calendar" | "stats" | "diary" | "expense" | "google" | "integrations";
+const TABS: { key: Tab; label: Key; icon: "calendar" | "chart" | "book" | "wallet" | "external" | "plug" }[] = [
   { key: "calendar", label: "nav.calendar", icon: "calendar" },
   { key: "stats", label: "nav.stats", icon: "chart" },
   { key: "diary", label: "nav.diary", icon: "book" },
   { key: "expense", label: "nav.expense", icon: "wallet" },
   { key: "google", label: "nav.google", icon: "external" },
+  { key: "integrations", label: "nav.integrations", icon: "plug" },
 ];
 
 const shiftMonth = (ym: string, n: number) => {
@@ -74,7 +76,8 @@ function Main() {
   const stats = useMemo(() => (month?.ym === ym ? computeStats(Object.values(month.days), todayStr()) : null), [month, ym]);
   const wk = mondayOf(sel), we = addDays(wk, 6);
   const per = periodOf(sel, startDay);
-  const title = tab === "expense" && startDay > 1 ? `${fmt.monthDay(per.from)} – ${fmt.monthDay(addDays(per.to, -1))}`
+  const title = tab === "integrations" ? t("nav.integrations")
+    : tab === "expense" && startDay > 1 ? `${fmt.monthDay(per.from)} – ${fmt.monthDay(addDays(per.to, -1))}`
     : tab === "google" && gmode === "DAY" ? fmt.full(sel)
     : tab === "google" && gmode === "WEEK" ? `${fmt.monthDay(wk)} – ${fmt.monthDay(we)}`
     : fmt.monthYear(ym);
@@ -105,11 +108,11 @@ function Main() {
       <main className="page">
         <header className="pagehead">
           <h1>{title}</h1>
-          <div className="row gap-2">
+          {tab !== "integrations" && <div className="row gap-2">
             <button className="btn" onClick={() => setSel(todayStr())}>{t("common.today")}</button>
             <button className="btn icon" onClick={() => shift(-1)} aria-label={t("common.prev")}><Icon name="left" /></button>
             <button className="btn icon" onClick={() => shift(1)} aria-label={t("common.next")}><Icon name="right" /></button>
-          </div>
+          </div>}
         </header>
         <div className="pagebody">
         {error && <p className="error">{t("common.loadFail")}</p>}
@@ -117,6 +120,7 @@ function Main() {
         {tab === "stats" && <StatsView stats={stats} month={month} />}
         {tab === "diary" && <DiaryView ym={ym} sel={sel} setSel={setSel} />}
         {tab === "google" && <GoogleCalView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} tasks={month?.ym === ym ? month.days[sel]?.tasks ?? [] : []} />}
+        {tab === "integrations" && <IntegrationsView />}
         {tab === "expense" && <ExpenseView sel={sel} setSel={setSel} startDay={startDay} onStartDay={changeStartDay} />}
         </div>
         <Footer onSignOut={() => signOut()} onDelete={deleteData} />

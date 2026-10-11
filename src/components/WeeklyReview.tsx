@@ -8,6 +8,7 @@ import Summary from "./Summary";
 import { emoLang, wordText } from "@/lib/emotions";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
+import type { WorkItem } from "@/lib/integrations/types";
 
 type Review = { week: string; good: string; hard: string; plan: string; note: string; saved?: boolean };
 type DiaryRow = { date: string; mood: string | null; emotions?: string[] };
@@ -31,6 +32,7 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
   const d2 = useApi<DiaryRow[]>(yms[1] ? `/api/diary?ym=${yms[1]}` : null).data;
   const spent = useApi<Money>(`/api/expenses?from=${week}&to=${end}`).data;
   const earned = useApi<Money>(`/api/income?from=${week}&to=${end}`).data;
+  const work = useApi<{ items: WorkItem[]; connected: string[] }>(`/api/work?from=${week}&to=${end}&tz=${encodeURIComponent(browserTz())}`).data;
 
   const stats = useMemo(() => {
     const byDay = { ...(m1?.days ?? {}), ...(m2?.days ?? {}) };
@@ -95,6 +97,10 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
         [t("cal.spent"), fmt.money(sum(spent))],
         [t("wk.mood"), stats.mood === null ? "-" : stats.mood.toFixed(1)],
       ]} />
+
+      {work && work.connected.length > 0 && (
+        <section className="wk-emo"><h3>{t("int.workTitle")}</h3><small className="muted">{t("int.weekWork", { n: work.items.length })}</small></section>
+      )}
 
       <section className="wk-emo">
         <h3>{t("emo.weekTitle")}</h3>

@@ -22,6 +22,8 @@ async function sql() {
       id SERIAL PRIMARY KEY, "user" TEXT NOT NULL, date TEXT NOT NULL, memo TEXT NOT NULL DEFAULT '', amount INTEGER NOT NULL)`,
     s`CREATE INDEX IF NOT EXISTS income_user_date ON income ("user", date)`,
     s`CREATE TABLE IF NOT EXISTS settings ("user" TEXT PRIMARY KEY, month_start_day INTEGER NOT NULL DEFAULT 1)`,
+    s`CREATE TABLE IF NOT EXISTS integration (
+      "user" TEXT NOT NULL, provider TEXT NOT NULL, config TEXT NOT NULL, PRIMARY KEY ("user", provider))`,
     s`CREATE TABLE IF NOT EXISTS weekly_review (
       "user" TEXT NOT NULL, week_start TEXT NOT NULL, good TEXT NOT NULL DEFAULT '', hard TEXT NOT NULL DEFAULT '',
       plan TEXT NOT NULL DEFAULT '', note TEXT NOT NULL DEFAULT '', PRIMARY KEY ("user", week_start))`,
@@ -66,7 +68,7 @@ export async function deleteUserData(user: string) {
   const s = await sql();
   await s.transaction([
     s`DELETE FROM diary WHERE "user"=${user}`, s`DELETE FROM expense WHERE "user"=${user}`,
-    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`,
+    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`, s`DELETE FROM integration WHERE "user"=${user}`,
   ]);
 }
 
@@ -164,5 +166,26 @@ export const reviews = {
   async remove(user: string, week: string) {
     const s = await sql();
     await s`DELETE FROM weekly_review WHERE "user"=${user} AND week_start=${week}`;
+  },
+};
+
+/**
+ * Connected work tools (GitHub, Jira). The whole config, including the access token, is one encrypted JSON string;
+ * it is only ever decrypted on the server and never sent to the browser.
+ */
+export const integrations = {
+  async list(user: string): Promise<{ provider: string; config: Record<string, string> }[]> {
+    const s = await sql();
+    const rows = (await s`SELECT provider, config FROM integration WHERE "user"=${user} ORDER BY provider`) as { provider: string; config: string }[];
+    return rows.flatMap((r) => { try { return [{ provider: r.provider, config: JSON.parse(decrypt(r.config)) }]; } catch { return []; } });
+  },
+  async save(user: string, provider: string, config: Record<string, string>) {
+    const s = await sql();
+    await s`INSERT INTO integration ("user", provider, config) VALUES (${user}, ${provider}, ${encrypt(JSON.stringify(config))})
+      ON CONFLICT ("user", provider) DO UPDATE SET config = EXCLUDED.config`;
+  },
+  async remove(user: string, provider: string) {
+    const s = await sql();
+    await s`DELETE FROM integration WHERE "user"=${user} AND provider=${provider}`;
   },
 };

@@ -8,6 +8,7 @@ const P: Record<string, React.ReactNode> = {
   external: <path d="M14 4h6v6M20 4l-9 9M18 14v4.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10" />,
   plus: <path d="M12 5v14M5 12h14" />,
   edit: <><path d="M4 20h4L19 9l-4-4L4 16z" /><path d="M13.5 6.5l4 4" /></>,
+  plug: <><path d="M9 3v4M15 3v4" /><path d="M6 7h12v4a6 6 0 0 1-12 0z" /><path d="M12 17v4" /></>,
   close: <path d="M6 6l12 12M18 6L6 18" />,
 };
 

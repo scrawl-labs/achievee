@@ -648,3 +648,20 @@ select {
 .emo-opts { display: flex; flex-direction: column; gap: var(--s2); }
 .emo-opts .btn { justify-content: flex-start; height: 44px; padding: 0 var(--s4); font-weight: 600; }
 .emo-back { align-self: flex-start; }
+
+/* integrations */
+.integrations { display: flex; flex-direction: column; gap: var(--s5); }
+.intcard { display: flex; flex-direction: column; gap: var(--s3); }
+.intform { display: flex; flex-direction: column; gap: var(--s3); }
+.intform p, .intcard p { margin: 0; line-height: 1.55; }
+.intform a, .intcard a { color: var(--accent); }
+.tag.ok { color: var(--c3); border-color: color-mix(in oklab, var(--c3) 50%, var(--line)); }
+.intnote { font-size: 13px; line-height: 1.6; }
+.workday { margin-top: var(--s4); }
+.workday h4 { margin: 0 0 var(--s2); font-size: 13px; color: var(--fg-2); }
+.workday ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.workday li { display: flex; align-items: baseline; gap: var(--s2); font-size: 14px; line-height: 1.5; }
+.workday li a { color: var(--fg); text-decoration: none; min-width: 0; overflow-wrap: anywhere; }
+.workday li a:hover { text-decoration: underline; }
+.workday li b { color: var(--fg-2); font-weight: 600; }
+.workday .src { font-style: normal; font-size: 10px; font-weight: 800; padding: 1px 5px; border-radius: 4px; background: var(--surface-2); color: var(--fg-2); flex: none; }
