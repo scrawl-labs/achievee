@@ -633,3 +633,10 @@ select {
 .emo-nearrow b { font-size: 15px; }
 .emo-nearrow span { color: var(--fg-2); font-size: 13px; line-height: 1.5; }
 .emo-nearrow .btn { height: 30px; padding: 0 var(--s3); font-size: 13px; flex: none; }
+
+/* emotion stats */
+.estats { display: flex; flex-direction: column; gap: var(--s5); }
+.estats .summary { margin-bottom: 0; }
+.estats .summary dd small { font-size: 14px; color: var(--fg-3); font-weight: 500; }
+.estats .hbar em { white-space: nowrap; }
+.peaks { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: var(--s2); line-height: 1.55; }

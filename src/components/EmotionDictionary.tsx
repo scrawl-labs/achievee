@@ -33,6 +33,10 @@ export default function EmotionDictionary() {
             <a href="https://accesson.kr/ksppa/assets/pdf/14556/journal-19-1-109.pdf" target="_blank" rel="noreferrer">PDF</a>
           </li>
           <li>
+            Bradley, M. M., &amp; Lang, P. J. (1999). <i>Affective norms for English words (ANEW): Instruction manual and affective ratings</i>. Technical Report C-1, The Center for Research in Psychophysiology, University of Florida.{" "}
+            <a href="https://pdodds.w3.uvm.edu/teaching/courses/2009-08UVM-300/docs/others/everything/bradley1999a.pdf" target="_blank" rel="noreferrer">PDF</a>
+          </li>
+          <li>
             EVOKE dataset (CC BY-NC 4.0):{" "}
             <a href="https://github.com/yoonwonj/EVOKE" target="_blank" rel="noreferrer">github.com/yoonwonj/EVOKE</a>
           </li>

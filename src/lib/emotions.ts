@@ -152,6 +152,39 @@ export const WORDS: Word[] = [
   { id: "selfblame", family: "shame", ko: ["자책하다", "잘못이 내 탓 같아서 스스로를 몰아세울 때"], en: ["self-blaming", "It feels like your fault, and you turn on yourself."], near: ["guilty", "regret", "ashamed"] },
 ];
 
+/**
+ * How pleasant each word feels, on our own scale from -2 (very unpleasant) to +2 (very pleasant).
+ * Judged by us for this app, following the dimensional view of emotion (pleasantness / arousal / dominance) described by
+ * Bradley & Lang (1999). No ANEW words or ratings are used.
+ */
+export const VALENCE: Record<string, number> = {
+  glad: 2, enjoy: 2, proud: 2, excited: 2, grateful: 2, relieved: 1,
+  light: 1, overjoyed: 2, happy: 2, thrilled: 2, exhilarated: 2, thankful: 2,
+  comfy: 1, serene: 1, reassured: 1, relaxed: 1, content: 1, cozy: 1,
+  warm: 2, tender: 1, supported: 1, adoring: 2, gladtosee: 2, homey: 1,
+  pleased: 1, sympathetic: 0, moved: 1, touched: 1, awed: 2, sad: -2,
+  gloomy: -2, deflated: -1, longing: -1, desolate: -2, chokedup: -1, miserable: -2,
+  forlorn: -2, sorrowful: -2, futile: -1, down: -1, downcast: -1, pained: -1,
+  letdown: -1, slighted: -1, resentful: -1, wistful: -1, upset: -1, wronged: -2,
+  hollow: -1, disappointed: -1, betrayed: -2, conflicted: 0, unsettled: -1, restless: 0,
+  bittersweet: 0, bitter: -1, nostalgic: 0, irritated: -1, angry: -2, stuck: -1,
+  illwill: -2, indignant: -2, offended: -1, displeased: -1, grudging: -1, blaming: -1,
+  envious: -1, jealous: -1, inadequate: -2, anxious: -1, onedge: -1, worried: -1,
+  afraid: -2, lost: -1, nervous: -1, burdened: -1, tense: -1, scared: -2,
+  chilled: -1, uneasy: -1, impatient: -1, lonely: -2, leftout: -2, empty: -2,
+  awkward: -1, distant: -1, ashamed: -2, embarrassed: -1, humiliated: -2, sorry: -1,
+  guilty: -2, regret: -1, selfblame: -2, tired: -1, wornout: -1, listless: -1,
+  bothered: -1, bored: -1, blank: 0, fedup: -1, surprised: 0, flustered: -1,
+  baffled: -1, bewildered: 0, amazed: 1,
+};
+
+/** The day's mood (1..5, 3 = neutral) derived from the chosen emotion words: the average pleasantness mapped onto 1..5. */
+export function moodFromEmotions(ids: string[]): number | null {
+  const v = ids.map((i) => VALENCE[i]).filter((n): n is number => typeof n === "number");
+  if (v.length === 0) return null;
+  const mean = v.reduce((a, b) => a + b, 0) / v.length;
+  return Math.min(5, Math.max(1, Math.round(3 + mean)));
+}
 export const WORD_IDS = new Set(WORDS.map((w) => w.id));
 export const MAX_EMOTIONS = 3;
 const byId = new Map(WORDS.map((w) => [w.id, w]));

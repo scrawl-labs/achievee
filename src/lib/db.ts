@@ -50,10 +50,10 @@ export const diary = {
       ON CONFLICT ("user", date) DO UPDATE SET mood = EXCLUDED.mood, body = EXCLUDED.body, emotions = EXCLUDED.emotions`;
   },
   /** every day that has emotion words, oldest first (for vocabulary stats) */
-  async emotionDays(user: string): Promise<{ date: string; ids: string[] }[]> {
+  async emotionDays(user: string): Promise<{ date: string; mood: string | null; ids: string[] }[]> {
     const s = await sql();
-    const rows = (await s`SELECT date, emotions FROM diary WHERE "user"=${user} AND emotions <> '' ORDER BY date`) as { date: string; emotions: string }[];
-    return rows.map((r) => ({ date: r.date, ids: splitIds(r.emotions) })).filter((r) => r.ids.length);
+    const rows = (await s`SELECT date, mood, emotions FROM diary WHERE "user"=${user} AND emotions <> '' ORDER BY date`) as { date: string; mood: string | null; emotions: string }[];
+    return rows.map((r) => ({ date: r.date, mood: r.mood, ids: splitIds(r.emotions) })).filter((r) => r.ids.length);
   },
   async remove(user: string, date: string) {
     const s = await sql();

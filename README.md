@@ -30,8 +30,9 @@ Google Cloud Console에서 OAuth 클라이언트(Web)를 만들고 Calendar API,
 - 선택한 감정 단어는 일기 본문처럼 암호화되어 저장됩니다.
 
 ## 출처
-감정 어휘를 넓혀 보자는 아이디어는 아래 연구에서 영감을 받았고, 어휘 범위를 점검하는 데 두 번째 문헌을 참고했습니다. **해당 데이터셋은 이 프로젝트에 포함하거나 사용하지 않았습니다** (데이터셋은 CC BY-NC 4.0, 비영리 조건).
+감정 어휘를 넓혀 보자는 아이디어는 아래 연구에서 영감을 받았고, 어휘 범위를 점검하고 쾌–불쾌 차원을 정하는 데 두 문헌을 더 참고했습니다. **해당 데이터셋은 이 프로젝트에 포함하거나 사용하지 않았습니다** (데이터셋은 CC BY-NC 4.0, 비영리 조건).
 - Jung, Y., Shin, H., & Bergen, B. K. (2026). *EVOKE: Emotion Vocabulary Of Korean and English*. arXiv:2602.10414 — https://arxiv.org/abs/2602.10414
+- Bradley, M. M., & Lang, P. J. (1999). *Affective norms for English words (ANEW): Instruction manual and affective ratings*. Technical Report C-1, University of Florida. — 단어마다 쾌–불쾌 정도를 매기는 **차원적 관점**만 참고했고, ANEW의 단어와 점수는 사용하지 않았습니다. (우리 점수는 `src/lib/emotions.ts`의 `VALENCE`, 직접 판단한 −2~+2)
 - 데이터셋: https://github.com/yoonwonj/EVOKE (CC BY-NC 4.0)
 - 박인조, 민경환 (2005). 한국어 감정단어의 목록 작성과 차원 탐색. *한국심리학회지: 사회 및 성격*, 19(1), 109–129. — 흔히 쓰는 감정단어가 빠지지 않았는지 **범위를 점검하는 데만** 참고했고, 그 단어 목록과 평정값은 가져다 쓰지 않았습니다.
 
