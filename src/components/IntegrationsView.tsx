@@ -57,10 +57,12 @@ export default function IntegrationsView() {
           {tile(icon)}
           <div className="intbody">
             <b>{name}</b>
-            <small className="muted">{c ? t("int.as", { name: c.label }) : t(desc)}</small>
+            {c
+              ? <><span className="intacct">{c.label}</span><small className="intok"><i />{t("int.connected")}</small></>
+              : <small className="muted">{t(desc)}</small>}
           </div>
           {c
-            ? <button className="btn" onClick={() => disconnect(provider)}>{t("int.disconnect")}</button>
+            ? <button className="btn danger" onClick={() => disconnect(provider)}>{t("int.disconnect")}</button>
             : <button className="btn" aria-expanded={open === provider} onClick={() => setOpen(open === provider ? null : provider)}>{t("int.connect")}</button>}
         </div>
         {c && work && (

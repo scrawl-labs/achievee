@@ -700,3 +700,10 @@ select {
 .intcard .btn, .intcard .tag { flex: none; }
 .intstate, .intslot .intform { padding: 0 var(--s4) var(--s4); display: flex; flex-direction: column; gap: var(--s2); }
 .intstate p { margin: 0; font-size: 13px; line-height: 1.55; }
+
+.btn.danger { color: var(--sun); border-color: color-mix(in oklab, var(--sun) 45%, var(--line)); }
+.btn.danger:hover { background: color-mix(in oklab, var(--sun) 12%, var(--surface-2)); }
+.intacct { font-size: 13px; color: var(--fg); overflow-wrap: anywhere; line-height: 1.4; }
+.intok { display: inline-flex; align-items: center; gap: 6px; color: var(--c3); }
+.intok i { width: 7px; height: 7px; border-radius: 50%; background: var(--c3); }
+@media (prefers-color-scheme: light) { .intok { color: #1f9d55; } .intok i { background: #1f9d55; } }
