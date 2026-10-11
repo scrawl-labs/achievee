@@ -683,3 +683,20 @@ select {
 .workday .k-issue { --k: #f0883e; }
 .workday .k-closed, .workday .k-resolved { --k: #2dba9f; }
 @media (prefers-color-scheme: light) { .workday .kind { color: color-mix(in oklab, var(--k) 62%, #000); } }
+
+/* integrations catalog */
+.intsec { margin: var(--s4) 0 0; font-size: 14px; color: var(--fg-2); letter-spacing: -0.01em; }
+.intgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); align-items: start; }
+@media (max-width: 720px) { .intgrid { grid-template-columns: minmax(0, 1fr); } }
+.intslot { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); }
+.intslot .intcard { border: 0; background: none; }
+.intcard { display: flex; flex-direction: row; align-items: center; gap: var(--s3); padding: var(--s3) var(--s4); border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); }
+.intcard.soon { opacity: .6; }
+.intbody { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.intbody b { font-size: 15px; }
+.intbody small { line-height: 1.45; overflow-wrap: anywhere; }
+.inttile { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); color: var(--fg-2); }
+.inttile .mono { font-size: 17px; }
+.intcard .btn, .intcard .tag { flex: none; }
+.intstate, .intslot .intform { padding: 0 var(--s4) var(--s4); display: flex; flex-direction: column; gap: var(--s2); }
+.intstate p { margin: 0; font-size: 13px; line-height: 1.55; }

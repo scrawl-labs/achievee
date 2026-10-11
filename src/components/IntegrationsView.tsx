@@ -1,21 +1,25 @@
 "use client";
 import { useState } from "react";
 import type { Provider, WorkItem } from "@/lib/integrations/types";
+import type { Key } from "@/lib/i18n";
 import { addDays } from "@/lib/dates";
 import { browserTz, todayStr } from "@/lib/clientTime";
 import { useI18n } from "./I18n";
+import Icon from "./Icon";
 import { forget, useApi } from "./useApi";
+import { GithubMark, JiraMark } from "./WorkList";
 
 type Connected = { provider: Provider; label: string }[];
 const GITHUB_TOKEN_URL = "https://github.com/settings/personal-access-tokens/new";
 const JIRA_TOKEN_URL = "https://id.atlassian.com/manage-profile/security/api-tokens";
 
-/** Connect work tools. Tokens are checked against the service, stored encrypted, and never shown again. */
+/** Browse and connect tools. Google Calendar / Tasks are the base of the app (always on, read-only); work tools are optional and use personal tokens. */
 export default function IntegrationsView() {
   const { t } = useI18n();
   const { data, reload } = useApi<Connected>("/api/integrations");
   const [busy, setBusy] = useState<Provider | null>(null);
   const [error, setError] = useState<Provider | null>(null);
+  const [open, setOpen] = useState<Provider | null>(null);
   const [f, setF] = useState({ ghToken: "", site: "", email: "", jiraToken: "" });
   const today = todayStr();
   const work = useApi<{ items: WorkItem[]; errors: string[]; connected: string[] }>(
@@ -28,50 +32,83 @@ export default function IntegrationsView() {
     setBusy(null);
     if (!r.ok) return setError(provider);
     setF({ ghToken: "", site: "", email: "", jiraToken: "" }); // never keep a token in the page after it is saved
+    setOpen(null);
     forget("/api/work"); // what the calendar / weekly review show depends on what is connected
     reload();
   };
   const disconnect = async (provider: Provider) => { await fetch(`/api/integrations?provider=${provider}`, { method: "DELETE" }); forget("/api/work"); reload(); };
 
-  const card = (provider: Provider, title: string, how: string, link: string, form: React.ReactNode, submit: () => void, ready: boolean) => {
+  const tile = (icon: React.ReactNode) => <span className="inttile">{icon}</span>;
+
+  const base = (icon: React.ReactNode, name: string, desc: Key) => (
+    <div className="intcard" key={name}>
+      {tile(icon)}
+      <div className="intbody"><b>{name}</b><small className="muted">{t(desc)}</small></div>
+      <span className="tag ok">{t("int.baseTag")}</span>
+    </div>
+  );
+
+  const tool = (provider: Provider, icon: React.ReactNode, name: string, desc: Key, how: Key, link: string, form: React.ReactNode, submit: () => void, ready: boolean) => {
     const c = by(provider);
+    const n = work && !work.errors.includes(provider) ? work.items.filter((w) => w.source === provider).reduce((s, w) => s + (w.count ?? 1), 0) : null;
     return (
-      <section className="panel intcard" key={provider}>
-        <div className="row between">
-          <h3>{title}</h3>
-          {c && <span className="tag ok">{t("int.connected")}</span>}
+      <div className="intslot" key={provider}>
+        <div className="intcard">
+          {tile(icon)}
+          <div className="intbody">
+            <b>{name}</b>
+            <small className="muted">{c ? t("int.as", { name: c.label }) : t(desc)}</small>
+          </div>
+          {c
+            ? <button className="btn" onClick={() => disconnect(provider)}>{t("int.disconnect")}</button>
+            : <button className="btn" aria-expanded={open === provider} onClick={() => setOpen(open === provider ? null : provider)}>{t("int.connect")}</button>}
         </div>
-        {c ? (
-          <>
-            <p className="muted">{t("int.as", { name: c.label })}</p>
-            {work && (work.errors.includes(provider)
-              ? <p className="error">{t("int.fetchFail", { name: title })}</p>
+        {c && work && (
+          <div className="intstate">
+            {work.errors.includes(provider)
+              ? <p className="error">{t("int.fetchFail", { name })}</p>
               : <>
-                  <p className="muted">{t("int.recent", { n: work.items.filter((w) => w.source === provider).reduce((s, w) => s + (w.count ?? 1), 0) })}</p>
-                  {work.items.every((w) => w.source !== provider) && <p className="muted">{t(provider === "jira" ? "int.noneHintJira" : "int.noneHint")}</p>}
-                </>)}
-            <div><button className="btn" onClick={() => disconnect(provider)}>{t("int.disconnect")}</button></div>
-          </>
-        ) : (
+                  <p className="muted">{t("int.recent", { n: n ?? 0 })}</p>
+                  {n === 0 && <p className="muted">{t(provider === "jira" ? "int.noneHintJira" : "int.noneHint")}</p>}
+                </>}
+          </div>
+        )}
+        {!c && open === provider && (
           <form className="intform" autoComplete="off" onSubmit={(e) => { e.preventDefault(); if (ready) submit(); }}>
-            <p className="muted">{how} <a href={link} target="_blank" rel="noreferrer">{t("int.createToken")}</a></p>
+            <p className="muted">{t(how)} <a href={link} target="_blank" rel="noreferrer">{t("int.createToken")}</a></p>
             {form}
             {error === provider && <p className="error">{t("int.invalid")}</p>}
             <button className="btn primary" disabled={!ready || busy === provider}>{busy === provider ? "…" : t("int.connect")}</button>
           </form>
         )}
-      </section>
+      </div>
     );
   };
+
+  const soon = (mono: string, name: string, desc: Key) => (
+    <div className="intcard soon" key={name}>
+      {tile(<b className="mono">{mono}</b>)}
+      <div className="intbody"><b>{name}</b><small className="muted">{t(desc)}</small></div>
+      <span className="tag">{t("int.soon")}</span>
+    </div>
+  );
 
   return (
     <div className="integrations">
       <p className="muted">{t("int.intro")}</p>
-      <div className="two">
-        {card("github", "GitHub", t("int.howGithub"), GITHUB_TOKEN_URL,
+
+      <h3 className="intsec">{t("int.secBase")}</h3>
+      <div className="intgrid">
+        {base(<Icon name="calendar" />, "Google Calendar", "int.gcalDesc")}
+        {base(<Icon name="check" />, "Google Tasks", "int.gtasksDesc")}
+      </div>
+
+      <h3 className="intsec">{t("int.secDev")}</h3>
+      <div className="intgrid">
+        {tool("github", <GithubMark size={22} />, "GitHub", "int.ghDesc", "int.howGithub", GITHUB_TOKEN_URL,
           <input type="password" placeholder={t("int.token")} value={f.ghToken} onChange={(e) => setF({ ...f, ghToken: e.target.value })} aria-label={t("int.token")} />,
           () => connect("github", { token: f.ghToken }), f.ghToken.trim().length > 0)}
-        {card("jira", "Jira", t("int.howJira"), JIRA_TOKEN_URL,
+        {tool("jira", <JiraMark size={22} />, "Jira", "int.jiraDesc", "int.howJira", JIRA_TOKEN_URL,
           <>
             <input placeholder={t("int.site")} value={f.site} onChange={(e) => setF({ ...f, site: e.target.value })} aria-label={t("int.site")} />
             <input type="email" placeholder={t("int.email")} value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} aria-label={t("int.email")} />
@@ -79,6 +116,14 @@ export default function IntegrationsView() {
           </>,
           () => connect("jira", { site: f.site, email: f.email, token: f.jiraToken }), f.site.trim() !== "" && f.email.trim() !== "" && f.jiraToken.trim() !== "")}
       </div>
+
+      <h3 className="intsec">{t("int.secSoon")}</h3>
+      <div className="intgrid">
+        {soon("S", "Slack", "int.slackDesc")}
+        {soon("N", "Notion", "int.notionDesc")}
+        {soon("C", "Claude", "int.claudeDesc")}
+      </div>
+
       <p className="muted intnote">{t("int.privacy")}</p>
     </div>
   );
