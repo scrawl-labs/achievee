@@ -791,3 +791,14 @@ button.note.open { display: block; -webkit-line-clamp: unset; overflow: visible;
   .summary > div:nth-child(even) { border-left: 1px solid var(--line); }
   .summary > div:nth-child(n+3) { border-top: 1px solid var(--line); }
 }
+
+/* weekly spending check */
+.spend-sum { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s6); }
+.spend-sum div { display: flex; flex-direction: column; gap: 2px; }
+.spend-sum b { font-size: 18px; letter-spacing: -0.02em; }
+.spend-sum b.up { color: var(--sun); } .spend-sum b.down { color: var(--c3); }
+.spend-block { display: flex; flex-direction: column; gap: var(--s2); margin-top: var(--s3); }
+.spend-block .hbar { grid-template-columns: 64px 1fr auto; }
+.spend-row { display: flex; justify-content: space-between; gap: var(--s3); font-size: 14px; }
+.spend-row span { min-width: 0; overflow-wrap: anywhere; color: var(--fg-2); }
+.spend-row span b { color: var(--fg); }

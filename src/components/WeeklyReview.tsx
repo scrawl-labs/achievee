@@ -8,6 +8,7 @@ import Summary from "./Summary";
 import { emoLang, wordText } from "@/lib/emotions";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
+import SpendReview from "./SpendReview";
 import type { WorkItem } from "@/lib/integrations/types";
 
 type Review = { week: string; good: string; hard: string; plan: string; note: string; saved?: boolean };
@@ -111,6 +112,8 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
         )}
         <small className="muted">{t("emo.newWords", { n: newWords })} · {t("emo.vocab", { n: usage?.length ?? 0 })}</small>
       </section>
+
+      <SpendReview week={week} />
 
       <div className="two wide-left">
         <section className="panel wk-form">
