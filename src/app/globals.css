@@ -763,3 +763,6 @@ button.note.open { display: block; -webkit-line-clamp: unset; overflow: visible;
 .dp-day.sel.mark::after { background: var(--accent-fg); }
 .dp-day:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .dp-foot { display: flex; justify-content: flex-end; }
+
+.num.sav { color: var(--c6); }
+.sav-rate { margin-left: var(--s2); font-weight: 500; }

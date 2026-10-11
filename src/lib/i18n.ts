@@ -43,7 +43,7 @@ const en = {
   "exp.new": "New expense", "exp.addAria": "Add expense", "exp.history": "History", "exp.all": "All", "exp.filter": "Filter",
   "exp.category": "Category", "exp.needOrNot": "Needed or not", "exp.needOpt": "Needed expense", "exp.wasteOpt": "Unneeded expense",
   "exp.amount": "Amount", "exp.memo": "Memo", "exp.toggle": "Click to switch",
-  "cat.food": "Food", "cat.cafe": "Café", "cat.transport": "Transport", "cat.shopping": "Shopping", "cat.culture": "Culture", "cat.fixed": "Fixed costs", "cat.invest": "Investment", "cat.other": "Other",
+  "cat.food": "Food", "cat.cafe": "Café", "cat.transport": "Transport", "cat.shopping": "Shopping", "cat.culture": "Culture", "sav.title": "Savings & investing", "sav.addAria": "Add savings or investment", "sav.saving": "Savings", "sav.invest": "Investing", "sav.kind": "Type", "sav.empty": "Nothing yet. Money you set aside goes here, not in spending.", "sav.rate": "{p}% of income", "exp.wasteShare": "Unneeded {p}%", "cat.fixed": "Fixed costs", "cat.other": "Other",
   "g.day": "Day", "g.week": "Week", "g.month": "Month", "g.agenda": "List", "g.open": "Open in Google Calendar", "g.tasks": "Google Tasks",
   "g.more": "+{n} more", "hour": "{h}:00",
 } as const;
@@ -77,7 +77,7 @@ const ko: BaseDict = {
   "exp.new": "새 지출", "exp.addAria": "지출 추가", "exp.history": "내역", "exp.all": "전체", "exp.filter": "필터",
   "exp.category": "카테고리", "exp.needOrNot": "필요 여부", "exp.needOpt": "필요한 지출", "exp.wasteOpt": "불필요한 지출",
   "exp.amount": "금액", "exp.memo": "메모", "exp.toggle": "눌러서 바꾸기",
-  "cat.food": "식비", "cat.cafe": "카페", "cat.transport": "교통", "cat.shopping": "쇼핑", "cat.culture": "문화", "cat.fixed": "고정비", "cat.invest": "투자", "cat.other": "기타",
+  "cat.food": "식비", "cat.cafe": "카페", "cat.transport": "교통", "cat.shopping": "쇼핑", "cat.culture": "문화", "sav.title": "저축·투자", "sav.addAria": "저축·투자 추가", "sav.saving": "저축", "sav.invest": "투자", "sav.kind": "구분", "sav.empty": "아직 없어요. 모아 둔 돈은 지출이 아니라 여기에 적어요.", "sav.rate": "수입의 {p}%", "exp.wasteShare": "불필요 {p}%", "cat.fixed": "고정비", "cat.other": "기타",
   "g.day": "일", "g.week": "주", "g.month": "월", "g.agenda": "목록", "g.open": "Google Calendar에서 보기", "g.tasks": "Google Tasks",
   "g.more": "+{n}개", "hour": "{h}시",
 };
@@ -106,7 +106,7 @@ const ja: BaseDict = {
   "exp.new": "新しい支出", "exp.addAria": "支出を追加", "exp.history": "履歴", "exp.all": "すべて", "exp.filter": "フィルター",
   "exp.category": "カテゴリ", "exp.needOrNot": "必要かどうか", "exp.needOpt": "必要な支出", "exp.wasteOpt": "不要な支出",
   "exp.amount": "金額", "exp.memo": "メモ", "exp.toggle": "クリックで切り替え",
-  "cat.food": "食費", "cat.cafe": "カフェ", "cat.transport": "交通", "cat.shopping": "買い物", "cat.culture": "文化", "cat.fixed": "固定費", "cat.invest": "投資", "cat.other": "その他",
+  "cat.food": "食費", "cat.cafe": "カフェ", "cat.transport": "交通", "cat.shopping": "買い物", "cat.culture": "文化", "sav.title": "貯蓄・投資", "sav.addAria": "貯蓄・投資を追加", "sav.saving": "貯蓄", "sav.invest": "投資", "sav.kind": "区分", "sav.empty": "まだありません。積み立てたお金は支出ではなくここに記録します。", "sav.rate": "収入の{p}%", "exp.wasteShare": "不要 {p}%", "cat.fixed": "固定費", "cat.other": "その他",
   "g.day": "日", "g.week": "週", "g.month": "月", "g.agenda": "リスト", "g.open": "Google Calendar で開く", "g.tasks": "Google Tasks",
   "g.more": "+{n}件", "hour": "{h}時",
 };
@@ -135,7 +135,7 @@ const es: BaseDict = {
   "exp.new": "Nuevo gasto", "exp.addAria": "Añadir gasto", "exp.history": "Historial", "exp.all": "Todos", "exp.filter": "Filtro",
   "exp.category": "Categoría", "exp.needOrNot": "¿Necesario?", "exp.needOpt": "Gasto necesario", "exp.wasteOpt": "Gasto innecesario",
   "exp.amount": "Importe", "exp.memo": "Nota", "exp.toggle": "Clic para cambiar",
-  "cat.food": "Comida", "cat.cafe": "Café", "cat.transport": "Transporte", "cat.shopping": "Compras", "cat.culture": "Cultura", "cat.fixed": "Gastos fijos", "cat.invest": "Inversión", "cat.other": "Otros",
+  "cat.food": "Comida", "cat.cafe": "Café", "cat.transport": "Transporte", "cat.shopping": "Compras", "cat.culture": "Cultura", "sav.title": "Ahorro e inversión", "sav.addAria": "Añadir ahorro o inversión", "sav.saving": "Ahorro", "sav.invest": "Inversión", "sav.kind": "Tipo", "sav.empty": "Aún no hay nada. El dinero que apartas va aquí, no en gastos.", "sav.rate": "{p}% de los ingresos", "exp.wasteShare": "Innecesario {p}%", "cat.fixed": "Gastos fijos", "cat.other": "Otros",
   "g.day": "Día", "g.week": "Semana", "g.month": "Mes", "g.agenda": "Lista", "g.open": "Abrir en Google Calendar", "g.tasks": "Google Tasks",
   "g.more": "+{n} más", "hour": "{h}:00",
 };
@@ -145,7 +145,7 @@ export const DICT: Record<Locale, Dict> = {
   zh: { ...(ZH as BaseDict), ...LAND.zh },
 };
 
-export const CATEGORIES = ["food", "cafe", "transport", "shopping", "culture", "fixed", "invest", "other"] as const;
+export const CATEGORIES = ["food", "cafe", "transport", "shopping", "culture", "fixed", "other"] as const;
 export type Category = (typeof CATEGORIES)[number];
 /** Rows saved by the first (Korean-only) release stored the label itself. */
 const LEGACY_CAT: Record<string, Category> = { 식비: "food", 카페: "cafe", 교통: "transport", 쇼핑: "shopping", 문화: "culture", 기타: "other" };

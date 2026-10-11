@@ -21,6 +21,9 @@ async function sql() {
     s`CREATE TABLE IF NOT EXISTS income (
       id SERIAL PRIMARY KEY, "user" TEXT NOT NULL, date TEXT NOT NULL, memo TEXT NOT NULL DEFAULT '', amount INTEGER NOT NULL)`,
     s`CREATE INDEX IF NOT EXISTS income_user_date ON income ("user", date)`,
+    s`CREATE TABLE IF NOT EXISTS saving (
+      id SERIAL PRIMARY KEY, "user" TEXT NOT NULL, date TEXT NOT NULL, kind TEXT NOT NULL, memo TEXT NOT NULL DEFAULT '', amount INTEGER NOT NULL)`,
+    s`CREATE INDEX IF NOT EXISTS saving_user_date ON saving ("user", date)`,
     s`CREATE TABLE IF NOT EXISTS settings ("user" TEXT PRIMARY KEY, month_start_day INTEGER NOT NULL DEFAULT 1)`,
     s`CREATE TABLE IF NOT EXISTS integration (
       "user" TEXT NOT NULL, provider TEXT NOT NULL, config TEXT NOT NULL, PRIMARY KEY ("user", provider))`,
@@ -68,7 +71,7 @@ export async function deleteUserData(user: string) {
   const s = await sql();
   await s.transaction([
     s`DELETE FROM diary WHERE "user"=${user}`, s`DELETE FROM expense WHERE "user"=${user}`,
-    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`, s`DELETE FROM integration WHERE "user"=${user}`,
+    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM saving WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`, s`DELETE FROM integration WHERE "user"=${user}`,
   ]);
 }
 
@@ -125,6 +128,30 @@ export const income = {
   async remove(user: string, id: number) {
     const s = await sql();
     await s`DELETE FROM income WHERE "user"=${user} AND id=${id}`;
+  },
+};
+
+export type SavingRow = { id: number; date: string; kind: "saving" | "invest"; memo: string; amount: number };
+
+/** Money set aside: kept apart from expenses so investing a fixed amount is not counted as spending. */
+export const savings = {
+  async range(user: string, from: string, to: string): Promise<SavingRow[]> {
+    const s = await sql();
+    const rows = (await s`SELECT id, date, kind, memo, amount FROM saving
+      WHERE "user"=${user} AND date >= ${from} AND date < ${to} ORDER BY date DESC, id DESC`) as SavingRow[];
+    return rows.map((r) => ({ ...r, memo: decrypt(r.memo) }));
+  },
+  async add(user: string, date: string, kind: string, memo: string, amount: number) {
+    const s = await sql();
+    await s`INSERT INTO saving ("user", date, kind, memo, amount) VALUES (${user}, ${date}, ${kind}, ${encrypt(memo)}, ${amount})`;
+  },
+  async update(user: string, id: number, f: { date: string; kind: string; memo: string; amount: number }) {
+    const s = await sql();
+    await s`UPDATE saving SET date=${f.date}, kind=${f.kind}, memo=${encrypt(f.memo)}, amount=${f.amount} WHERE "user"=${user} AND id=${id}`;
+  },
+  async remove(user: string, id: number) {
+    const s = await sql();
+    await s`DELETE FROM saving WHERE "user"=${user} AND id=${id}`;
   },
 };
 

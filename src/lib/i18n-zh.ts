@@ -24,7 +24,7 @@ export const ZH = {
   "exp.new": "新增支出", "exp.addAria": "新增支出", "exp.history": "明細", "exp.all": "全部", "exp.filter": "篩選",
   "exp.category": "類別", "exp.needOrNot": "是否必要", "exp.needOpt": "必要支出", "exp.wasteOpt": "不必要支出",
   "exp.amount": "金額", "exp.memo": "備註", "exp.toggle": "點擊切換",
-  "cat.food": "餐飲", "cat.cafe": "咖啡廳", "cat.transport": "交通", "cat.shopping": "購物", "cat.culture": "文化", "cat.fixed": "固定支出", "cat.invest": "投資", "cat.other": "其他",
+  "cat.food": "餐飲", "cat.cafe": "咖啡廳", "cat.transport": "交通", "cat.shopping": "購物", "cat.culture": "文化", "sav.title": "儲蓄・投資", "sav.addAria": "新增儲蓄或投資", "sav.saving": "儲蓄", "sav.invest": "投資", "sav.kind": "類型", "sav.empty": "還沒有紀錄。存下來的錢記在這裡，而不是支出。", "sav.rate": "佔收入的 {p}%", "exp.wasteShare": "不必要 {p}%", "cat.fixed": "固定支出", "cat.other": "其他",
   "g.day": "日", "g.week": "週", "g.month": "月", "g.agenda": "列表", "g.open": "在 Google Calendar 開啟", "g.tasks": "Google Tasks",
   "g.more": "+{n} 項", "hour": "{h}:00",
 } as const;
