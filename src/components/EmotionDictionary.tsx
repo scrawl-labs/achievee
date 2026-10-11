@@ -29,6 +29,10 @@ export default function EmotionDictionary() {
             <a href="https://arxiv.org/abs/2602.10414" target="_blank" rel="noreferrer">arXiv:2602.10414</a>
           </li>
           <li>
+            Park, I. J., &amp; Min, K. H. (2005). 한국어 감정단어의 목록 작성과 차원 탐색 [Making a list of Korean emotion terms and exploring dimensions of emotion]. <i>Korean Journal of Social and Personality Psychology, 19</i>(1), 109–129.{" "}
+            <a href="https://accesson.kr/ksppa/assets/pdf/14556/journal-19-1-109.pdf" target="_blank" rel="noreferrer">PDF</a>
+          </li>
+          <li>
             EVOKE dataset (CC BY-NC 4.0):{" "}
             <a href="https://github.com/yoonwonj/EVOKE" target="_blank" rel="noreferrer">github.com/yoonwonj/EVOKE</a>
           </li>
