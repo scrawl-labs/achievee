@@ -21,6 +21,9 @@ async function sql() {
       id SERIAL PRIMARY KEY, "user" TEXT NOT NULL, date TEXT NOT NULL, memo TEXT NOT NULL DEFAULT '', amount INTEGER NOT NULL)`,
     s`CREATE INDEX IF NOT EXISTS income_user_date ON income ("user", date)`,
     s`CREATE TABLE IF NOT EXISTS settings ("user" TEXT PRIMARY KEY, month_start_day INTEGER NOT NULL DEFAULT 1)`,
+    s`CREATE TABLE IF NOT EXISTS weekly_review (
+      "user" TEXT NOT NULL, week_start TEXT NOT NULL, good TEXT NOT NULL DEFAULT '', hard TEXT NOT NULL DEFAULT '',
+      plan TEXT NOT NULL DEFAULT '', note TEXT NOT NULL DEFAULT '', PRIMARY KEY ("user", week_start))`,
   ]).catch((e) => { _ready = undefined; throw e; });
   await _ready;
   return s;
@@ -53,7 +56,7 @@ export async function deleteUserData(user: string) {
   const s = await sql();
   await s.transaction([
     s`DELETE FROM diary WHERE "user"=${user}`, s`DELETE FROM expense WHERE "user"=${user}`,
-    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`,
+    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`,
   ]);
 }
 
@@ -123,5 +126,33 @@ export const settings = {
     const s = await sql();
     await s`INSERT INTO settings ("user", month_start_day) VALUES (${user}, ${day})
       ON CONFLICT ("user") DO UPDATE SET month_start_day = EXCLUDED.month_start_day`;
+  },
+};
+
+export type ReviewRow = { week: string; good: string; hard: string; plan: string; note: string };
+type ReviewDb = { week_start: string; good: string; hard: string; plan: string; note: string };
+const toReview = (r: ReviewDb): ReviewRow => ({ week: r.week_start, good: decrypt(r.good), hard: decrypt(r.hard), plan: decrypt(r.plan), note: decrypt(r.note) });
+
+/** Sunday weekly review, one row per (user, Monday-of-week). All free text is encrypted at rest. */
+export const reviews = {
+  async get(user: string, week: string): Promise<ReviewRow | null> {
+    const s = await sql();
+    const rows = (await s`SELECT week_start, good, hard, plan, note FROM weekly_review WHERE "user"=${user} AND week_start=${week}`) as ReviewDb[];
+    return rows[0] ? toReview(rows[0]) : null;
+  },
+  async list(user: string, limit = 12): Promise<ReviewRow[]> {
+    const s = await sql();
+    const rows = (await s`SELECT week_start, good, hard, plan, note FROM weekly_review WHERE "user"=${user} ORDER BY week_start DESC LIMIT ${limit}`) as ReviewDb[];
+    return rows.map(toReview);
+  },
+  async upsert(user: string, r: ReviewRow) {
+    const s = await sql();
+    await s`INSERT INTO weekly_review ("user", week_start, good, hard, plan, note)
+      VALUES (${user}, ${r.week}, ${encrypt(r.good)}, ${encrypt(r.hard)}, ${encrypt(r.plan)}, ${encrypt(r.note)})
+      ON CONFLICT ("user", week_start) DO UPDATE SET good = EXCLUDED.good, hard = EXCLUDED.hard, plan = EXCLUDED.plan, note = EXCLUDED.note`;
+  },
+  async remove(user: string, week: string) {
+    const s = await sql();
+    await s`DELETE FROM weekly_review WHERE "user"=${user} AND week_start=${week}`;
   },
 };

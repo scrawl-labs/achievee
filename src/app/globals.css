@@ -536,3 +536,16 @@ select {
   .lang { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235d5f68' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); }
 }
 .land .lang { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235e5a57' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); }
+
+/* weekly review */
+.nudge { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); margin-bottom: var(--s5); padding: var(--s4) var(--s5);
+  border: 1px solid var(--line); border-radius: var(--r-l); background: color-mix(in oklab, var(--accent) 10%, var(--surface)); }
+.nudge small { display: block; margin-top: 2px; }
+.wk-head { display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s5); }
+.wk-head h2 { flex: 1; margin: 0; font-size: 20px; letter-spacing: -0.02em; text-align: center; }
+.wk .summary { flex-wrap: wrap; }
+.wk .summary > div { min-width: 120px; }
+.wk-form { display: flex; flex-direction: column; gap: var(--s4); }
+.wk-q { display: flex; flex-direction: column; gap: var(--s2); }
+.wk-q span { font-size: 13px; font-weight: 600; color: var(--fg-2); }
+@media (max-width: 860px) { .nudge { flex-direction: column; align-items: stretch; } }

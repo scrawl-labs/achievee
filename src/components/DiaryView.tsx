@@ -3,12 +3,17 @@ import { useEffect, useMemo, useState } from "react";
 import type { Key } from "@/lib/i18n";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
+import WeeklyReview from "./WeeklyReview";
+import { dow, mondayOf } from "@/lib/dates";
+import { todayStr } from "@/lib/clientTime";
 
 type Row = { date: string; mood: string | null; body: string };
 const MOODS: Key[] = ["diary.m1", "diary.m2", "diary.m3", "diary.m4", "diary.m5"];
 const moodOf = (v: string | null) => (Number(v) > 0 ? Number(v) : null);
 
-export default function DiaryView({ ym, sel, setSel }: { ym: string; sel: string; setSel: (d: string) => void }) {
+type Props = { ym: string; sel: string; setSel: (d: string) => void };
+
+function DayDiary({ ym, sel, setSel }: Props) {
   const { t, fmt } = useI18n();
   const { data, reload } = useApi<Row[]>(`/api/diary?ym=${ym}`);
   const rows = useMemo(() => (data ?? []).map((x) => ({ ...x, mood: moodOf(x.mood) })), [data]);
@@ -52,5 +57,32 @@ export default function DiaryView({ ym, sel, setSel }: { ym: string; sel: string
         ))}
       </section>
     </div>
+  );
+}
+
+/** Diary tab: the daily diary, plus a Sunday weekly review (a nudge card appears on Sundays until it is written). */
+export default function DiaryView(props: Props) {
+  const { t } = useI18n();
+  const [mode, setMode] = useState<"day" | "week">("day");
+  const today = todayStr();
+  const isSunday = dow(today) === 0;
+  const thisWeek = useApi<{ saved?: boolean }>(isSunday ? `/api/review?week=${mondayOf(today)}` : null).data;
+  const nudge = mode === "day" && isSunday && thisWeek && !thisWeek.saved;
+  return (
+    <>
+      <div className="sechead">
+        <div className="tabs-t" role="tablist">
+          <button role="tab" aria-selected={mode === "day"} className={mode === "day" ? "on" : ""} onClick={() => setMode("day")}>{t("nav.diary")}</button>
+          <button role="tab" aria-selected={mode === "week"} className={mode === "week" ? "on" : ""} onClick={() => setMode("week")}>{t("wk.tab")}</button>
+        </div>
+      </div>
+      {nudge && (
+        <div className="nudge">
+          <div><b>{t("wk.sundayTitle")}</b><small>{t("wk.sundaySub")}</small></div>
+          <button className="btn primary" onClick={() => { props.setSel(today); setMode("week"); }}>{t("wk.write")}</button>
+        </div>
+      )}
+      {mode === "day" ? <DayDiary {...props} /> : <WeeklyReview sel={props.sel} setSel={props.setSel} />}
+    </>
   );
 }
