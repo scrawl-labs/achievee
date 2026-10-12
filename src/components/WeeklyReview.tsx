@@ -10,6 +10,7 @@ import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 import SpendReview from "./SpendReview";
 import { tally, type WorkoutRow } from "@/lib/workout";
+import { type IntakeRow, daysMet, DEFAULT_GOALS } from "@/lib/intake";
 import type { WorkItem } from "@/lib/integrations/types";
 
 type Review = { week: string; good: string; hard: string; plan: string; note: string; saved?: boolean };
@@ -38,6 +39,9 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
 
   const wos = useApi<WorkoutRow[]>(`/api/workouts?from=${week}&to=${end}`).data;
   const woWeek = tally(wos ?? [], week, end);
+  const intakeRows = useApi<IntakeRow[]>(`/api/intake?from=${week}&to=${end}`).data ?? [];
+  const goals = useApi<{ intakeGoals: typeof DEFAULT_GOALS }>("/api/settings").data?.intakeGoals ?? DEFAULT_GOALS;
+  const waterDays = daysMet(intakeRows, "water", goals.water), proteinDays = daysMet(intakeRows, "protein", goals.protein);
   const woTime = woWeek.minutes >= 60 ? t("foc.dur", { h: Math.floor(woWeek.minutes / 60), m: woWeek.minutes % 60 }) : t("foc.min", { m: woWeek.minutes });
 
   const stats = useMemo(() => {
@@ -117,6 +121,10 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
         )}
         <small className="muted">{t("emo.newWords", { n: newWords })} · {t("emo.vocab", { n: usage?.length ?? 0 })}</small>
       </section>
+
+      {(waterDays > 0 || proteinDays > 0) && (
+        <section className="wk-emo"><h3>{t("in.title")}</h3><small className="muted">{t("in.week", { water: waterDays, protein: proteinDays })}</small></section>
+      )}
 
       {woWeek.sessions > 0 && (
         <section className="wk-emo"><h3>{t("nav.workout")}</h3><small className="muted">{t("wo.weekLine", { n: woWeek.sessions, time: woTime })}</small></section>

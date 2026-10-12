@@ -825,3 +825,17 @@ button.note.open { display: block; -webkit-line-clamp: unset; overflow: visible;
 .body-chart .line { stroke: var(--accent); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
 .body-chart .dot { fill: var(--surface); stroke: var(--accent); stroke-width: 2; }
 .body-chart text { fill: var(--fg-3); font-size: 11px; } .body-chart text.now { fill: var(--fg); font-weight: 700; font-size: 12px; }
+
+/* today's intake */
+.intake { margin-top: var(--s6); display: flex; flex-direction: column; gap: var(--s3); }
+.intake-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); }
+@media (max-width: 720px) { .intake-grid { grid-template-columns: minmax(0, 1fr); } }
+.intake-card { display: flex; flex-direction: column; gap: var(--s3); }
+.intake-val strong { font-size: 26px; letter-spacing: -0.03em; }
+.intake-val span { color: var(--fg-3); }
+.intake-bar { height: 10px; border-radius: 9px; background: var(--surface-2); overflow: hidden; }
+.intake-bar i { display: block; height: 100%; border-radius: 9px; background: var(--accent); transition: width .2s; }
+.intake-bar i.met { background: var(--c3); }
+.intake-quick { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.intake-custom, .intake-exact { display: flex; gap: var(--s2); align-items: center; }
+.intake-custom input, .intake-exact input { flex: 1; min-width: 0; }

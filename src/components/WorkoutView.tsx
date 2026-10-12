@@ -10,6 +10,8 @@ import Icon from "./Icon";
 import Summary from "./Summary";
 import DatePicker from "./DatePicker";
 import BodyLog from "./BodyLog";
+import IntakeLog from "./IntakeLog";
+import type { IntakeKind } from "@/lib/intake";
 
 const send = (url: string, method: string, body?: unknown) =>
   fetch(url, { method, headers: { "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
@@ -18,7 +20,10 @@ const MON_FIRST = [1, 2, 3, 4, 5, 6, 0];
 const kindKey = (k: WorkoutKind) => `wo.k.${k}` as Key;
 
 /** Exercise log: sessions, minutes, and a weekly goal. The week and month shown follow the selected date. */
-export default function WorkoutView({ sel, setSel, goal, onGoal }: { sel: string; setSel: (d: string) => void; goal: number; onGoal: (n: number) => void }) {
+export default function WorkoutView({ sel, setSel, goal, onGoal, intakeGoals, onIntakeGoal }: {
+  sel: string; setSel: (d: string) => void; goal: number; onGoal: (n: number) => void;
+  intakeGoals: Record<IntakeKind, number>; onIntakeGoal: (k: IntakeKind, v: number) => void;
+}) {
   const { t, fmt } = useI18n();
   const month = `${sel.slice(0, 7)}-01`, nextMonth = addMonths(month, 1);
   const week = mondayOf(sel), weekEnd = addDays(week, 7);
@@ -138,6 +143,8 @@ export default function WorkoutView({ sel, setSel, goal, onGoal }: { sel: string
           </div>
         </section>
       </div>
+
+      <IntakeLog sel={sel} goals={intakeGoals} onGoal={onIntakeGoal} />
 
       <BodyLog sel={sel} setSel={setSel} />
     </>

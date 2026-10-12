@@ -15,6 +15,7 @@ import type { WorkItem } from "@/lib/integrations/types";
 import { emoLang, wordText } from "@/lib/emotions";
 import { addMonths } from "@/lib/dates";
 import type { WorkoutRow } from "@/lib/workout";
+import { type IntakeRow, dayTotal, liters } from "@/lib/intake";
 import type { Key } from "@/lib/i18n";
 
 const MON_FIRST = [1, 2, 3, 4, 5, 6, 0];
@@ -36,6 +37,8 @@ export default function CalendarView({ ym, month, stats, sel, setSel, onDiary }:
   const work = useApi<{ items: WorkItem[]; errors: string[]; connected: string[] }>(`/api/work?from=${sel}&to=${addDays(sel, 1)}&tz=${encodeURIComponent(browserTz())}`).data;
   const wos = useApi<WorkoutRow[]>(`/api/workouts?from=${ym}-01&to=${addMonths(`${ym}-01`, 1)}`).data ?? [];
   const dayWos = wos.filter((w) => w.date === sel);
+  const intakes = useApi<IntakeRow[]>(`/api/intake?from=${sel}&to=${addDays(sel, 1)}`).data ?? [];
+  const dayWater = dayTotal(intakes, sel, "water"), dayProtein = dayTotal(intakes, sel, "protein");
   const entry = diary.find((d) => d.date === sel);
   const note = entry?.body;
   const diaryDays = new Set(diary.map((d) => d.date));
@@ -99,6 +102,7 @@ export default function CalendarView({ ym, month, stats, sel, setSel, onDiary }:
               <ul>{dayWos.map((w) => <li key={w.id}><span className="kind k-edited">{t(`wo.k.${w.kind}` as Key)}</span><span>{t("foc.min", { m: w.minutes })}{w.memo && ` · ${w.memo}`}</span></li>)}</ul>
             </section>
           )}
+          {(dayWater > 0 || dayProtein > 0) && <div className="spent"><span>{t("in.title")}</span><b>{t("in.dayLine", { water: liters(dayWater), protein: `${dayProtein}g` })}</b></div>}
           {daySpent > 0 && <div className="spent"><span>{t("cal.spent")}</span><b>{fmt.money(daySpent)}</b></div>}
           <section className="dayDiary">
             <div className="row between">

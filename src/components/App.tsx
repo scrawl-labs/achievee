@@ -13,6 +13,7 @@ import DiaryView from "./DiaryView";
 import ExpenseView from "./ExpenseView";
 import IntegrationsView from "./IntegrationsView";
 import WorkoutView from "./WorkoutView";
+import { DEFAULT_GOALS, type IntakeKind } from "@/lib/intake";
 import GoogleCalView, { type GMode } from "./GoogleCalView";
 import Icon from "./Icon";
 import Wordmark from "./Wordmark";
@@ -53,9 +54,14 @@ function Main() {
   const [gmode, setGmode] = useState<GMode>("DAY");
   const ym = sel.slice(0, 7);
   const { data: month, error } = useApi<MonthData>(monthUrl(ym));
-  const settings = useApi<{ monthStartDay: number; workoutGoal: number }>("/api/settings");
+  const settings = useApi<{ monthStartDay: number; workoutGoal: number; intakeGoals: Record<IntakeKind, number> }>("/api/settings");
   const startDay = settings.data?.monthStartDay ?? 1;
   const workoutGoal = settings.data?.workoutGoal ?? 3;
+  const intakeGoals = settings.data?.intakeGoals ?? DEFAULT_GOALS;
+  const changeIntakeGoal = async (k: IntakeKind, v: number) => {
+    await fetch("/api/settings", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(k === "water" ? { waterGoal: v } : { proteinGoal: v }) });
+    settings.reload();
+  };
   const changeGoal = async (n: number) => {
     await fetch("/api/settings", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ workoutGoal: n }) });
     settings.reload();
@@ -128,7 +134,7 @@ function Main() {
         {tab === "diary" && <DiaryView ym={ym} sel={sel} setSel={setSel} />}
         {tab === "google" && <GoogleCalView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} tasks={month?.ym === ym ? month.days[sel]?.tasks ?? [] : []} />}
         {tab === "integrations" && <IntegrationsView />}
-        {tab === "workout" && <WorkoutView sel={sel} setSel={setSel} goal={workoutGoal} onGoal={changeGoal} />}
+        {tab === "workout" && <WorkoutView sel={sel} setSel={setSel} goal={workoutGoal} onGoal={changeGoal} intakeGoals={intakeGoals} onIntakeGoal={changeIntakeGoal} />}
         {tab === "expense" && <ExpenseView sel={sel} setSel={setSel} startDay={startDay} onStartDay={changeStartDay} />}
         </div>
         <Footer onSignOut={() => signOut()} onDelete={deleteData} />

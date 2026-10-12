@@ -26,6 +26,9 @@ async function sql() {
     s`CREATE INDEX IF NOT EXISTS saving_user_date ON saving ("user", date)`,
     s`CREATE TABLE IF NOT EXISTS settings ("user" TEXT PRIMARY KEY, month_start_day INTEGER NOT NULL DEFAULT 1)`,
     s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS workout_goal INTEGER NOT NULL DEFAULT 3`,
+    s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS water_goal INTEGER NOT NULL DEFAULT 2000`,
+    s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS protein_goal INTEGER NOT NULL DEFAULT 100`,
+    s`CREATE TABLE IF NOT EXISTS intake ("user" TEXT NOT NULL, date TEXT NOT NULL, kind TEXT NOT NULL, amount INTEGER NOT NULL DEFAULT 0, PRIMARY KEY ("user", date, kind))`,
     s`CREATE TABLE IF NOT EXISTS workout (
       id SERIAL PRIMARY KEY, "user" TEXT NOT NULL, date TEXT NOT NULL, kind TEXT NOT NULL, minutes INTEGER NOT NULL, memo TEXT NOT NULL DEFAULT '')`,
     s`CREATE INDEX IF NOT EXISTS workout_user_date ON workout ("user", date)`,
@@ -77,7 +80,7 @@ export async function deleteUserData(user: string) {
   const s = await sql();
   await s.transaction([
     s`DELETE FROM diary WHERE "user"=${user}`, s`DELETE FROM expense WHERE "user"=${user}`,
-    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM saving WHERE "user"=${user}`, s`DELETE FROM workout WHERE "user"=${user}`, s`DELETE FROM body WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`, s`DELETE FROM integration WHERE "user"=${user}`,
+    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM saving WHERE "user"=${user}`, s`DELETE FROM workout WHERE "user"=${user}`, s`DELETE FROM body WHERE "user"=${user}`, s`DELETE FROM intake WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`, s`DELETE FROM integration WHERE "user"=${user}`,
   ]);
 }
 
@@ -139,6 +142,7 @@ export const income = {
 
 import type { WorkoutRow } from "./workout";
 import type { BodyRow, BodyValues } from "./body";
+import type { IntakeRow, IntakeKind } from "./intake";
 export type SavingRow = { id: number; date: string; kind: "saving" | "invest"; memo: string; amount: number };
 
 /** Money set aside: kept apart from expenses so investing a fixed amount is not counted as spending. */
@@ -160,6 +164,24 @@ export const savings = {
   async remove(user: string, id: number) {
     const s = await sql();
     await s`DELETE FROM saving WHERE "user"=${user} AND id=${id}`;
+  },
+};
+
+/** Daily water (ml) and protein (g) totals: one row per day and kind. */
+export const intake = {
+  async range(user: string, from: string, to: string): Promise<IntakeRow[]> {
+    const s = await sql();
+    return (await s`SELECT date, kind, amount FROM intake WHERE "user"=${user} AND date >= ${from} AND date < ${to} ORDER BY date`) as IntakeRow[];
+  },
+  async add(user: string, date: string, kind: string, delta: number) {
+    const s = await sql();
+    await s`INSERT INTO intake ("user", date, kind, amount) VALUES (${user}, ${date}, ${kind}, GREATEST(${delta}, 0))
+      ON CONFLICT ("user", date, kind) DO UPDATE SET amount = GREATEST(0, intake.amount + ${delta})`;
+  },
+  async set(user: string, date: string, kind: string, amount: number) {
+    const s = await sql();
+    await s`INSERT INTO intake ("user", date, kind, amount) VALUES (${user}, ${date}, ${kind}, ${amount})
+      ON CONFLICT ("user", date, kind) DO UPDATE SET amount = EXCLUDED.amount`;
   },
 };
 
@@ -207,6 +229,20 @@ export const workouts = {
 };
 
 export const settings = {
+  /** Daily goals: water in ml, protein in g. */
+  async intakeGoals(user: string): Promise<Record<IntakeKind, number>> {
+    const s = await sql();
+    const rows = (await s`SELECT water_goal, protein_goal FROM settings WHERE "user"=${user}`) as { water_goal: number; protein_goal: number }[];
+    return { water: rows[0]?.water_goal ?? 2000, protein: rows[0]?.protein_goal ?? 100 };
+  },
+  async setWaterGoal(user: string, ml: number) {
+    const s = await sql();
+    await s`INSERT INTO settings ("user", water_goal) VALUES (${user}, ${ml}) ON CONFLICT ("user") DO UPDATE SET water_goal = EXCLUDED.water_goal`;
+  },
+  async setProteinGoal(user: string, g: number) {
+    const s = await sql();
+    await s`INSERT INTO settings ("user", protein_goal) VALUES (${user}, ${g}) ON CONFLICT ("user") DO UPDATE SET protein_goal = EXCLUDED.protein_goal`;
+  },
   async workoutGoal(user: string): Promise<number> {
     const s = await sql();
     const rows = (await s`SELECT workout_goal FROM settings WHERE "user"=${user}`) as { workout_goal: number }[];

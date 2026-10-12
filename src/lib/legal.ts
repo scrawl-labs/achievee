@@ -19,7 +19,7 @@ export const PRIVACY: Record<Locale, LegalDoc> = {
         "Google Calendar and Google Tasks data is fetched on demand to draw your screens. It is not stored in our database.",
       ] },
       { h: "Data we store", p: [
-        "Only what you type into Achievee: diary entries (with mood) and your expenses (category, amount, memo), income, savings or investments (amount, memo) exercise (type, minutes, memo) and body measurements (weight, body fat, muscle mass), linked to your Google account ID. Diary text, weekly reviews and all memos and body measurements are encrypted at rest.",
+        "Only what you type into Achievee: diary entries (with mood) and your expenses (category, amount, memo), income, savings or investments (amount, memo) exercise (type, minutes, memo), daily water and protein totals and body measurements (weight, body fat, muscle mass), linked to your Google account ID. Diary text, weekly reviews and all memos and body measurements are encrypted at rest.",
         "Your language choice is saved in a cookie on your device. Sign-in uses a session cookie.",
         "Optional: if you connect GitHub, Jira or Notion, we store the access token you provide, encrypted, only to read the titles, links and counts of your activity (such as pull requests, reviews, issues, commit counts, and Notion page titles) when you open a screen. We never read or keep the content of your Notion pages, and that work data is not stored. Disconnecting deletes the token.",
       ] },
@@ -51,7 +51,7 @@ export const PRIVACY: Record<Locale, LegalDoc> = {
         "Google Calendar와 Google Tasks 정보는 화면을 그릴 때마다 가져오며, 저희 데이터베이스에 저장하지 않습니다.",
       ] },
       { h: "저장하는 정보", p: [
-        "이용자가 Achievee에 직접 입력한 일기(기분 포함)와 지출(카테고리, 금액, 메모), 수입·저축·투자(금액, 메모), 운동(종류, 시간, 메모), 신체 수치(체중, 체지방률, 근육량)만 Google 계정 ID와 연결해 저장합니다. 일기 본문, 주간 회고, 모든 메모와 신체 수치는 암호화해서 보관합니다.",
+        "이용자가 Achievee에 직접 입력한 일기(기분 포함)와 지출(카테고리, 금액, 메모), 수입·저축·투자(금액, 메모), 운동(종류, 시간, 메모), 하루 물·단백질 섭취량, 신체 수치(체중, 체지방률, 근육량)만 Google 계정 ID와 연결해 저장합니다. 일기 본문, 주간 회고, 모든 메모와 신체 수치는 암호화해서 보관합니다.",
         "언어 설정은 이용자 기기의 쿠키에 저장되고, 로그인 유지에는 세션 쿠키를 사용합니다.",
         "선택 사항: GitHub, Jira, Notion을 연동하면, 화면을 열 때 활동(PR, 리뷰, 이슈, 커밋 개수, Notion 페이지 제목 등)의 제목·링크·개수를 읽기 위해서만 이용자가 입력한 액세스 토큰을 암호화해 저장합니다. Notion 페이지 본문은 읽거나 보관하지 않으며, 그렇게 읽은 업무 정보는 저장하지 않습니다. 연동을 해제하면 토큰이 삭제됩니다.",
       ] },
@@ -83,7 +83,7 @@ export const PRIVACY: Record<Locale, LegalDoc> = {
         "Google Calendar と Google Tasks の情報は画面表示のたびに取得し、当社のデータベースには保存しません。",
       ] },
       { h: "保存する情報", p: [
-        "ユーザーが Achievee に入力した日記（気分を含む）、支出（カテゴリ、金額、メモ）、収入・貯蓄・投資（金額、メモ）、運動（種類、時間、メモ）、身体の数値（体重、体脂肪率、筋肉量）のみを Google アカウント ID と紐付けて保存します。日記本文、週間レビュー、すべてのメモと身体の数値は暗号化して保管します。",
+        "ユーザーが Achievee に入力した日記（気分を含む）、支出（カテゴリ、金額、メモ）、収入・貯蓄・投資（金額、メモ）、運動（種類、時間、メモ）、1日の水分・たんぱく質の合計、身体の数値（体重、体脂肪率、筋肉量）のみを Google アカウント ID と紐付けて保存します。日記本文、週間レビュー、すべてのメモと身体の数値は暗号化して保管します。",
         "言語設定はお使いの端末の Cookie に保存され、ログイン状態の維持にはセッション Cookie を使用します。",
         "任意: GitHub、Jira、Notion を連携した場合、画面を開いたときに活動（PR、レビュー、課題、コミット数、Notion のページタイトルなど）のタイトル・リンク・件数を読み取る目的に限り、入力されたアクセストークンを暗号化して保存します。Notion のページ内容は読み取らず保管もせず、読み取った作業情報は保存しません。連携を解除するとトークンは削除されます。",
       ] },
@@ -115,7 +115,7 @@ export const PRIVACY: Record<Locale, LegalDoc> = {
         "Los datos de Google Calendar y Google Tasks se obtienen en el momento para mostrar tus pantallas. No se guardan en nuestra base de datos.",
       ] },
       { h: "Datos que almacenamos", p: [
-        "Solo lo que escribes en Achievee: entradas de diario (con estado de ánimo), gastos (categoría, importe, nota), ingresos, ahorros o inversiones (importe, nota) ejercicio (tipo, minutos, nota) y medidas corporales (peso, grasa, músculo), vinculados al ID de tu cuenta de Google. El texto del diario, las revisiones semanales y todas las notas y las medidas corporales se cifran en reposo.",
+        "Solo lo que escribes en Achievee: entradas de diario (con estado de ánimo), gastos (categoría, importe, nota), ingresos, ahorros o inversiones (importe, nota) ejercicio (tipo, minutos, nota), totales diarios de agua y proteína y medidas corporales (peso, grasa, músculo), vinculados al ID de tu cuenta de Google. El texto del diario, las revisiones semanales y todas las notas y las medidas corporales se cifran en reposo.",
         "Tu idioma se guarda en una cookie en tu dispositivo. El inicio de sesión usa una cookie de sesión.",
         "Opcional: si conectas GitHub, Jira o Notion, guardamos cifrado el token de acceso que proporcionas, solo para leer los títulos, enlaces y recuentos de tu actividad (pull requests, revisiones, incidencias, número de commits y títulos de páginas de Notion) al abrir una pantalla. Nunca leemos ni conservamos el contenido de tus páginas de Notion, y esos datos de trabajo no se guardan. Al desconectar, el token se elimina.",
       ] },
