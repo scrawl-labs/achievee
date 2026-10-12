@@ -25,6 +25,10 @@ async function sql() {
       id SERIAL PRIMARY KEY, "user" TEXT NOT NULL, date TEXT NOT NULL, kind TEXT NOT NULL, memo TEXT NOT NULL DEFAULT '', amount INTEGER NOT NULL)`,
     s`CREATE INDEX IF NOT EXISTS saving_user_date ON saving ("user", date)`,
     s`CREATE TABLE IF NOT EXISTS settings ("user" TEXT PRIMARY KEY, month_start_day INTEGER NOT NULL DEFAULT 1)`,
+    s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS workout_goal INTEGER NOT NULL DEFAULT 3`,
+    s`CREATE TABLE IF NOT EXISTS workout (
+      id SERIAL PRIMARY KEY, "user" TEXT NOT NULL, date TEXT NOT NULL, kind TEXT NOT NULL, minutes INTEGER NOT NULL, memo TEXT NOT NULL DEFAULT '')`,
+    s`CREATE INDEX IF NOT EXISTS workout_user_date ON workout ("user", date)`,
     s`CREATE TABLE IF NOT EXISTS integration (
       "user" TEXT NOT NULL, provider TEXT NOT NULL, config TEXT NOT NULL, PRIMARY KEY ("user", provider))`,
     s`CREATE TABLE IF NOT EXISTS weekly_review (
@@ -71,7 +75,7 @@ export async function deleteUserData(user: string) {
   const s = await sql();
   await s.transaction([
     s`DELETE FROM diary WHERE "user"=${user}`, s`DELETE FROM expense WHERE "user"=${user}`,
-    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM saving WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`, s`DELETE FROM integration WHERE "user"=${user}`,
+    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM saving WHERE "user"=${user}`, s`DELETE FROM workout WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`, s`DELETE FROM integration WHERE "user"=${user}`,
   ]);
 }
 
@@ -131,6 +135,7 @@ export const income = {
   },
 };
 
+import type { WorkoutRow } from "./workout";
 export type SavingRow = { id: number; date: string; kind: "saving" | "invest"; memo: string; amount: number };
 
 /** Money set aside: kept apart from expenses so investing a fixed amount is not counted as spending. */
@@ -155,7 +160,39 @@ export const savings = {
   },
 };
 
+/** Exercise log. The memo is encrypted like every other free text. */
+export const workouts = {
+  async range(user: string, from: string, to: string): Promise<WorkoutRow[]> {
+    const s = await sql();
+    const rows = (await s`SELECT id, date, kind, minutes, memo FROM workout
+      WHERE "user"=${user} AND date >= ${from} AND date < ${to} ORDER BY date DESC, id DESC`) as WorkoutRow[];
+    return rows.map((r) => ({ ...r, memo: decrypt(r.memo) }));
+  },
+  async add(user: string, date: string, kind: string, minutes: number, memo: string) {
+    const s = await sql();
+    await s`INSERT INTO workout ("user", date, kind, minutes, memo) VALUES (${user}, ${date}, ${kind}, ${minutes}, ${encrypt(memo)})`;
+  },
+  async update(user: string, id: number, f: { date: string; kind: string; minutes: number; memo: string }) {
+    const s = await sql();
+    await s`UPDATE workout SET date=${f.date}, kind=${f.kind}, minutes=${f.minutes}, memo=${encrypt(f.memo)} WHERE "user"=${user} AND id=${id}`;
+  },
+  async remove(user: string, id: number) {
+    const s = await sql();
+    await s`DELETE FROM workout WHERE "user"=${user} AND id=${id}`;
+  },
+};
+
 export const settings = {
+  async workoutGoal(user: string): Promise<number> {
+    const s = await sql();
+    const rows = (await s`SELECT workout_goal FROM settings WHERE "user"=${user}`) as { workout_goal: number }[];
+    return rows[0]?.workout_goal ?? 3;
+  },
+  async setWorkoutGoal(user: string, goal: number) {
+    const s = await sql();
+    await s`INSERT INTO settings ("user", workout_goal) VALUES (${user}, ${goal})
+      ON CONFLICT ("user") DO UPDATE SET workout_goal = EXCLUDED.workout_goal`;
+  },
   async monthStartDay(user: string): Promise<number> {
     const s = await sql();
     const rows = (await s`SELECT month_start_day FROM settings WHERE "user"=${user}`) as { month_start_day: number }[];

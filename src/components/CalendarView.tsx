@@ -13,6 +13,9 @@ import { addDays } from "@/lib/dates";
 import { browserTz } from "@/lib/clientTime";
 import type { WorkItem } from "@/lib/integrations/types";
 import { emoLang, wordText } from "@/lib/emotions";
+import { addMonths } from "@/lib/dates";
+import type { WorkoutRow } from "@/lib/workout";
+import type { Key } from "@/lib/i18n";
 
 const MON_FIRST = [1, 2, 3, 4, 5, 6, 0];
 
@@ -31,6 +34,8 @@ export default function CalendarView({ ym, month, stats, sel, setSel, onDiary }:
   const diary = useApi<{ date: string; body: string; emotions?: string[] }[]>(`/api/diary?ym=${ym}`).data ?? [];
   const spent = useApi<{ date: string; amount: number }[]>(`/api/expenses?ym=${ym}`).data ?? [];
   const work = useApi<{ items: WorkItem[]; errors: string[]; connected: string[] }>(`/api/work?from=${sel}&to=${addDays(sel, 1)}&tz=${encodeURIComponent(browserTz())}`).data;
+  const wos = useApi<WorkoutRow[]>(`/api/workouts?from=${ym}-01&to=${addMonths(`${ym}-01`, 1)}`).data ?? [];
+  const dayWos = wos.filter((w) => w.date === sel);
   const entry = diary.find((d) => d.date === sel);
   const note = entry?.body;
   const diaryDays = new Set(diary.map((d) => d.date));
@@ -86,6 +91,12 @@ export default function CalendarView({ ym, month, stats, sel, setSel, onDiary }:
             <section className="workday">
               <h4>{t("int.workTitle")}</h4>
               <WorkList items={work.items} />
+            </section>
+          )}
+          {dayWos.length > 0 && (
+            <section className="workday">
+              <h4>{t("nav.workout")}</h4>
+              <ul>{dayWos.map((w) => <li key={w.id}><span className="kind k-edited">{t(`wo.k.${w.kind}` as Key)}</span><span>{t("foc.min", { m: w.minutes })}{w.memo && ` · ${w.memo}`}</span></li>)}</ul>
             </section>
           )}
           {daySpent > 0 && <div className="spent"><span>{t("cal.spent")}</span><b>{fmt.money(daySpent)}</b></div>}

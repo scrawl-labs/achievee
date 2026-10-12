@@ -9,6 +9,7 @@ import { emoLang, wordText } from "@/lib/emotions";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 import SpendReview from "./SpendReview";
+import { tally, type WorkoutRow } from "@/lib/workout";
 import type { WorkItem } from "@/lib/integrations/types";
 
 type Review = { week: string; good: string; hard: string; plan: string; note: string; saved?: boolean };
@@ -34,6 +35,10 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
   const spent = useApi<Money>(`/api/expenses?from=${week}&to=${end}`).data;
   const earned = useApi<Money>(`/api/income?from=${week}&to=${end}`).data;
   const work = useApi<{ items: WorkItem[]; connected: string[] }>(`/api/work?from=${week}&to=${end}&tz=${encodeURIComponent(browserTz())}`).data;
+
+  const wos = useApi<WorkoutRow[]>(`/api/workouts?from=${week}&to=${end}`).data;
+  const woWeek = tally(wos ?? [], week, end);
+  const woTime = woWeek.minutes >= 60 ? t("foc.dur", { h: Math.floor(woWeek.minutes / 60), m: woWeek.minutes % 60 }) : t("foc.min", { m: woWeek.minutes });
 
   const stats = useMemo(() => {
     const byDay = { ...(m1?.days ?? {}), ...(m2?.days ?? {}) };
@@ -112,6 +117,10 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
         )}
         <small className="muted">{t("emo.newWords", { n: newWords })} · {t("emo.vocab", { n: usage?.length ?? 0 })}</small>
       </section>
+
+      {woWeek.sessions > 0 && (
+        <section className="wk-emo"><h3>{t("nav.workout")}</h3><small className="muted">{t("wo.weekLine", { n: woWeek.sessions, time: woTime })}</small></section>
+      )}
 
       <SpendReview week={week} />
 

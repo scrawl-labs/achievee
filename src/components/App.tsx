@@ -12,6 +12,7 @@ import StatsView from "./StatsView";
 import DiaryView from "./DiaryView";
 import ExpenseView from "./ExpenseView";
 import IntegrationsView from "./IntegrationsView";
+import WorkoutView from "./WorkoutView";
 import GoogleCalView, { type GMode } from "./GoogleCalView";
 import Icon from "./Icon";
 import Wordmark from "./Wordmark";
@@ -19,12 +20,13 @@ import Footer from "./Footer";
 import { useI18n } from "./I18n";
 import { prefetch, useApi } from "./useApi";
 
-type Tab = "calendar" | "stats" | "diary" | "expense" | "google" | "integrations";
-const TABS: { key: Tab; label: Key; icon: "calendar" | "chart" | "book" | "wallet" | "external" | "plug" }[] = [
+type Tab = "calendar" | "stats" | "diary" | "expense" | "workout" | "google" | "integrations";
+const TABS: { key: Tab; label: Key; icon: "calendar" | "chart" | "book" | "wallet" | "activity" | "external" | "plug" }[] = [
   { key: "calendar", label: "nav.calendar", icon: "calendar" },
   { key: "stats", label: "nav.stats", icon: "chart" },
   { key: "diary", label: "nav.diary", icon: "book" },
   { key: "expense", label: "nav.expense", icon: "wallet" },
+  { key: "workout", label: "nav.workout", icon: "activity" },
   { key: "google", label: "nav.google", icon: "external" },
   { key: "integrations", label: "nav.integrations", icon: "plug" },
 ];
@@ -51,8 +53,13 @@ function Main() {
   const [gmode, setGmode] = useState<GMode>("DAY");
   const ym = sel.slice(0, 7);
   const { data: month, error } = useApi<MonthData>(monthUrl(ym));
-  const settings = useApi<{ monthStartDay: number }>("/api/settings");
+  const settings = useApi<{ monthStartDay: number; workoutGoal: number }>("/api/settings");
   const startDay = settings.data?.monthStartDay ?? 1;
+  const workoutGoal = settings.data?.workoutGoal ?? 3;
+  const changeGoal = async (n: number) => {
+    await fetch("/api/settings", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ workoutGoal: n }) });
+    settings.reload();
+  };
   const changeStartDay = async (d: number) => {
     await fetch("/api/settings", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ monthStartDay: d }) });
     settings.reload();
@@ -121,6 +128,7 @@ function Main() {
         {tab === "diary" && <DiaryView ym={ym} sel={sel} setSel={setSel} />}
         {tab === "google" && <GoogleCalView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} tasks={month?.ym === ym ? month.days[sel]?.tasks ?? [] : []} />}
         {tab === "integrations" && <IntegrationsView />}
+        {tab === "workout" && <WorkoutView sel={sel} setSel={setSel} goal={workoutGoal} onGoal={changeGoal} />}
         {tab === "expense" && <ExpenseView sel={sel} setSel={setSel} startDay={startDay} onStartDay={changeStartDay} />}
         </div>
         <Footer onSignOut={() => signOut()} onDelete={deleteData} />

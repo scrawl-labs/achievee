@@ -802,3 +802,11 @@ button.note.open { display: block; -webkit-line-clamp: unset; overflow: visible;
 .spend-row { display: flex; justify-content: space-between; gap: var(--s3); font-size: 14px; }
 .spend-row span { min-width: 0; overflow-wrap: anywhere; color: var(--fg-2); }
 .spend-row span b { color: var(--fg); }
+
+/* exercise */
+.wo-week { display: flex; justify-content: space-between; gap: 6px; margin: var(--s3) 0; }
+.wo-week div { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11px; color: var(--fg-3); }
+.wo-week i { width: 100%; max-width: 40px; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); border: 1px solid var(--line); color: var(--accent-fg); }
+.wo-week .on i { background: var(--c3); border-color: var(--c3); color: var(--ink); }
+.wo-week .today span { color: var(--fg); font-weight: 700; }
+.workday li:has(> .kind:first-child) { grid-template-columns: 84px minmax(0, 1fr); }
