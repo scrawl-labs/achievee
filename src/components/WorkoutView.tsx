@@ -34,6 +34,7 @@ export default function WorkoutView({ sel, setSel, goal, onGoal, intakeGoals, on
   const w = tally(rows, week, weekEnd), m = tally(rows, month, nextMonth);
   const today = todayStr();
 
+  const [mode, setMode] = useState<"log" | "intake" | "body">("log");
   const [open, setOpen] = useState(false);
   const [kind, setKind] = useState<WorkoutKind>("run");
   const [minutes, setMinutes] = useState("");
@@ -65,6 +66,18 @@ export default function WorkoutView({ sel, setSel, goal, onGoal, intakeGoals, on
 
   return (
     <>
+      <div className="sechead">
+        <div className="tabs-t" role="tablist">
+          {(["log", "intake", "body"] as const).map((k) => (
+            <button key={k} role="tab" aria-selected={mode === k} className={mode === k ? "on" : ""} onClick={() => setMode(k)}>
+              {t(k === "log" ? "nav.workout" : k === "intake" ? "in.title" : "body.title")}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {mode === "log" && (
+        <>
       <Summary items={[
         [t("wo.thisWeek"), `${w.sessions} / ${goal}`], [t("wo.weekTime"), dur(w.minutes)],
         [t("wo.month"), t("wo.times", { n: m.sessions })], [t("wo.monthTime"), dur(m.minutes)],
@@ -143,10 +156,10 @@ export default function WorkoutView({ sel, setSel, goal, onGoal, intakeGoals, on
           </div>
         </section>
       </div>
-
-      <IntakeLog sel={sel} goals={intakeGoals} onGoal={onIntakeGoal} />
-
-      <BodyLog sel={sel} setSel={setSel} />
+        </>
+      )}
+      {mode === "intake" && <IntakeLog sel={sel} goals={intakeGoals} onGoal={onIntakeGoal} />}
+      {mode === "body" && <BodyLog sel={sel} setSel={setSel} />}
     </>
   );
 }

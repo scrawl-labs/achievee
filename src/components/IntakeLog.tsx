@@ -43,7 +43,6 @@ export default function IntakeLog({ sel, goals, onGoal }: { sel: string; goals: 
 
   return (
     <section className="intake">
-      <div className="sechead flush"><h3>{t("in.title")}</h3></div>
       <div className="intake-grid">
         {INTAKE_KINDS.map((k) => {
           const total = dayTotal(rows, sel, k), goal = goals[k];
