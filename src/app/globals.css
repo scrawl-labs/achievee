@@ -724,7 +724,7 @@ button.note { display: -webkit-box; width: 100%; text-align: left; cursor: point
 button.note.open { display: block; -webkit-line-clamp: unset; overflow: visible; color: var(--fg); line-height: 1.65; overflow-wrap: anywhere; }
 
 /* meeting / focus time */
-.focus { display: flex; flex-direction: column; gap: var(--s4); margin-top: var(--s4); }
+.focusstats { display: flex; flex-direction: column; gap: var(--s4); margin-top: var(--s4); }
 .focus-sum { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3); }
 @media (max-width: 720px) { .focus-sum { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .focus-sum div { display: flex; flex-direction: column; gap: 2px; }
@@ -733,7 +733,7 @@ button.note.open { display: block; -webkit-line-clamp: unset; overflow: visible;
 .focus-days > div { flex: 1 0 18px; max-width: 34px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .focus-days .ftrack { width: 100%; height: 120px; display: flex; flex-direction: column; justify-content: flex-end; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
 .focus-days span { font-size: 11px; color: var(--fg-3); }
-.focus i { display: block; }
+.focusstats i { display: block; }
 .focus-days .ftrack i { width: 100%; flex: none; }
 .focus-meet { background: #e5609b; }
 .focus-other { background: #6c6e77; }

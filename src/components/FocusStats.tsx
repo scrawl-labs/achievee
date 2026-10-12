@@ -24,7 +24,7 @@ export default function FocusStats({ ym }: { ym: string }) {
   const meetingTotal = days.reduce((s, d) => s + d.meetingMin, 0);
 
   return (
-    <section className="panel focus">
+    <section className="panel focusstats">
       <h3>{t("foc.title")}</h3>
       <div className="focus-sum">
         <div><small>{t("foc.total")}</small><b>{dur(meetingTotal)}</b></div>
