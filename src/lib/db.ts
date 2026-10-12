@@ -29,6 +29,8 @@ async function sql() {
     s`CREATE TABLE IF NOT EXISTS workout (
       id SERIAL PRIMARY KEY, "user" TEXT NOT NULL, date TEXT NOT NULL, kind TEXT NOT NULL, minutes INTEGER NOT NULL, memo TEXT NOT NULL DEFAULT '')`,
     s`CREATE INDEX IF NOT EXISTS workout_user_date ON workout ("user", date)`,
+    s`CREATE TABLE IF NOT EXISTS body (id SERIAL PRIMARY KEY, "user" TEXT NOT NULL, date TEXT NOT NULL, data TEXT NOT NULL)`,
+    s`CREATE INDEX IF NOT EXISTS body_user_date ON body ("user", date)`,
     s`CREATE TABLE IF NOT EXISTS integration (
       "user" TEXT NOT NULL, provider TEXT NOT NULL, config TEXT NOT NULL, PRIMARY KEY ("user", provider))`,
     s`CREATE TABLE IF NOT EXISTS weekly_review (
@@ -75,7 +77,7 @@ export async function deleteUserData(user: string) {
   const s = await sql();
   await s.transaction([
     s`DELETE FROM diary WHERE "user"=${user}`, s`DELETE FROM expense WHERE "user"=${user}`,
-    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM saving WHERE "user"=${user}`, s`DELETE FROM workout WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`, s`DELETE FROM integration WHERE "user"=${user}`,
+    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM saving WHERE "user"=${user}`, s`DELETE FROM workout WHERE "user"=${user}`, s`DELETE FROM body WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`, s`DELETE FROM integration WHERE "user"=${user}`,
   ]);
 }
 
@@ -136,6 +138,7 @@ export const income = {
 };
 
 import type { WorkoutRow } from "./workout";
+import type { BodyRow, BodyValues } from "./body";
 export type SavingRow = { id: number; date: string; kind: "saving" | "invest"; memo: string; amount: number };
 
 /** Money set aside: kept apart from expenses so investing a fixed amount is not counted as spending. */
@@ -157,6 +160,27 @@ export const savings = {
   async remove(user: string, id: number) {
     const s = await sql();
     await s`DELETE FROM saving WHERE "user"=${user} AND id=${id}`;
+  },
+};
+
+/** Body measurements (InBody and similar). All the numbers live in one encrypted JSON string; only the date is readable by the database. */
+export const body = {
+  async list(user: string, limit: number): Promise<BodyRow[]> {
+    const s = await sql();
+    const rows = (await s`SELECT id, date, data FROM body WHERE "user"=${user} ORDER BY date DESC, id DESC LIMIT ${limit}`) as { id: number; date: string; data: string }[];
+    return rows.flatMap((r) => { try { return [{ id: r.id, date: r.date, ...JSON.parse(decrypt(r.data)) as BodyValues }]; } catch { return []; } });
+  },
+  async add(user: string, date: string, v: BodyValues) {
+    const s = await sql();
+    await s`INSERT INTO body ("user", date, data) VALUES (${user}, ${date}, ${encrypt(JSON.stringify(v))})`;
+  },
+  async update(user: string, id: number, date: string, v: BodyValues) {
+    const s = await sql();
+    await s`UPDATE body SET date=${date}, data=${encrypt(JSON.stringify(v))} WHERE "user"=${user} AND id=${id}`;
+  },
+  async remove(user: string, id: number) {
+    const s = await sql();
+    await s`DELETE FROM body WHERE "user"=${user} AND id=${id}`;
   },
 };
 

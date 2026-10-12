@@ -9,6 +9,7 @@ import { useApi } from "./useApi";
 import Icon from "./Icon";
 import Summary from "./Summary";
 import DatePicker from "./DatePicker";
+import BodyLog from "./BodyLog";
 
 const send = (url: string, method: string, body?: unknown) =>
   fetch(url, { method, headers: { "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
@@ -137,6 +138,8 @@ export default function WorkoutView({ sel, setSel, goal, onGoal }: { sel: string
           </div>
         </section>
       </div>
+
+      <BodyLog sel={sel} setSel={setSel} />
     </>
   );
 }
