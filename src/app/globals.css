@@ -839,3 +839,10 @@ button.note.open { display: block; -webkit-line-clamp: unset; overflow: visible;
 .intake-quick { display: flex; flex-wrap: wrap; gap: var(--s2); }
 .intake-custom, .intake-exact { display: flex; gap: var(--s2); align-items: center; }
 .intake-custom input, .intake-exact input { flex: 1; min-width: 0; }
+
+/* exercise rows in the day panel: the kind on the left edge, the details on the right edge (like the spending and intake rows) */
+.workday li.wo { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s3); }
+.workday li.wo > span:last-child { text-align: right; min-width: 0; overflow-wrap: anywhere; }
+
+/* rows with only the edit / delete buttons on the right (no amount column) */
+.eside.solo { grid-template-columns: auto; }

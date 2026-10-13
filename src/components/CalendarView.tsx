@@ -99,7 +99,7 @@ export default function CalendarView({ ym, month, stats, sel, setSel, onDiary }:
           {dayWos.length > 0 && (
             <section className="workday">
               <h4>{t("nav.workout")}</h4>
-              <ul>{dayWos.map((w) => <li key={w.id}><span className="kind k-edited">{t(`wo.k.${w.kind}` as Key)}</span><span>{t("foc.min", { m: w.minutes })}{w.memo && ` · ${w.memo}`}</span></li>)}</ul>
+              <ul>{dayWos.map((w) => <li key={w.id} className="wo"><span className="kind k-edited">{t(`wo.k.${w.kind}` as Key)}</span><span>{t("foc.min", { m: w.minutes })}{w.memo && ` · ${w.memo}`}</span></li>)}</ul>
             </section>
           )}
           {(dayWater > 0 || dayProtein > 0) && <div className="spent"><span>{t("in.title")}</span><b>{t("in.dayLine", { water: liters(dayWater), protein: `${dayProtein}g` })}</b></div>}

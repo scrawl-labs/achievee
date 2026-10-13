@@ -67,7 +67,7 @@ export default function BodyLog({ sel, setSel }: { sel: string; setSel: (d: stri
 
   return (
     <section className="bodylog">
-      <div className={`sechead${open ? "" : " flush"}`}>
+      <div className="sechead">
         <h3>{t("body.title")}</h3>
         <button type="button" className={`btn icon add${open ? " open" : ""}`} aria-expanded={open} aria-label={open ? t("common.close") : t("body.addAria")} onClick={() => setOpen(!open)}><Icon name="plus" /></button>
       </div>
@@ -111,7 +111,7 @@ export default function BodyLog({ sel, setSel }: { sel: string; setSel: (d: stri
               <span className="etop"><b>{fmt.date(r.date)}</b></span>
               <span className="ememo">{METRICS.filter((m) => r[m] !== undefined).map((m) => `${t(label(m))} ${show(r[m]!)}${UNIT[m]}`).join(" · ")}</span>
             </div>
-            <div className="eside">
+            <div className="eside solo">
               <span className="acts">
                 <button className="btn icon ghost" onClick={() => { setEditId(r.id); setDraft({ date: r.date, weight: r.weight !== undefined ? show(r.weight) : "", fat: r.fat !== undefined ? show(r.fat) : "", muscle: r.muscle !== undefined ? show(r.muscle) : "" }); }} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
                 <button className="btn icon ghost" onClick={() => del(r.id)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button>
