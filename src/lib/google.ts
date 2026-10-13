@@ -88,7 +88,7 @@ export async function fetchMonth(ym: string, token: string, tz: string): Promise
 }
 
 /**
- * Events of all visible calendars between `from` and `to` (exclusive), split into one segment per day
+ * Events of the calendars checked in Google Calendar's sidebar between `from` and `to` (exclusive), split into one segment per day
  * and positioned in minutes from 00:00 (KST) so views can lay them out directly.
  */
 export async function fetchRange(from: string, to: string, token: string, tz: string): Promise<DayEvent[]> {
@@ -99,7 +99,8 @@ export async function fetchRange(from: string, to: string, token: string, tz: st
   const cals = await g<{ items?: { id: string; summary: string; summaryOverride?: string; backgroundColor?: string; selected?: boolean }[] }>(
     "https://www.googleapis.com/calendar/v3/users/me/calendarList?maxResults=250", token);
   const out: DayEvent[] = [];
-  await Promise.all((cals.items ?? []).filter((c) => c.selected !== false).map(async (c) => {
+  // calendarList only sends `selected` when it is true (absent = unchecked), so require === true
+  await Promise.all((cals.items ?? []).filter((c) => c.selected === true).map(async (c) => {
     const q = new URLSearchParams({
       singleEvents: "true", orderBy: "startTime", maxResults: "2500",
       timeMin: new Date(rangeStart).toISOString(), timeMax: new Date(rangeEnd).toISOString(),
