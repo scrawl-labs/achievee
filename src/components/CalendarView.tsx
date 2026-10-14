@@ -81,21 +81,7 @@ export default function CalendarView({ ym, month, stats, sel, setSel, onDiary }:
           <h2>{fmt.monthDay(sel)} <small>{fmt.weekdayLong(dow(sel))}</small></h2>
           <GoalList key={`day${sel}`} scope="day" periodStart={sel} label={sel === today ? t("goal.today") : t("goal.dayOf")} />
           <GoalList key={`week${periodStartOf("week", sel)}`} scope="week" periodStart={periodStartOf("week", sel)} label={t("goal.week")} />
-          <TodoList key={`todo${sel}`} date={sel} />
-          <div className="big">{day ? `${day.done}` : "-"}<span> / {day ? day.total : "-"}</span></div>
-          <div className="meter"><i style={{ width: day && day.total ? `${(day.done / day.total) * 100}%` : 0 }} /></div>
-          {day && day.tasks.length > 0 && (
-            <ul className="tasks">
-              {day.tasks.map((tk, i) => (
-                <li key={i} className={tk.done ? "done" : ""}>
-                  <span className="check" aria-hidden="true" />
-                  <span className="tk-title">{tk.title || t("common.untitled")}</span>
-                  <span className="tk-src" aria-hidden="true">Google</span>
-                  <span className="sr-only">{t("task.google")}</span>
-                </li>
-              ))}
-            </ul>
-          )}
+          <TodoList key={`todo${sel}`} date={sel} google={day?.tasks ?? []} />
           {day && day.eventList.length > 0 && (
             <ul className="events">
               {day.eventList.map((e, i) => <li key={i}><time>{e.time ?? t("common.allDay")}</time>{e.title || t("common.untitled")}</li>)}

@@ -3,7 +3,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { DayEvent } from "@/lib/types";
 import { dow } from "@/lib/dates";
 import { browserTz, todayStr } from "@/lib/clientTime";
+import type { TaskEntry } from "@/lib/taskList";
 import { useI18n } from "./I18n";
+import AllDayRow from "./AllDayRow";
 
 const H = 56; // px per hour
 export const hhmm = (m: number) => `${String(Math.floor(m / 60) % 24).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
@@ -36,8 +38,12 @@ export function nowMinutes(now: Date) {
 }
 
 /** Hour-grid for one or more days (day view = 1 column, week view = 7). */
-export default function TimeGrid({ days, events, error, onPickDay }: {
+const NO_TASKS: Record<string, TaskEntry[]> = {};
+
+/** Tasks (no time of their own) ride in the all-day strip; `badge` shows the "Google" pill there (wide columns only). */
+export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TASKS, onToggleTask, badge = false }: {
   days: string[]; events: DayEvent[] | null; error?: boolean; onPickDay?: (d: string) => void;
+  tasks?: Record<string, TaskEntry[]>; onToggleTask?: (id: number, done: boolean) => void; badge?: boolean;
 }) {
   const { t, fmt } = useI18n();
   const [now, setNow] = useState(() => new Date());
@@ -50,7 +56,7 @@ export default function TimeGrid({ days, events, error, onPickDay }: {
     (events ?? []).forEach((e) => m[e.date]?.push(e));
     return m;
   }, [days, events]);
-  const anyAllDay = days.some((d) => byDay[d].some((e) => e.allDay));
+  const anyAllDay = days.some((d) => byDay[d].some((e) => e.allDay) || (tasks[d]?.length ?? 0) > 0);
   const nowMin = days.includes(today) ? nowMinutes(now) : -1;
   const multi = days.length > 1;
   const cols = { gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))` };
@@ -77,20 +83,7 @@ export default function TimeGrid({ days, events, error, onPickDay }: {
             </div>
           </div>
         )}
-        {anyAllDay && (
-          <div className="tl-allday">
-            <span className="gut" />
-            <div className="cols" style={cols}>
-              {days.map((d) => (
-                <div key={d}>
-                  {byDay[d].filter((e) => e.allDay).map((e) => (
-                    <a key={e.id} className="chipday" href={e.link} target="_blank" rel="noreferrer" style={{ ["--ev" as string]: e.color }}>{e.title || t("common.untitled")}</a>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {anyAllDay && <AllDayRow days={days} byDay={byDay} tasks={tasks} cols={cols} badge={badge} onToggle={onToggleTask} />}
         {error && <p className="error" style={{ padding: 16 }}>{t("common.loadFail")}</p>}
         <div className="tl" ref={scroller}>
           <div className="tl-in" style={{ height: 24 * H }}>

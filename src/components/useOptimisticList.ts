@@ -14,7 +14,7 @@ export type ListSpec<T extends { id: number }, E> = {
   remove: (rows: readonly T[], id: number) => T[];
   isLimit: (r: Response) => Promise<boolean>;
   /** Refreshes caches that derive from this list. Runs once per burst of edits (see NOTIFY_MS), never per request. */
-  onChanged?: () => void;
+  onChanged?: (url: string) => void; // `url`: this list's own URL, which was already reloaded when its last request settled
 };
 
 /**
@@ -24,21 +24,23 @@ export type ListSpec<T extends { id: number }, E> = {
  * (fresh error, fresh in-flight counter).
  */
 export function useOptimisticList<T extends { id: number }, E extends object>(url: string, spec: ListSpec<T, E>) {
-  const { data, reload } = useApi<T[]>(url);
+  const { data, error: loadError, reload } = useApi<T[]>(url);
+  const settled = data !== null || loadError; // false only while the first answer for this url is pending (callers that must not flash an empty state)
   const [local, setLocal] = useState<{ url: string; rows: T[] } | null>(null);
   const [error, setError] = useState<ListError | null>(null);
   const rows = local?.url === url ? local.rows : data ?? [];
   const rowsRef = useRef(rows);
   rowsRef.current = rows;
   const inFlight = useRef(0);
-  const dirty = useRef(false); // a request succeeded and `onChanged` has not run for it yet
+  const dirty = useRef<string | null>(null); // url of a request that succeeded and whose `onChanged` has not run yet
   const alive = useRef(true);
 
   // Only notifies while nothing is in flight (a refetch before the last write lands would read stale data); the settle path re-arms it.
   const notify = useMemo(() => createTrailing(() => {
-    if (inFlight.current > 0 || !dirty.current) return;
-    dirty.current = false;
-    spec.onChanged?.();
+    const changed = dirty.current;
+    if (inFlight.current > 0 || changed === null) return;
+    dirty.current = null;
+    spec.onChanged?.(changed);
   }, NOTIFY_MS), [spec]);
   // Leaving (another day/period remounts us): a pending notification is flushed, not dropped, because the change really happened.
   useEffect(() => {
@@ -56,10 +58,10 @@ export function useOptimisticList<T extends { id: number }, E extends object>(ur
       if (r.ok) ok = r; else setError(isAdd && (await spec.isLimit(r)) ? "limit" : "failed");
     } catch { setError("failed"); }
     inFlight.current -= 1;
-    if (ok) dirty.current = true;
-    if (inFlight.current === 0 && dirty.current) {
+    if (ok) dirty.current = url;
+    if (inFlight.current === 0 && dirty.current !== null) {
       if (alive.current) notify.call();
-      else { dirty.current = false; spec.onChanged?.(); } // unmounted while this was in flight: nobody will debounce, tell now
+      else { const changed = dirty.current; dirty.current = null; spec.onChanged?.(changed); } // unmounted while this was in flight: nobody will debounce, tell now
     }
     if (inFlight.current === 0) {
       await reload();
@@ -80,5 +82,5 @@ export function useOptimisticList<T extends { id: number }, E extends object>(ur
   const remove = useCallback((id: number) =>
     run(spec.remove(rowsRef.current, id), () => fetch(`${spec.endpoint}?id=${id}`, { method: "DELETE" })), [run, spec]);
 
-  return { rows, error, add, patch, remove };
+  return { rows, settled, error, add, patch, remove };
 }

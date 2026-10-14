@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useReducer, useState } from "react";
 import { signIn } from "next-auth/react";
 import { createFreshSet } from "@/lib/freshSet";
+import { planInvalidation } from "@/lib/invalidatePlan";
 
 // Stale-while-revalidate: show the last response for a URL instantly, refresh it in the background.
 const cache = new Map<string, unknown>();
@@ -20,13 +21,17 @@ export function forget(prefix: string) {
 }
 
 // Mounted useApi hooks, so invalidate() can refresh what is on screen instead of only dropping the cache.
-const live = new Set<{ url: string; reload: () => void }>();
+const live = new Set<{ url: string; reload: () => void; bump: () => void }>();
 
-/** The data behind `prefix` changed elsewhere: refetch what is mounted (stale data stays until it lands) and forget the rest. */
-export function invalidate(prefix: string) {
-  const mounted = new Set<string>();
-  for (const l of live) if (l.url.startsWith(prefix)) { mounted.add(l.url); l.reload(); }
-  for (const k of [...cache.keys()]) if (k.startsWith(prefix) && !mounted.has(k)) { cache.delete(k); stale.mark(k); }
+/**
+ * The data behind `prefix` changed elsewhere: refetch what is mounted (stale data stays until it lands) and forget the rest.
+ * Each URL is fetched once however many hooks watch it (a finished load re-renders all of them, see `load`).
+ * `skip`: URLs the caller just refreshed itself, left untouched.
+ */
+export function invalidate(prefix: string, skip: readonly string[] = []) {
+  const { reload, drop } = planInvalidation(prefix, [...live].map((l) => l.url), cache.keys(), skip);
+  for (const u of reload) [...live].find((l) => l.url === u)?.reload();
+  for (const k of drop) { cache.delete(k); stale.mark(k); }
 }
 
 /** Warm the cache (e.g. next month) so navigating there renders without waiting for Google. */
@@ -49,12 +54,13 @@ export function useApi<T>(url: string | null) {
       if (r.ok) { cache.set(u, j); setFailed(null); } else setFailed(u);
     } catch { setFailed(u); }
     bump();
+    for (const l of live) if (l.url === u) l.bump(); // other hooks on the same URL read the cache too: they must re-render
   }, []);
 
   useEffect(() => { if (url) load(url); }, [url, load]);
   useEffect(() => {
     if (!url) return;
-    const entry = { url, reload: () => { void load(url, true); } };
+    const entry = { url, reload: () => { void load(url, true); }, bump };
     live.add(entry);
     return () => { live.delete(entry); };
   }, [url, load]);
