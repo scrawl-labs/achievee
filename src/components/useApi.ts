@@ -10,6 +10,16 @@ export function forget(prefix: string) {
   for (const k of [...cache.keys()]) if (k.startsWith(prefix)) cache.delete(k);
 }
 
+// Mounted useApi hooks, so invalidate() can refresh what is on screen instead of only dropping the cache.
+const live = new Set<{ url: string; reload: () => void }>();
+
+/** The data behind `prefix` changed elsewhere: refetch what is mounted (stale data stays until it lands) and forget the rest. */
+export function invalidate(prefix: string) {
+  const mounted = new Set<string>();
+  for (const l of live) if (l.url.startsWith(prefix)) { mounted.add(l.url); l.reload(); }
+  for (const k of [...cache.keys()]) if (k.startsWith(prefix) && !mounted.has(k)) cache.delete(k);
+}
+
 /** Warm the cache (e.g. next month) so navigating there renders without waiting for Google. */
 export function prefetch(url: string) {
   if (cache.has(url)) return;
@@ -31,6 +41,12 @@ export function useApi<T>(url: string | null) {
   }, []);
 
   useEffect(() => { if (url) load(url); }, [url, load]);
+  useEffect(() => {
+    if (!url) return;
+    const entry = { url, reload: () => { void load(url); } };
+    live.add(entry);
+    return () => { live.delete(entry); };
+  }, [url, load]);
 
   return {
     data: url ? ((cache.get(url) as T | undefined) ?? null) : null,

@@ -6,7 +6,7 @@ import { computeStats } from "@/lib/stats";
 import { addDays, mondayOf } from "@/lib/dates";
 import { periodOf } from "@/lib/period";
 import { browserTz, todayStr } from "@/lib/clientTime";
-import type { Key } from "@/lib/i18n";
+import { type Tab, TABS } from "@/lib/commandBar";
 import CalendarView from "./CalendarView";
 import StatsView from "./StatsView";
 import DiaryView from "./DiaryView";
@@ -15,22 +15,12 @@ import IntegrationsView from "./IntegrationsView";
 import WorkoutView from "./WorkoutView";
 import { DEFAULT_GOALS, type IntakeKind } from "@/lib/intake";
 import GoogleCalView, { type GMode } from "./GoogleCalView";
+import CommandBar from "./CommandBar";
 import Icon from "./Icon";
 import Wordmark from "./Wordmark";
 import Footer from "./Footer";
 import { useI18n } from "./I18n";
 import { prefetch, useApi } from "./useApi";
-
-type Tab = "calendar" | "stats" | "diary" | "expense" | "workout" | "google" | "integrations";
-const TABS: { key: Tab; label: Key; icon: "calendar" | "chart" | "book" | "wallet" | "activity" | "external" | "plug" }[] = [
-  { key: "calendar", label: "nav.calendar", icon: "calendar" },
-  { key: "stats", label: "nav.stats", icon: "chart" },
-  { key: "diary", label: "nav.diary", icon: "book" },
-  { key: "expense", label: "nav.expense", icon: "wallet" },
-  { key: "workout", label: "nav.workout", icon: "activity" },
-  { key: "google", label: "nav.google", icon: "external" },
-  { key: "integrations", label: "nav.integrations", icon: "plug" },
-];
 
 const shiftMonth = (ym: string, n: number) => {
   const [y, m] = ym.split("-").map(Number);
@@ -95,6 +85,11 @@ function Main() {
     : tab === "google" && gmode === "WEEK" ? `${fmt.monthDay(wk)} – ${fmt.monthDay(we)}`
     : fmt.monthYear(ym);
 
+  const go = (next: Tab, date?: string) => {
+    setTab(next);
+    if (date) setSel(date);
+  };
+
   const deleteData = async () => {
     if (!confirm(t("account.deleteConfirm"))) return;
     const r = await fetch("/api/account", { method: "DELETE" });
@@ -121,11 +116,14 @@ function Main() {
       <main className="page">
         <header className="pagehead">
           <h1>{title}</h1>
-          {tab !== "integrations" && <div className="row gap-2">
-            <button className="btn" onClick={() => setSel(todayStr())}>{t("common.today")}</button>
-            <button className="btn icon" onClick={() => shift(-1)} aria-label={t("common.prev")}><Icon name="left" /></button>
-            <button className="btn icon" onClick={() => shift(1)} aria-label={t("common.next")}><Icon name="right" /></button>
-          </div>}
+          <div className="row gap-2">
+            <CommandBar go={go} />
+            {tab !== "integrations" && <>
+              <button className="btn" onClick={() => setSel(todayStr())}>{t("common.today")}</button>
+              <button className="btn icon" onClick={() => shift(-1)} aria-label={t("common.prev")}><Icon name="left" /></button>
+              <button className="btn icon" onClick={() => shift(1)} aria-label={t("common.next")}><Icon name="right" /></button>
+            </>}
+          </div>
         </header>
         <div className="pagebody">
         {error && <p className="error">{t("common.loadFail")}</p>}

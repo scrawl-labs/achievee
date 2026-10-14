@@ -11,10 +11,13 @@ const P: Record<string, React.ReactNode> = {
   plug: <><path d="M9 3v4M15 3v4" /><path d="M6 7h12v4a6 6 0 0 1-12 0z" /><path d="M12 17v4" /></>,
   activity: <path d="M3 12h4l3-8 4 16 3-8h4" />,
   check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
+  search: <><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4.5 4.5" /></>,
   close: <path d="M6 6l12 12M18 6L6 18" />,
 };
 
-export default function Icon({ name, size = 20 }: { name: keyof typeof P; size?: number }) {
+export type IconName = keyof typeof P;
+
+export default function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"
       strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{P[name]}</svg>

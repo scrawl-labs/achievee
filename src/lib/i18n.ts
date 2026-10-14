@@ -47,6 +47,10 @@ const en = {
   "g.day": "Day", "g.week": "Week", "g.month": "Month", "g.agenda": "List", "g.open": "Open in Google Calendar", "g.tasks": "Google Tasks",
   "g.more": "+{n} more", "hour": "{h}:00",
   "goal.today": "Today's goals", "goal.dayOf": "Goals for this day", "goal.week": "This week's goals", "goal.add": "Add goal", "goal.placeholder": "What do you want to get done?", "goal.toggle": "Done: {text}", "goal.edit": "Edit goal: {text}", "goal.softHint": "Fewer goals are easier to finish. Keep as many as you like, though.", "goal.limit": "This period already has the maximum of {n} goals.", "goal.failed": "Couldn't save that. Please try again.", "goal.new": "New goal",
+  "cmd.open": "Search and commands", "cmd.dialog": "Command bar", "cmd.list": "Results", "cmd.placeholder": "Search or jump to… ({key})",
+  "cmd.goToday": "Go to today", "cmd.goDate": "Go to {date}", "cmd.addDay": "Add today's goal: {text}", "cmd.addWeek": "Add this week's goal: {text}",
+  "cmd.searching": "Searching…", "cmd.none": "No results", "cmd.searchFail": "Search isn't available right now.", "cmd.addFail": "Couldn't add the goal. Try again.",
+  "cmd.recent": "Searching mostly recent entries.", "cmd.t.goal": "Goal", "cmd.t.weekGoal": "Weekly goal", "cmd.t.diary": "Diary", "cmd.t.expense": "Spending", "cmd.t.income": "Income", "cmd.t.saving": "Savings", "cmd.t.workout": "Exercise",
 } as const;
 
 type BaseKey = keyof typeof en;
@@ -82,6 +86,10 @@ const ko: BaseDict = {
   "g.day": "일", "g.week": "주", "g.month": "월", "g.agenda": "목록", "g.open": "Google Calendar에서 보기", "g.tasks": "Google Tasks",
   "g.more": "+{n}개", "hour": "{h}시",
   "goal.today": "오늘 목표", "goal.dayOf": "이 날의 목표", "goal.week": "이번 주 목표", "goal.add": "목표 추가", "goal.placeholder": "무엇을 하고 싶나요?", "goal.toggle": "완료: {text}", "goal.edit": "목표 수정: {text}", "goal.softHint": "목표가 적을수록 끝내기 쉬워요. 그래도 원하는 만큼 둘 수 있어요.", "goal.limit": "이 기간에는 목표를 최대 {n}개까지 둘 수 있어요.", "goal.failed": "저장하지 못했어요. 다시 시도해 주세요.", "goal.new": "새 목표",
+  "cmd.open": "검색 및 명령", "cmd.dialog": "커맨드 바", "cmd.list": "결과", "cmd.placeholder": "검색하거나 이동… ({key})",
+  "cmd.goToday": "오늘로 이동", "cmd.goDate": "{date}로 이동", "cmd.addDay": "오늘 목표 추가: {text}", "cmd.addWeek": "이번 주 목표 추가: {text}",
+  "cmd.searching": "검색 중…", "cmd.none": "결과가 없어요", "cmd.searchFail": "지금은 검색할 수 없어요.", "cmd.addFail": "목표를 추가하지 못했어요. 다시 시도해 주세요.",
+  "cmd.recent": "최근 기록 위주로 검색해요.", "cmd.t.goal": "목표", "cmd.t.weekGoal": "주간 목표", "cmd.t.diary": "일기", "cmd.t.expense": "지출", "cmd.t.income": "수입", "cmd.t.saving": "저축", "cmd.t.workout": "운동",
 };
 
 const ja: BaseDict = {
@@ -112,6 +120,10 @@ const ja: BaseDict = {
   "g.day": "日", "g.week": "週", "g.month": "月", "g.agenda": "リスト", "g.open": "Google Calendar で開く", "g.tasks": "Google Tasks",
   "g.more": "+{n}件", "hour": "{h}時",
   "goal.today": "今日の目標", "goal.dayOf": "この日の目標", "goal.week": "今週の目標", "goal.add": "目標を追加", "goal.placeholder": "何をしたいですか？", "goal.toggle": "完了: {text}", "goal.edit": "目標を編集: {text}", "goal.softHint": "目標は少ないほうが達成しやすいです。もちろん好きなだけ置けます。", "goal.limit": "この期間の目標は最大 {n} 件までです。", "goal.failed": "保存できませんでした。もう一度お試しください。", "goal.new": "新しい目標",
+  "cmd.open": "検索とコマンド", "cmd.dialog": "コマンドバー", "cmd.list": "結果", "cmd.placeholder": "検索または移動… ({key})",
+  "cmd.goToday": "今日へ移動", "cmd.goDate": "{date}へ移動", "cmd.addDay": "今日の目標を追加: {text}", "cmd.addWeek": "今週の目標を追加: {text}",
+  "cmd.searching": "検索中…", "cmd.none": "結果がありません", "cmd.searchFail": "今は検索できません。", "cmd.addFail": "目標を追加できませんでした。もう一度お試しください。",
+  "cmd.recent": "最近の記録を中心に検索します。", "cmd.t.goal": "目標", "cmd.t.weekGoal": "週間目標", "cmd.t.diary": "日記", "cmd.t.expense": "支出", "cmd.t.income": "収入", "cmd.t.saving": "貯蓄", "cmd.t.workout": "運動",
 };
 
 const es: BaseDict = {
@@ -142,6 +154,10 @@ const es: BaseDict = {
   "g.day": "Día", "g.week": "Semana", "g.month": "Mes", "g.agenda": "Lista", "g.open": "Abrir en Google Calendar", "g.tasks": "Google Tasks",
   "g.more": "+{n} más", "hour": "{h}:00",
   "goal.today": "Objetivos de hoy", "goal.dayOf": "Objetivos de este día", "goal.week": "Objetivos de esta semana", "goal.add": "Añadir objetivo", "goal.placeholder": "¿Qué quieres lograr?", "goal.toggle": "Hecho: {text}", "goal.edit": "Editar objetivo: {text}", "goal.softHint": "Con menos objetivos es más fácil terminarlos. Pero puedes tener los que quieras.", "goal.limit": "Este periodo ya tiene el máximo de {n} objetivos.", "goal.failed": "No se pudo guardar. Inténtalo de nuevo.", "goal.new": "Nuevo objetivo",
+  "cmd.open": "Buscar y comandos", "cmd.dialog": "Barra de comandos", "cmd.list": "Resultados", "cmd.placeholder": "Buscar o ir a… ({key})",
+  "cmd.goToday": "Ir a hoy", "cmd.goDate": "Ir al {date}", "cmd.addDay": "Añadir objetivo de hoy: {text}", "cmd.addWeek": "Añadir objetivo de la semana: {text}",
+  "cmd.searching": "Buscando…", "cmd.none": "Sin resultados", "cmd.searchFail": "La búsqueda no está disponible ahora.", "cmd.addFail": "No se pudo añadir el objetivo. Inténtalo de nuevo.",
+  "cmd.recent": "Se buscan sobre todo los registros recientes.", "cmd.t.goal": "Objetivo", "cmd.t.weekGoal": "Objetivo semanal", "cmd.t.diary": "Diario", "cmd.t.expense": "Gasto", "cmd.t.income": "Ingreso", "cmd.t.saving": "Ahorro", "cmd.t.workout": "Ejercicio",
 };
 
 export const DICT: Record<Locale, Dict> = {

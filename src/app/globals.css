@@ -861,3 +861,22 @@ button.note.open { display: block; -webkit-line-clamp: unset; overflow: visible;
 .goal-input { height: 32px; flex: 1; min-width: 0; }
 .goal-add { align-self: flex-start; height: 28px; padding: 0 var(--s3); font-size: 13px; gap: var(--s1); }
 .goal-msg { color: var(--sun); }
+
+/* Command bar (⌘K) ---------------------------------------------------- */
+.cmd-overlay { position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-start; justify-content: center; padding: 14vh var(--s4) var(--s4); background: color-mix(in oklab, var(--bg) 70%, transparent); backdrop-filter: blur(4px); }
+.cmd { width: min(560px, 100%); max-height: min(70dvh, 520px); display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); box-shadow: 0 16px 48px rgba(0, 0, 0, .35); overflow: hidden; }
+.cmd-input { height: 52px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; padding: 0 var(--s4); font-size: 16px; }
+.cmd-list { list-style: none; margin: 0; padding: var(--s2); overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 2px; }
+.cmd-list:empty { display: none; }
+.cmd-item { display: flex; align-items: center; gap: var(--s3); min-height: 40px; padding: var(--s2) var(--s3); border-radius: var(--r-s); color: var(--fg-2); cursor: pointer; }
+.cmd-item.on { background: var(--surface-2); color: var(--fg); }
+.cmd-item svg { flex: none; }
+.cmd-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cmd-hint { flex: none; color: var(--fg-3); font-size: 12px; }
+.cmd-note { margin: 0; padding: var(--s3) var(--s4); color: var(--fg-3); font-size: 13px; }
+@media (max-width: 860px) {
+  .cmd-overlay { padding-top: var(--s5); }
+  .cmd { max-height: 72dvh; }
+  .cmd-hint { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) { .cmd { animation: cmd-in .12s ease-out; } @keyframes cmd-in { from { opacity: 0; transform: translateY(-6px); } } }

@@ -28,6 +28,10 @@ export const ZH = {
   "g.day": "日", "g.week": "週", "g.month": "月", "g.agenda": "列表", "g.open": "在 Google Calendar 開啟", "g.tasks": "Google Tasks",
   "g.more": "+{n} 項", "hour": "{h}:00",
   "goal.today": "今日目標", "goal.dayOf": "這一天的目標", "goal.week": "本週目標", "goal.add": "新增目標", "goal.placeholder": "你想完成什麼？", "goal.toggle": "完成：{text}", "goal.edit": "編輯目標：{text}", "goal.softHint": "目標越少越容易完成，不過想放多少都可以。", "goal.limit": "這段期間最多只能有 {n} 個目標。", "goal.failed": "無法儲存，請再試一次。", "goal.new": "新目標",
+  "cmd.open": "搜尋與指令", "cmd.dialog": "指令列", "cmd.list": "結果", "cmd.placeholder": "搜尋或前往… ({key})",
+  "cmd.goToday": "前往今天", "cmd.goDate": "前往 {date}", "cmd.addDay": "新增今日目標：{text}", "cmd.addWeek": "新增本週目標：{text}",
+  "cmd.searching": "搜尋中…", "cmd.none": "沒有結果", "cmd.searchFail": "目前無法搜尋。", "cmd.addFail": "無法新增目標，請再試一次。",
+  "cmd.recent": "主要搜尋最近的紀錄。", "cmd.t.goal": "目標", "cmd.t.weekGoal": "每週目標", "cmd.t.diary": "日記", "cmd.t.expense": "支出", "cmd.t.income": "收入", "cmd.t.saving": "儲蓄", "cmd.t.workout": "運動",
 } as const;
 
 export const ZH_LAND = {
