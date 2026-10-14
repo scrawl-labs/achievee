@@ -921,3 +921,6 @@ button.ev { text-align: left; cursor: pointer; font: inherit; color: inherit; }
 .composer-actions .grow { flex: 1; }
 .composer-actions .btn { height: 30px; padding: 0 var(--s3); font-size: 13px; }
 .tl-hint { display: block; padding: var(--s2) var(--s3); border-top: 1px solid var(--line); }
+
+/* weekly review: space between the week goals and the sections around them */
+.wk-goals { margin-bottom: var(--s5); }

@@ -131,7 +131,7 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
         <section className="wk-emo"><h3>{t("nav.workout")}</h3><small className="muted">{t("wo.weekLine", { n: woWeek.sessions, time: woTime })}</small></section>
       )}
 
-      <section className="panel"><GoalList key={week} scope="week" periodStart={week} label={t("goal.week")} /></section>
+      <section className="panel wk-goals"><GoalList key={week} scope="week" periodStart={week} label={t("goal.week")} /></section>
 
       <SpendReview week={week} />
 
