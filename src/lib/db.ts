@@ -48,6 +48,10 @@ async function sql() {
       id SERIAL PRIMARY KEY, "user" TEXT NOT NULL, date TEXT NOT NULL, text TEXT NOT NULL, done BOOLEAN NOT NULL DEFAULT FALSE,
       position INTEGER NOT NULL DEFAULT 0, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`,
     s`CREATE INDEX IF NOT EXISTS todo_user_date ON todo ("user", date)`,
+    s`CREATE TABLE IF NOT EXISTS native_event (
+      id SERIAL PRIMARY KEY, "user" TEXT NOT NULL, date TEXT NOT NULL, start_min INTEGER NOT NULL, end_min INTEGER NOT NULL,
+      title TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`,
+    s`CREATE INDEX IF NOT EXISTS native_event_user_date ON native_event ("user", date)`,
     s`CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`,
     s`CREATE TABLE IF NOT EXISTS accounts (
       provider TEXT NOT NULL, provider_account_id TEXT NOT NULL, user_id TEXT NOT NULL, PRIMARY KEY (provider, provider_account_id))`,
@@ -92,7 +96,7 @@ export async function deleteUserData(user: string) {
   const s = await sql();
   await s.transaction([
     s`DELETE FROM diary WHERE "user"=${user}`, s`DELETE FROM expense WHERE "user"=${user}`,
-    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM saving WHERE "user"=${user}`, s`DELETE FROM workout WHERE "user"=${user}`, s`DELETE FROM body WHERE "user"=${user}`, s`DELETE FROM intake WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`, s`DELETE FROM goal WHERE "user"=${user}`, s`DELETE FROM todo WHERE "user"=${user}`, s`DELETE FROM integration WHERE "user"=${user}`,
+    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM saving WHERE "user"=${user}`, s`DELETE FROM workout WHERE "user"=${user}`, s`DELETE FROM body WHERE "user"=${user}`, s`DELETE FROM intake WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`, s`DELETE FROM goal WHERE "user"=${user}`, s`DELETE FROM todo WHERE "user"=${user}`, s`DELETE FROM native_event WHERE "user"=${user}`, s`DELETE FROM integration WHERE "user"=${user}`,
     s`DELETE FROM accounts WHERE user_id=${user}`, s`DELETE FROM users WHERE id=${user}`,
   ]);
 }
@@ -157,6 +161,7 @@ import type { WorkoutRow } from "./workout";
 import type { BodyRow, BodyValues } from "./body";
 import type { IntakeRow, IntakeKind } from "./intake";
 import { TODO_HARD_LIMIT, type TodoCountRow, type TodoCreate, type TodoPatch, type TodoRow } from "./todos";
+import { NATIVE_EVENT_HARD_LIMIT, type NativeEventCreate, type NativeEventPatch, type NativeEventRow } from "./nativeEvents";
 import { GOAL_HARD_LIMIT, type GoalCreate, type GoalPatch, type GoalRow, type GoalScope } from "./goals";
 export type SavingRow = { id: number; date: string; kind: "saving" | "invest"; memo: string; amount: number };
 
@@ -445,6 +450,52 @@ export const todos = {
   async remove(user: string, id: number): Promise<boolean> {
     const s = await sql();
     const rows = (await s`DELETE FROM todo WHERE id=${id} AND "user"=${user} RETURNING id`) as { id: number }[];
+    return rows.length > 0;
+  },
+};
+
+type NativeDb = { id: number; date: string; start_min: number; end_min: number; title: string };
+const toNative = (r: NativeDb): NativeEventRow => ({ id: r.id, date: r.date, startMin: r.start_min, endMin: r.end_min, title: decrypt(r.title) });
+
+/** Own calendar events (created in Achievee, shown beside the Google ones). The title is encrypted at rest. */
+export const nativeEvents = {
+  /** [from, to): `to` exclusive, like /api/events. */
+  async range(user: string, from: string, to: string): Promise<NativeEventRow[]> {
+    const s = await sql();
+    const rows = (await s`SELECT id, date, start_min, end_min, title FROM native_event
+      WHERE "user"=${user} AND date >= ${from} AND date < ${to} ORDER BY date, start_min, id`) as NativeDb[];
+    return rows.map(toNative);
+  },
+  /** One month, for the day panel's event count and list. */
+  async month(user: string, ym: string): Promise<NativeEventRow[]> {
+    const s = await sql(), [a, b] = bounds(ym);
+    const rows = (await s`SELECT id, date, start_min, end_min, title FROM native_event
+      WHERE "user"=${user} AND date BETWEEN ${a} AND ${b} ORDER BY date, start_min, id`) as NativeDb[];
+    return rows.map(toNative);
+  },
+  /** Returns null when the per-day hard limit is already reached (a loose abuse guard, like todos). */
+  async add(user: string, e: NativeEventCreate): Promise<NativeEventRow | null> {
+    const s = await sql();
+    const rows = (await s`INSERT INTO native_event ("user", date, start_min, end_min, title)
+      SELECT ${user}::text, ${e.date}::text, ${e.startMin}::int, ${e.endMin}::int, ${encrypt(e.title)}::text
+      FROM native_event WHERE "user"=${user} AND date=${e.date}
+      HAVING COUNT(*) < ${NATIVE_EVENT_HARD_LIMIT}::int
+      RETURNING id, date, start_min, end_min, title`) as NativeDb[];
+    return rows[0] ? toNative(rows[0]) : null;
+  },
+  /** Partial update; null when there is no such event for this user. */
+  async update(user: string, p: NativeEventPatch): Promise<NativeEventRow | null> {
+    const s = await sql();
+    const title = p.title === undefined ? null : encrypt(p.title);
+    const rows = (await s`UPDATE native_event SET title=COALESCE(${title}::text, title), date=COALESCE(${p.date ?? null}::text, date),
+      start_min=COALESCE(${p.startMin ?? null}::int, start_min), end_min=COALESCE(${p.endMin ?? null}::int, end_min)
+      WHERE id=${p.id} AND "user"=${user}
+      RETURNING id, date, start_min, end_min, title`) as NativeDb[];
+    return rows[0] ? toNative(rows[0]) : null;
+  },
+  async remove(user: string, id: number): Promise<boolean> {
+    const s = await sql();
+    const rows = (await s`DELETE FROM native_event WHERE id=${id} AND "user"=${user} RETURNING id`) as { id: number }[];
     return rows.length > 0;
   },
 };

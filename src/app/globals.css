@@ -908,3 +908,16 @@ button.tkc:focus-visible, .tk-more:focus-visible { outline: 2px solid var(--acce
 .agenda .tkc { padding: var(--s3) var(--s4); border-radius: var(--r-m); font-size: 14px; font-weight: 400; }
 .agenda .tkc .check { width: 18px; height: 18px; }
 .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* drag-to-create on the hour grid */
+.evwrap { display: contents; }
+button.ev { text-align: left; cursor: pointer; font: inherit; color: inherit; }
+.tl-col.creatable { cursor: crosshair; }
+.tl-col.dragging { user-select: none; cursor: ns-resize; }
+.ev.draft { left: 1px; right: 2px; border-left-style: dashed; --ev: var(--accent); background: color-mix(in oklab, var(--accent) 28%, var(--surface)); pointer-events: none; z-index: 4; }
+.composer { position: absolute; z-index: 8; width: 232px; max-width: 92vw; display: flex; flex-direction: column; gap: var(--s2); padding: var(--s3); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-m); box-shadow: 0 12px 32px rgba(0, 0, 0, .35); cursor: default; }
+.composer input { height: 36px; }
+.composer-actions { display: flex; align-items: center; gap: var(--s2); }
+.composer-actions .grow { flex: 1; }
+.composer-actions .btn { height: 30px; padding: 0 var(--s3); font-size: 13px; }
+.tl-hint { display: block; padding: var(--s2) var(--s3); border-top: 1px solid var(--line); }

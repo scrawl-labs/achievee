@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DayData } from "@/lib/types";
 
-const { getUser, resolveGoogleAccess, fetchMonth, monthCounts } = vi.hoisted(() => ({
-  getUser: vi.fn(), resolveGoogleAccess: vi.fn(), fetchMonth: vi.fn(), monthCounts: vi.fn(),
+const { getUser, resolveGoogleAccess, fetchMonth, monthCounts, nativeMonth } = vi.hoisted(() => ({
+  getUser: vi.fn(), resolveGoogleAccess: vi.fn(), fetchMonth: vi.fn(), monthCounts: vi.fn(), nativeMonth: vi.fn(),
 }));
 vi.mock("@/lib/auth", () => ({ getUser }));
 vi.mock("@/lib/googleToken", async (orig) => ({ ...(await orig<typeof import("@/lib/googleToken")>()), resolveGoogleAccess }));
 vi.mock("@/lib/google", async (orig) => ({ ...(await orig<typeof import("@/lib/google")>()), fetchMonth }));
-vi.mock("@/lib/db", () => ({ todos: { monthCounts } }));
+vi.mock("@/lib/db", () => ({ todos: { monthCounts }, nativeEvents: { month: nativeMonth } }));
 
 import { GET } from "@/app/api/month/route";
 
@@ -24,6 +24,7 @@ beforeEach(() => {
     "2026-10-05": day("2026-10-05"),
   });
   monthCounts.mockResolvedValue(todoRows);
+  nativeMonth.mockResolvedValue([]);
 });
 
 describe("GET /api/month with own todos", () => {
@@ -67,5 +68,35 @@ describe("GET /api/month with own todos", () => {
   it("a Google failure is still a 502 and does not hide behind the todo path", async () => {
     fetchMonth.mockRejectedValue(new Error("Google API 500"));
     expect((await call()).status).toBe(502);
+  });
+});
+
+describe("GET /api/month with own calendar events", () => {
+  const rows = [{ id: 1, date: "2026-10-05", startMin: 600, endMin: 660, title: "own standup" }];
+  it("adds them to the day event count and list, in time order", async () => {
+    fetchMonth.mockResolvedValue({ "2026-10-05": day("2026-10-05", { events: 1, eventList: [{ title: "g", time: "14:00" }] }) });
+    nativeMonth.mockResolvedValue(rows);
+    const res = await call();
+    expect(res.headers.get("Cache-Control")).toBe("private, max-age=30, stale-while-revalidate=300");
+    const body = await res.json();
+    expect(body.days["2026-10-05"]).toMatchObject({ events: 2, eventList: [{ title: "own standup", time: "10:00" }, { title: "g", time: "14:00" }] });
+    expect(nativeMonth).toHaveBeenCalledWith("me", "2026-10");
+  });
+  it("still adds them when Google is none/revoked", async () => {
+    resolveGoogleAccess.mockResolvedValue({ status: "none" });
+    nativeMonth.mockResolvedValue(rows);
+    const body = await (await call()).json();
+    expect(body.google).toBe("none");
+    expect(body.days["2026-10-05"]).toMatchObject({ events: 1, eventList: [{ title: "own standup", time: "10:00" }] });
+  });
+  it("a failing own-events query degrades to the Google data, uncached, with a fixed warning", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    nativeMonth.mockRejectedValue(new Error("secret title leaked in message"));
+    const res = await call();
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Cache-Control")).toBe("private, no-store");
+    expect(warn).toHaveBeenCalledWith("month: own events unavailable, showing Google data only");
+    expect(JSON.stringify(warn.mock.calls)).not.toContain("secret");
+    warn.mockRestore();
   });
 });

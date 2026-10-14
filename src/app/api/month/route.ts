@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { getUser } from "@/lib/auth";
 import { emptyMonthDays, fetchMonth } from "@/lib/google";
 import { resolveGoogleAccess } from "@/lib/googleToken";
-import { todos } from "@/lib/db";
+import { nativeEvents, todos } from "@/lib/db";
+import { mergeNativeIntoMonth, type NativeEventRow } from "@/lib/nativeEvents";
 import { mergeTodoCounts, type TodoCountRow } from "@/lib/todos";
 import { bad, privateCache, unauthorized } from "@/lib/api";
 import { safeTz } from "@/lib/tz";
@@ -22,6 +23,14 @@ async function ownTodoCounts(user: string, ym: string): Promise<{ counts: readon
   }
 }
 
+/** Same overlay rule as the own todos: a failed read never takes the month down. */
+async function ownEventRows(user: string, ym: string): Promise<{ rows: readonly NativeEventRow[]; ok: boolean }> {
+  try { return { rows: await nativeEvents.month(user, ym), ok: true }; } catch {
+    console.warn("month: own events unavailable, showing Google data only");
+    return { rows: [], ok: false };
+  }
+}
+
 export async function GET(req: Request) {
   const p = new URL(req.url).searchParams;
   const ym = p.get("ym") ?? "";
@@ -29,16 +38,18 @@ export async function GET(req: Request) {
   const u = await getUser();
   if (!u) return unauthorized();
   const own = ownTodoCounts(u.id, ym); // started now so it runs alongside the Google calls; never rejects
+  const ownEv = ownEventRows(u.id, ym);
   try {
     const access = await resolveGoogleAccess(u);
     if (access.status !== "ok") {
-      const days = mergeTodoCounts(emptyMonthDays(ym), (await own).counts);
+      const days = mergeNativeIntoMonth(mergeTodoCounts(emptyMonthDays(ym), (await own).counts), (await ownEv).rows);
       return NextResponse.json({ ym, days, google: access.status } satisfies MonthData, { headers: noStore });
     }
     const google = await fetchMonth(ym, access.accessToken, safeTz(p.get("tz")));
     const { counts, ok } = await own;
-    // An answer built without the own todos is incomplete: never let the browser cache it.
-    return NextResponse.json({ ym, days: mergeTodoCounts(google, counts) } satisfies MonthData, { headers: ok ? privateCache : noStore });
+    const ev = await ownEv;
+    // An answer built without the own todos or events is incomplete: never let the browser cache it.
+    return NextResponse.json({ ym, days: mergeNativeIntoMonth(mergeTodoCounts(google, counts), ev.rows) } satisfies MonthData, { headers: ok && ev.ok ? privateCache : noStore });
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 502 });
   }
