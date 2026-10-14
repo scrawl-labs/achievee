@@ -101,6 +101,8 @@ button.cell:hover .blob { transform: scale(1.14) rotate(-6deg); }
 
 .detail { border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); padding: var(--s5); display: flex; flex-direction: column; gap: var(--s4); position: sticky; top: var(--s6); }
 .detail h2 small { margin-left: 6px; }
+.big { font-size: 44px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
+.big span { font-size: 20px; color: var(--fg-3); font-weight: 600; }
 .meter { height: 6px; border-radius: 9px; background: var(--surface-2); overflow: hidden; } .meter i { display: block; height: 100%; background: var(--accent); border-radius: 9px; }
 .events { list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--s2); }
 .check { flex: none; width: 18px; height: 18px; border-radius: 99px; border: 2px solid var(--line); }
@@ -162,7 +164,7 @@ button.item:hover, button.item.on { border-color: var(--accent); }
   .cal-grid { gap: 2px; padding: 2px; }
   .cal-head span { text-align: center; padding: var(--s2) 0; }
   .two, .two.wide-left { grid-template-columns: 1fr; }
-  .detail { padding: var(--s4); }
+  .detail { padding: var(--s4); } .big { font-size: 36px; }
   .panel { padding: var(--s4); }
 }
 
@@ -889,9 +891,6 @@ button.note.open { display: block; -webkit-line-clamp: unset; overflow: visible;
    and as chips in the schedule views. .tk-src is deliberately not related to the calendar cells' count stamps (.stamp / .blob). */
 .tk-src { flex: none; font-size: 11px; font-weight: 700; line-height: 1.4; padding: 0 var(--s2); border-radius: 99px; border: 1px solid var(--line); background: var(--surface-2); color: var(--fg-2); white-space: nowrap; }
 /* strike the title only, not the pill */
-.goals-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s3); }
-.goal-count { font-size: 13px; font-weight: 600; color: var(--fg-2); font-variant-numeric: tabular-nums; }
-.goals .meter { margin: var(--s1) 0; }
 .goal input[type="checkbox"]:disabled { cursor: default; }
 .goal-text.ro { cursor: default; padding: 4px 0; }
 .goal .tk-src { margin-left: var(--s1); }
