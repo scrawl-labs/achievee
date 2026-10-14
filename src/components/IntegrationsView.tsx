@@ -5,17 +5,19 @@ import type { Key } from "@/lib/i18n";
 import { addDays } from "@/lib/dates";
 import { browserTz, todayStr } from "@/lib/clientTime";
 import { useI18n } from "./I18n";
-import Icon from "./Icon";
 import { forget, useApi } from "./useApi";
+import GoogleConnectCard from "./GoogleConnectCard";
+import { googleStatusOf, type GoogleReturn } from "@/lib/googleStatus";
 import { GithubMark, JiraMark, NotionMark } from "./WorkList";
 
-type Connected = { provider: Provider; label: string }[];
+// GET /api/integrations also carries a { provider: "google", status } entry; only tool entries have a label.
+type Connected = ({ provider: Provider; label: string } | { provider: "google"; status: string })[];
 const GITHUB_TOKEN_URL = "https://github.com/settings/personal-access-tokens/new";
 const JIRA_TOKEN_URL = "https://id.atlassian.com/manage-profile/security/api-tokens";
 const NOTION_TOKEN_URL = "https://www.notion.so/profile/integrations";
 
-/** Browse and connect tools. Google Calendar / Tasks are the base of the app (always on, read-only); work tools are optional and use personal tokens. */
-export default function IntegrationsView() {
+/** Browse and connect tools. Google Calendar / Tasks connect through Google's consent screen (read-only, optional); work tools are optional and use personal tokens. */
+export default function IntegrationsView({ googleReturn = null }: { googleReturn?: GoogleReturn | null }) {
   const { t } = useI18n();
   const { data, reload } = useApi<Connected>("/api/integrations");
   const [busy, setBusy] = useState<Provider | null>(null);
@@ -24,8 +26,8 @@ export default function IntegrationsView() {
   const [f, setF] = useState({ ghToken: "", site: "", email: "", jiraToken: "", slackToken: "", notionToken: "" });
   const today = todayStr();
   const work = useApi<{ items: WorkItem[]; errors: string[]; connected: string[] }>(
-    data && data.length > 0 ? `/api/work?from=${addDays(today, -29)}&to=${addDays(today, 1)}&tz=${encodeURIComponent(browserTz())}` : null).data;
-  const by = (p: Provider) => (data ?? []).find((c) => c.provider === p);
+    data && data.some((c) => c.provider !== "google") ? `/api/work?from=${addDays(today, -29)}&to=${addDays(today, 1)}&tz=${encodeURIComponent(browserTz())}` : null).data;
+  const by = (p: Provider) => (data ?? []).find((c): c is { provider: Provider; label: string } => c.provider === p);
 
   const connect = async (provider: Provider, body: Record<string, string>) => {
     setBusy(provider); setError(null);
@@ -40,14 +42,6 @@ export default function IntegrationsView() {
   const disconnect = async (provider: Provider) => { await fetch(`/api/integrations?provider=${provider}`, { method: "DELETE" }); forget("/api/work"); reload(); };
 
   const tile = (icon: React.ReactNode) => <span className="inttile">{icon}</span>;
-
-  const base = (icon: React.ReactNode, name: string, desc: Key) => (
-    <div className="intcard" key={name}>
-      {tile(icon)}
-      <div className="intbody"><b>{name}</b><small className="muted">{t(desc)}</small></div>
-      <span className="tag ok">{t("int.baseTag")}</span>
-    </div>
-  );
 
   const tool = (provider: Provider, icon: React.ReactNode, name: string, desc: Key, link: string, form: React.ReactNode, submit: () => void, ready: boolean) => {
     const c = by(provider);
@@ -100,10 +94,9 @@ export default function IntegrationsView() {
     <div className="integrations">
       <p className="muted">{t("int.intro")}</p>
 
-      <h3 className="intsec">{t("int.secBase")}</h3>
+      <h3 className="intsec">{t("gc.sec")}</h3>
       <div className="intgrid">
-        {base(<Icon name="calendar" />, "Google Calendar", "int.gcalDesc")}
-        {base(<Icon name="check" />, "Google Tasks", "int.gtasksDesc")}
+        <GoogleConnectCard status={googleStatusOf(data)} notice={googleReturn} />
       </div>
 
       <h3 className="intsec">{t("int.secDev")}</h3>

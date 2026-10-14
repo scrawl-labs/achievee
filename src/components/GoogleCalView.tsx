@@ -7,6 +7,8 @@ import AgendaView from "./AgendaView";
 import type { TaskItem } from "@/lib/types";
 import type { Key } from "@/lib/i18n";
 import { useI18n } from "./I18n";
+import GoogleEmpty from "./GoogleEmpty";
+import { useGoogleStatus } from "./useGoogleStatus";
 
 export const GMODES: readonly (readonly [string, Key])[] = [["DAY", "g.day"], ["WEEK", "g.week"], ["MONTH", "g.month"], ["AGENDA", "g.agenda"]];
 export type GMode = "DAY" | "WEEK" | "MONTH" | "AGENDA";
@@ -16,6 +18,8 @@ export default function GoogleCalView({ sel, setSel, mode, setMode, tasks }: {
   sel: string; setSel: (d: string) => void; mode: GMode; setMode: (m: GMode) => void; tasks: TaskItem[];
 }) {
   const { t } = useI18n();
+  const { status } = useGoogleStatus();
+  if (status === "none" || status === "revoked") return <GoogleEmpty status={status} />; // unknown (loading) falls through, so a connected user sees no flash
   const pick = (d: string) => { setSel(d); setMode("DAY"); };
   return (
     <>

@@ -21,6 +21,7 @@ import Wordmark from "./Wordmark";
 import Footer from "./Footer";
 import { useI18n } from "./I18n";
 import { prefetch, useApi } from "./useApi";
+import { useGoogleReturn } from "./useGoogleReturn";
 
 const shiftMonth = (ym: string, n: number) => {
   const [y, m] = ym.split("-").map(Number);
@@ -39,7 +40,8 @@ export default function App() {
 function Main() {
   const { t, fmt } = useI18n();
   const { data: session } = useSession();
-  const [tab, setTab] = useState<Tab>("calendar");
+  const gret = useGoogleReturn(); // ?tab=integrations&google=... after Google's consent screen
+  const [tab, setTab] = useState<Tab>(gret.tab ?? "calendar");
   const [sel, setSel] = useState(todayStr());
   const [gmode, setGmode] = useState<GMode>("DAY");
   const ym = sel.slice(0, 7);
@@ -84,6 +86,8 @@ function Main() {
     : tab === "google" && gmode === "DAY" ? fmt.full(sel)
     : tab === "google" && gmode === "WEEK" ? `${fmt.monthDay(wk)} – ${fmt.monthDay(we)}`
     : fmt.monthYear(ym);
+
+  useEffect(() => { if (tab !== "integrations") gret.dismiss(); }, [tab, gret.dismiss]); // the message is shown once, then it is gone
 
   const go = (next: Tab, date?: string) => {
     setTab(next);
@@ -131,7 +135,7 @@ function Main() {
         {tab === "stats" && <StatsView stats={stats} month={month} />}
         {tab === "diary" && <DiaryView ym={ym} sel={sel} setSel={setSel} />}
         {tab === "google" && <GoogleCalView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} tasks={month?.ym === ym ? month.days[sel]?.tasks ?? [] : []} />}
-        {tab === "integrations" && <IntegrationsView />}
+        {tab === "integrations" && <IntegrationsView googleReturn={gret.result} />}
         {tab === "workout" && <WorkoutView sel={sel} setSel={setSel} goal={workoutGoal} onGoal={changeGoal} intakeGoals={intakeGoals} onIntakeGoal={changeIntakeGoal} />}
         {tab === "expense" && <ExpenseView sel={sel} setSel={setSel} startDay={startDay} onStartDay={changeStartDay} />}
         </div>
