@@ -6,16 +6,9 @@ import { getServerSession } from "next-auth";
 import { cookies, headers } from "next/headers";
 import { cache } from "react";
 import { identity } from "./db";
+import { loginScopeParam } from "./googleScopes";
+import { sessionFieldsFromAccount, sessionHasGoogle, settleGoogleSession } from "./googleSession";
 import { MIGRATION_TIMEOUT_MS, migrateGoogleFromJwt, succeedsWithin, warnGoogleStoreFailed } from "./googleMigration";
-
-// Narrowest read-only scopes that authorize the calls we make (see lib/google.ts):
-//   calendarList.list -> calendar.calendarlist.readonly, events.list -> calendar.events.readonly, tasks lists/tasks -> tasks.readonly
-const SCOPES = [
-  "openid", "email", "profile",
-  "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
-  "https://www.googleapis.com/auth/calendar.events.readonly",
-  "https://www.googleapis.com/auth/tasks.readonly",
-].join(" ");
 
 async function refresh(token: JWT): Promise<JWT> {
   try {
@@ -50,7 +43,9 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID ?? "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
-      authorization: { params: { scope: SCOPES, access_type: "offline", prompt: "consent" } },
+      // Sign-in proves identity only. Calendar/Tasks access is requested later by /api/integrations/google/connect, so no
+      // offline access or forced consent screen is needed here.
+      authorization: { params: { scope: loginScopeParam() } },
     }),
   ],
   session: { strategy: "jwt" },
@@ -67,16 +62,9 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, account }) {
       if (account) {
         if (token.sub) await migrateGoogleFromJwt(token.sub, { refreshToken: account.refresh_token, scope: account.scope }, true);
-        return {
-          ...token,
-          accessToken: account.access_token,
-          refreshToken: account.refresh_token,
-          scope: account.scope,
-          expiresAt: (account.expires_at ?? 0) * 1000,
-        };
+        return { ...token, ...sessionFieldsFromAccount(account) };
       }
-      if (Date.now() < ((token.expiresAt as number) ?? 0) - 60_000) return token;
-      return token.refreshToken ? refresh(token) : { ...token, error: "RefreshFailed" };
+      return settleGoogleSession(token, Date.now(), refresh); // login-only sessions have nothing to refresh and never expire on Google's clock
     },
     async session({ session, token }) {
       // The Google access token stays server-side (read via getToken in getUser); the client only learns who is signed in.
@@ -87,7 +75,10 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-/** The signed-in Google user (id = Google account id) with a fresh access token, or null → callers answer 401. */
+/**
+ * The signed-in user (id = Google account id). accessToken is the session's own Calendar/Tasks token, or "" for a
+ * login-only session (nothing to call Google with: callers treat that as "not connected").
+ */
 export async function getUser() {
   const token = await getToken({
     req: {
@@ -95,15 +86,14 @@ export async function getUser() {
       cookies: Object.fromEntries(cookies().getAll().map((c) => [c.name, c.value])),
     } as any,
   });
-  if (!token?.sub || token.error) return null;
-  let t: JWT = token;
-  if (Date.now() >= ((t.expiresAt as number) ?? 0) - 60_000) {
-    if (!t.refreshToken) return null;
-    t = await refresh(t); // persisted into the cookie by the next /api/auth/session call
-    if (t.error) return null;
-  }
-  await migrateGoogleFromJwt(token.sub, { refreshToken: t.refreshToken, scope: t.scope }, false); // never throws
-  return { id: token.sub, accessToken: t.accessToken as string };
+  if (!token?.sub) return null;
+  const t = await settleGoogleSession(token, Date.now(), refresh); // persisted into the cookie by the next /api/auth/session call
+  if (sessionHasGoogle(t)) await migrateGoogleFromJwt(token.sub, { refreshToken: t.refreshToken, scope: t.scope }, false); // never throws
+  return {
+    id: token.sub,
+    email: typeof token.email === "string" ? token.email : undefined,
+    accessToken: sessionHasGoogle(t) ? (t.accessToken as string) : "",
+  };
 }
 
 /** Signed-in session for server components (cached per request); null when logged out or the Google token can no longer be refreshed. */

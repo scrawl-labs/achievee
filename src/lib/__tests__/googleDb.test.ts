@@ -55,7 +55,7 @@ describe("integrations.list", () => {
   it("never selects the google row (it holds the refresh token)", async () => {
     await integrations.list("me").catch(() => undefined); // the fake driver returns the query, not rows
     const q = calls.at(-1)!;
-    expect(q.text).toContain("provider <> 'google'");
+    expect(q.text).toContain("provider NOT IN ('google', 'google_disconnected')");
     expect(q.text).toContain('"user"=?');
     expect(q.params).toEqual(["me"]);
   });

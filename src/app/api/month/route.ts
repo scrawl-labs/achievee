@@ -7,7 +7,7 @@ import { safeTz } from "@/lib/tz";
 import type { MonthData } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
-const noStore = { "Cache-Control": "private, no-store" }; // a revoked answer must not be replayed after the user reconnects
+const noStore = { "Cache-Control": "private, no-store" }; // a revoked/none answer must not be replayed after the user reconnects
 
 export async function GET(req: Request) {
   const p = new URL(req.url).searchParams;
@@ -17,7 +17,7 @@ export async function GET(req: Request) {
   if (!u) return unauthorized();
   try {
     const access = await resolveGoogleAccess(u);
-    if (access.status === "revoked") return NextResponse.json({ ym, days: emptyMonthDays(ym), google: "revoked" } satisfies MonthData, { headers: noStore });
+    if (access.status !== "ok") return NextResponse.json({ ym, days: emptyMonthDays(ym), google: access.status } satisfies MonthData, { headers: noStore });
     const days = await fetchMonth(ym, access.accessToken, safeTz(p.get("tz")));
     return NextResponse.json({ ym, days } satisfies MonthData, { headers: privateCache });
   } catch (e) {

@@ -308,10 +308,10 @@ export const reviews = {
  * it is only ever decrypted on the server and never sent to the browser.
  */
 export const integrations = {
-  /** Work tools only: the google row (refresh token) is excluded on purpose; read it with get() where a token is needed. */
+  /** Work tools only: the google row (refresh token) and the disconnect marker are excluded on purpose; read it with get() where a token is needed. */
   async list(user: string): Promise<{ provider: string; config: Record<string, string> }[]> {
     const s = await sql();
-    const rows = (await s`SELECT provider, config FROM integration WHERE "user"=${user} AND provider <> 'google' ORDER BY provider`) as { provider: string; config: string }[];
+    const rows = (await s`SELECT provider, config FROM integration WHERE "user"=${user} AND provider NOT IN ('google', 'google_disconnected') ORDER BY provider`) as { provider: string; config: string }[];
     return rows.flatMap((r) => { try { return [{ provider: r.provider, config: JSON.parse(decrypt(r.config)) }]; } catch { return []; } });
   },
   /** One provider's config, or null when absent or unreadable. A broken ENCRYPTION_KEY is a deployment problem and still throws. */

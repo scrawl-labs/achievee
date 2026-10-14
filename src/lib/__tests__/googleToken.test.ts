@@ -56,6 +56,23 @@ describe("getGoogleAccessToken", () => {
     expect(await svc.getGoogleAccessToken("me")).toEqual({ status: "ok", accessToken: "AT2" });
   });
 
+  it("invalid_grant during a disconnect (row gone) does not resurrect a revoked row", async () => {
+    const { svc, fetchFn, rows, store } = setup(conn());
+    fetchFn.mockImplementation(async () => { rows.delete("me"); return json(400, { error: "invalid_grant" }); });
+    expect(await svc.getGoogleAccessToken("me")).toEqual({ status: "revoked" });
+    expect(store.save).not.toHaveBeenCalled();
+    expect(rows.has("me")).toBe(false);
+  });
+
+  it("invalid_grant during a reconnect (different token) leaves the new connection alone", async () => {
+    const { svc, fetchFn, rows, store } = setup(conn());
+    fetchFn.mockImplementation(async () => { rows.set("me", conn({ refresh_token: "NEW" })); return json(400, { error: "invalid_grant" }); });
+    await svc.getGoogleAccessToken("me");
+    expect(store.save).not.toHaveBeenCalled();
+    expect(rows.get("me")!.refresh_token).toBe("NEW");
+    expect(rows.get("me")!.status).toBe("connected");
+  });
+
   it("invalid_grant marks the connection revoked and keeps the other fields", async () => {
     const { svc, fetchFn, rows } = setup(conn());
     fetchFn.mockResolvedValue(json(400, { error: "invalid_grant", error_description: "Token has been expired or revoked." }));

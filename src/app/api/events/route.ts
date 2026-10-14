@@ -6,7 +6,7 @@ import { bad, privateCache, unauthorized } from "@/lib/api";
 import { safeTz } from "@/lib/tz";
 
 export const dynamic = "force-dynamic";
-const noStore = { "Cache-Control": "private, no-store" }; // a revoked answer must not be replayed after the user reconnects
+const noStore = { "Cache-Control": "private, no-store" }; // a revoked/none answer must not be replayed after the user reconnects
 const YMD = /^\d{4}-\d{2}-\d{2}$/;
 
 export async function GET(req: Request) {
@@ -17,8 +17,8 @@ export async function GET(req: Request) {
   if (!u) return unauthorized();
   try {
     const access = await resolveGoogleAccess(u);
-    // The body is a bare array, so the revoked flag travels as a header instead of an extra field.
-    if (access.status === "revoked") return NextResponse.json([], { headers: { ...noStore, "X-Google-Status": "revoked" } });
+    // The body is a bare array, so the revoked/none flag travels as a header instead of an extra field.
+    if (access.status !== "ok") return NextResponse.json([], { headers: { ...noStore, "X-Google-Status": access.status } });
     return NextResponse.json(await fetchRange(from, to, access.accessToken, safeTz(p.get("tz"))), { headers: privateCache });
   } catch (e) {
     return NextResponse.json({ error: String(e) }, { status: 502 });

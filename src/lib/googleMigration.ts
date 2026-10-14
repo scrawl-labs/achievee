@@ -30,12 +30,21 @@ export async function succeedsWithin(work: Promise<unknown>, ms: number): Promis
 
 export const MIGRATION_TIMEOUT_MS = 1_500;
 
-/** The single place where a store problem is reported. Fixed text only: the error may carry tokens or user ids. */
+/** The single place where a Google problem is reported. Fixed text only: errors and env values may carry tokens or user ids. */
+const warnGoogle = (text: string): void => console.warn(`[google] ${text}`);
+
 export function warnGoogleStoreFailed(): void {
-  console.warn("[google] could not store the Google connection; the session token is used instead");
+  warnGoogle("could not store the Google connection; the session token is used instead");
 }
 
-export type MigrationDeps = { store: GoogleStore; now: () => number; warn: () => void; timeoutMs?: number };
+export function warnGoogleNotConfigured(): void {
+  warnGoogle("calendar connect is not configured (check NEXTAUTH_URL, NEXTAUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)");
+}
+
+export type MigrationDeps = {
+  store: GoogleStore; now: () => number; warn: () => void; timeoutMs?: number;
+  isDisconnected?: (user: string) => Promise<boolean>; // the user disconnected on purpose: never write the session token back
+};
 export type JwtGoogle = { refreshToken?: unknown; scope?: unknown };
 
 export function createGoogleMigrator(deps: MigrationDeps) {
@@ -45,6 +54,7 @@ export function createGoogleMigrator(deps: MigrationDeps) {
   async function run(user: string, jwt: JwtGoogle, freshLogin: boolean): Promise<void> {
     try {
       const db = await deps.store.get(user);
+      if (!db && deps.isDisconnected && (await deps.isDisconnected(user))) { settled.add(user); return; }
       if (shouldStoreGoogle({ db, refreshToken: jwt.refreshToken, scope: jwt.scope, freshLogin })) {
         await deps.store.save(user, {
           refresh_token: jwt.refreshToken as string, scope: jwt.scope as string,
@@ -70,5 +80,5 @@ export function createGoogleMigrator(deps: MigrationDeps) {
   return { migrate };
 }
 
-const defaults = createGoogleMigrator({ store: dbGoogleStore, now: () => Date.now(), warn: warnGoogleStoreFailed });
+const defaults = createGoogleMigrator({ store: dbGoogleStore, now: () => Date.now(), warn: warnGoogleStoreFailed, isDisconnected: dbGoogleStore.isDisconnected });
 export const migrateGoogleFromJwt = defaults.migrate;

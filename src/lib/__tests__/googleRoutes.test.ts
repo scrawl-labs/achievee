@@ -51,6 +51,22 @@ describe("month / events with the DB token", () => {
     expect(fetchRange).not.toHaveBeenCalled();
   });
 
+  it("none (new user, nothing connected): same skeleton, flag none, Google never called", async () => {
+    resolveGoogleAccess.mockResolvedValue({ status: "none" });
+    const res = await month(new Request("http://x/api/month?ym=2026-10"));
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Cache-Control")).toBe("private, no-store");
+    const body = await res.json();
+    expect(body.google).toBe("none");
+    expect(Object.keys(body.days)).toHaveLength(31);
+    const ev = await events(new Request("http://x/api/events?from=2026-10-01&to=2026-10-08"));
+    expect(await ev.json()).toEqual([]);
+    expect(ev.headers.get("X-Google-Status")).toBe("none");
+    expect(ev.headers.get("Cache-Control")).toBe("private, no-store");
+    expect(fetchMonth).not.toHaveBeenCalled();
+    expect(fetchRange).not.toHaveBeenCalled();
+  });
+
   it("still 401 when signed out", async () => {
     getUser.mockResolvedValue(null);
     expect((await month(new Request("http://x/api/month?ym=2026-10"))).status).toBe(401);

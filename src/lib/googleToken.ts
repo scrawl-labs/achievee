@@ -30,10 +30,24 @@ export function maskGoogleStatus(conn: GoogleConn | null): "connected" | "revoke
   return conn ? conn.status : "none";
 }
 
-export const dbGoogleStore: GoogleStore = {
-  async get(user) { return parseGoogleConn(await integrations.get(user, "google")); },
-  async save(user, conn) { await integrations.save(user, "google", { ...conn }); },
-};
+// A marker row left by an explicit disconnect. Without it a pre-B session (which still holds its own Google tokens) would
+// be read as "connected" again and the lazy migration would write the dead token back.
+const DISCONNECTED = "google_disconnected";
+
+export const dbGoogleStore = {
+  async get(user: string) { return parseGoogleConn(await integrations.get(user, "google")); },
+  /** A stored connection supersedes the disconnect marker. */
+  async save(user: string, conn: GoogleConn) {
+    await integrations.save(user, "google", { ...conn });
+    await integrations.remove(user, DISCONNECTED);
+  },
+  /** Marker first, row second: no moment where neither exists. */
+  async remove(user: string) {
+    await integrations.save(user, DISCONNECTED, { at: new Date().toISOString() });
+    await integrations.remove(user, "google");
+  },
+  async isDisconnected(user: string) { return (await integrations.get(user, DISCONNECTED)) !== null; },
+} satisfies GoogleStore & { remove(user: string): Promise<void>; isDisconnected(user: string): Promise<boolean> };
 
 export type TokenDeps = {
   store: GoogleStore;
@@ -72,13 +86,15 @@ export function createGoogleTokenService(deps: TokenDeps) {
 
   /**
    * Mark revoked, unless a newer token was stored while we were talking to Google.
-   * KNOWN LIMIT: get -> save is not atomic, so a sign-in landing between the two can still be overwritten with "revoked"
-   * (the user then reconnects by signing in again). Closing it needs an optimistic lock, e.g. an UPDATE conditioned on the
+   * KNOWN LIMIT: get -> save is not atomic, so a reconnect landing between the two can still be overwritten with "revoked"
+   * (the user then connects again). Closing it needs an optimistic lock, e.g. an UPDATE conditioned on the
    * refresh token that was read.
    */
   async function markRevoked(user: string, used: GoogleConn) {
     const latest = await deps.store.get(user);
-    if (latest && latest.refresh_token !== used.refresh_token) return;
+    // Row gone (disconnect / account deletion) or replaced (reconnect): the token we used is no longer the connection, so
+    // writing "revoked" would resurrect a deleted row or clobber a fresh grant.
+    if (!latest || latest.refresh_token !== used.refresh_token) return;
     await deps.store.save(user, { ...used, status: "revoked" });
   }
 
@@ -128,7 +144,10 @@ export function createGoogleTokenService(deps: TokenDeps) {
     }
   }
 
-  return { getGoogleAccessToken, revokeGoogleGrant };
+  /** Forget the cached access token (after the stored connection was replaced or removed). */
+  function invalidate(user: string): void { cache.delete(user); }
+
+  return { getGoogleAccessToken, revokeGoogleGrant, invalidate };
 }
 
 const defaults = createGoogleTokenService({
@@ -140,22 +159,39 @@ const defaults = createGoogleTokenService({
 
 export const getGoogleAccessToken = (user: string): Promise<TokenResult> => defaults.getGoogleAccessToken(user);
 export const revokeGoogleGrant = (user: string): Promise<void> => defaults.revokeGoogleGrant(user);
+export const invalidateGoogleToken = (user: string): void => defaults.invalidate(user);
 
-export type GoogleAccess = { status: "ok"; accessToken: string } | { status: "revoked" };
+/** "Disconnect Google Calendar": revoke at Google (best effort), drop the stored connection, forget cached tokens. */
+export async function disconnectGoogle(user: string): Promise<void> {
+  await defaults.revokeGoogleGrant(user); // never throws
+  await dbGoogleStore.remove(user);
+  defaults.invalidate(user);
+}
+
+export type GoogleAccess = { status: "ok"; accessToken: string } | { status: "revoked" } | { status: "none" };
 
 /**
- * Token for reading Google data: the DB token first, the session's own access token when nothing is stored (or the DB
- * lookup/exchange fails transiently), so existing sessions keep working exactly as before.
+ * Token for reading Google data: the DB token first. When nothing is stored (or the lookup fails transiently) a session
+ * that still carries its own calendar token (signed in before login and calendar access were split) keeps working.
+ * A login-only session has an empty accessToken: that is "none" -- Google is never called with a token that would 403.
  */
 export async function resolveGoogleAccess(
   user: { id: string; accessToken: string },
   get: (id: string) => Promise<TokenResult> = getGoogleAccessToken,
+  isDisconnected: (id: string) => Promise<boolean> = dbGoogleStore.isDisconnected,
 ): Promise<GoogleAccess> {
+  let r: TokenResult;
   try {
-    const r = await get(user.id);
-    if (r.status === "ok" || r.status === "revoked") return r;
-  } catch {
-    // transient failure: fall through to the session token
+    r = await get(user.id);
+  } catch (e) {
+    if (user.accessToken) return { status: "ok", accessToken: user.accessToken }; // transient failure: keep the old behaviour
+    throw e; // no fallback and no answer: a real error, not "not connected"
   }
-  return { status: "ok", accessToken: user.accessToken };
+  if (r.status !== "none") return r;
+  if (!user.accessToken) return { status: "none" };
+  // Deliberate fail-open: if the marker lookup fails we serve the session token, like before the DB token existed, rather
+  // than blank the calendar of a user who did not disconnect. Limit: during a DB outage a user who DID disconnect still
+  // sees data from a pre-split session token until it expires (at most ~1h; revoked at Google, refresh then fails).
+  const off = await isDisconnected(user.id).catch(() => false);
+  return off ? { status: "none" } : { status: "ok", accessToken: user.accessToken };
 }
