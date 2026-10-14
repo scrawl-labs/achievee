@@ -14,6 +14,7 @@
 cp .env.example .env.local   # 값 채우기 
 npm install
 npm run dev
+npm run typecheck && npm test   # 타입 검사 + vitest (Google API는 fetch 모킹)
 ```
 Google Cloud Console에서 OAuth 클라이언트(Web)를 만들고 Calendar API, Tasks API를 활성화한 뒤
 리디렉션 URI에 `http://localhost:3000/api/auth/callback/google` 을 추가하세요. 
