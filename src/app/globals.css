@@ -850,7 +850,7 @@ button.note.open { display: block; -webkit-line-clamp: unset; overflow: visible;
 /* goals (day panel + weekly review): checkbox and text pinned left, delete pinned right, like the intake / exercise rows */
 .goals { display: flex; flex-direction: column; gap: var(--s2); }
 .goals h4 { margin: 0; font-size: 13px; color: var(--fg-2); }
-.goals ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.goals ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s1); }
 .goal { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); min-height: 32px; }
 .goal input[type="checkbox"] { flex: none; appearance: none; width: 18px; height: 18px; min-width: 18px; padding: 0; border-radius: 99px; border: 2px solid var(--line); background: var(--bg); cursor: pointer; }
 .goal input[type="checkbox"]:checked { background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='M5 9.5l2.8 2.8L13 6.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/100% no-repeat; border-color: var(--accent); }
@@ -858,7 +858,8 @@ button.note.open { display: block; -webkit-line-clamp: unset; overflow: visible;
 .goal-text { flex: 1; min-width: 0; text-align: left; background: none; border: 0; padding: 4px 0; cursor: text; overflow-wrap: anywhere; line-height: 1.4; }
 .goal.done .goal-text { color: var(--fg-3); text-decoration: line-through; }
 .goal .btn.icon { flex: none; width: 28px; height: 28px; }
-.goal-input { height: 32px; flex: 1; min-width: 0; }
+.goal-input { flex: 1; min-width: 0; height: auto; min-height: 36px; padding: var(--s2) var(--s3); border-radius: calc(var(--r-s) - 2px); line-height: 1.4; }
+.goal-input:focus { box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 25%, transparent); }
 .goal-add { align-self: flex-start; height: 28px; padding: 0 var(--s3); font-size: 13px; gap: var(--s1); }
 .goal-msg { color: var(--sun); }
 
