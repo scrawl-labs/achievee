@@ -14,3 +14,11 @@ export const eachDay = (from: string, toExclusive: string) => {
   for (let d = from; d < toExclusive && out.length < 62; d = addDays(d, 1)) out.push(d);
   return out;
 };
+/** A real calendar day in YYYY-MM-DD form (rejects shapes like 2026-02-31 that Date would roll over). */
+export const isYmd = (d: unknown): d is string => {
+  if (typeof d !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return false;
+  const t = new Date(`${d}T00:00:00Z`).getTime(); // NaN for e.g. month 13: toISOString would throw
+  return !Number.isNaN(t) && new Date(t).toISOString().slice(0, 10) === d;
+};
+/** Weeks start on Monday everywhere (same rule as mondayOf / the weekly review). */
+export const isMonday = (d: unknown): d is string => isYmd(d) && dow(d) === 1;

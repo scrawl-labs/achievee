@@ -39,6 +39,11 @@ async function sql() {
     s`CREATE TABLE IF NOT EXISTS weekly_review (
       "user" TEXT NOT NULL, week_start TEXT NOT NULL, good TEXT NOT NULL DEFAULT '', hard TEXT NOT NULL DEFAULT '',
       plan TEXT NOT NULL DEFAULT '', note TEXT NOT NULL DEFAULT '', PRIMARY KEY ("user", week_start))`,
+    s`CREATE TABLE IF NOT EXISTS goal (
+      id SERIAL PRIMARY KEY, "user" TEXT NOT NULL, scope TEXT NOT NULL CHECK (scope IN ('day', 'week')),
+      period_start TEXT NOT NULL, text TEXT NOT NULL, done BOOLEAN NOT NULL DEFAULT FALSE,
+      position INTEGER NOT NULL DEFAULT 0, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`,
+    s`CREATE INDEX IF NOT EXISTS goal_user_scope_period ON goal ("user", scope, period_start)`,
   ]).catch((e) => { _ready = undefined; throw e; });
   await _ready;
   return s;
@@ -80,7 +85,7 @@ export async function deleteUserData(user: string) {
   const s = await sql();
   await s.transaction([
     s`DELETE FROM diary WHERE "user"=${user}`, s`DELETE FROM expense WHERE "user"=${user}`,
-    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM saving WHERE "user"=${user}`, s`DELETE FROM workout WHERE "user"=${user}`, s`DELETE FROM body WHERE "user"=${user}`, s`DELETE FROM intake WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`, s`DELETE FROM integration WHERE "user"=${user}`,
+    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM saving WHERE "user"=${user}`, s`DELETE FROM workout WHERE "user"=${user}`, s`DELETE FROM body WHERE "user"=${user}`, s`DELETE FROM intake WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`, s`DELETE FROM goal WHERE "user"=${user}`, s`DELETE FROM integration WHERE "user"=${user}`,
   ]);
 }
 
@@ -143,6 +148,7 @@ export const income = {
 import type { WorkoutRow } from "./workout";
 import type { BodyRow, BodyValues } from "./body";
 import type { IntakeRow, IntakeKind } from "./intake";
+import { GOAL_HARD_LIMIT, type GoalCreate, type GoalPatch, type GoalRow, type GoalScope } from "./goals";
 export type SavingRow = { id: number; date: string; kind: "saving" | "invest"; memo: string; amount: number };
 
 /** Money set aside: kept apart from expenses so investing a fixed amount is not counted as spending. */
@@ -311,5 +317,45 @@ export const integrations = {
   async remove(user: string, provider: string) {
     const s = await sql();
     await s`DELETE FROM integration WHERE "user"=${user} AND provider=${provider}`;
+  },
+};
+
+type GoalDb = Omit<GoalRow, "text"> & { text: string };
+const toGoal = (r: GoalDb): GoalRow => ({ ...r, text: decrypt(r.text) });
+
+/** Day / week goals (scope + period_start; a week's period_start is its Monday). The text is encrypted at rest. */
+export const goals = {
+  /** [from, to] inclusive. */
+  async range(user: string, scope: GoalScope, from: string, to: string): Promise<GoalRow[]> {
+    const s = await sql();
+    const rows = (await s`SELECT id, scope, period_start, text, done, position FROM goal
+      WHERE "user"=${user} AND scope=${scope} AND period_start >= ${from} AND period_start <= ${to}
+      ORDER BY period_start, position, id`) as GoalDb[];
+    return rows.map(toGoal);
+  },
+  /** Appends after the last position. Returns null when the per-period hard limit is already reached (one atomic statement). */
+  async add(user: string, g: GoalCreate): Promise<GoalRow | null> {
+    const s = await sql();
+    const rows = (await s`INSERT INTO goal ("user", scope, period_start, text, position)
+      SELECT ${user}::text, ${g.scope}::text, ${g.period_start}::text, ${encrypt(g.text)}::text, COALESCE(MAX(position) + 1, 0)
+      FROM goal WHERE "user"=${user} AND scope=${g.scope} AND period_start=${g.period_start}
+      HAVING COUNT(*) < ${GOAL_HARD_LIMIT}::int
+      RETURNING id, scope, period_start, text, done, position`) as GoalDb[];
+    return rows[0] ? toGoal(rows[0]) : null;
+  },
+  /** Partial update; null when the id does not exist for this user. */
+  async update(user: string, p: GoalPatch): Promise<GoalRow | null> {
+    const s = await sql();
+    const text = p.text === undefined ? null : encrypt(p.text);
+    const rows = (await s`UPDATE goal SET text=COALESCE(${text}::text, text), done=COALESCE(${p.done ?? null}::boolean, done),
+      position=COALESCE(${p.position ?? null}::int, position)
+      WHERE id=${p.id} AND "user"=${user}
+      RETURNING id, scope, period_start, text, done, position`) as GoalDb[];
+    return rows[0] ? toGoal(rows[0]) : null;
+  },
+  async remove(user: string, id: number): Promise<boolean> {
+    const s = await sql();
+    const rows = (await s`DELETE FROM goal WHERE id=${id} AND "user"=${user} RETURNING id`) as { id: number }[];
+    return rows.length > 0;
   },
 };
