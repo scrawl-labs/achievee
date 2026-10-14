@@ -34,3 +34,43 @@ describe("selectionRange", () => {
     expect(selectionRange(1200, 1425)).toEqual({ start: 1200, end: 1440 });
   });
 });
+
+import { columnAt, moveRange, resizeEnd } from "@/lib/slotSelect";
+
+describe("moveRange", () => {
+  it("moves by the drag distance, snapped to 15 minutes, keeping the length", () => {
+    expect(moveRange(600, 660, 0)).toEqual({ start: 600, end: 660 });
+    expect(moveRange(600, 660, 60)).toEqual({ start: 660, end: 720 });
+    expect(moveRange(600, 660, -37)).toEqual({ start: 570, end: 630 }); // 563 rounds to the nearest slot, 570
+    expect(moveRange(600, 660, 6)).toEqual({ start: 600, end: 660 });   // less than half a slot: stays
+    expect(moveRange(600, 660, 8)).toEqual({ start: 615, end: 675 });
+  });
+  it("cannot leave the day", () => {
+    expect(moveRange(60, 120, -500)).toEqual({ start: 0, end: 60 });
+    expect(moveRange(1300, 1380, 500)).toEqual({ start: 1360, end: 1440 });
+  });
+});
+
+describe("resizeEnd", () => {
+  it("changes only the end, snapped", () => {
+    expect(resizeEnd(600, 660, 30)).toBe(690);
+    expect(resizeEnd(600, 660, -20)).toBe(645);
+  });
+  it("keeps at least one slot and stops at midnight", () => {
+    expect(resizeEnd(600, 660, -500)).toBe(615);
+    expect(resizeEnd(1300, 1380, 500)).toBe(1440);
+  });
+});
+
+describe("columnAt", () => {
+  it("finds the column under a pointer and clamps outside the grid", () => {
+    expect(columnAt(150, 100, 700, 7)).toBe(0);
+    expect(columnAt(250, 100, 700, 7)).toBe(1);
+    expect(columnAt(799, 100, 700, 7)).toBe(6);
+    expect(columnAt(5000, 100, 700, 7)).toBe(6);
+    expect(columnAt(-50, 100, 700, 7)).toBe(0);
+  });
+  it("a single column is always 0", () => {
+    expect(columnAt(500, 100, 700, 1)).toBe(0);
+  });
+});

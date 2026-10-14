@@ -12,5 +12,6 @@ export default function WeekView({ date, onPickDay }: { date: string; onPickDay:
   const { byDate, toggle } = useTasksRange(start, addDays(start, 6)); // may cross a month boundary: the hook loads both months
   const own = useNativeEvents();
   return <TimeGrid days={days} events={events} error={error} onPickDay={onPickDay} tasks={byDate} onToggleTask={toggle}
-    onCreate={own.create} onRename={(id, title) => own.update({ id, title })} onRemove={own.remove} />;
+    onCreate={own.create} onRename={(id, title) => own.update({ id, title })} onRemove={own.remove}
+    onMove={(id, to) => own.update({ id, ...to })} />;
 }

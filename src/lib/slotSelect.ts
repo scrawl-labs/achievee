@@ -20,3 +20,23 @@ export function selectionRange(a: number, b: number): { start: number; end: numb
   }
   return { start: Math.min(a, b), end: Math.max(a, b) + SLOT };
 }
+
+const snap = (minutes: number) => Math.round(minutes / SLOT) * SLOT;
+
+/** An event dragged vertically by `deltaMin`: same length, start snapped to 15 minutes, kept inside the day. */
+export function moveRange(start: number, end: number, deltaMin: number): { start: number; end: number } {
+  const len = end - start;
+  const s = Math.min(DAY_MIN - len, Math.max(0, snap(start + deltaMin)));
+  return { start: s, end: s + len };
+}
+
+/** The bottom edge dragged by `deltaMin`: the start stays, the end snaps to 15 minutes, at least one slot long, no later than midnight. */
+export function resizeEnd(start: number, end: number, deltaMin: number): number {
+  return Math.min(DAY_MIN, Math.max(start + SLOT, snap(end + deltaMin)));
+}
+
+/** Which of `count` equal-width columns a horizontal position falls in (clamped to the first and last). */
+export function columnAt(x: number, left: number, width: number, count: number): number {
+  if (count <= 1 || width <= 0) return 0;
+  return Math.min(count - 1, Math.max(0, Math.floor(((x - left) / width) * count)));
+}

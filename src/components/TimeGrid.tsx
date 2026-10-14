@@ -4,7 +4,7 @@ import type { DayEvent } from "@/lib/types";
 import { dow } from "@/lib/dates";
 import { browserTz, todayStr } from "@/lib/clientTime";
 import { nativeIdOf, type NativeEventCreate } from "@/lib/nativeEvents";
-import { cellOfY, selectionRange } from "@/lib/slotSelect";
+import { cellOfY, columnAt, moveRange, resizeEnd, selectionRange } from "@/lib/slotSelect";
 import type { TaskEntry } from "@/lib/taskList";
 import { useI18n } from "./I18n";
 import AllDayRow from "./AllDayRow";
@@ -44,16 +44,20 @@ export function nowMinutes(now: Date) {
 const NO_TASKS: Record<string, TaskEntry[]> = {};
 
 type Pick = { date: string; start: number; end: number };
+/** An own event being dragged (move) or stretched (resize). `cur` is where it would land if released now. */
+type Gesture = { id: number; kind: "move" | "resize"; x0: number; y0: number; moved: boolean; orig: Pick; cur: Pick };
+const SAME = (a: Pick, b: Pick) => a.date === b.date && a.start === b.start && a.end === b.end;
 
 /**
  * Tasks (no time of their own) ride in the all-day strip; `badge` shows the "Google" pill there (wide columns only).
  * With `onCreate`, dragging over empty time (or clicking it, for an hour) makes an own event; own events open a small editor,
- * Google events stay read-only links.
+ * Google events stay read-only links. Own events can also be dragged to another time or day and stretched from their bottom edge (`onMove`).
  */
-export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TASKS, onToggleTask, badge = false, onCreate, onRename, onRemove }: {
+export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TASKS, onToggleTask, badge = false, onCreate, onRename, onRemove, onMove }: {
   days: string[]; events: DayEvent[] | null; error?: boolean; onPickDay?: (d: string) => void;
   tasks?: Record<string, TaskEntry[]>; onToggleTask?: (id: number, done: boolean) => void; badge?: boolean;
   onCreate?: (e: NativeEventCreate) => Promise<boolean>; onRename?: (id: number, title: string) => Promise<boolean>; onRemove?: (id: number) => Promise<boolean>;
+  onMove?: (id: number, to: { date: string; startMin: number; endMin: number }) => Promise<boolean>;
 }) {
   const { t, fmt } = useI18n();
   const [now, setNow] = useState(() => new Date());
@@ -66,15 +70,24 @@ export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TA
   const [drag, setDrag] = useState<{ date: string; a: number; b: number } | null>(null);
   const [pick, setPick] = useState<Pick | null>(null);
   const [editing, setEditing] = useState<number | null>(null);
+  const [gesture, setGesture] = useState<Gesture | null>(null);
+  const [shadow, setShadow] = useState<(Pick & { id: number }) | null>(null); // a released move, shown until the refreshed events arrive
+  const colsRef = useRef<HTMLDivElement>(null);
   const range = (d: { a: number; b: number }) => selectionRange(d.a, d.b);
-  const live = drag ? { date: drag.date, ...range(drag) } : pick;
-  useEffect(() => { setDrag(null); setPick(null); setEditing(null); }, [days.join()]); // eslint-disable-line react-hooks/exhaustive-deps
+  const ghost = gesture?.moved ? gesture.cur : null;
+  const live = drag ? { date: drag.date, ...range(drag) } : ghost ?? pick;
+  useEffect(() => { setDrag(null); setPick(null); setEditing(null); setGesture(null); }, [days.join()]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { setShadow(null); }, [events]); // the refreshed list already has the new place
 
   const byDay = useMemo(() => {
     const m: Record<string, DayEvent[]> = Object.fromEntries(days.map((d) => [d, []]));
-    (events ?? []).forEach((e) => m[e.date]?.push(e));
+    (events ?? []).forEach((raw) => {
+      const e = shadow && nativeIdOf(raw) === shadow.id ? { ...raw, date: shadow.date, startMin: shadow.start, endMin: shadow.end } : raw;
+      m[e.date]?.push(e);
+    });
+    for (const d of days) m[d].sort((a, b) => a.startMin - b.startMin || b.endMin - a.endMin);
     return m;
-  }, [days, events]);
+  }, [days, events, shadow]);
   const anyAllDay = days.some((d) => byDay[d].some((e) => e.allDay) || (tasks[d]?.length ?? 0) > 0);
   const nowMin = days.includes(today) ? nowMinutes(now) : -1;
   const multi = days.length > 1;
@@ -105,6 +118,40 @@ export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TA
     setPick({ date: drag.date, ...range(drag) });
     setDrag(null);
   };
+  // moving / stretching an own event: pointer capture keeps the events coming while the pointer leaves the block
+  const beginGesture = (ev: React.PointerEvent, id: number, e: DayEvent, kind: Gesture["kind"]) => {
+    if (!onMove || ev.button !== 0) return;
+    ev.stopPropagation();
+    (ev.currentTarget as HTMLElement).setPointerCapture(ev.pointerId);
+    const at = { date: e.date, start: e.startMin, end: e.endMin };
+    setGesture({ id, kind, x0: ev.clientX, y0: ev.clientY, moved: false, orig: at, cur: at });
+  };
+  const moveGesture = (ev: React.PointerEvent) => {
+    if (!gesture) return;
+    ev.stopPropagation();
+    const dx = ev.clientX - gesture.x0, dy = ev.clientY - gesture.y0;
+    if (!gesture.moved && Math.hypot(dx, dy) < 4) return; // a click, not a drag
+    const delta = (dy / H) * 60, { orig } = gesture;
+    let cur: Pick;
+    if (gesture.kind === "resize") cur = { ...orig, end: resizeEnd(orig.start, orig.end, delta) };
+    else {
+      const rect = colsRef.current?.getBoundingClientRect();
+      const date = rect ? days[columnAt(ev.clientX, rect.left, rect.width, days.length)] : orig.date;
+      cur = { date, ...moveRange(orig.start, orig.end, delta) };
+    }
+    setGesture({ ...gesture, moved: true, cur });
+  };
+  const endGesture = async (ev: React.PointerEvent) => {
+    if (!gesture) return;
+    ev.stopPropagation();
+    const g = gesture;
+    setGesture(null);
+    if (!g.moved) { setPick(null); setEditing(editing === g.id ? null : g.id); return; } // a plain click opens the editor
+    if (SAME(g.cur, g.orig)) return;
+    setShadow({ id: g.id, ...g.cur });
+    const ok = (await onMove?.(g.id, { date: g.cur.date, startMin: g.cur.start, endMin: g.cur.end })) ?? false;
+    if (!ok) setShadow(null);
+  };
   const when = (p: Pick) => `${fmt.monthDay(p.date)} ${hhmm(p.start)} - ${hhmm(p.end)}`;
   const side = (i: number) => (days.length > 2 && i >= days.length - 2 ? "right" : "left"); // keep the popover inside the grid
 
@@ -131,7 +178,7 @@ export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TA
             {Array.from({ length: 24 }, (_, h) => (
               <div key={h} className="hour" style={{ top: h * H, height: H }}><span>{h === 0 ? "" : t("hour", { h })}</span></div>
             ))}
-            <div className="tl-cols" style={cols}>
+            <div className="tl-cols" style={cols} ref={colsRef}>
               {days.map((d, i) => (
                 <div key={d} className={`tl-col${onCreate ? " creatable" : ""}${drag?.date === d ? " dragging" : ""}`}
                   onPointerDown={(ev) => startDrag(ev, d)} onPointerMove={(ev) => moveDrag(ev, d)} onPointerUp={endDrag}
@@ -151,7 +198,13 @@ export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TA
                     );
                     return own !== null ? (
                       <div key={e.id} className="evwrap">
-                        <button type="button" className="ev native" title={title} style={style} onClick={() => { setPick(null); setEditing(editing === own ? null : own); }}>{body}</button>
+                        <button type="button" className={`ev native${gesture?.id === own && gesture.moved ? " moving" : ""}`} title={title} style={style}
+                          onPointerDown={(ev) => beginGesture(ev, own, e, "move")} onPointerMove={moveGesture} onPointerUp={endGesture} onPointerCancel={() => setGesture(null)}
+                          onClick={(ev) => { if (ev.detail === 0) { setPick(null); setEditing(editing === own ? null : own); } }}>
+                          {body}
+                          {onMove && <span className="ev-resize" aria-hidden="true"
+                            onPointerDown={(ev) => beginGesture(ev, own, e, "resize")} onPointerMove={moveGesture} onPointerUp={endGesture} onPointerCancel={() => setGesture(null)} />}
+                        </button>
                         {editing === own && (
                           <EventComposer initial={e.title} when={`${fmt.monthDay(e.date)} ${hhmm(e.startMin)} - ${hhmm(e.endMin)}`} align={side(i)} top={(e.startMin / 60) * H}
                             onCancel={() => setEditing(null)}
