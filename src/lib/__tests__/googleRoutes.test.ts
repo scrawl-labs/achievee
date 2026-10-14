@@ -7,7 +7,7 @@ const { getUser, resolveGoogleAccess, revokeGoogleGrant, fetchMonth, fetchRange,
 vi.mock("@/lib/auth", () => ({ getUser }));
 vi.mock("@/lib/googleToken", async (orig) => ({ ...(await orig<typeof import("@/lib/googleToken")>()), resolveGoogleAccess, revokeGoogleGrant }));
 vi.mock("@/lib/google", async (orig) => ({ ...(await orig<typeof import("@/lib/google")>()), fetchMonth, fetchRange }));
-vi.mock("@/lib/db", () => ({ integrations: { list, get, save: vi.fn(), remove: vi.fn() }, identity: { ensure: vi.fn() }, deleteUserData }));
+vi.mock("@/lib/db", () => ({ integrations: { list, get, save: vi.fn(), remove: vi.fn() }, identity: { ensure: vi.fn() }, todos: { monthCounts: vi.fn(async () => []) }, deleteUserData }));
 
 import { GET as month } from "@/app/api/month/route";
 import { GET as events } from "@/app/api/events/route";

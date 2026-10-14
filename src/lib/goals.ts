@@ -21,12 +21,12 @@ export const GOAL_ID_MAX = 2147483647;
 export const GOAL_RANGE_MAX_DAYS: Record<GoalScope, number> = { day: 62, week: 53 * 7 };
 const DAY_MS = 864e5;
 
-const fail = (error: string): { ok: false; error: string } => ({ ok: false, error });
-const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
+export const fail = (error: string): { ok: false; error: string } => ({ ok: false, error });
+export const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 const isScope = (v: unknown): v is GoalScope => GOAL_SCOPES.includes(v as GoalScope);
-const isGoalId = (v: unknown): v is number => typeof v === "number" && Number.isInteger(v) && v > 0 && v <= GOAL_ID_MAX;
+export const isGoalId = (v: unknown): v is number => typeof v === "number" && Number.isInteger(v) && v > 0 && v <= GOAL_ID_MAX;
 
-function parseText(v: unknown): Parsed<string> {
+export function parseText(v: unknown): Parsed<string> {
   if (typeof v !== "string") return fail("bad text");
   const t = v.trim();
   return t.length >= 1 && t.length <= GOAL_TEXT_MAX ? { ok: true, value: t } : fail("bad text");

@@ -44,6 +44,10 @@ async function sql() {
       period_start TEXT NOT NULL, text TEXT NOT NULL, done BOOLEAN NOT NULL DEFAULT FALSE,
       position INTEGER NOT NULL DEFAULT 0, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`,
     s`CREATE INDEX IF NOT EXISTS goal_user_scope_period ON goal ("user", scope, period_start)`,
+    s`CREATE TABLE IF NOT EXISTS todo (
+      id SERIAL PRIMARY KEY, "user" TEXT NOT NULL, date TEXT NOT NULL, text TEXT NOT NULL, done BOOLEAN NOT NULL DEFAULT FALSE,
+      position INTEGER NOT NULL DEFAULT 0, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`,
+    s`CREATE INDEX IF NOT EXISTS todo_user_date ON todo ("user", date)`,
     s`CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`,
     s`CREATE TABLE IF NOT EXISTS accounts (
       provider TEXT NOT NULL, provider_account_id TEXT NOT NULL, user_id TEXT NOT NULL, PRIMARY KEY (provider, provider_account_id))`,
@@ -88,7 +92,7 @@ export async function deleteUserData(user: string) {
   const s = await sql();
   await s.transaction([
     s`DELETE FROM diary WHERE "user"=${user}`, s`DELETE FROM expense WHERE "user"=${user}`,
-    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM saving WHERE "user"=${user}`, s`DELETE FROM workout WHERE "user"=${user}`, s`DELETE FROM body WHERE "user"=${user}`, s`DELETE FROM intake WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`, s`DELETE FROM goal WHERE "user"=${user}`, s`DELETE FROM integration WHERE "user"=${user}`,
+    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM saving WHERE "user"=${user}`, s`DELETE FROM workout WHERE "user"=${user}`, s`DELETE FROM body WHERE "user"=${user}`, s`DELETE FROM intake WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`, s`DELETE FROM goal WHERE "user"=${user}`, s`DELETE FROM todo WHERE "user"=${user}`, s`DELETE FROM integration WHERE "user"=${user}`,
     s`DELETE FROM accounts WHERE user_id=${user}`, s`DELETE FROM users WHERE id=${user}`,
   ]);
 }
@@ -152,6 +156,7 @@ export const income = {
 import type { WorkoutRow } from "./workout";
 import type { BodyRow, BodyValues } from "./body";
 import type { IntakeRow, IntakeKind } from "./intake";
+import { TODO_HARD_LIMIT, type TodoCountRow, type TodoCreate, type TodoPatch, type TodoRow } from "./todos";
 import { GOAL_HARD_LIMIT, type GoalCreate, type GoalPatch, type GoalRow, type GoalScope } from "./goals";
 export type SavingRow = { id: number; date: string; kind: "saving" | "invest"; memo: string; amount: number };
 
@@ -360,7 +365,7 @@ export const goals = {
       ORDER BY period_start, position, id`) as GoalDb[];
     return rows.map(toGoal);
   },
-  /** Appends after the last position. Returns null when the per-period hard limit is already reached (one atomic statement). */
+  /** Appends after the last position. Returns null when the per-period hard limit is already reached. One statement, so the race window is small, but under READ COMMITTED concurrent requests are not serialized: the limit is a loose abuse guard (it can be exceeded by a few) and MAX(position)+1 can repeat (ordering stays deterministic via position, id). */
   async add(user: string, g: GoalCreate): Promise<GoalRow | null> {
     const s = await sql();
     const rows = (await s`INSERT INTO goal ("user", scope, period_start, text, position)
@@ -383,6 +388,63 @@ export const goals = {
   async remove(user: string, id: number): Promise<boolean> {
     const s = await sql();
     const rows = (await s`DELETE FROM goal WHERE id=${id} AND "user"=${user} RETURNING id`) as { id: number }[];
+    return rows.length > 0;
+  },
+};
+
+type TodoDb = Omit<TodoRow, "text"> & { text: string };
+const toTodo = (r: TodoDb): TodoRow => ({ ...r, text: decrypt(r.text) });
+
+/** Own (non-Google) todos, one row per item, keyed by calendar day. The text is encrypted at rest. */
+export const todos = {
+  /** [from, to] inclusive, ordered date → position → id. */
+  async range(user: string, from: string, to: string): Promise<TodoRow[]> {
+    const s = await sql();
+    const rows = (await s`SELECT id, date, text, done, position FROM todo
+      WHERE "user"=${user} AND date >= ${from} AND date <= ${to}
+      ORDER BY date, position, id`) as TodoDb[];
+    return rows.map(toTodo);
+  },
+  /** Only date + done for one month (no text, so no decryption): feeds the calendar's done/total counts. */
+  async monthCounts(user: string, ym: string): Promise<TodoCountRow[]> {
+    const s = await sql(), [a, b] = bounds(ym);
+    return (await s`SELECT date, done FROM todo
+      WHERE "user"=${user} AND date BETWEEN ${a} AND ${b}`) as TodoCountRow[];
+  },
+  /** Appends after the last position. Returns null when the per-day hard limit is already reached. One statement, so the race window is small, but under READ COMMITTED concurrent requests are not serialized: the limit is a loose abuse guard (it can be exceeded by a few) and MAX(position)+1 can repeat (ordering stays deterministic via position, id). */
+  async add(user: string, t: TodoCreate): Promise<TodoRow | null> {
+    const s = await sql();
+    const rows = (await s`INSERT INTO todo ("user", date, text, position)
+      SELECT ${user}::text, ${t.date}::text, ${encrypt(t.text)}::text, COALESCE(MAX(position) + 1, 0)
+      FROM todo WHERE "user"=${user} AND date=${t.date}
+      HAVING COUNT(*) < ${TODO_HARD_LIMIT}::int
+      RETURNING id, date, text, done, position`) as TodoDb[];
+    return rows[0] ? toTodo(rows[0]) : null;
+  },
+  /**
+   * Partial update. null: no such id for this user. "full": the move target day already holds the hard limit.
+   * Moving to another day without an explicit position appends at the end of that day; the limit is checked in the same statement (same loose, non-serialized guarantee as add).
+   */
+  async update(user: string, p: TodoPatch): Promise<TodoRow | "full" | null> {
+    const s = await sql();
+    const text = p.text === undefined ? null : encrypt(p.text);
+    const date = p.date ?? null;
+    const rows = (await s`UPDATE todo SET text=COALESCE(${text}::text, text), done=COALESCE(${p.done ?? null}::boolean, done),
+      date=COALESCE(${date}::text, date),
+      position=COALESCE(${p.position ?? null}::int, CASE WHEN ${date}::text IS NOT NULL AND ${date}::text <> date
+        THEN (SELECT COALESCE(MAX(m.position) + 1, 0) FROM todo m WHERE m."user"=${user} AND m.date=${date}::text) ELSE position END)
+      WHERE id=${p.id} AND "user"=${user}
+        AND (${date}::text IS NULL OR ${date}::text = date
+          OR (SELECT COUNT(*) FROM todo c WHERE c."user"=${user} AND c.date=${date}::text) < ${TODO_HARD_LIMIT}::int)
+      RETURNING id, date, text, done, position`) as TodoDb[];
+    if (rows[0]) return toTodo(rows[0]);
+    if (date === null) return null;
+    const owned = (await s`SELECT id FROM todo WHERE id=${p.id} AND "user"=${user}`) as { id: number }[];
+    return owned.length > 0 ? "full" : null;
+  },
+  async remove(user: string, id: number): Promise<boolean> {
+    const s = await sql();
+    const rows = (await s`DELETE FROM todo WHERE id=${id} AND "user"=${user} RETURNING id`) as { id: number }[];
     return rows.length > 0;
   },
 };
@@ -423,16 +485,18 @@ const rowsOf = async <T>(q: PromiseLike<unknown>): Promise<T[]> => (await q) as 
 export const search = {
   async candidates(user: string): Promise<SearchCandidate[]> {
     const s = await sql(), n = SEARCH_ROW_LIMIT;
-    const [diaryR, expenseR, incomeR, savingR, workoutR, goalR] = await Promise.all([
+    const [diaryR, expenseR, incomeR, savingR, workoutR, goalR, todoR] = await Promise.all([
       rowsOf<TextRow>(s`SELECT date, body AS text FROM diary WHERE "user"=${user} AND body <> '' ORDER BY date DESC LIMIT ${n}`),
       rowsOf<TextRow>(s`SELECT date, memo AS text FROM expense WHERE "user"=${user} AND memo <> '' ORDER BY date DESC, id DESC LIMIT ${n}`),
       rowsOf<TextRow>(s`SELECT date, memo AS text FROM income WHERE "user"=${user} AND memo <> '' ORDER BY date DESC, id DESC LIMIT ${n}`),
       rowsOf<TextRow>(s`SELECT date, memo AS text FROM saving WHERE "user"=${user} AND memo <> '' ORDER BY date DESC, id DESC LIMIT ${n}`),
       rowsOf<TextRow>(s`SELECT date, memo AS text FROM workout WHERE "user"=${user} AND memo <> '' ORDER BY date DESC, id DESC LIMIT ${n}`),
       rowsOf<GoalTextRow>(s`SELECT scope, period_start, text FROM goal WHERE "user"=${user} ORDER BY period_start DESC, id DESC LIMIT ${n}`),
+      rowsOf<TextRow>(s`SELECT date, text FROM todo WHERE "user"=${user} ORDER BY date DESC, id DESC LIMIT ${n}`),
     ]);
     const parts = [
       toDecrypted("goal", goalR.map((g) => ({ date: g.period_start, text: g.text, scope: g.scope }))),
+      toDecrypted("todo", todoR),
       toDecrypted("diary", diaryR), toDecrypted("expense", expenseR), toDecrypted("income", incomeR),
       toDecrypted("saving", savingR), toDecrypted("workout", workoutR),
     ];

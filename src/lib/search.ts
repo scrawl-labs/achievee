@@ -1,13 +1,13 @@
 import type { Parsed } from "./goals";
 
-export type SearchType = "goal" | "diary" | "expense" | "income" | "saving" | "workout";
+export type SearchType = "goal" | "todo" | "diary" | "expense" | "income" | "saving" | "workout";
 export type SearchScope = "day" | "week";
 export type SearchHit = { type: SearchType; date: string; title: string; scope?: SearchScope };
 /** A decrypted, searchable text with its owning date (a week goal's date is its Monday). */
 export type SearchCandidate = { type: SearchType; date: string; text: string; scope?: SearchScope };
 
 /** Tie-break order for hits on the same date. */
-export const SEARCH_TYPE_ORDER: readonly SearchType[] = ["goal", "diary", "expense", "income", "saving", "workout"];
+export const SEARCH_TYPE_ORDER: readonly SearchType[] = ["goal", "todo", "diary", "expense", "income", "saving", "workout"];
 export const SEARCH_QUERY_MIN = 2;
 export const SEARCH_QUERY_MAX = 50;
 export const SEARCH_RESULT_MAX = 30;

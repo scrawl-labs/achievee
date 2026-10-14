@@ -32,6 +32,8 @@ beforeEach(() => {
   store.rows = [
     { user: "me", type: "diary", date: "2026-10-14", text: "오늘 한강에서 러닝을 했다" },
     { user: "me", type: "goal", date: "2026-10-12", text: "주간 러닝 3회", scope: "week" },
+    { user: "me", type: "todo", date: "2026-10-13", text: "러닝화 사기" },
+    { user: "other", type: "todo", date: "2026-10-14", text: "러닝 비밀 할 일" },
     { user: "other", type: "diary", date: "2026-10-14", text: "러닝 비밀 일기" },
   ];
   vi.clearAllMocks();
@@ -59,6 +61,7 @@ describe("GET /api/search", () => {
     expect(await res.json()).toEqual({
       results: [
         { type: "diary", date: "2026-10-14", title: "오늘 한강에서 러닝을 했다" },
+        { type: "todo", date: "2026-10-13", title: "러닝화 사기" },
         { type: "goal", date: "2026-10-12", title: "주간 러닝 3회", scope: "week" },
       ],
     });

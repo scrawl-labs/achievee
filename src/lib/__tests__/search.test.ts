@@ -116,13 +116,18 @@ describe("searchHits", () => {
   it("sorts newest date first, ties by type order", () => {
     const hits = searchHits([
       cand("workout", "2026-10-14", "x1"), cand("saving", "2026-10-14", "x2"), cand("income", "2026-10-14", "x3"),
-      cand("expense", "2026-10-14", "x4"), cand("diary", "2026-10-14", "x5"), cand("goal", "2026-10-14", "x6", "day"),
+      cand("expense", "2026-10-14", "x4"), cand("diary", "2026-10-14", "x5"), cand("goal", "2026-10-14", "x6", "day"), cand("todo", "2026-10-14", "x9"),
       cand("diary", "2026-10-15", "x7"), cand("diary", "2026-10-01", "x8"),
     ], "x");
     expect(hits.map((h) => `${h.date}:${h.type}`)).toEqual([
-      "2026-10-15:diary", "2026-10-14:goal", "2026-10-14:diary", "2026-10-14:expense",
+      "2026-10-15:diary", "2026-10-14:goal", "2026-10-14:todo", "2026-10-14:diary", "2026-10-14:expense",
       "2026-10-14:income", "2026-10-14:saving", "2026-10-14:workout", "2026-10-01:diary",
     ]);
+  });
+  it("a todo hit has the plain {type, date, title} shape (no scope key)", () => {
+    const hits = searchHits([cand("todo", "2026-10-14", "buy Milk and eggs")], "milk");
+    expect(hits).toEqual([{ type: "todo", date: "2026-10-14", title: "buy Milk and eggs" }]);
+    expect("scope" in hits[0]).toBe(false);
   });
   it("caps at 30 after sorting (the newest 30 survive)", () => {
     const all = Array.from({ length: 45 }, (_, i) => cand("expense", `2026-09-${String((i % 28) + 1).padStart(2, "0")}`, `memo ${i}`));
