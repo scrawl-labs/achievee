@@ -14,7 +14,7 @@ import ExpenseView from "./ExpenseView";
 import IntegrationsView from "./IntegrationsView";
 import WorkoutView from "./WorkoutView";
 import { DEFAULT_GOALS, type IntakeKind } from "@/lib/intake";
-import GoogleCalView, { type GMode } from "./GoogleCalView";
+import ScheduleView, { type GMode } from "./ScheduleView";
 import CommandBar from "./CommandBar";
 import Icon from "./Icon";
 import Wordmark from "./Wordmark";
@@ -134,7 +134,7 @@ function Main() {
         {tab === "calendar" && <CalendarView ym={ym} month={month} stats={stats} sel={sel} setSel={setSel} onDiary={() => setTab("diary")} />}
         {tab === "stats" && <StatsView stats={stats} month={month} />}
         {tab === "diary" && <DiaryView ym={ym} sel={sel} setSel={setSel} />}
-        {tab === "google" && <GoogleCalView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} tasks={month?.ym === ym ? month.days[sel]?.tasks ?? [] : []} />}
+        {tab === "google" && <ScheduleView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} tasks={month?.ym === ym ? month.days[sel]?.tasks ?? [] : []} />}
         {tab === "integrations" && <IntegrationsView googleReturn={gret.result} />}
         {tab === "workout" && <WorkoutView sel={sel} setSel={setSel} goal={workoutGoal} onGoal={changeGoal} intakeGoals={intakeGoals} onIntakeGoal={changeIntakeGoal} />}
         {tab === "expense" && <ExpenseView sel={sel} setSel={setSel} startDay={startDay} onStartDay={changeStartDay} />}

@@ -20,7 +20,7 @@ export function fromAcceptLanguage(h: string | null): Locale {
 }
 
 const en = {
-  "nav.calendar": "Calendar", "nav.stats": "Stats", "nav.diary": "Diary", "nav.expense": "Spending", "nav.google": "Google Calendar",
+  "nav.calendar": "Log", "nav.stats": "Stats", "nav.diary": "Diary", "nav.expense": "Spending", "nav.google": "Calendar",
   "login.tagline": "Capture your days beautifully with Google Calendar and Google Tasks!",
   "login.cta": "Continue with Google",
   "login.note": "Achievee reads your calendar and tasks (read-only) to show your progress. It never changes them.",
@@ -51,7 +51,7 @@ const en = {
   "cmd.goToday": "Go to today", "cmd.goDate": "Go to {date}", "cmd.addDay": "Add today's goal: {text}", "cmd.addWeek": "Add this week's goal: {text}",
   "cmd.searching": "Searching…", "cmd.none": "No results", "cmd.searchFail": "Search isn't available right now.", "cmd.addFail": "Couldn't add the goal. Try again.",
   "cmd.recent": "Searching mostly recent entries.", "cmd.t.goal": "Goal", "cmd.t.weekGoal": "Weekly goal", "cmd.t.diary": "Diary", "cmd.t.expense": "Spending", "cmd.t.income": "Income", "cmd.t.saving": "Savings", "cmd.t.workout": "Exercise",
-  "gc.sec": "Google", "gc.perm": "Needs read-only access to your events and tasks.", "gc.connect": "Connect Google Calendar", "gc.reconnect": "Reconnect", "gc.revoked": "Connection lost", "gc.disconnectAria": "Disconnect Google Calendar", "gc.confirm": "Disconnect Google? Your events and tasks will no longer show up here.", "gc.disconnectFail": "Couldn't disconnect. Please try again.", "gc.retConnected": "Google Calendar is connected.", "gc.retError": "Couldn't connect Google. Please try again.", "gc.retPartial": "Some permissions weren't allowed. Please reconnect.", "gc.emptyNone": "Connect Google Calendar and your events will show up here.",
+  "gc.sec": "Google", "gc.perm": "Needs read-only access to your events and tasks.", "gc.connect": "Connect Google Calendar", "gc.reconnect": "Reconnect", "gc.revoked": "Connection lost", "gc.disconnectAria": "Disconnect Google Calendar", "gc.confirm": "Disconnect Google? Your events and tasks will no longer show up here.", "gc.disconnectFail": "Couldn't disconnect. Please try again.", "gc.retConnected": "Google Calendar is connected.", "gc.retError": "Couldn't connect Google. Please try again.", "gc.retPartial": "Some permissions weren't allowed. Please reconnect.", "gc.linkRevoked": "Google connection lost · Reconnect",
 } as const;
 
 type BaseKey = keyof typeof en;
@@ -60,7 +60,7 @@ type BaseDict = Record<BaseKey, string>;
 type Dict = Record<Key, string>;
 
 const ko: BaseDict = {
-  "nav.calendar": "달력", "nav.stats": "통계", "nav.diary": "일기", "nav.expense": "지출", "nav.google": "Google Calendar",
+  "nav.calendar": "기록", "nav.stats": "통계", "nav.diary": "일기", "nav.expense": "지출", "nav.google": "캘린더",
   "login.tagline": "Google Calendar와 Google Tasks로 예쁘고 알차게 기록해봐요!",
   "login.cta": "Google로 계속하기",
   "login.note": "Achievee는 진행 상황을 보여주기 위해 Google Calendar와 Google Tasks를 읽기 전용으로만 가져오며, 절대 수정하지 않아요.",
@@ -91,11 +91,11 @@ const ko: BaseDict = {
   "cmd.goToday": "오늘로 이동", "cmd.goDate": "{date}로 이동", "cmd.addDay": "오늘 목표 추가: {text}", "cmd.addWeek": "이번 주 목표 추가: {text}",
   "cmd.searching": "검색 중…", "cmd.none": "결과가 없어요", "cmd.searchFail": "지금은 검색할 수 없어요.", "cmd.addFail": "목표를 추가하지 못했어요. 다시 시도해 주세요.",
   "cmd.recent": "최근 기록 위주로 검색해요.", "cmd.t.goal": "목표", "cmd.t.weekGoal": "주간 목표", "cmd.t.diary": "일기", "cmd.t.expense": "지출", "cmd.t.income": "수입", "cmd.t.saving": "저축", "cmd.t.workout": "운동",
-  "gc.sec": "Google", "gc.perm": "일정과 할 일 읽기 전용 권한이 필요해요.", "gc.connect": "Google 캘린더 연결", "gc.reconnect": "다시 연결", "gc.revoked": "연결이 끊겼어요", "gc.disconnectAria": "Google 캘린더 연결 해제", "gc.confirm": "Google 연결을 해제할까요? 일정과 할 일이 더 이상 여기에 보이지 않아요.", "gc.disconnectFail": "연결을 해제하지 못했어요. 다시 시도해 주세요.", "gc.retConnected": "Google 캘린더가 연결됐어요.", "gc.retError": "Google에 연결하지 못했어요. 다시 시도해 주세요.", "gc.retPartial": "일부 권한이 허용되지 않았어요. 다시 연결해 주세요.", "gc.emptyNone": "Google 캘린더를 연결하면 일정이 여기에 보여요.",
+  "gc.sec": "Google", "gc.perm": "일정과 할 일 읽기 전용 권한이 필요해요.", "gc.connect": "Google 캘린더 연결", "gc.reconnect": "다시 연결", "gc.revoked": "연결이 끊겼어요", "gc.disconnectAria": "Google 캘린더 연결 해제", "gc.confirm": "Google 연결을 해제할까요? 일정과 할 일이 더 이상 여기에 보이지 않아요.", "gc.disconnectFail": "연결을 해제하지 못했어요. 다시 시도해 주세요.", "gc.retConnected": "Google 캘린더가 연결됐어요.", "gc.retError": "Google에 연결하지 못했어요. 다시 시도해 주세요.", "gc.retPartial": "일부 권한이 허용되지 않았어요. 다시 연결해 주세요.", "gc.linkRevoked": "Google 연결이 끊겼어요 · 다시 연결",
 };
 
 const ja: BaseDict = {
-  "nav.calendar": "カレンダー", "nav.stats": "統計", "nav.diary": "日記", "nav.expense": "支出", "nav.google": "Google Calendar",
+  "nav.calendar": "記録", "nav.stats": "統計", "nav.diary": "日記", "nav.expense": "支出", "nav.google": "カレンダー",
   "login.tagline": "Google Calendar と Google Tasks で、\nきれいに充実した記録を残そう！",
   "login.cta": "Google で続ける",
   "login.note": "Achievee は進捗を表示するために Google Calendar と Google Tasks を読み取り専用で取得します。変更することはありません。",
@@ -126,11 +126,11 @@ const ja: BaseDict = {
   "cmd.goToday": "今日へ移動", "cmd.goDate": "{date}へ移動", "cmd.addDay": "今日の目標を追加: {text}", "cmd.addWeek": "今週の目標を追加: {text}",
   "cmd.searching": "検索中…", "cmd.none": "結果がありません", "cmd.searchFail": "今は検索できません。", "cmd.addFail": "目標を追加できませんでした。もう一度お試しください。",
   "cmd.recent": "最近の記録を中心に検索します。", "cmd.t.goal": "目標", "cmd.t.weekGoal": "週間目標", "cmd.t.diary": "日記", "cmd.t.expense": "支出", "cmd.t.income": "収入", "cmd.t.saving": "貯蓄", "cmd.t.workout": "運動",
-  "gc.sec": "Google", "gc.perm": "予定とタスクの読み取り専用の権限が必要です。", "gc.connect": "Google カレンダーを接続", "gc.reconnect": "再接続", "gc.revoked": "接続が切れました", "gc.disconnectAria": "Google カレンダーの接続を解除", "gc.confirm": "Google の接続を解除しますか？予定とタスクはここに表示されなくなります。", "gc.disconnectFail": "接続を解除できませんでした。もう一度お試しください。", "gc.retConnected": "Google カレンダーを接続しました。", "gc.retError": "Google に接続できませんでした。もう一度お試しください。", "gc.retPartial": "一部の権限が許可されませんでした。もう一度接続してください。", "gc.emptyNone": "Google カレンダーを接続すると、予定がここに表示されます。",
+  "gc.sec": "Google", "gc.perm": "予定とタスクの読み取り専用の権限が必要です。", "gc.connect": "Google カレンダーを接続", "gc.reconnect": "再接続", "gc.revoked": "接続が切れました", "gc.disconnectAria": "Google カレンダーの接続を解除", "gc.confirm": "Google の接続を解除しますか？予定とタスクはここに表示されなくなります。", "gc.disconnectFail": "接続を解除できませんでした。もう一度お試しください。", "gc.retConnected": "Google カレンダーを接続しました。", "gc.retError": "Google に接続できませんでした。もう一度お試しください。", "gc.retPartial": "一部の権限が許可されませんでした。もう一度接続してください。", "gc.linkRevoked": "Google との接続が切れました · 再接続",
 };
 
 const es: BaseDict = {
-  "nav.calendar": "Calendario", "nav.stats": "Estadísticas", "nav.diary": "Diario", "nav.expense": "Gastos", "nav.google": "Google Calendar",
+  "nav.calendar": "Registro", "nav.stats": "Estadísticas", "nav.diary": "Diario", "nav.expense": "Gastos", "nav.google": "Calendario",
   "login.tagline": "¡Registra tus días de forma bonita con Google Calendar y Google Tasks!",
   "login.cta": "Continuar con Google",
   "login.note": "Achievee lee tu Google Calendar y tus Google Tasks (solo lectura) para mostrar tu progreso. Nunca los modifica.",
@@ -161,7 +161,7 @@ const es: BaseDict = {
   "cmd.goToday": "Ir a hoy", "cmd.goDate": "Ir al {date}", "cmd.addDay": "Añadir objetivo de hoy: {text}", "cmd.addWeek": "Añadir objetivo de la semana: {text}",
   "cmd.searching": "Buscando…", "cmd.none": "Sin resultados", "cmd.searchFail": "La búsqueda no está disponible ahora.", "cmd.addFail": "No se pudo añadir el objetivo. Inténtalo de nuevo.",
   "cmd.recent": "Se buscan sobre todo los registros recientes.", "cmd.t.goal": "Objetivo", "cmd.t.weekGoal": "Objetivo semanal", "cmd.t.diary": "Diario", "cmd.t.expense": "Gasto", "cmd.t.income": "Ingreso", "cmd.t.saving": "Ahorro", "cmd.t.workout": "Ejercicio",
-  "gc.sec": "Google", "gc.perm": "Necesita acceso de solo lectura a tus eventos y tareas.", "gc.connect": "Conectar Google Calendar", "gc.reconnect": "Volver a conectar", "gc.revoked": "Conexión perdida", "gc.disconnectAria": "Desconectar Google Calendar", "gc.confirm": "¿Desconectar Google? Tus eventos y tareas dejarán de aparecer aquí.", "gc.disconnectFail": "No se pudo desconectar. Inténtalo de nuevo.", "gc.retConnected": "Google Calendar está conectado.", "gc.retError": "No se pudo conectar Google. Inténtalo de nuevo.", "gc.retPartial": "No se permitieron algunos permisos. Vuelve a conectar.", "gc.emptyNone": "Conecta Google Calendar y tus eventos aparecerán aquí.",
+  "gc.sec": "Google", "gc.perm": "Necesita acceso de solo lectura a tus eventos y tareas.", "gc.connect": "Conectar Google Calendar", "gc.reconnect": "Volver a conectar", "gc.revoked": "Conexión perdida", "gc.disconnectAria": "Desconectar Google Calendar", "gc.confirm": "¿Desconectar Google? Tus eventos y tareas dejarán de aparecer aquí.", "gc.disconnectFail": "No se pudo desconectar. Inténtalo de nuevo.", "gc.retConnected": "Google Calendar está conectado.", "gc.retError": "No se pudo conectar Google. Inténtalo de nuevo.", "gc.retPartial": "No se permitieron algunos permisos. Vuelve a conectar.", "gc.linkRevoked": "Conexión con Google perdida · Volver a conectar",
 };
 
 export const DICT: Record<Locale, Dict> = {

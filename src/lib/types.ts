@@ -13,4 +13,5 @@ export type DayEvent = {
   id: string; date: string; title: string; calendar: string; color: string; link?: string; location?: string;
   allDay: boolean; startMin: number; endMin: number; // minutes from 00:00, clamped to the day
   meeting?: boolean;       // has another person on the invite, or a video-call link
+  source?: "google" | "native"; // where it comes from; absent = google
 };

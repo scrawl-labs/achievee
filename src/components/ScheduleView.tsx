@@ -7,19 +7,18 @@ import AgendaView from "./AgendaView";
 import type { TaskItem } from "@/lib/types";
 import type { Key } from "@/lib/i18n";
 import { useI18n } from "./I18n";
-import GoogleEmpty from "./GoogleEmpty";
-import { useGoogleStatus } from "./useGoogleStatus";
+import { startGoogleConnect, useGoogleStatus } from "./useGoogleStatus";
 
 export const GMODES: readonly (readonly [string, Key])[] = [["DAY", "g.day"], ["WEEK", "g.week"], ["MONTH", "g.month"], ["AGENDA", "g.agenda"]];
 export type GMode = "DAY" | "WEEK" | "MONTH" | "AGENDA";
 
-/** Day / week / month / agenda views drawn from the Google Calendar API (Google's own embed can't show a day view). */
-export default function GoogleCalView({ sel, setSel, mode, setMode, tasks }: {
+/** Our calendar: day / week / month / agenda views. Events arrive through useEvents -> mergeEvents (today: Google only, drawn from its API since the embed has no day view). */
+export default function ScheduleView({ sel, setSel, mode, setMode, tasks }: {
   sel: string; setSel: (d: string) => void; mode: GMode; setMode: (m: GMode) => void; tasks: TaskItem[];
 }) {
   const { t } = useI18n();
   const { status } = useGoogleStatus();
-  if (status === "none" || status === "revoked") return <GoogleEmpty status={status} />; // unknown (loading) falls through, so a connected user sees no flash
+  const linkKey: Key | null = status === "none" ? "gc.connect" : status === "revoked" ? "gc.linkRevoked" : null; // connected / still loading: nothing, so no flash
   const pick = (d: string) => { setSel(d); setMode("DAY"); };
   return (
     <>
@@ -33,6 +32,7 @@ export default function GoogleCalView({ sel, setSel, mode, setMode, tasks }: {
           <GCalLogo size={18} />{t("g.open")}
         </a>
       </div>
+      {linkKey && <button type="button" className="glink" onClick={startGoogleConnect}>{t(linkKey)}</button>}
       {mode === "DAY" && <DayView date={sel} tasks={tasks} />}
       {mode === "WEEK" && <WeekView date={sel} onPickDay={pick} />}
       {mode === "MONTH" && <MonthEventView date={sel} onPickDay={pick} />}
