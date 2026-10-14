@@ -16,6 +16,16 @@ function range(ym: string) {
   return { first: `${ym}-01`, last: `${ym}-${pad(last)}`, next, count: last };
 }
 
+/** Every day of the month with nothing in it (also the answer when Google access is revoked). */
+export function emptyMonthDays(ym: string): Record<string, DayData> {
+  const days: Record<string, DayData> = {};
+  for (let d = 1; d <= range(ym).count; d++) {
+    const date = `${ym}-${String(d).padStart(2, "0")}`;
+    days[date] = { date, done: 0, total: 0, events: 0, tasks: [], eventList: [] };
+  }
+  return days;
+}
+
 type TaskRow = { title?: string; due?: string; status: string; completed?: string };
 
 async function fetchTasks(first: string, last: string, token: string): Promise<TaskRow[]> {
@@ -44,12 +54,8 @@ const hhmm = (min: number) => `${String(Math.floor(min / 60)).padStart(2, "0")}:
  *  - Completion comes from Google Tasks (due date → day; falls back to completion date).
  */
 export async function fetchMonth(ym: string, token: string, tz: string): Promise<Record<string, DayData>> {
-  const { first, last, next, count } = range(ym);
-  const days: Record<string, DayData> = {};
-  for (let d = 1; d <= count; d++) {
-    const date = `${ym}-${String(d).padStart(2, "0")}`;
-    days[date] = { date, done: 0, total: 0, events: 0, tasks: [], eventList: [] };
-  }
+  const { first, last, next } = range(ym);
+  const days = emptyMonthDays(ym);
 
   const [tasks, events] = await Promise.all([fetchTasks(first, last, token), fetchRange(first, next, token, tz)]);
 

@@ -5,6 +5,8 @@ import { getToken } from "next-auth/jwt";
 import { getServerSession } from "next-auth";
 import { cookies, headers } from "next/headers";
 import { cache } from "react";
+import { identity } from "./db";
+import { MIGRATION_TIMEOUT_MS, migrateGoogleFromJwt, succeedsWithin, warnGoogleStoreFailed } from "./googleMigration";
 
 // Narrowest read-only scopes that authorize the calls we make (see lib/google.ts):
 //   calendarList.list -> calendar.calendarlist.readonly, events.list -> calendar.events.readonly, tasks lists/tasks -> tasks.readonly
@@ -26,6 +28,7 @@ async function refresh(token: JWT): Promise<JWT> {
         grant_type: "refresh_token",
         refresh_token: token.refreshToken as string,
       }),
+      signal: AbortSignal.timeout(5000), // a timeout lands in the catch below like any other refresh failure
     });
     const data = await res.json();
     if (!res.ok) throw data;
@@ -34,6 +37,7 @@ async function refresh(token: JWT): Promise<JWT> {
       accessToken: data.access_token,
       expiresAt: Date.now() + data.expires_in * 1000,
       refreshToken: data.refresh_token ?? token.refreshToken,
+      scope: data.scope ?? token.scope, // lets sessions that predate scope tracking be migrated to the DB
       error: undefined,
     };
   } catch {
@@ -52,12 +56,22 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   pages: { signIn: "/" },
   callbacks: {
+    async signIn({ user, account }) {
+      // Idempotent identity rows; a database problem must never block sign-in.
+      if (account?.provider === "google" && user.id) {
+        // a slow or failing db must not hold up or block the sign-in
+        if (!(await succeedsWithin(identity.ensure(user.id, "google", account.providerAccountId), MIGRATION_TIMEOUT_MS))) warnGoogleStoreFailed();
+      }
+      return true;
+    },
     async jwt({ token, account }) {
       if (account) {
+        if (token.sub) await migrateGoogleFromJwt(token.sub, { refreshToken: account.refresh_token, scope: account.scope }, true);
         return {
           ...token,
           accessToken: account.access_token,
           refreshToken: account.refresh_token,
+          scope: account.scope,
           expiresAt: (account.expires_at ?? 0) * 1000,
         };
       }
@@ -88,6 +102,7 @@ export async function getUser() {
     t = await refresh(t); // persisted into the cookie by the next /api/auth/session call
     if (t.error) return null;
   }
+  await migrateGoogleFromJwt(token.sub, { refreshToken: t.refreshToken, scope: t.scope }, false); // never throws
   return { id: token.sub, accessToken: t.accessToken as string };
 }
 

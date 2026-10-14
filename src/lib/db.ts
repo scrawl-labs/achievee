@@ -44,6 +44,9 @@ async function sql() {
       period_start TEXT NOT NULL, text TEXT NOT NULL, done BOOLEAN NOT NULL DEFAULT FALSE,
       position INTEGER NOT NULL DEFAULT 0, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`,
     s`CREATE INDEX IF NOT EXISTS goal_user_scope_period ON goal ("user", scope, period_start)`,
+    s`CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`,
+    s`CREATE TABLE IF NOT EXISTS accounts (
+      provider TEXT NOT NULL, provider_account_id TEXT NOT NULL, user_id TEXT NOT NULL, PRIMARY KEY (provider, provider_account_id))`,
   ]).catch((e) => { _ready = undefined; throw e; });
   await _ready;
   return s;
@@ -86,6 +89,7 @@ export async function deleteUserData(user: string) {
   await s.transaction([
     s`DELETE FROM diary WHERE "user"=${user}`, s`DELETE FROM expense WHERE "user"=${user}`,
     s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM saving WHERE "user"=${user}`, s`DELETE FROM workout WHERE "user"=${user}`, s`DELETE FROM body WHERE "user"=${user}`, s`DELETE FROM intake WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`, s`DELETE FROM goal WHERE "user"=${user}`, s`DELETE FROM integration WHERE "user"=${user}`,
+    s`DELETE FROM accounts WHERE user_id=${user}`, s`DELETE FROM users WHERE id=${user}`,
   ]);
 }
 
@@ -304,10 +308,21 @@ export const reviews = {
  * it is only ever decrypted on the server and never sent to the browser.
  */
 export const integrations = {
+  /** Work tools only: the google row (refresh token) is excluded on purpose; read it with get() where a token is needed. */
   async list(user: string): Promise<{ provider: string; config: Record<string, string> }[]> {
     const s = await sql();
-    const rows = (await s`SELECT provider, config FROM integration WHERE "user"=${user} ORDER BY provider`) as { provider: string; config: string }[];
+    const rows = (await s`SELECT provider, config FROM integration WHERE "user"=${user} AND provider <> 'google' ORDER BY provider`) as { provider: string; config: string }[];
     return rows.flatMap((r) => { try { return [{ provider: r.provider, config: JSON.parse(decrypt(r.config)) }]; } catch { return []; } });
+  },
+  /** One provider's config, or null when absent or unreadable. A broken ENCRYPTION_KEY is a deployment problem and still throws. */
+  async get(user: string, provider: string): Promise<Record<string, string> | null> {
+    const s = await sql();
+    const rows = (await s`SELECT config FROM integration WHERE "user"=${user} AND provider=${provider}`) as { config: string }[];
+    if (!rows[0]) return null;
+    try { return JSON.parse(decrypt(rows[0].config)); } catch (e) {
+      if (e instanceof EncryptionConfigError) throw e;
+      return null;
+    }
   },
   async save(user: string, provider: string, config: Record<string, string>) {
     const s = await sql();
@@ -317,6 +332,18 @@ export const integrations = {
   async remove(user: string, provider: string) {
     const s = await sql();
     await s`DELETE FROM integration WHERE "user"=${user} AND provider=${provider}`;
+  },
+};
+
+/** Stable internal identity. users.id is the Google account id (sub), the same value every other table calls "user". */
+export const identity = {
+  /** Idempotent: safe to run on every sign-in. */
+  async ensure(userId: string, provider: string, providerAccountId: string) {
+    const s = await sql();
+    await s.transaction([
+      s`INSERT INTO users (id) VALUES (${userId}) ON CONFLICT DO NOTHING`,
+      s`INSERT INTO accounts (provider, provider_account_id, user_id) VALUES (${provider}, ${providerAccountId}, ${userId}) ON CONFLICT DO NOTHING`,
+    ]);
   },
 };
 

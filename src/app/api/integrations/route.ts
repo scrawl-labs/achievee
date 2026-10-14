@@ -6,18 +6,20 @@ import { githubVerify } from "@/lib/integrations/github";
 import { jiraVerify, normalizeSite } from "@/lib/integrations/jira";
 import { slackVerify } from "@/lib/integrations/slack";
 import { notionVerify } from "@/lib/integrations/notion";
+import { dbGoogleStore } from "@/lib/googleToken";
+import { maskIntegrations } from "@/lib/integrations/mask";
 import { isProvider } from "@/lib/integrations/types";
 
 export const dynamic = "force-dynamic";
 const SLACK_ENABLED = false; // the Slack card is hidden until the unanswered-mentions version exists
 const clip = (v: unknown, n = 300) => String(v ?? "").trim().slice(0, n);
 
-/** Which tools are connected. Only a display label goes back to the browser; the token never does. */
+/** Which tools are connected. Only a display label (or, for Google, a bare status) goes back to the browser; tokens never do. */
 export async function GET() {
   const u = await getUser();
   if (!u) return unauthorized();
-  const rows = await integrations.list(u.id);
-  return NextResponse.json(rows.map((r) => ({ provider: r.provider, label: r.config.label ?? "" })));
+  const [rows, google] = await Promise.all([integrations.list(u.id), dbGoogleStore.get(u.id)]);
+  return NextResponse.json(maskIntegrations(rows, google));
 }
 
 /** Connect (or replace) a tool. The credentials are checked against the real service first; nothing is saved if that fails. */

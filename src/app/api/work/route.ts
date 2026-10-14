@@ -7,6 +7,7 @@ import { githubItems, type GithubConfig } from "@/lib/integrations/github";
 import { jiraItems, type JiraConfig } from "@/lib/integrations/jira";
 import { slackItems, type SlackConfig } from "@/lib/integrations/slack";
 import { notionItems, type NotionConfig } from "@/lib/integrations/notion";
+import { isProvider } from "@/lib/integrations/types";
 import type { WorkItem } from "@/lib/integrations/types";
 
 export const dynamic = "force-dynamic";
@@ -20,7 +21,7 @@ export async function GET(req: Request) {
   const u = await getUser();
   if (!u) return unauthorized();
   const tz = safeTz(p.get("tz"));
-  const connected = await integrations.list(u.id);
+  const connected = (await integrations.list(u.id)).filter((c) => isProvider(c.provider)); // the "google" row is not a work tool
   const results = await Promise.allSettled(connected.map((c) =>
     c.provider === "github" ? githubItems(c.config as unknown as GithubConfig, from, to, tz)
     : c.provider === "jira" ? jiraItems(c.config as unknown as JiraConfig, from, to, tz)
