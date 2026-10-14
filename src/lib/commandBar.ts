@@ -19,6 +19,14 @@ export const TABS: readonly { key: Tab; label: Key; icon: TabIcon }[] = [
   { key: "integrations", label: "nav.integrations", icon: "plug" },
 ];
 
+/**
+ * Phone tab bar: the four tabs used most (in this order), then "More" with everything else.
+ * Daily: record, schedule, diary, spending. The rest (exercise, stats, connections) is opened less often.
+ */
+const PRIMARY_KEYS: readonly Tab[] = ["calendar", "google", "diary", "expense"];
+export const PRIMARY_TABS = PRIMARY_KEYS.map((k) => TABS.find((t) => t.key === k)!);
+export const MORE_TABS = TABS.filter((t) => !PRIMARY_KEYS.includes(t.key));
+
 /** Shape of GET /api/search results (the server owns the real definition). */
 export type HitType = "goal" | "diary" | "expense" | "income" | "saving" | "workout" | "todo";
 export type SearchHit = { type: HitType; date: string; title: string; scope?: GoalScope };

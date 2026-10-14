@@ -10,6 +10,7 @@ const P: Record<string, React.ReactNode> = {
   edit: <><path d="M4 20h4L19 9l-4-4L4 16z" /><path d="M13.5 6.5l4 4" /></>,
   plug: <><path d="M9 3v4M15 3v4" /><path d="M6 7h12v4a6 6 0 0 1-12 0z" /><path d="M12 17v4" /></>,
   activity: <path d="M3 12h4l3-8 4 16 3-8h4" />,
+  more: <><circle cx="5.5" cy="12" r="1.4" /><circle cx="12" cy="12" r="1.4" /><circle cx="18.5" cy="12" r="1.4" /></>,
   check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
   search: <><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4.5 4.5" /></>,
   close: <path d="M6 6l12 12M18 6L6 18" />,

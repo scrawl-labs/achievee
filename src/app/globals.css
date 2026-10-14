@@ -148,13 +148,15 @@ button.item:hover, button.item.on { border-color: var(--accent); }
   .workspace { grid-template-columns: 1fr; }
   .detail { position: static; }
 }
+.tabbar { display: none; } /* wide screens use the sidebar list */
 @media (max-width: 860px) {
   .shell { grid-template-columns: 1fr; }
   .side { position: fixed; z-index: 10; inset: auto 0 0 0; height: auto; flex-direction: row; padding: 6px var(--s2) calc(6px + env(safe-area-inset-bottom)); border-right: 0; border-top: 1px solid var(--line); background: color-mix(in oklab, var(--bg) 88%, transparent); backdrop-filter: blur(14px); }
   .brand, .account { display: none; }
-  .nav { flex-direction: row; width: 100%; }
-  .nav button { flex: 1; flex-direction: column; justify-content: center; gap: 2px; height: 52px; font-size: 11px; padding: 0; }
-  .nav button.on { background: none; color: var(--accent); }
+  .nav { display: none; } /* the phone uses .tabbar */
+  .tabbar { display: flex; width: 100%; }
+  .tabbar > button, .tabbar .more > button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 52px; font-size: 11px; padding: 0; width: 100%; color: var(--fg-2); font-weight: 500; }
+  .tabbar > button.on, .tabbar .more > button.on { color: var(--accent); }
   .page { padding: var(--s4) var(--s4) 96px; }
   h1 { font-size: 22px; }
   .pagehead { margin-bottom: var(--s4); }
@@ -791,10 +793,12 @@ button.note.open { display: block; -webkit-line-clamp: unset; overflow: visible;
   .summary dd { font-size: 20px; }
 }
 @media (max-width: 560px) {
-  .summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .summary > div + div { border-left: 0; }
-  .summary > div:nth-child(even) { border-left: 1px solid var(--line); }
-  .summary > div:nth-child(n+3) { border-top: 1px solid var(--line); }
+  /* up to three numbers stay in one row with a divider between each; four or more go two per row, every cell divided from its neighbours */
+  .summary:has(> div:nth-child(4)) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .summary:has(> div:nth-child(4)) > div + div { border-left: 0; }
+  .summary:has(> div:nth-child(4)) > div:nth-child(even) { border-left: 1px solid var(--line); }
+  .summary:has(> div:nth-child(4)) > div:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .summary:has(> div:nth-child(4)) > div:last-child:nth-child(odd) { grid-column: 1 / -1; } /* an odd one out takes the full row */
 }
 
 /* weekly spending check */
@@ -931,3 +935,10 @@ button.ev.native.moving { opacity: .35; cursor: grabbing; }
 .ev-resize { position: absolute; left: 0; right: 0; bottom: 0; height: 8px; cursor: ns-resize; }
 .ev-resize::after { content: ""; position: absolute; left: 50%; bottom: 2px; width: 18px; height: 3px; margin-left: -9px; border-radius: 2px; background: currentColor; opacity: 0; transition: opacity .12s; }
 button.ev.native:hover .ev-resize::after { opacity: .45; }
+
+/* phone tab bar with a "More" sheet (the bar itself is switched on in the 860px block above) */
+.tabbar .more { position: relative; flex: 1; display: flex; }
+.more-sheet { position: absolute; right: 0; bottom: calc(100% + 10px); min-width: 188px; display: flex; flex-direction: column; padding: var(--s2); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); box-shadow: 0 12px 32px rgba(0, 0, 0, .4); }
+.more-sheet button { display: flex; align-items: center; gap: var(--s3); height: 46px; padding: 0 var(--s3); border-radius: var(--r-s); color: var(--fg); font-size: 15px; font-weight: 500; text-align: left; }
+.more-sheet button:hover { background: var(--surface-2); }
+.more-sheet button.on { color: var(--accent); font-weight: 600; }

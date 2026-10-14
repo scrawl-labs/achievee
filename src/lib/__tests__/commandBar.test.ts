@@ -214,3 +214,17 @@ describe("todo search hits", () => {
       .toEqual([{ type: "todo", date: "2026-10-14", title: "milk" }]);
   });
 });
+
+import { MORE_TABS, PRIMARY_TABS, TABS } from "@/lib/commandBar";
+
+describe("phone tab bar split", () => {
+  it("shows the daily tabs first, in order, and the rest under More", () => {
+    expect(PRIMARY_TABS.map((t) => t.key)).toEqual(["calendar", "google", "diary", "expense"]);
+    expect(MORE_TABS.map((t) => t.key)).toEqual(["stats", "workout", "integrations"]);
+  });
+  it("every tab is reachable exactly once", () => {
+    const keys = [...PRIMARY_TABS, ...MORE_TABS].map((t) => t.key).sort();
+    expect(keys).toEqual(TABS.map((t) => t.key).sort());
+    expect(new Set(keys).size).toBe(TABS.length);
+  });
+});

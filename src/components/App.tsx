@@ -7,6 +7,7 @@ import { addDays, mondayOf } from "@/lib/dates";
 import { periodOf } from "@/lib/period";
 import { browserTz, todayStr } from "@/lib/clientTime";
 import { type Tab, TABS } from "@/lib/commandBar";
+import MobileTabBar from "./MobileTabBar";
 import CalendarView from "./CalendarView";
 import StatsView from "./StatsView";
 import DiaryView from "./DiaryView";
@@ -115,6 +116,7 @@ function Main() {
           {session?.user?.email && <small className="muted who" title={session.user.email}>{session.user.email}</small>}
           <button className="btn" onClick={() => signOut()}>{t("account.signOut")}</button>
         </div>
+      <MobileTabBar tab={tab} setTab={setTab} />
       </aside>
 
       <main className="page">
