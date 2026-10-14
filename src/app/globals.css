@@ -891,3 +891,12 @@ button.note.open { display: block; -webkit-line-clamp: unset; overflow: visible;
   .cmd-hint { display: none; }
 }
 @media (prefers-reduced-motion: no-preference) { .cmd { animation: cmd-in .12s ease-out; } @keyframes cmd-in { from { opacity: 0; transform: translateY(-6px); } } }
+
+/* day panel: own to-dos reuse the goal rows; Google tasks (read-only) carry a small "Google" pill.
+   .tk-src is deliberately not related to the calendar cells' count stamps (.stamp / .blob). */
+.tasks .tk-title { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.tk-src { flex: none; font-size: 11px; font-weight: 700; line-height: 1.4; padding: 0 var(--s2); border-radius: 99px; border: 1px solid var(--line); background: var(--surface-2); color: var(--fg-2); white-space: nowrap; }
+/* strike the title only, not the pill */
+.tasks li.done { text-decoration: none; }
+.tasks li.done .tk-title { text-decoration: line-through; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }

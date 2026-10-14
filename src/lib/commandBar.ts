@@ -1,6 +1,7 @@
 import { addDays, isYmd } from "./dates";
 import { GOAL_TEXT_MAX, type GoalScope } from "./goals";
 import type { Key } from "./i18n";
+import { TODO_TEXT_MAX } from "./todosUi";
 
 /** Pure logic behind the command bar (⌘K): parsing, filtering, navigation targets. No React, no I/O. */
 
@@ -19,7 +20,7 @@ export const TABS: readonly { key: Tab; label: Key; icon: TabIcon }[] = [
 ];
 
 /** Shape of GET /api/search results (the server owns the real definition). */
-export type HitType = "goal" | "diary" | "expense" | "income" | "saving" | "workout";
+export type HitType = "goal" | "diary" | "expense" | "income" | "saving" | "workout" | "todo";
 export type SearchHit = { type: HitType; date: string; title: string; scope?: GoalScope };
 
 export const SEARCH_MIN = 2;
@@ -59,6 +60,16 @@ export function parseGoalCommand(raw: string): string | null {
   return text.length >= 1 && text.length <= GOAL_TEXT_MAX ? text : null;
 }
 
+const TODO_RE = /^(?:할\s?일|todo|タスク|やること|tarea|待辦|待办)\s+(\S[\s\S]*)$/i;
+
+/** "할일 <text>" / "todo <text>" → the to-do text, or null. Prefixes never overlap the goal command's. */
+export function parseTodoCommand(raw: string): string | null {
+  const m = TODO_RE.exec(raw.trim());
+  if (!m) return null;
+  const text = m[1].trim();
+  return text.length >= 1 && text.length <= TODO_TEXT_MAX ? text : null;
+}
+
 const isSubsequence = (needle: string, hay: string) => {
   let i = 0;
   for (const ch of hay) if (ch === needle[i] && ++i === needle.length) return true;
@@ -87,7 +98,8 @@ export function hitTarget(hit: SearchHit): { tab: Tab; date: string } {
     case "income":
     case "saving": return { tab: "expense", date: hit.date };
     case "workout": return { tab: "workout", date: hit.date };
-    case "goal": return { tab: "calendar", date: hit.date };
+    case "goal":
+    case "todo": return { tab: "calendar", date: hit.date };
   }
 }
 
@@ -108,7 +120,7 @@ export function searchQuery(raw: string): string | null {
 /** Enter/arrow keys that belong to an IME (Korean/Japanese/Chinese composition) must not trigger actions. */
 export const isImeEvent = (e: { isComposing?: boolean; keyCode?: number }) => e.isComposing === true || e.keyCode === 229;
 
-const HIT_TYPES: readonly string[] = ["goal", "diary", "expense", "income", "saving", "workout"];
+const HIT_TYPES: readonly string[] = ["goal", "diary", "expense", "income", "saving", "workout", "todo"];
 
 /** Defensive read of the /api/search body: keeps well-formed hits only, so an odd response can't break rendering. */
 export function parseSearchResponse(body: unknown): SearchHit[] {
@@ -128,7 +140,7 @@ export function parseSearchResponse(body: unknown): SearchHit[] {
 export const isPaletteShortcut = (e: { code: string; key: string; metaKey: boolean; ctrlKey: boolean; shiftKey: boolean; altKey: boolean }) =>
   (e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey && (e.code === "KeyK" || e.key.toLowerCase() === "k");
 
-/** Initial selection: the first item that is not "add goal" (Enter on a sentence you meant to search must not create data). */
+/** Initial selection: the first item that is not "add goal/todo" (Enter on a sentence you meant to search must not create data). */
 export function defaultActiveIndex(isGoalAdd: readonly boolean[]): number {
   if (isGoalAdd.length === 0) return -1;
   const i = isGoalAdd.indexOf(false);

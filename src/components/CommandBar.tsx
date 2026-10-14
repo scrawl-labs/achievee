@@ -20,7 +20,7 @@ export default function CommandBar({ go }: { go: (tab: Tab, date?: string) => vo
     if (c.open && c.activeIndex >= 0) list.current?.children[c.activeIndex]?.scrollIntoView({ block: "nearest" });
   }, [c.open, c.activeIndex]);
 
-  const note = c.addFailed ? t("cmd.addFail") : c.searchFailed ? t("cmd.searchFail")
+  const note = c.addFailed ? t(c.addFailed === "todo" ? "cmd.addTodoFail" : "cmd.addFail") : c.searchFailed ? t("cmd.searchFail")
     : c.loading ? t("cmd.searching") : c.items.length === 0 ? t("cmd.none") : null;
   const scopeNote = c.searched && !c.loading && !c.searchFailed ? t("cmd.recent") : null;
 

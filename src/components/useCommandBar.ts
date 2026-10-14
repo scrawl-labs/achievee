@@ -5,7 +5,7 @@ import { mondayOf } from "@/lib/dates";
 import { todayStr } from "@/lib/clientTime";
 import {
   type HitType, type SearchHit, type Tab, TABS, defaultActiveIndex, filterCommands, hitTarget, isImeEvent, isPaletteShortcut, moveIndex,
-  parseDateInput, parseGoalCommand, parseSearchResponse, searchQuery,
+  parseDateInput, parseGoalCommand, parseSearchResponse, parseTodoCommand, searchQuery,
 } from "@/lib/commandBar";
 import type { Key } from "@/lib/i18n";
 import { useI18n } from "./I18n";
@@ -17,13 +17,14 @@ type Action =
   | { type: "today" }
   | { type: "date"; date: string }
   | { type: "goal"; scope: GoalScope; text: string }
+  | { type: "todo"; text: string }
   | { type: "hit"; hit: SearchHit };
 export type CmdItem = { id: string; icon: IconName; label: string; hint?: string; action: Action };
 
 type Found = { q: string; ok: boolean; hits: SearchHit[] };
 const DEBOUNCE_MS = 400;
 const RETRY_MS = 1000; // server 429s carry Retry-After: 1
-const HIT_ICON: Record<HitType, IconName> = { goal: "check", diary: "book", expense: "wallet", income: "plus", saving: "chart", workout: "activity" };
+const HIT_ICON: Record<HitType, IconName> = { goal: "check", diary: "book", expense: "wallet", income: "plus", saving: "chart", workout: "activity", todo: "check" };
 const hitLabel = (h: SearchHit): Key => (h.type === "goal" && h.scope === "week" ? "cmd.t.weekGoal" : `cmd.t.${h.type}`);
 
 /** State and behaviour of the command bar; `go` moves the app to a tab and/or a selected date. */
@@ -33,7 +34,7 @@ export function useCommandBar(go: (tab: Tab, date?: string) => void) {
   const [query, setQueryRaw] = useState("");
   const [active, setActive] = useState<number | null>(null); // null: the user has not moved, use the default
   const [found, setFound] = useState<Found | null>(null);
-  const [addFailed, setAddFailed] = useState(false);
+  const [addFailed, setAddFailed] = useState<"goal" | "todo" | null>(null); // which quick add failed, for the message
   const [busy, setBusy] = useState(false);
   const opener = useRef<HTMLElement | null>(null);
   const session = useRef(0); // bumped on every open/close so a slow POST cannot act on a newer session
@@ -42,14 +43,14 @@ export function useCommandBar(go: (tab: Tab, date?: string) => void) {
   const show = useCallback(() => {
     opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     session.current += 1;
-    setQueryRaw(""); setActive(null); setAddFailed(false); setFound(null); setOpen(true);
+    setQueryRaw(""); setActive(null); setAddFailed(null); setFound(null); setOpen(true);
   }, []);
   const close = useCallback(() => {
     session.current += 1;
     setOpen(false);
     opener.current?.focus();
   }, []);
-  const setQuery = useCallback((q: string) => { setQueryRaw(q); setActive(null); setAddFailed(false); }, []);
+  const setQuery = useCallback((q: string) => { setQueryRaw(q); setActive(null); setAddFailed(null); }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -90,6 +91,7 @@ export function useCommandBar(go: (tab: Tab, date?: string) => void) {
     const day = (iso: string) => (iso.slice(0, 4) === today.slice(0, 4) ? fmt.monthDay(iso) : fmt.date(iso));
     const date = parseDateInput(query, today);
     const goal = parseGoalCommand(query);
+    const todo = parseTodoCommand(query);
     const commands = [
       ...TABS.map((tb) => ({ id: `tab:${tb.key}`, icon: tb.icon as IconName, label: t(tb.label), action: { type: "tab", tab: tb.key } as Action })),
       ...(date === today ? [] : [{ id: "today", icon: "calendar" as IconName, label: t("cmd.goToday"), keywords: "today", action: { type: "today" } as Action }]),
@@ -100,6 +102,7 @@ export function useCommandBar(go: (tab: Tab, date?: string) => void) {
         { id: "goal:day", icon: "plus" as IconName, label: t("cmd.addDay", { text: goal }), action: { type: "goal", scope: "day", text: goal } as Action },
         { id: "goal:week", icon: "plus" as IconName, label: t("cmd.addWeek", { text: goal }), action: { type: "goal", scope: "week", text: goal } as Action },
       ] : []),
+      ...(todo ? [{ id: "todo:day", icon: "plus" as IconName, label: t("cmd.addTodo", { text: todo }), action: { type: "todo", text: todo } as Action }] : []),
       ...filterCommands(commands, query),
       ...(current?.hits ?? []).map((hit, i) => ({
         id: `hit:${i}`, icon: HIT_ICON[hit.type], label: hit.title, hint: `${t(hitLabel(hit))} · ${day(hit.date)}`, action: { type: "hit", hit } as Action,
@@ -107,31 +110,31 @@ export function useCommandBar(go: (tab: Tab, date?: string) => void) {
     ];
   }, [query, current, t, fmt]);
 
-  const activeIndex = active === null ? defaultActiveIndex(items.map((i) => i.action.type === "goal")) : Math.min(active, items.length - 1);
+  const activeIndex = active === null ? defaultActiveIndex(items.map((i) => i.action.type === "goal" || i.action.type === "todo")) : Math.min(active, items.length - 1);
 
   const run = useCallback(async (item: CmdItem) => {
     const a = item.action;
-    if (a.type === "goal") {
+    if (a.type === "goal" || a.type === "todo") {
       if (posting.current) return; // double click / Enter+click: one POST
       posting.current = true;
       const sid = session.current;
       const today = todayStr();
       setBusy(true);
-      setAddFailed(false);
+      setAddFailed(null);
+      const post = a.type === "goal"
+        ? { url: "/api/goals", body: { scope: a.scope, period_start: a.scope === "week" ? mondayOf(today) : today, text: a.text } }
+        : { url: "/api/todos", body: { date: today, text: a.text } };
       let saved = false;
       try {
-        const r = await fetch("/api/goals", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ scope: a.scope, period_start: a.scope === "week" ? mondayOf(today) : today, text: a.text }),
-        });
+        const r = await fetch(post.url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(post.body) });
         if (!r.ok) throw new Error(String(r.status));
         saved = true;
       } catch { /* reported below, only if this session is still the one on screen */ }
       posting.current = false;
       setBusy(false);
-      if (saved) invalidate("/api/goals");
+      if (saved) { invalidate(post.url); if (a.type === "todo") invalidate("/api/month"); } // month badges and stats sum to-dos
       if (sid !== session.current) return; // closed (or reopened) meanwhile: leave the current UI alone
-      if (saved) close(); else setAddFailed(true);
+      if (saved) close(); else setAddFailed(a.type);
       return;
     }
     if (a.type === "tab") go(a.tab);

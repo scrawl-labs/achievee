@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  defaultActiveIndex, filterCommands, hitTarget, isImeEvent, isPaletteShortcut, moveIndex, parseDateInput, parseGoalCommand, parseSearchResponse, searchQuery, type SearchHit,
+  defaultActiveIndex, filterCommands, hitTarget, isImeEvent, isPaletteShortcut, moveIndex, parseDateInput, parseGoalCommand, parseSearchResponse, parseTodoCommand, searchQuery, type SearchHit,
 } from "@/lib/commandBar";
 
 const TODAY = "2026-10-14";
@@ -176,5 +176,41 @@ describe("defaultActiveIndex", () => {
   });
   it("falls back to the first goal-add item when it is all there is (quick add stays one Enter)", () => {
     expect(defaultActiveIndex([true, true])).toBe(0);
+  });
+});
+
+describe("parseTodoCommand", () => {
+  it("accepts the keyword in each language followed by text", () => {
+    expect(parseTodoCommand("todo buy milk")).toBe("buy milk");
+    expect(parseTodoCommand("TODO buy milk")).toBe("buy milk");
+    expect(parseTodoCommand("할일 우유 사기")).toBe("우유 사기");
+    expect(parseTodoCommand("할 일 우유 사기")).toBe("우유 사기");
+    expect(parseTodoCommand("タスク 牛乳")).toBe("牛乳");
+    expect(parseTodoCommand("やること 牛乳")).toBe("牛乳");
+    expect(parseTodoCommand("tarea comprar leche")).toBe("comprar leche");
+    expect(parseTodoCommand("待辦 買牛奶")).toBe("買牛奶");
+    expect(parseTodoCommand("待办 买牛奶")).toBe("买牛奶");
+  });
+  it("needs text, a space after the keyword, and the keyword first", () => {
+    expect(parseTodoCommand("todo")).toBeNull();
+    expect(parseTodoCommand("todo   ")).toBeNull();
+    expect(parseTodoCommand("todos are fun")).toBeNull();
+    expect(parseTodoCommand("buy todo")).toBeNull();
+  });
+  it("respects the server's text limit", () => {
+    expect(parseTodoCommand(`todo ${"a".repeat(200)}`)).toBe("a".repeat(200));
+    expect(parseTodoCommand(`todo ${"a".repeat(201)}`)).toBeNull();
+  });
+  it("never overlaps the goal prefixes", () => {
+    for (const w of ["목표", "goal", "目標", "目标", "objetivo"]) expect(parseTodoCommand(`${w} x`)).toBeNull();
+    for (const w of ["할일", "todo", "タスク", "やること", "tarea", "待辦", "待办"]) expect(parseGoalCommand(`${w} x`)).toBeNull();
+  });
+});
+
+describe("todo search hits", () => {
+  it("open the calendar tab on that day", () => expect(hitTarget({ type: "todo", date: "2026-10-14", title: "t" })).toEqual({ tab: "calendar", date: "2026-10-14" }));
+  it("pass parseSearchResponse, unknown types are still dropped", () => {
+    expect(parseSearchResponse({ results: [{ type: "todo", date: "2026-10-14", title: "milk" }, { type: "todos", date: "2026-10-14", title: "x" }] }))
+      .toEqual([{ type: "todo", date: "2026-10-14", title: "milk" }]);
   });
 });

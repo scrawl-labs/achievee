@@ -32,6 +32,7 @@ export const ZH = {
   "cmd.goToday": "前往今天", "cmd.goDate": "前往 {date}", "cmd.addDay": "新增今日目標：{text}", "cmd.addWeek": "新增本週目標：{text}",
   "cmd.searching": "搜尋中…", "cmd.none": "沒有結果", "cmd.searchFail": "目前無法搜尋。", "cmd.addFail": "無法新增目標，請再試一次。",
   "cmd.recent": "主要搜尋最近的紀錄。", "cmd.t.goal": "目標", "cmd.t.weekGoal": "每週目標", "cmd.t.diary": "日記", "cmd.t.expense": "支出", "cmd.t.income": "收入", "cmd.t.saving": "儲蓄", "cmd.t.workout": "運動",
+  "todo.title": "待辦", "todo.add": "新增待辦", "todo.placeholder": "要做什麼？", "todo.toggle": "完成：{text}", "todo.edit": "編輯待辦：{text}", "todo.new": "新待辦", "todo.limit": "這一天的待辦已達上限。", "task.google": "Google 待辦事項，唯讀", "cmd.addTodo": "新增今日待辦：{text}", "cmd.addTodoFail": "無法新增待辦，請再試一次。", "cmd.t.todo": "待辦",
   "gc.sec": "Google", "gc.perm": "需要行程與待辦事項的唯讀權限。", "gc.connect": "連結 Google Calendar", "gc.reconnect": "重新連結", "gc.revoked": "連線已中斷", "gc.disconnectAria": "解除 Google Calendar 連結", "gc.confirm": "要解除 Google 連結嗎？你的行程與待辦事項將不再顯示於此。", "gc.disconnectFail": "無法解除連結，請再試一次。", "gc.retConnected": "已連結 Google Calendar。", "gc.retError": "無法連結 Google，請再試一次。", "gc.retPartial": "部分權限未被允許，請重新連結。", "gc.linkRevoked": "Google 連線已中斷 · 重新連結",
 } as const;
 
