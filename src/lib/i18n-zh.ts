@@ -27,6 +27,7 @@ export const ZH = {
   "cat.food": "餐飲", "cat.cafe": "咖啡廳", "cat.transport": "交通", "cat.shopping": "購物", "cat.culture": "文化", "sav.title": "儲蓄・投資", "sav.addAria": "新增儲蓄或投資", "sav.saving": "儲蓄", "sav.invest": "投資", "sav.kind": "類型", "sav.empty": "還沒有紀錄。存下來的錢記在這裡，而不是支出。", "sav.rate": "佔收入的 {p}%", "exp.wasteShare": "不必要 {p}%", "cat.fixed": "固定支出", "cat.other": "其他",
   "g.day": "日", "g.week": "週", "g.month": "月", "g.agenda": "列表", "g.open": "在 Google Calendar 開啟", "g.tasks": "Google Tasks",
   "g.more": "+{n} 項", "hour": "{h}:00",
+  "goal.today": "今日目標", "goal.dayOf": "這一天的目標", "goal.week": "本週目標", "goal.add": "新增目標", "goal.placeholder": "你想完成什麼？", "goal.toggle": "完成：{text}", "goal.edit": "編輯目標：{text}", "goal.softHint": "目標越少越容易完成，不過想放多少都可以。", "goal.limit": "這段期間最多只能有 {n} 個目標。", "goal.failed": "無法儲存，請再試一次。", "goal.new": "新目標",
 } as const;
 
 export const ZH_LAND = {

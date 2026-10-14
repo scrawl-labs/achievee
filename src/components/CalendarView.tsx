@@ -9,6 +9,8 @@ import { levelOf as level } from "@/lib/level";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 import WorkList from "./WorkList";
+import GoalList from "./GoalList";
+import { periodStartOf } from "@/lib/goalsUi";
 import { addDays } from "@/lib/dates";
 import { browserTz } from "@/lib/clientTime";
 import type { WorkItem } from "@/lib/integrations/types";
@@ -76,6 +78,8 @@ export default function CalendarView({ ym, month, stats, sel, setSel, onDiary }:
 
         <aside className="detail">
           <h2>{fmt.monthDay(sel)} <small>{fmt.weekdayLong(dow(sel))}</small></h2>
+          <GoalList key={`day${sel}`} scope="day" periodStart={sel} label={sel === today ? t("goal.today") : t("goal.dayOf")} />
+          <GoalList key={`week${periodStartOf("week", sel)}`} scope="week" periodStart={periodStartOf("week", sel)} label={t("goal.week")} />
           <div className="big">{day ? `${day.done}` : "-"}<span> / {day ? day.total : "-"}</span></div>
           <div className="meter"><i style={{ width: day && day.total ? `${(day.done / day.total) * 100}%` : 0 }} /></div>
           {day && day.tasks.length > 0 && (

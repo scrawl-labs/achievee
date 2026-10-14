@@ -46,6 +46,7 @@ const en = {
   "cat.food": "Food", "cat.cafe": "Café", "cat.transport": "Transport", "cat.shopping": "Shopping", "cat.culture": "Culture", "sav.title": "Savings & investing", "sav.addAria": "Add savings or investment", "sav.saving": "Savings", "sav.invest": "Investing", "sav.kind": "Type", "sav.empty": "Nothing yet. Money you set aside goes here, not in spending.", "sav.rate": "{p}% of income", "exp.wasteShare": "Unneeded {p}%", "cat.fixed": "Fixed costs", "cat.other": "Other",
   "g.day": "Day", "g.week": "Week", "g.month": "Month", "g.agenda": "List", "g.open": "Open in Google Calendar", "g.tasks": "Google Tasks",
   "g.more": "+{n} more", "hour": "{h}:00",
+  "goal.today": "Today's goals", "goal.dayOf": "Goals for this day", "goal.week": "This week's goals", "goal.add": "Add goal", "goal.placeholder": "What do you want to get done?", "goal.toggle": "Done: {text}", "goal.edit": "Edit goal: {text}", "goal.softHint": "Fewer goals are easier to finish. Keep as many as you like, though.", "goal.limit": "This period already has the maximum of {n} goals.", "goal.failed": "Couldn't save that. Please try again.", "goal.new": "New goal",
 } as const;
 
 type BaseKey = keyof typeof en;
@@ -80,6 +81,7 @@ const ko: BaseDict = {
   "cat.food": "식비", "cat.cafe": "카페", "cat.transport": "교통", "cat.shopping": "쇼핑", "cat.culture": "문화", "sav.title": "저축·투자", "sav.addAria": "저축·투자 추가", "sav.saving": "저축", "sav.invest": "투자", "sav.kind": "구분", "sav.empty": "아직 없어요. 모아 둔 돈은 지출이 아니라 여기에 적어요.", "sav.rate": "수입의 {p}%", "exp.wasteShare": "불필요 {p}%", "cat.fixed": "고정비", "cat.other": "기타",
   "g.day": "일", "g.week": "주", "g.month": "월", "g.agenda": "목록", "g.open": "Google Calendar에서 보기", "g.tasks": "Google Tasks",
   "g.more": "+{n}개", "hour": "{h}시",
+  "goal.today": "오늘 목표", "goal.dayOf": "이 날의 목표", "goal.week": "이번 주 목표", "goal.add": "목표 추가", "goal.placeholder": "무엇을 하고 싶나요?", "goal.toggle": "완료: {text}", "goal.edit": "목표 수정: {text}", "goal.softHint": "목표가 적을수록 끝내기 쉬워요. 그래도 원하는 만큼 둘 수 있어요.", "goal.limit": "이 기간에는 목표를 최대 {n}개까지 둘 수 있어요.", "goal.failed": "저장하지 못했어요. 다시 시도해 주세요.", "goal.new": "새 목표",
 };
 
 const ja: BaseDict = {
@@ -109,6 +111,7 @@ const ja: BaseDict = {
   "cat.food": "食費", "cat.cafe": "カフェ", "cat.transport": "交通", "cat.shopping": "買い物", "cat.culture": "文化", "sav.title": "貯蓄・投資", "sav.addAria": "貯蓄・投資を追加", "sav.saving": "貯蓄", "sav.invest": "投資", "sav.kind": "区分", "sav.empty": "まだありません。積み立てたお金は支出ではなくここに記録します。", "sav.rate": "収入の{p}%", "exp.wasteShare": "不要 {p}%", "cat.fixed": "固定費", "cat.other": "その他",
   "g.day": "日", "g.week": "週", "g.month": "月", "g.agenda": "リスト", "g.open": "Google Calendar で開く", "g.tasks": "Google Tasks",
   "g.more": "+{n}件", "hour": "{h}時",
+  "goal.today": "今日の目標", "goal.dayOf": "この日の目標", "goal.week": "今週の目標", "goal.add": "目標を追加", "goal.placeholder": "何をしたいですか？", "goal.toggle": "完了: {text}", "goal.edit": "目標を編集: {text}", "goal.softHint": "目標は少ないほうが達成しやすいです。もちろん好きなだけ置けます。", "goal.limit": "この期間の目標は最大 {n} 件までです。", "goal.failed": "保存できませんでした。もう一度お試しください。", "goal.new": "新しい目標",
 };
 
 const es: BaseDict = {
@@ -138,6 +141,7 @@ const es: BaseDict = {
   "cat.food": "Comida", "cat.cafe": "Café", "cat.transport": "Transporte", "cat.shopping": "Compras", "cat.culture": "Cultura", "sav.title": "Ahorro e inversión", "sav.addAria": "Añadir ahorro o inversión", "sav.saving": "Ahorro", "sav.invest": "Inversión", "sav.kind": "Tipo", "sav.empty": "Aún no hay nada. El dinero que apartas va aquí, no en gastos.", "sav.rate": "{p}% de los ingresos", "exp.wasteShare": "Innecesario {p}%", "cat.fixed": "Gastos fijos", "cat.other": "Otros",
   "g.day": "Día", "g.week": "Semana", "g.month": "Mes", "g.agenda": "Lista", "g.open": "Abrir en Google Calendar", "g.tasks": "Google Tasks",
   "g.more": "+{n} más", "hour": "{h}:00",
+  "goal.today": "Objetivos de hoy", "goal.dayOf": "Objetivos de este día", "goal.week": "Objetivos de esta semana", "goal.add": "Añadir objetivo", "goal.placeholder": "¿Qué quieres lograr?", "goal.toggle": "Hecho: {text}", "goal.edit": "Editar objetivo: {text}", "goal.softHint": "Con menos objetivos es más fácil terminarlos. Pero puedes tener los que quieras.", "goal.limit": "Este periodo ya tiene el máximo de {n} objetivos.", "goal.failed": "No se pudo guardar. Inténtalo de nuevo.", "goal.new": "Nuevo objetivo",
 };
 
 export const DICT: Record<Locale, Dict> = {

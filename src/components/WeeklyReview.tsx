@@ -9,6 +9,7 @@ import { emoLang, wordText } from "@/lib/emotions";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 import SpendReview from "./SpendReview";
+import GoalList from "./GoalList";
 import { tally, type WorkoutRow } from "@/lib/workout";
 import { type IntakeRow, daysMet, DEFAULT_GOALS } from "@/lib/intake";
 import type { WorkItem } from "@/lib/integrations/types";
@@ -129,6 +130,8 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
       {woWeek.sessions > 0 && (
         <section className="wk-emo"><h3>{t("nav.workout")}</h3><small className="muted">{t("wo.weekLine", { n: woWeek.sessions, time: woTime })}</small></section>
       )}
+
+      <section className="panel"><GoalList key={week} scope="week" periodStart={week} label={t("goal.week")} /></section>
 
       <SpendReview week={week} />
 
