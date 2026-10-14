@@ -5,15 +5,20 @@ import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 const PREFIX = "enc:v1:";
 let key: Buffer | null | undefined;
 
+/** Missing or malformed ENCRYPTION_KEY: a deployment problem, not bad data. Callers must not swallow it. */
+export class EncryptionConfigError extends Error {
+  constructor(message: string) { super(message); this.name = "EncryptionConfigError"; }
+}
+
 function getKey(): Buffer | null {
   if (key !== undefined) return key;
   const raw = process.env.ENCRYPTION_KEY;
   if (!raw) {
-    if (process.env.NODE_ENV === "production") throw new Error("ENCRYPTION_KEY is required in production");
+    if (process.env.NODE_ENV === "production") throw new EncryptionConfigError("ENCRYPTION_KEY is required in production");
     return (key = null);
   }
   const b = /^[0-9a-f]{64}$/i.test(raw) ? Buffer.from(raw, "hex") : Buffer.from(raw, "base64");
-  if (b.length !== 32) throw new Error("ENCRYPTION_KEY must decode to 32 bytes");
+  if (b.length !== 32) throw new EncryptionConfigError("ENCRYPTION_KEY must decode to 32 bytes");
   return (key = b);
 }
 

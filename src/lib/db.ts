@@ -1,5 +1,5 @@
 import { neon } from "@neondatabase/serverless";
-import { decrypt, encrypt } from "./crypto";
+import { decrypt, encrypt, EncryptionConfigError } from "./crypto";
 
 // Diary + expenses live in Postgres (Neon via Vercel Marketplace; sets DATABASE_URL). Rows are keyed by the Google account id.
 let _sql: ReturnType<typeof neon> | undefined;
@@ -357,5 +357,59 @@ export const goals = {
     const s = await sql();
     const rows = (await s`DELETE FROM goal WHERE id=${id} AND "user"=${user} RETURNING id`) as { id: number }[];
     return rows.length > 0;
+  },
+};
+
+import { SEARCH_ROW_LIMIT, type SearchCandidate, type SearchType } from "./search";
+
+/**
+ * Plaintext, or null when this one value cannot be decrypted (GCM authentication failure / tampered or malformed ciphertext).
+ * A configuration error (missing or malformed ENCRYPTION_KEY) is rethrown: it affects every row and must surface as a failure.
+ */
+function tryDecrypt(v: string): string | null {
+  try { return decrypt(v ?? ""); } catch (e) {
+    if (e instanceof EncryptionConfigError) throw e;
+    return null;
+  }
+}
+type Decrypted = { items: SearchCandidate[]; skipped: number };
+function toDecrypted(type: SearchType, rows: { date: string; text: string; scope?: GoalScope }[]): Decrypted {
+  return rows.reduce<Decrypted>((acc, r) => {
+    const text = tryDecrypt(r.text);
+    if (text === null) return { ...acc, skipped: acc.skipped + 1 };
+    if (!text) return acc;
+    const item: SearchCandidate = r.scope ? { type, date: r.date, text, scope: r.scope } : { type, date: r.date, text };
+    return { ...acc, items: [...acc.items, item] };
+  }, { items: [], skipped: 0 });
+}
+/** Single logging point: a fixed message and a count only, never a query, plaintext or ciphertext. */
+function warnSkipped(count: number): void {
+  if (count > 0) console.warn("search: skipped undecryptable rows", count);
+}
+type TextRow = { date: string; text: string };
+type GoalTextRow = { scope: GoalScope; period_start: string; text: string };
+const rowsOf = async <T>(q: PromiseLike<unknown>): Promise<T[]> => (await q) as T[];
+/**
+ * Raw material for /api/search: the newest SEARCH_ROW_LIMIT rows per table (encrypted columns cannot be filtered in SQL),
+ * decrypted. Every query is scoped by "user". Emotions and body (InBody) data are deliberately not read.
+ */
+export const search = {
+  async candidates(user: string): Promise<SearchCandidate[]> {
+    const s = await sql(), n = SEARCH_ROW_LIMIT;
+    const [diaryR, expenseR, incomeR, savingR, workoutR, goalR] = await Promise.all([
+      rowsOf<TextRow>(s`SELECT date, body AS text FROM diary WHERE "user"=${user} AND body <> '' ORDER BY date DESC LIMIT ${n}`),
+      rowsOf<TextRow>(s`SELECT date, memo AS text FROM expense WHERE "user"=${user} AND memo <> '' ORDER BY date DESC, id DESC LIMIT ${n}`),
+      rowsOf<TextRow>(s`SELECT date, memo AS text FROM income WHERE "user"=${user} AND memo <> '' ORDER BY date DESC, id DESC LIMIT ${n}`),
+      rowsOf<TextRow>(s`SELECT date, memo AS text FROM saving WHERE "user"=${user} AND memo <> '' ORDER BY date DESC, id DESC LIMIT ${n}`),
+      rowsOf<TextRow>(s`SELECT date, memo AS text FROM workout WHERE "user"=${user} AND memo <> '' ORDER BY date DESC, id DESC LIMIT ${n}`),
+      rowsOf<GoalTextRow>(s`SELECT scope, period_start, text FROM goal WHERE "user"=${user} ORDER BY period_start DESC, id DESC LIMIT ${n}`),
+    ]);
+    const parts = [
+      toDecrypted("goal", goalR.map((g) => ({ date: g.period_start, text: g.text, scope: g.scope }))),
+      toDecrypted("diary", diaryR), toDecrypted("expense", expenseR), toDecrypted("income", incomeR),
+      toDecrypted("saving", savingR), toDecrypted("workout", workoutR),
+    ];
+    warnSkipped(parts.reduce((n, p) => n + p.skipped, 0));
+    return parts.flatMap((p) => p.items);
   },
 };
