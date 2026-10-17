@@ -3,11 +3,14 @@ import type { MonthData, Stats } from "@/lib/types";
 import Summary from "./Summary";
 import { levelOf } from "@/lib/level";
 import { useI18n } from "./I18n";
+import MoneyTrend from "./MoneyTrend";
+import WorkoutTrend from "./WorkoutTrend";
+import Insights from "./Insights";
 
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 const MON_FIRST = [1, 2, 3, 4, 5, 6, 0];
 
-export default function StatsView({ stats, month }: { stats: Stats | null; month: MonthData | null }) {
+export default function StatsView({ stats, month, sel, startDay, goal }: { stats: Stats | null; month: MonthData | null; sel: string; startDay: number; goal: number }) {
   const { t, fmt } = useI18n();
   if (!stats || !month) return null;
   const days = Object.values(month.days);
@@ -39,6 +42,9 @@ export default function StatsView({ stats, month }: { stats: Stats | null; month
           <div className="axis"><span>1</span><span>{days.length}</span></div>
         </section>
       </div>
+      <MoneyTrend anchor={sel} startDay={startDay} />
+      <WorkoutTrend sel={sel} goal={goal} />
+      <Insights />
     </>
   );
 }

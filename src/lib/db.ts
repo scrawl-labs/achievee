@@ -69,6 +69,12 @@ const splitIds = (v: string) => decrypt(v ?? "").split(",").filter(Boolean);
 export type ExpenseRow = { id: number; date: string; category: string; memo: string; amount: number; need: number };
 
 export const diary = {
+  /** Date and mood of the entries that have a mood, in [from, to]. The mood is a plain 1..5; the text and emotion words are never read here. */
+  async moods(user: string, from: string, to: string): Promise<{ date: string; mood: number }[]> {
+    const s = await sql();
+    const rows = (await s`SELECT date, mood FROM diary WHERE "user"=${user} AND date >= ${from} AND date <= ${to} AND mood IS NOT NULL`) as { date: string; mood: string }[];
+    return rows.map((r) => ({ date: r.date, mood: Number(r.mood) })).filter((r) => r.mood >= 1 && r.mood <= 5);
+  },
   async month(user: string, ym: string): Promise<DiaryRow[]> {
     const s = await sql(), [a, b] = bounds(ym);
     const rows = (await s`SELECT date, mood, body, emotions FROM diary WHERE "user"=${user} AND date BETWEEN ${a} AND ${b} ORDER BY date`) as DiaryDb[];
@@ -243,6 +249,11 @@ export const body = {
 
 /** Exercise log. The memo is encrypted like every other free text. */
 export const workouts = {
+  /** The dates of the sessions in [from, to] (one per session), nothing else. */
+  async dates(user: string, from: string, to: string): Promise<string[]> {
+    const s = await sql();
+    return ((await s`SELECT date FROM workout WHERE "user"=${user} AND date >= ${from} AND date <= ${to}`) as { date: string }[]).map((r) => r.date);
+  },
   async range(user: string, from: string, to: string): Promise<WorkoutRow[]> {
     const s = await sql();
     const rows = (await s`SELECT id, date, kind, minutes, memo FROM workout

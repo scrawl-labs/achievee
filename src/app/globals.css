@@ -950,3 +950,18 @@ button.ev.native:hover .ev-resize::after { opacity: .45; }
 .wt-bars span { font-size: 11px; color: var(--fg-3); height: 18px; }
 .wt-bars > .wt-goal { position: absolute; left: 0; right: 0; flex: none; display: block; height: 0; border-top: 1px dashed var(--fg-3); pointer-events: none; } /* more specific than the column rule above, which would give it a full-height box */
 .wt-goal span { position: absolute; right: 0; top: -16px; font-size: 11px; color: var(--fg-3); height: auto; }
+
+/* patterns in the records */
+.pattern { display: flex; flex-direction: column; gap: var(--s4); margin-top: var(--s4); }
+.pt-row { display: flex; flex-direction: column; gap: var(--s2); padding-bottom: var(--s3); border-bottom: 1px solid var(--line); }
+.pt-row:last-of-type { border-bottom: 0; padding-bottom: 0; }
+.pt-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); }
+.pt-groups > div { display: flex; flex-direction: column; gap: 2px; padding: var(--s3); border-radius: var(--r-m); background: var(--surface-2); }
+.pt-groups strong { font-size: 22px; letter-spacing: -0.02em; }
+.pt-groups em { font-style: normal; font-size: 12px; color: var(--fg-3); }
+.pt-verdict { color: var(--fg); font-weight: 600; }
+.bw-rows { display: flex; flex-direction: column; gap: var(--s2); }
+.bw-row { display: grid; grid-template-columns: minmax(0, 1.4fr) auto auto; gap: var(--s4); align-items: baseline; font-size: 14px; }
+.bw-row span { color: var(--fg-2); } .bw-row em { font-style: normal; color: var(--fg-2); text-align: right; white-space: nowrap; }
+.bw-row b.down { color: var(--c3); } .bw-row b.up { color: var(--sun); } .bw-row b { white-space: nowrap; }
+@media (max-width: 560px) { .bw-row { grid-template-columns: 1fr auto; } .bw-row em { grid-column: 1 / -1; text-align: left; } }
