@@ -730,24 +730,6 @@ select {
 button.note { display: -webkit-box; width: 100%; text-align: left; cursor: pointer; }
 button.note.open { display: block; -webkit-line-clamp: unset; overflow: visible; color: var(--fg); line-height: 1.65; overflow-wrap: anywhere; }
 
-/* meeting / focus time */
-.focusstats { display: flex; flex-direction: column; gap: var(--s4); margin-top: var(--s4); }
-.focus-sum { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3); }
-@media (max-width: 720px) { .focus-sum { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.focus-sum div { display: flex; flex-direction: column; gap: 2px; }
-.focus-sum b { font-size: 20px; letter-spacing: -0.02em; }
-.focus-days { display: flex; gap: 4px; align-items: flex-end; overflow-x: auto; padding-bottom: 2px; }
-.focus-days > div { flex: 1 0 18px; max-width: 34px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.focus-days .ftrack { width: 100%; height: 120px; display: flex; flex-direction: column; justify-content: flex-end; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
-.focus-days span { font-size: 11px; color: var(--fg-3); }
-.focusstats i { display: block; }
-.focus-days .ftrack i { width: 100%; flex: none; }
-.focus-meet { background: #e5609b; }
-.focus-other { background: #6c6e77; }
-.focus-free { background: #3fb950; opacity: .75; }
-.focus-legend { display: flex; flex-wrap: wrap; gap: var(--s4); font-size: 12px; color: var(--fg-2); }
-.focus-legend span { display: inline-flex; align-items: center; gap: 6px; }
-.focus-legend i { width: 10px; height: 10px; border-radius: 3px; }
 
 /* date picker */
 .dp { position: relative; }
@@ -942,3 +924,29 @@ button.ev.native:hover .ev-resize::after { opacity: .45; }
 .more-sheet button { display: flex; align-items: center; gap: var(--s3); height: 46px; padding: 0 var(--s3); border-radius: var(--r-s); color: var(--fg); font-size: 15px; font-weight: 500; text-align: left; }
 .more-sheet button:hover { background: var(--surface-2); }
 .more-sheet button.on { color: var(--accent); font-weight: 600; }
+
+/* spending and exercise trends */
+.mtrend, .wtrend { display: flex; flex-direction: column; gap: var(--s3); margin-top: var(--s4); }
+.mt-rows { display: flex; flex-direction: column; gap: var(--s2); }
+.mt-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; gap: var(--s3); align-items: center; font-size: 13px; }
+.mt-row > span { color: var(--fg-2); }
+.mt-row > em { font-style: normal; color: var(--fg-2); text-align: right; font-variant-numeric: tabular-nums; }
+.mt-bar { position: relative; display: flex; height: 14px; border-radius: 7px; background: var(--surface-2); overflow: hidden; }
+.mt-bar i { display: block; height: 100%; flex: none; }
+.mt-income { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--fg); opacity: .85; }
+.mt-legend { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); font-size: 12px; color: var(--fg-2); }
+.mt-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.mt-legend i { width: 10px; height: 10px; border-radius: 3px; }
+.mt-legend b { width: 2px; height: 12px; background: var(--fg); display: inline-block; }
+.mt-legend .mt-rate { margin-left: auto; }
+.wt-sum { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3); }
+@media (max-width: 720px) { .wt-sum { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.wt-sum div { display: flex; flex-direction: column; gap: 2px; }
+.wt-sum b { font-size: 18px; letter-spacing: -0.02em; }
+.wt-bars { position: relative; display: flex; align-items: flex-end; gap: 6px; }
+.wt-bars > div { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%; }
+.wt-bars i { display: block; width: 100%; max-width: 40px; border-radius: 6px 6px 3px 3px; background: color-mix(in oklab, var(--accent) 55%, var(--surface-2)); }
+.wt-bars i.met { background: var(--c3); }
+.wt-bars span { font-size: 11px; color: var(--fg-3); height: 18px; }
+.wt-bars > .wt-goal { position: absolute; left: 0; right: 0; flex: none; display: block; height: 0; border-top: 1px dashed var(--fg-3); pointer-events: none; } /* more specific than the column rule above, which would give it a full-height box */
+.wt-goal span { position: absolute; right: 0; top: -16px; font-size: 11px; color: var(--fg-3); height: auto; }

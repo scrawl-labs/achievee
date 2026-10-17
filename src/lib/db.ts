@@ -104,6 +104,11 @@ export async function deleteUserData(user: string) {
 export type IncomeRow = { id: number; date: string; memo: string; amount: number };
 
 export const expenses = {
+  /** [from, to) without the memo: nothing to decrypt, for totals and trends. */
+  async slim(user: string, from: string, to: string): Promise<{ date: string; category: string; amount: number; need: number }[]> {
+    const s = await sql();
+    return (await s`SELECT date, category, amount, need FROM expense WHERE "user"=${user} AND date >= ${from} AND date < ${to}`) as { date: string; category: string; amount: number; need: number }[];
+  },
   /** [from, to) — `to` exclusive, for custom month starts. */
   async range(user: string, from: string, to: string): Promise<ExpenseRow[]> {
     const s = await sql();
@@ -137,6 +142,11 @@ export const expenses = {
 };
 
 export const income = {
+  /** [from, to) without the memo, for totals and trends. */
+  async slim(user: string, from: string, to: string): Promise<{ date: string; amount: number }[]> {
+    const s = await sql();
+    return (await s`SELECT date, amount FROM income WHERE "user"=${user} AND date >= ${from} AND date < ${to}`) as { date: string; amount: number }[];
+  },
   async range(user: string, from: string, to: string): Promise<IncomeRow[]> {
     const s = await sql();
     const rows = (await s`SELECT id, date, memo, amount FROM income
@@ -167,6 +177,11 @@ export type SavingRow = { id: number; date: string; kind: "saving" | "invest"; m
 
 /** Money set aside: kept apart from expenses so investing a fixed amount is not counted as spending. */
 export const savings = {
+  /** [from, to) without the memo, for totals and trends. */
+  async slim(user: string, from: string, to: string): Promise<{ date: string; amount: number }[]> {
+    const s = await sql();
+    return (await s`SELECT date, amount FROM saving WHERE "user"=${user} AND date >= ${from} AND date < ${to}`) as { date: string; amount: number }[];
+  },
   async range(user: string, from: string, to: string): Promise<SavingRow[]> {
     const s = await sql();
     const rows = (await s`SELECT id, date, kind, memo, amount FROM saving

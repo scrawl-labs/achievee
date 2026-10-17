@@ -7,6 +7,7 @@ import Summary from "./Summary";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 import DatePicker from "./DatePicker";
+import MoneyTrend from "./MoneyTrend";
 
 type Row = { id: number; date: string; category: string; memo: string; amount: number; need: number };
 type Inc = { id: number; date: string; memo: string; amount: number };
@@ -304,6 +305,7 @@ export default function ExpenseView({ sel, setSel, startDay, onStartDay }: {
           </div>
         </section>
       </div>
+      <MoneyTrend anchor={sel} startDay={startDay} />
     </>
   );
 }

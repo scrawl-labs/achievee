@@ -10,6 +10,7 @@ import Icon from "./Icon";
 import Summary from "./Summary";
 import DatePicker from "./DatePicker";
 import BodyLog from "./BodyLog";
+import WorkoutTrend from "./WorkoutTrend";
 import IntakeLog from "./IntakeLog";
 import type { IntakeKind } from "@/lib/intake";
 
@@ -156,6 +157,7 @@ export default function WorkoutView({ sel, setSel, goal, onGoal, intakeGoals, on
           </div>
         </section>
       </div>
+      <WorkoutTrend sel={sel} goal={goal} />
         </>
       )}
       {mode === "intake" && <IntakeLog sel={sel} goals={intakeGoals} onGoal={onIntakeGoal} />}
