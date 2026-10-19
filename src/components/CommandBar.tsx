@@ -24,6 +24,10 @@ export default function CommandBar({ go }: { go: (tab: Tab, date?: string) => vo
     : c.loading ? t("cmd.searching") : c.items.length === 0 ? t("cmd.none") : null;
   const scopeNote = c.searched && !c.loading && !c.searchFailed ? t("cmd.recent") : null;
 
+  // a keyboard shortcut means nothing on a touch screen: drop the "(Ctrl K)" part there
+  const hint = t("cmd.placeholder", { key: isMac() ? "⌘K" : "Ctrl K" });
+  const touch = typeof window !== "undefined" && !!window.matchMedia?.("(pointer: coarse)").matches;
+  const placeholder = touch ? hint.replace(/\s*[(（][^()（）]*[)）]\s*$/, "") : hint;
   return (
     <>
       <button className="btn icon" onClick={c.show} aria-label={t("cmd.open")} aria-haspopup="dialog" title={t("cmd.open")}><Icon name="search" /></button>
@@ -33,7 +37,7 @@ export default function CommandBar({ go }: { go: (tab: Tab, date?: string) => vo
             onMouseDown={(e) => { if (e.target !== input.current) e.preventDefault(); }}>
             <input ref={input} className="cmd-input" role="combobox" aria-expanded="true" aria-controls="cmd-list" aria-autocomplete="list"
               aria-label={t("cmd.dialog")} aria-activedescendant={c.activeIndex >= 0 ? `cmd-opt-${c.activeIndex}` : undefined}
-              placeholder={t("cmd.placeholder", { key: isMac() ? "⌘K" : "Ctrl K" })} value={c.query} maxLength={250}
+              placeholder={placeholder} value={c.query} maxLength={250}
               autoComplete="off" spellCheck={false} onChange={(e) => c.setQuery(e.target.value)} />
             <ul id="cmd-list" ref={list} className="cmd-list" role="listbox" aria-label={t("cmd.list")}>
               {c.items.map((item, i) => (

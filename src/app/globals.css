@@ -965,3 +965,29 @@ button.ev.native:hover .ev-resize::after { opacity: .45; }
 .bw-row span { color: var(--fg-2); } .bw-row em { font-style: normal; color: var(--fg-2); text-align: right; white-space: nowrap; }
 .bw-row b.down { color: var(--c3); } .bw-row b.up { color: var(--sun); } .bw-row b { white-space: nowrap; }
 @media (max-width: 560px) { .bw-row { grid-template-columns: 1fr auto; } .bw-row em { grid-column: 1 / -1; text-align: left; } }
+
+/* ---- phones / installed app ------------------------------------------------------------------------------------ */
+/* Touch behaviour: no double-tap zoom, no text inflation, no rubber-band bounce at the ends of the page, no grey tap flash. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html, body { overscroll-behavior-y: none; }
+a, button, input, select, textarea, label, summary, [role="button"], [role="tab"] { touch-action: manipulation; }
+* { -webkit-tap-highlight-color: transparent; }
+
+/*
+ * iOS Safari zooms the whole page in when a field with a font smaller than 16px gets focus, and leaves it zoomed.
+ * Fields are 14px (some 12px) on desktop, so on phones and any touch screen they are 16px. !important because several
+ * component rules set their own smaller size and would otherwise win.
+ */
+@media (max-width: 860px), (pointer: coarse) {
+  input, select, textarea { font-size: 16px !important; }
+}
+
+@media (max-width: 860px) {
+  .side { background: color-mix(in oklab, var(--bg) 96%, transparent); } /* the bar must stay readable over scrolling content */
+  .pagehead h1 { font-size: 20px; line-height: 1.25; min-width: 0; overflow-wrap: anywhere; }
+  .panel.entry > .dp { grid-column: 1 / -1; }                            /* a full-width date field, not half a row */
+  .panel.entry input[inputmode="numeric"] { grid-column: 1 / -1; }       /* amounts get a whole row too, so no half row is left empty */
+}
+.dp-btn > span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.erow .etop b { white-space: nowrap; } /* a date such as "10월 19일" never breaks onto two lines */
