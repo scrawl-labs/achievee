@@ -74,3 +74,16 @@ describe("columnAt", () => {
     expect(columnAt(500, 100, 700, 1)).toBe(0);
   });
 });
+
+import { slotAtPoint } from "@/lib/slotSelect";
+
+describe("slotAtPoint", () => {
+  it("drops a task into a one-hour block that starts in the cell under the pointer", () => {
+    expect(slotAtPoint(56 * 10 + 3, 56)).toEqual({ start: 600, end: 660 });
+    expect(slotAtPoint(56 * 10 + 20, 56)).toEqual({ start: 615, end: 675 });
+  });
+  it("keeps the block inside the day near midnight and above the top", () => {
+    expect(slotAtPoint(56 * 23.9, 56)).toEqual({ start: 1380, end: 1440 });
+    expect(slotAtPoint(-20, 56)).toEqual({ start: 0, end: 60 });
+  });
+});

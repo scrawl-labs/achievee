@@ -4,11 +4,12 @@ import type { DayEvent } from "@/lib/types";
 import { dow } from "@/lib/dates";
 import { browserTz, todayStr } from "@/lib/clientTime";
 import { nativeIdOf, type NativeEventCreate } from "@/lib/nativeEvents";
-import { cellOfY, columnAt, moveRange, resizeEnd, selectionRange } from "@/lib/slotSelect";
+import { cellOfY, columnAt, moveRange, resizeEnd, selectionRange, slotAtPoint } from "@/lib/slotSelect";
 import type { TaskEntry } from "@/lib/taskList";
 import { useI18n } from "./I18n";
 import AllDayRow from "./AllDayRow";
 import EventComposer from "./EventComposer";
+import type { TaskDrag } from "./TaskChip";
 
 const H = 56; // px per hour
 export const hhmm = (m: number) => `${String(Math.floor(m / 60) % 24).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
@@ -51,13 +52,14 @@ const SAME = (a: Pick, b: Pick) => a.date === b.date && a.start === b.start && a
 /**
  * Tasks (no time of their own) ride in the all-day strip; `badge` shows the "Google" pill there (wide columns only).
  * With `onCreate`, dragging over empty time (or clicking it, for an hour) makes an own event; own events open a small editor,
- * Google events stay read-only links. Own events can also be dragged to another time or day and stretched from their bottom edge (`onMove`).
+ * Google events stay read-only links. Tasks in the strip can be dragged onto a time slot to make an event from their title, and `onAddTask` adds a to-do from the strip. Own events can also be dragged to another time or day and stretched from their bottom edge (`onMove`).
  */
-export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TASKS, onToggleTask, badge = false, onCreate, onRename, onRemove, onMove }: {
+export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TASKS, onToggleTask, badge = false, onCreate, onRename, onRemove, onMove, onAddTask }: {
   days: string[]; events: DayEvent[] | null; error?: boolean; onPickDay?: (d: string) => void;
   tasks?: Record<string, TaskEntry[]>; onToggleTask?: (id: number, done: boolean) => void; badge?: boolean;
   onCreate?: (e: NativeEventCreate) => Promise<boolean>; onRename?: (id: number, title: string) => Promise<boolean>; onRemove?: (id: number) => Promise<boolean>;
   onMove?: (id: number, to: { date: string; startMin: number; endMin: number }) => Promise<boolean>;
+  onAddTask?: (date: string, text: string) => Promise<boolean>;
 }) {
   const { t, fmt } = useI18n();
   const [now, setNow] = useState(() => new Date());
@@ -73,9 +75,12 @@ export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TA
   const [gesture, setGesture] = useState<Gesture | null>(null);
   const [shadow, setShadow] = useState<(Pick & { id: number }) | null>(null); // a released move, shown until the refreshed events arrive
   const colsRef = useRef<HTMLDivElement>(null);
+  // a task dragged out of the all-day strip: the pointer is followed on the window, the slot under it is previewed, and releasing it over a day column makes an event
+  const [taskDrag, setTaskDrag] = useState<{ text: string; x: number; y: number; slot: Pick | null } | null>(null);
+  const justDragged = useRef(false);
   const range = (d: { a: number; b: number }) => selectionRange(d.a, d.b);
   const ghost = gesture?.moved ? gesture.cur : null;
-  const live = drag ? { date: drag.date, ...range(drag) } : ghost ?? pick;
+  const live = drag ? { date: drag.date, ...range(drag) } : ghost ?? taskDrag?.slot ?? pick;
   useEffect(() => { setDrag(null); setPick(null); setEditing(null); setGesture(null); }, [days.join()]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { setShadow(null); }, [events]); // the refreshed list already has the new place
 
@@ -152,6 +157,36 @@ export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TA
     const ok = (await onMove?.(g.id, { date: g.cur.date, startMin: g.cur.start, endMin: g.cur.end })) ?? false;
     if (!ok) setShadow(null);
   };
+  const slotUnder = (x: number, y: number): Pick | null => {
+    const col = document.elementsFromPoint(x, y).find((el) => el instanceof HTMLElement && el.classList.contains("tl-col") && el.dataset.date) as HTMLElement | undefined;
+    return col ? { date: col.dataset.date!, ...slotAtPoint(y - col.getBoundingClientRect().top, H) } : null;
+  };
+  const startTaskDrag = (ev: React.PointerEvent, task: { text: string }) => {
+    if (!onCreate || ev.button !== 0) return;
+    const text = (task.text || "").trim().slice(0, 200);
+    if (!text) return;
+    const x0 = ev.clientX, y0 = ev.clientY;
+    let moved = false, slot: Pick | null = null;
+    const move = (e: PointerEvent) => {
+      if (!moved && Math.hypot(e.clientX - x0, e.clientY - y0) < 6) return; // still a click
+      moved = true;
+      const sc = scroller.current?.getBoundingClientRect();
+      if (sc && scroller.current) { if (e.clientY < sc.top + 36) scroller.current.scrollTop -= 12; else if (e.clientY > sc.bottom - 36) scroller.current.scrollTop += 12; }
+      slot = slotUnder(e.clientX, e.clientY);
+      setTaskDrag({ text, x: e.clientX, y: e.clientY, slot });
+    };
+    const finish = (create: boolean) => {
+      window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", cancel);
+      document.body.style.userSelect = "";
+      setTaskDrag(null);
+      if (moved) { justDragged.current = true; setTimeout(() => { justDragged.current = false; }, 0); } // the click that ends a drag must not toggle the task
+      if (create && moved && slot) void onCreate({ date: slot.date, startMin: slot.start, endMin: slot.end, title: text });
+    };
+    const up = () => finish(true), cancel = () => finish(false);
+    window.addEventListener("pointermove", move); window.addEventListener("pointerup", up); window.addEventListener("pointercancel", cancel);
+    document.body.style.userSelect = "none";
+  };
+  const taskDragApi: TaskDrag = { onPointerDown: (ev, task) => startTaskDrag(ev, task), suppressClick: () => justDragged.current };
   const when = (p: Pick) => `${fmt.monthDay(p.date)} ${hhmm(p.start)} - ${hhmm(p.end)}`;
   const side = (i: number) => (days.length > 2 && i >= days.length - 2 ? "right" : "left"); // keep the popover inside the grid
 
@@ -171,7 +206,7 @@ export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TA
             </div>
           </div>
         )}
-        {anyAllDay && <AllDayRow days={days} byDay={byDay} tasks={tasks} cols={cols} badge={badge} onToggle={onToggleTask} />}
+        {(anyAllDay || onAddTask) && <AllDayRow days={days} byDay={byDay} tasks={tasks} cols={cols} badge={badge} onToggle={onToggleTask} onAdd={onAddTask} fmtDay={fmt.monthDay} drag={onCreate ? taskDragApi : undefined} />}
         {error && <p className="error" style={{ padding: 16 }}>{t("common.loadFail")}</p>}
         <div className="tl" ref={scroller}>
           <div className="tl-in" style={{ height: 24 * H }}>
@@ -180,7 +215,7 @@ export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TA
             ))}
             <div className="tl-cols" style={cols} ref={colsRef}>
               {days.map((d, i) => (
-                <div key={d} className={`tl-col${onCreate ? " creatable" : ""}${drag?.date === d ? " dragging" : ""}`}
+                <div key={d} data-date={d} className={`tl-col${onCreate ? " creatable" : ""}${drag?.date === d ? " dragging" : ""}`}
                   onPointerDown={(ev) => startDrag(ev, d)} onPointerMove={(ev) => moveDrag(ev, d)} onPointerUp={endDrag}
                   onPointerCancel={() => setDrag(null)}>
                   {layout(byDay[d].filter((e) => !e.allDay)).map(({ e, col, cols: n }) => {
@@ -233,7 +268,8 @@ export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TA
           </div>
         </div>
       </div></div>
-      {onCreate && <small className="muted tl-hint">{t("ev.hint")}</small>}
+      {onCreate && <small className="muted tl-hint">{t("ev.hint")}{(anyAllDay || onAddTask) && ` ${t("td.hint")}`}</small>}
+      {taskDrag && <div className="task-ghost" style={{ left: taskDrag.x + 12, top: taskDrag.y + 12 }}>{taskDrag.text}</div>}
     </div>
   );
 }

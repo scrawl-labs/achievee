@@ -21,6 +21,9 @@ export function selectionRange(a: number, b: number): { start: number; end: numb
   return { start: Math.min(a, b), end: Math.max(a, b) + SLOT };
 }
 
+/** Where a task dropped at `offsetY` px from the top of a day column lands: a default one-hour event starting in that 15-minute cell. */
+export const slotAtPoint = (offsetY: number, hourPx: number) => { const c = cellOfY(offsetY, hourPx); return selectionRange(c, c); };
+
 const snap = (minutes: number) => Math.round(minutes / SLOT) * SLOT;
 
 /** An event dragged vertically by `deltaMin`: same length, start snapped to 15 minutes, kept inside the day. */

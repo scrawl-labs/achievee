@@ -18,7 +18,7 @@ const NONE: Record<string, TaskEntry[]> = {};
  * `toggle` flips an own to-do (optimistic, month/todo caches refreshed once per burst by the shared list engine).
  */
 export function useTasksRange(from: string, to: string) {
-  const { rows, settled: ownSettled, patch } = useOptimisticList<TodoRow, TodoEdit>(todosRangeUrl(from, to), TODO_SPEC);
+  const { rows, settled: ownSettled, patch, add: addRow } = useOptimisticList<TodoRow, TodoEdit>(todosRangeUrl(from, to), TODO_SPEC);
   const [m1, m2, m3] = monthsInRange(from, to);
   const ma = useApi<MonthData>(monthUrl(m1)), mb = useApi<MonthData>(m2 ? monthUrl(m2) : null), mc = useApi<MonthData>(m3 ? monthUrl(m3) : null);
   const [a, b, c] = [ma.data, mb.data, mc.data];
@@ -31,5 +31,6 @@ export function useTasksRange(from: string, to: string) {
   if (ready) held.current = fresh;
 
   const toggle = (id: number, done: boolean) => { void patch(id, { done }); };
-  return { byDate: held.current, toggle, ready };
+  const add = (date: string, text: string) => addRow({ date, text });
+  return { byDate: held.current, toggle, add, ready };
 }

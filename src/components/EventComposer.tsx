@@ -2,10 +2,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "./I18n";
 
-/** Small popover for naming a new event, or renaming / deleting an own one. Enter saves, Esc closes. */
-export default function EventComposer({ initial = "", when, onSave, onCancel, onDelete, align = "left", top }: {
+/** Small popover for naming a new event or to-do, or renaming / deleting an own event. Enter saves, Esc closes. */
+export default function EventComposer({ initial = "", when, onSave, onCancel, onDelete, align = "left", top, placeholder }: {
   initial?: string; when: string; onSave: (title: string) => Promise<boolean>; onCancel: () => void;
-  onDelete?: () => Promise<boolean>; align?: "left" | "right"; top: number;
+  onDelete?: () => Promise<boolean>; align?: "left" | "right"; top: number | string; placeholder?: string;
 }) {
   const { t } = useI18n();
   const [title, setTitle] = useState(initial);
@@ -20,12 +20,13 @@ export default function EventComposer({ initial = "", when, onSave, onCancel, on
     setBusy(false);
     if (!ok) setFailed(true);
   };
+  const label = placeholder ?? t("ev.titlePh");
   return (
     <form className="composer" style={{ top, [align]: 2 }} role="dialog" aria-label={when}
       onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}
       onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); onCancel(); } }}
       onSubmit={(e) => { e.preventDefault(); if (title.trim() && !busy) run(() => onSave(title.trim())); }}>
-      <input ref={input} value={title} maxLength={200} placeholder={t("ev.titlePh")} aria-label={t("ev.titlePh")} onChange={(e) => setTitle(e.target.value)} />
+      <input ref={input} value={title} maxLength={200} placeholder={label} aria-label={label} onChange={(e) => setTitle(e.target.value)} />
       <small className="muted">{when}</small>
       {failed && <small className="error">{t("common.loadFail")}</small>}
       <div className="composer-actions">
