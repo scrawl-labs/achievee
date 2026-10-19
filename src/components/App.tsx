@@ -82,10 +82,12 @@ function Main() {
   const stats = useMemo(() => (month?.ym === ym ? computeStats(Object.values(month.days), todayStr()) : null), [month, ym]);
   const wk = mondayOf(sel), we = addDays(wk, 6);
   const per = periodOf(sel, startDay);
+  // a range wraps only at its dash, never inside "10월 24일"
+  const range = (from: string, to: string) => <><span className="nb">{fmt.monthDay(from)}</span> – <span className="nb">{fmt.monthDay(to)}</span></>;
   const title = tab === "integrations" ? t("nav.integrations")
-    : tab === "expense" && startDay > 1 ? `${fmt.monthDay(per.from)} – ${fmt.monthDay(addDays(per.to, -1))}`
+    : tab === "expense" && startDay > 1 ? range(per.from, addDays(per.to, -1))
     : tab === "google" && gmode === "DAY" ? fmt.full(sel)
-    : tab === "google" && gmode === "WEEK" ? `${fmt.monthDay(wk)} – ${fmt.monthDay(we)}`
+    : tab === "google" && gmode === "WEEK" ? range(wk, we)
     : fmt.monthYear(ym);
 
   useEffect(() => { if (tab !== "integrations") gret.dismiss(); }, [tab, gret.dismiss]); // the message is shown once, then it is gone

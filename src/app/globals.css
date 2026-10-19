@@ -991,3 +991,11 @@ a, button, input, select, textarea, label, summary, [role="button"], [role="tab"
 .dp-btn > span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .erow .etop b { white-space: nowrap; } /* a date such as "10월 19일" never breaks onto two lines */
+
+.nb { white-space: nowrap; }
+
+/* footer controls on phones: the language select is 16px (iOS zoom), so the sign-out button next to it matches in size and height */
+@media (max-width: 860px), (pointer: coarse) {
+  .appfoot-signout, .appfoot .lang { height: 40px; font-size: 16px; color: var(--fg); }
+  .appfoot-signout { padding: 0 var(--s4); }
+}
