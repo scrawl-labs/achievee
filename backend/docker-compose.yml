@@ -1,0 +1,31 @@
+# 로컬에서 전체 백엔드 띄우기: docker compose up --build
+# 바깥으로는 게이트웨이(8080)만 연다. 서비스끼리는 compose 네트워크의 서비스 이름으로 통신한다.
+services:
+  gateway:
+    build:
+      context: .
+      args:
+        SERVICE: gateway
+    ports:
+      - "8080:8080"
+    environment:
+      EXPENSE_SERVICE_URL: http://expense-service:8081
+      STATS_SERVICE_URL: http://stats-service:8082
+    depends_on:
+      - expense-service
+      - stats-service
+    mem_limit: 384m
+
+  expense-service:
+    build:
+      context: .
+      args:
+        SERVICE: expense-service
+    mem_limit: 384m
+
+  stats-service:
+    build:
+      context: .
+      args:
+        SERVICE: stats-service
+    mem_limit: 384m
