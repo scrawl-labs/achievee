@@ -306,7 +306,7 @@ button.mcell:hover { background: var(--surface-2); } .mcell.sel { background: co
 @media (max-width: 860px) { .login-card .brand, .legal .brand { display: flex; } }
 
 .brand { color: var(--fg); }
-.legal header .brand { text-decoration: none; }
+.legal header .brand { text-decoration: none; color: var(--fg); }
 
 
 

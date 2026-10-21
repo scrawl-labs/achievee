@@ -13,12 +13,11 @@ export function Mark({ size = 28 }: { size?: number }) {
   );
 }
 
-/** Mark + wordmark lockup. `row` puts the flower left of the text, `stack` above it. */
-export default function Logo({ height = 22, layout = "row" }: { height?: number; layout?: "row" | "stack" }) {
-  const row = layout === "row";
+/** Mark + wordmark lockup: the flower sits left of the text. */
+export default function Logo({ height = 22 }: { height?: number }) {
   return (
-    <span style={{ display: "inline-flex", flexDirection: row ? "row" : "column", alignItems: row ? "center" : "flex-start", gap: row ? height * 0.4 : height * 0.5 }}>
-      <Mark size={Math.round(height * (row ? 1.3 : 1.9))} />
+    <span style={{ display: "inline-flex", alignItems: "center", gap: height * 0.4 }}>
+      <Mark size={Math.round(height * 1.3)} />
       <Wordmark height={height} />
     </span>
   );
