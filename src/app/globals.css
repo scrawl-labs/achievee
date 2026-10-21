@@ -477,6 +477,8 @@ button.mcell:hover { background: var(--surface-2); } .mcell.sel { background: co
 }
 
 /* display font for big landing headings only (Hakgyoansim Dunggeunmiso Bold, SIL OFL; body text stays Pretendard). Revert = delete this block. */
+@font-face { font-family: "AchieveeMark"; src: url("/fonts/Wordmark-Achievee.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: block; }
+.wordmark { display: inline-block; font-family: "AchieveeMark", "Dunggeun", var(--font), sans-serif; font-weight: 700; letter-spacing: 0; font-kerning: normal; white-space: nowrap; }
 @font-face { font-family: "Dunggeun"; src: url("/fonts/HakgyoansimDunggeunmiso-B.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
 .land .hero-copy h1, .land .sec h2, .land .band h2, .land .start h2, .land .card h3 {
   font-family: "Dunggeun", var(--font), sans-serif; font-weight: 700; letter-spacing: -0.01em; }

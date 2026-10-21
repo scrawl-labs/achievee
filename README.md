@@ -38,7 +38,7 @@ Google Cloud Console에서 OAuth 클라이언트(Web)를 만들고 Calendar API,
 - 데이터셋: https://github.com/yoonwonj/EVOKE (CC BY-NC 4.0)
 - 박인조, 민경환 (2005). 한국어 감정단어의 목록 작성과 차원 탐색. *한국심리학회지: 사회 및 성격*, 19(1), 109–129. — 흔히 쓰는 감정단어가 빠지지 않았는지 **범위를 점검하는 데만** 참고했고, 그 단어 목록과 평정값은 가져다 쓰지 않았습니다.
 
-로고 글자는 학교안심 둥근미소(한국교육학술정보원, SIL OFL 1.1)를 도형으로 변환한 것이며, 랜딩 제목에는 같은 폰트 Bold를 웹폰트로 사용합니다. 라이선스: `public/fonts/OFL-HakgyoansimDunggeunmiso.txt`
+로고 글자는 학교안심 둥근미소(한국교육학술정보원, SIL OFL 1.1) 글자 일부만 추린 웹폰트이며, 랜딩 제목에는 같은 폰트 Bold를 웹폰트로 사용합니다. 라이선스: `public/fonts/OFL-HakgyoansimDunggeunmiso.txt`
 
 ## Google 권한(OAuth 범위)
 요청하는 범위는 우리가 호출하는 API가 허용하는 **가장 좁은 읽기 전용 범위**입니다 (`src/lib/auth.ts`).

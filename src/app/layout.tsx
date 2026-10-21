@@ -18,7 +18,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const session = await getSession();
   return (
     <html lang={HTML_LANG[locale]} suppressHydrationWarning>
-      <head><script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem("achievee:theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}` }} /></head>
+      <head><link rel="preload" href="/fonts/Wordmark-Achievee.woff2" as="font" type="font/woff2" crossOrigin="anonymous" /><script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem("achievee:theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}` }} /></head>
       <body><Providers session={session} locale={locale}>{children}</Providers></body>
     </html>
   );
