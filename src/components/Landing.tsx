@@ -38,7 +38,6 @@ const INTEGRATIONS: { name: string; tone: string; icon: React.ReactNode; d: Key 
   { name: "Notion", tone: "pink", icon: <NotionMark size={26} />, d: "land.i.notion" },
   { name: "Google Calendar · Tasks", tone: "green", icon: <GCalLogo size={28} />, d: "land.i.google" },
 ];
-const TOOLBOX: Key[] = ["land.m.search", "land.m.review", "land.m.goals", "land.m.lang", "land.m.pwa", "land.m.dark", "land.m.delete"];
 const TRUST = ["t1", "t2", "t3", "t4", "t5"] as const;
 const LANDING_BG = "#fbf7f3"; // the page colour: the phone's status bar takes it, so the top of the page does not start with a black strip
 
@@ -254,7 +253,6 @@ export default function Landing() {
             <li key={x.name}><span className={`logo ${x.tone}`} aria-hidden="true">{x.icon}</span><b>{x.name}</b><small>{t(x.d)}</small></li>
           ))}
         </ul>
-        <p className="toolbox">{TOOLBOX.map((k) => t(k)).join(" · ")}</p>
       </section>
 
       <section id="privacy" className="trustsec">
