@@ -1,4 +1,5 @@
 import type { Locale } from "./i18n";
+import { FAMILY_TR, WORD_TR } from "./emotions-i18n";
 
 /**
  * Emotion vocabulary for the diary ("what exactly am I feeling?").
@@ -7,15 +8,17 @@ import type { Locale } from "./i18n";
  * inspired by that research and is credited in the app and README.
  * Words are language-specific, not translations of each other: `ko` and `en` each name the closest feeling in that language.
  */
-export type EmoLang = "ko" | "en";
-/** Korean has its own list; every other locale shows the English list for now. */
-export const emoLang = (l: Locale): EmoLang => (l === "ko" ? "ko" : "en");
+export type EmoLang = Locale;
+/** Every locale has its own list of words and descriptions. */
+export const emoLang = (l: Locale): EmoLang => l;
 
 type Pair = [word: string, description: string];
-export type Family = { id: string; ko: string; en: string };
-export type Word = { id: string; family: string; ko: Pair; en: Pair; near?: string[] };
+type BaseFamily = { id: string; ko: string; en: string };
+export type Family = BaseFamily & { ja: string; es: string; zh: string };
+type BaseWord = { id: string; family: string; ko: Pair; en: Pair; near?: string[] };
+export type Word = BaseWord & { ja: Pair; es: Pair; zh: Pair };
 
-export const FAMILIES: Family[] = [
+const BASE_FAMILIES: BaseFamily[] = [
   { id: "joy", ko: "기쁨", en: "Joy" },
   { id: "calm", ko: "편안함", en: "Calm" },
   { id: "warm", ko: "따뜻함", en: "Warmth" },
@@ -31,8 +34,9 @@ export const FAMILIES: Family[] = [
   { id: "weary", ko: "지침", en: "Weariness" },
   { id: "surprise", ko: "놀람", en: "Surprise" },
 ];
+export const FAMILIES: Family[] = BASE_FAMILIES.map((f) => ({ ...f, ...FAMILY_TR[f.id] }));
 
-export const WORDS: Word[] = [
+const BASE_WORDS: BaseWord[] = [
   // ---- joy
   { id: "glad", family: "joy", ko: ["기쁘다", "바라던 일이 이루어지거나 좋은 소식을 들어 마음이 환해질 때"], en: ["glad", "Good news, or something you hoped for, brightens your mood."], near: ["enjoy", "grateful", "excited"] },
   { id: "enjoy", family: "joy", ko: ["즐겁다", "하고 있는 일이나 함께 있는 시간이 신나고 유쾌할 때"], en: ["cheerful", "You are enjoying what you are doing or who you are with."], near: ["glad", "excited", "light"] },
@@ -142,7 +146,7 @@ export const WORDS: Word[] = [
   { id: "pleased", family: "warm", ko: ["흐뭇하다", "보기만 해도 마음이 따뜻하고 조용히 만족스러울 때"], en: ["pleased", "Just seeing it fills you with warm, quiet satisfaction."], near: ["content", "proud", "warm"] },
   { id: "sympathetic", family: "warm", ko: ["안쓰럽다", "애쓰는 모습이 딱해서 마음이 쓰이고 도와주고 싶을 때"], en: ["sympathetic", "You see someone struggling and ache for them."], near: ["tender", "worried", "pained"] },
   { id: "affectionate", family: "warm", ko: ["다정하다", "누군가에게 따뜻한 마음을 건네고 싶을 때"], en: ["affectionate", "You want to offer someone a warm word or gesture."] },
-  { id: "chummy", family: "warm", ko: ["정답다", "가까운 사람과 마음이 통해 정이 느껴질 때"], en: ["close-knit", "You feel a bond with someone close."] },
+  { id: "chummy", family: "warm", ko: ["정답다", "가까운 사람과 마음이 통해 정이 느껴질 때"], en: ["close", "You feel a bond with someone close."] },
   { id: "caring", family: "warm", ko: ["챙겨주고 싶다", "누군가를 돌보고 보살피고 싶을 때"], en: ["caring", "You want to look after someone."] },
   { id: "admiring", family: "warm", ko: ["존경스럽다", "누군가의 태도나 실력에 고개가 숙여질 때"], en: ["admiring", "Someone's attitude or skill makes you look up to them."] },
   { id: "reliable", family: "warm", ko: ["믿음직하다", "이 사람이라면 맡겨도 되겠다고 느껴질 때"], en: ["reliable", "You feel you can leave it to this person."] },
@@ -174,8 +178,8 @@ export const WORDS: Word[] = [
   { id: "bitter", family: "mixed", ko: ["씁쓸하다", "기대와 달라 입맛이 쓴 듯 허탈하고 언짢을 때"], en: ["bitter", "It differed from what you hoped and leaves a sour taste."], near: ["disappointed", "deflated", "wistful"] },
   { id: "nostalgic", family: "mixed", ko: ["아련하다", "지난 일이 흐릿하게 떠올라 애틋하고 아득할 때"], en: ["faintly nostalgic", "A past moment returns softly, dim and dear."], near: ["longing", "tender", "wistful"] },
   { id: "wavering", family: "mixed", ko: ["갈팡질팡하다", "마음이 이리저리 오가 갈피를 못 잡을 때"], en: ["torn", "Your mind swings back and forth with no direction."] },
-  { id: "scattered", family: "mixed", ko: ["뒤숭숭하다", "마음이 어수선해 일이 손에 잡히지 않을 때"], en: ["unsettled-mind", "Your mind is in disarray and you cannot settle to anything."] },
-  { id: "flat", family: "mixed", ko: ["담담하다", "감정이 크게 일지 않고 평평할 때"], en: ["even-keeled", "Nothing stirs strongly; your feelings run flat."] },
+  { id: "scattered", family: "mixed", ko: ["뒤숭숭하다", "마음이 어수선해 일이 손에 잡히지 않을 때"], en: ["all over the place", "Your mind is in disarray and you cannot settle to anything."] },
+  { id: "flat", family: "mixed", ko: ["담담하다", "감정이 크게 일지 않고 평평할 때"], en: ["level", "Nothing stirs strongly; your feelings run flat."] },
   { id: "envious", family: "envy", ko: ["부럽다", "남이 가진 것이나 모습을 나도 갖고 싶을 때"], en: ["envious", "You want what someone else has or is."], near: ["jealous", "inadequate", "wistful"] },
   { id: "jealous", family: "envy", ko: ["질투나다", "소중한 사람이나 것을 다른 사람이 차지한 것 같아 속이 탈 때"], en: ["jealous", "It feels like someone is taking what is dear to you."], near: ["envious", "letdown", "angry"] },
   { id: "inadequate", family: "envy", ko: ["열등감이 들다", "남과 비교해서 내가 부족하다고 느껴질 때"], en: ["inadequate", "Next to others, you feel you fall short."], near: ["envious", "ashamed", "upset"] },
@@ -195,18 +199,21 @@ export const WORDS: Word[] = [
   { id: "dread", family: "anx", ko: ["겁나다", "앞으로 닥칠 일이 겁이 날 때"], en: ["dreading", "You are afraid of what is coming."] },
   { id: "rushed", family: "anx", ko: ["쫓기다", "시간이나 일에 쫓겨 숨이 찰 때"], en: ["pressed", "Time or work is chasing you and you are out of breath."] },
   { id: "vague", family: "anx", ko: ["막연하다", "어떻게 될지 윤곽이 잡히지 않아 불안할 때"], en: ["uncertain", "You cannot make out what will happen and it unsettles you."] },
-  { id: "pounding", family: "anx", ko: ["가슴이 두근거리다", "긴장해서 심장이 빠르게 뛸 때"], en: ["heart-pounding", "Tension makes your heart beat fast."] },
+  { id: "pounding", family: "anx", ko: ["가슴이 두근거리다", "긴장해서 심장이 빠르게 뛸 때"], en: ["heart racing", "Tension makes your heart beat fast."] },
   { id: "fedup", family: "weary", ko: ["지겹다", "같은 일이 되풀이돼 더는 못 참겠다 싶을 때"], en: ["fed up", "The same thing again and again, and you have had enough."], near: ["bored", "bothered", "wornout"] },
   { id: "sleepy", family: "weary", ko: ["졸리다", "눈이 감기고 몸에서 힘이 빠질 때"], en: ["sleepy", "Your eyes close and strength drains from your body."] },
   { id: "drained", family: "weary", ko: ["방전되다", "에너지가 바닥나 아무것도 못 하겠을 때"], en: ["drained", "Your energy is at zero and you can do nothing."] },
-  { id: "heavybody", family: "weary", ko: ["몸이 무겁다", "몸이 천근만근처럼 느껴질 때"], en: ["heavy-bodied", "Your body feels like lead."] },
+  { id: "heavybody", family: "weary", ko: ["몸이 무겁다", "몸이 천근만근처럼 느껴질 때"], en: ["heavy-limbed", "Your body feels like lead."] },
   { id: "burnedout", family: "weary", ko: ["소진되다", "오래 쏟아부어 더 낼 힘이 남지 않았을 때"], en: ["burned out", "After pouring yourself out for long, nothing is left."] },
   { id: "languid", family: "weary", ko: ["나른하다", "몸이 늘어지고 느슨하게 풀릴 때"], en: ["languid", "Your body loosens and slows."] },
   { id: "selfblame", family: "shame", ko: ["자책하다", "잘못이 내 탓 같아서 스스로를 몰아세울 때"], en: ["self-blaming", "It feels like your fault, and you turn on yourself."], near: ["guilty", "regret", "ashamed"] },
-  { id: "blushing", family: "shame", ko: ["얼굴이 화끈거리다", "부끄러움에 얼굴에 열이 오를 때"], en: ["burning-faced", "Your face heats up with shame."] },
+  { id: "blushing", family: "shame", ko: ["얼굴이 화끈거리다", "부끄러움에 얼굴에 열이 오를 때"], en: ["flushed", "Your face heats up with shame."] },
   { id: "remorseful", family: "shame", ko: ["뉘우치다", "내가 잘못한 것을 깨닫고 마음이 무거울 때"], en: ["remorseful", "You see what you did wrong and it weighs on you."] },
   { id: "abashed", family: "shame", ko: ["면목없다", "상대 앞에 얼굴을 들기 어려울 때"], en: ["abashed", "You can hardly look the other person in the face."] },
 ];
+export const WORDS: Word[] = BASE_WORDS.map((w) => ({
+  ...w, ja: WORD_TR.ja[w.id] ?? w.en, es: WORD_TR.es[w.id] ?? w.en, zh: WORD_TR.zh[w.id] ?? w.en,
+}));
 
 /**
  * How pleasant each word feels, on our own scale from -2 (very unpleasant) to +2 (very pleasant).

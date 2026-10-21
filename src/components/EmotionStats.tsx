@@ -2,13 +2,13 @@
 import { useMemo } from "react";
 import { dow } from "@/lib/dates";
 import { FAMILIES, WORDS, emoLang, familyById, wordById, wordText } from "@/lib/emotions";
-import { MIN_FAMILY_DAYS, contexts, portrait } from "@/lib/emotionContext";
+import { MIN_FAMILY_DAYS, MIN_PORTRAIT_DAYS, contexts, monthSummary, portrait } from "@/lib/emotionContext";
 import { todayStr } from "@/lib/clientTime";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 
 type Day = { date: string; mood: string | null; ids: string[] };
-type Ctx = { exercise: string[]; unneeded: string[]; from: string };
+type Ctx = { exercise: string[]; unneeded: string[]; saved: string[]; from: string };
 const BARS = ["var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)", "var(--c5)", "var(--c6)"];
 const MIN_FOR_PATTERN = 3; // a weekday pattern needs a few samples to mean anything
 const monIdx = (date: string) => (dow(date) + 6) % 7; // Monday = 0
@@ -52,10 +52,13 @@ export default function EmotionStats() {
   if (!data) return null;
 
   const me = portrait(data);
+  const mon = monthSummary(data, todayStr().slice(0, 7));
+  const delta = mon.prevPleasant === null ? null : mon.portrait.pleasant - mon.prevPleasant;
   const inWin = ctx ? data.filter((d) => d.date >= ctx.from) : [];
   const ctxRows = ctx ? [
     { key: "emo.cEx" as const, rows: contexts(inWin, new Set(ctx.exercise)) },
     { key: "emo.cWs" as const, rows: contexts(inWin, new Set(ctx.unneeded)) },
+    { key: "emo.cSv" as const, rows: contexts(inWin, new Set(ctx.saved)) },
   ] : [];
   const pct = (x: number) => Math.round(x * 100);
   const fams = FAMILIES.map((f) => ({ f, v: s.family.get(f.id) ?? 0 })).filter((x) => x.v).sort((a, b) => b.v - a.v);
@@ -67,6 +70,19 @@ export default function EmotionStats() {
         <div><dd>{s.vocab}<small> / {WORDS.length}</small></dd><dt>{t("emo.statsVocab", { n: s.vocab, total: WORDS.length })}</dt></div>
         <div><dd>{s.days}</dd><dt>{t("emo.statsDays", { n: s.days })}</dt></div>
       </dl>
+
+      {mon.days >= MIN_PORTRAIT_DAYS && mon.portrait.topFamily && (
+        <section className="panel emome">
+          <h3>{t("emo.mTitle")}</h3>
+          <ul className="peaks">
+            <li>{t("emo.pFamily", { f: familyById(mon.portrait.topFamily)?.[lang] ?? "" })}</li>
+            <li>{t("emo.pWords", { w: mon.portrait.topWords.map((id) => wordText(id, lang)).join(", ") })}</li>
+            <li>{t("emo.pLean", { a: mon.portrait.pleasant, b: mon.portrait.unpleasant, c: mon.portrait.between })}</li>
+            {delta !== null && delta !== 0 && <li>{t("emo.mDelta", { d: `${delta > 0 ? "+" : "−"}${Math.abs(delta)}` })}</li>}
+            {mon.newWords.length > 0 && data.some((d) => d.date < mon.month) && <li>{t("emo.mNew", { w: mon.newWords.slice(0, 5).map((id) => wordText(id, lang)).join(", ") })}</li>}
+          </ul>
+        </section>
+      )}
 
       {me.topFamily && (
         <section className="panel emome">

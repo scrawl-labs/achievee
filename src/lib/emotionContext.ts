@@ -33,7 +33,8 @@ export type Portrait = {
   pleasant: number; unpleasant: number; between: number;   // share of picked words, whole percent
   lightest: number | null; heaviest: number | null;       // weekday (0 = Sunday) with the most pleasant / unpleasant average
 };
-const MIN_PORTRAIT_DAYS = 3, MIN_WEEKDAY_DAYS = 3;
+export const MIN_PORTRAIT_DAYS = 3;
+const MIN_WEEKDAY_DAYS = 3;
 
 export function portrait(days: readonly EmoDay[]): Portrait {
   const word = new Map<string, number>(), fam = new Map<string, number>();
@@ -63,5 +64,22 @@ export function portrait(days: readonly EmoDay[]): Portrait {
     topWords: enough ? top(word, 3) : [],
     pleasant: Math.round((pos / total) * 100), unpleasant: Math.round((neg / total) * 100), between: Math.round((mid / total) * 100),
     lightest: hi && lo && hi.a - lo.a >= 0.3 ? hi.i : null, heaviest: hi && lo && hi.a - lo.a >= 0.3 ? lo.i : null,
+  };
+}
+
+export type MonthSummary = { month: string; days: number; portrait: Portrait; prevPleasant: number | null; newWords: string[] };
+
+const prevMonth = (m: string) => { const [y, mo] = m.split("-").map(Number); return mo === 1 ? `${y - 1}-12` : `${y}-${String(mo - 1).padStart(2, "0")}`; };
+
+/** "This month's me": the portrait of one month (YYYY-MM), how its pleasant share moved from the month before, and words used for the first time. */
+export function monthSummary(all: readonly EmoDay[], month: string): MonthSummary {
+  const inMonth = all.filter((d) => d.date.startsWith(month));
+  const prev = all.filter((d) => d.date.startsWith(prevMonth(month)));
+  const first = new Map<string, string>();
+  for (const d of [...all].sort((a, b) => a.date.localeCompare(b.date))) for (const id of d.ids) if (!first.has(id)) first.set(id, d.date);
+  return {
+    month, days: inMonth.length, portrait: portrait(inMonth),
+    prevPleasant: prev.length >= MIN_PORTRAIT_DAYS ? portrait(prev).pleasant : null,
+    newWords: [...first.entries()].filter(([, date]) => date.startsWith(month)).map(([id]) => id),
   };
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { contexts, portrait, MIN_FAMILY_DAYS } from "../emotionContext";
+import { contexts, monthSummary, portrait, MIN_FAMILY_DAYS } from "../emotionContext";
 import { WORDS, VALENCE, WORD_IDS, FAMILIES } from "../emotions";
 
 const day = (n: number) => new Date(Date.parse("2026-08-01") + n * 864e5).toISOString().slice(0, 10);
@@ -55,5 +55,21 @@ describe("portrait", () => {
     expect(p.lightest).toBe(1);
     expect(p.heaviest).toBe(2);
     expect(portrait([...mon, ...mon.map((d) => ({ ...d, date: day(3 + (Date.parse(d.date) - Date.parse(day(2))) / 864e5) }))]).lightest).toBeNull();
+  });
+});
+
+describe("monthSummary", () => {
+  const d = (date: string, ...ids: string[]) => ({ date, ids });
+  const all = [d("2026-09-01", "sad"), d("2026-09-02", "sad"), d("2026-09-03", "glad"), d("2026-10-01", "glad"), d("2026-10-02", "glad", "sad"), d("2026-10-03", "proud"), d("2026-10-04", "glad")];
+  it("covers only the month and says which words are new in it", () => {
+    const m = monthSummary(all, "2026-10");
+    expect(m.days).toBe(4);
+    expect(m.portrait.topWords[0]).toBe("glad");
+    expect(m.newWords).toEqual(["proud"]);
+  });
+  it("compares the pleasant share with the month before, across a year boundary too", () => {
+    expect(monthSummary(all, "2026-10").prevPleasant).toBe(33);   // Sept: 1 pleasant word out of 3
+    expect(monthSummary(all, "2026-09").prevPleasant).toBeNull(); // nothing before September
+    expect(monthSummary([d("2025-12-01", "sad"), d("2025-12-02", "sad"), d("2025-12-03", "sad"), d("2026-01-01", "glad")], "2026-01").prevPleasant).toBe(0);
   });
 });

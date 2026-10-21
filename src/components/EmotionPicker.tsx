@@ -57,7 +57,6 @@ export default function EmotionPicker({ value, onChange }: { value: string[]; on
           </button>
         ))}
         <button type="button" className="btn" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? t("common.close") : t("emo.pick")}</button>
-        {locale !== "ko" && locale !== "en" && <small className="muted">{t("emo.langNote")}</small>}
       </div>
 
       {open && (

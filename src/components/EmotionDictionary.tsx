@@ -8,7 +8,7 @@ export default function EmotionDictionary() {
   const lang = emoLang(locale);
   return (
     <div className="emodict">
-      <p className="muted emodict-intro">{t("emo.dictIntro")}{locale !== "ko" && locale !== "en" ? ` ${t("emo.langNote")}` : ""}</p>
+      <p className="muted emodict-intro">{t("emo.dictIntro")}</p>
       {FAMILIES.map((f) => (
         <section key={f.id} className="emodict-fam">
           <h3>{f[lang]}</h3>
