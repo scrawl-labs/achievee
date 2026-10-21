@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { contexts, monthSummary, portrait, MIN_FAMILY_DAYS } from "../emotionContext";
-import { WORDS, VALENCE, WORD_IDS, FAMILIES } from "../emotions";
+import { WORDS, VALENCE, WORD_IDS, FAMILIES, rankWords, suggestWords } from "../emotions";
+import { wrapText } from "../monthCard";
 
 const day = (n: number) => new Date(Date.parse("2026-08-01") + n * 864e5).toISOString().slice(0, 10);
 
@@ -71,5 +72,28 @@ describe("monthSummary", () => {
     expect(monthSummary(all, "2026-10").prevPleasant).toBe(33);   // Sept: 1 pleasant word out of 3
     expect(monthSummary(all, "2026-09").prevPleasant).toBeNull(); // nothing before September
     expect(monthSummary([d("2025-12-01", "sad"), d("2025-12-02", "sad"), d("2025-12-03", "sad"), d("2026-01-01", "glad")], "2026-01").prevPleasant).toBe(0);
+  });
+});
+
+describe("rankWords", () => {
+  it("keeps to the chosen lean and ranks strong words first when the feeling is strong, mild first when it is faint", () => {
+    const strong = rankWords({ lean: "neg", intensity: "strong" }), mild = rankWords({ lean: "neg", intensity: "mild" });
+    expect(strong.every((w) => (VALENCE[w.id] ?? 0) < 0)).toBe(true);
+    expect(Math.abs(VALENCE[strong[0].id])).toBe(2);
+    expect(Math.abs(VALENCE[mild[0].id])).toBe(1);
+    expect(strong.length).toBe(mild.length);
+  });
+  it("ignores strength for a mixed feeling and lets suggestWords take the first few", () => {
+    expect(rankWords({ lean: "mixed", intensity: "strong" }).map((w) => w.id)).toEqual(rankWords({ lean: "mixed" }).map((w) => w.id));
+    expect(suggestWords({ lean: "pos" }, 4)).toHaveLength(4);
+  });
+});
+
+describe("wrapText", () => {
+  const m = (s: string) => s.length * 10;
+  it("breaks at spaces and, for text without spaces, between characters", () => {
+    expect(wrapText(m, "aaa bbb ccc", 70)).toEqual(["aaa bbb", "ccc"]);
+    expect(wrapText(m, "あいうえおかき", 30)).toEqual(["あいう", "えおか", "き"]);
+    expect(wrapText(m, "", 30)).toEqual([]);
   });
 });

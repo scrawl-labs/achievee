@@ -456,12 +456,14 @@ export const ENERGY: Record<string, Energy> = {
 };
 
 export type Lean = "pos" | "neg" | "mixed";
+export type Intensity = "mild" | "strong";
+export type Answers = { lean: Lean; focus?: Focus; energy?: Energy; intensity?: Intensity };
 /**
- * "Help me find the word": three easy answers narrow the list. The lean (pleasant / unpleasant / mixed) decides which
- * words are considered; who-it-is-about and energy rank them. Answers left out (skipped) neither help nor hurt.
- * These are suggestions to think with, not a diagnosis.
+ * "Help me find the word": a few easy answers narrow the list. The lean (pleasant / unpleasant / mixed) decides which
+ * words are considered; who-it-is-about, energy and strength rank them. Answers left out (skipped) neither help nor hurt.
+ * These are suggestions to think with, not a diagnosis. The whole ranked list is returned so "show more" can keep going.
  */
-export function suggestWords(a: { lean: Lean; focus?: Focus; energy?: Energy }, max = 6): Word[] {
+export function rankWords(a: Answers): Word[] {
   const pool = WORDS.filter((w) => {
     const v = VALENCE[w.id] ?? 0;
     return a.lean === "pos" ? v > 0 : a.lean === "neg" ? v < 0 : v === 0 || w.family === "mixed";
@@ -470,14 +472,15 @@ export function suggestWords(a: { lean: Lean; focus?: Focus; energy?: Energy }, 
     let s = 0;
     if (a.focus) s += FOCUS[w.id] === a.focus ? 2 : FOCUS[w.id] ? -1 : 0;
     if (a.energy) s += ENERGY[w.id] === a.energy ? 2 : ENERGY[w.id] ? -1 : 0;
+    if (a.intensity && a.lean !== "mixed") s += Math.abs(VALENCE[w.id] ?? 0) === (a.intensity === "strong" ? 2 : 1) ? 2 : 0;
     return s;
   };
   return pool
     .map((w, i) => ({ w, s: score(w), strong: Math.abs(VALENCE[w.id] ?? 0), i }))
     .sort((x, y) => y.s - x.s || y.strong - x.strong || x.i - y.i)
-    .slice(0, max)
     .map((x) => x.w);
 }
+export const suggestWords = (a: Answers, max = 6): Word[] => rankWords(a).slice(0, max);
 
 export const WORD_IDS = new Set(WORDS.map((w) => w.id));
 export const MAX_EMOTIONS = 3;

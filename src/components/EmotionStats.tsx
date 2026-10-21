@@ -4,6 +4,7 @@ import { dow } from "@/lib/dates";
 import { FAMILIES, WORDS, emoLang, familyById, wordById, wordText } from "@/lib/emotions";
 import { MIN_FAMILY_DAYS, MIN_PORTRAIT_DAYS, contexts, monthSummary, portrait } from "@/lib/emotionContext";
 import { todayStr } from "@/lib/clientTime";
+import { drawMonthCard, shareCard } from "@/lib/monthCard";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 
@@ -61,6 +62,24 @@ export default function EmotionStats() {
     { key: "emo.cSv" as const, rows: contexts(inWin, new Set(ctx.saved)) },
   ] : [];
   const pct = (x: number) => Math.round(x * 100);
+  const saveCard = async () => {
+    const p = mon.portrait;
+    try { await Promise.all([document.fonts.load('700 48px "Dunggeun"'), document.fonts.load('700 48px "AchieveeMark"')]); } catch { /* the card falls back to system fonts */ }
+    const canvas = document.createElement("canvas");
+    drawMonthCard(canvas, {
+      brand: "Achievee", month: fmt.monthYear(mon.month), heading: t("emo.mTitle"),
+      familyLabel: t("emo.cardFamily"), family: familyById(p.topFamily ?? "")?.[lang] ?? "",
+      wordsLabel: t("emo.cardWords"), words: p.topWords.map((id) => wordText(id, lang)),
+      lean: { pleasant: p.pleasant, unpleasant: p.unpleasant, between: p.between },
+      leanLabels: [t("emo.cardPos"), t("emo.cardNeg"), t("emo.cardMid")],
+      extra: [
+        ...(delta !== null && delta !== 0 ? [t("emo.mDelta", { d: `${delta > 0 ? "+" : "−"}${Math.abs(delta)}` })] : []),
+        ...(mon.newWords.length > 0 && data.some((d) => d.date < mon.month) ? [t("emo.mNew", { w: mon.newWords.slice(0, 5).map((id) => wordText(id, lang)).join(", ") })] : []),
+      ],
+      footer: "achievee.space",
+    });
+    await shareCard(canvas, `achievee-${mon.month}`);
+  };
   const fams = FAMILIES.map((f) => ({ f, v: s.family.get(f.id) ?? 0 })).filter((x) => x.v).sort((a, b) => b.v - a.v);
   const famMax = fams[0]?.v ?? 1, wdMax = Math.max(...s.weekdayAll, 1);
 
@@ -81,6 +100,7 @@ export default function EmotionStats() {
             {delta !== null && delta !== 0 && <li>{t("emo.mDelta", { d: `${delta > 0 ? "+" : "−"}${Math.abs(delta)}` })}</li>}
             {mon.newWords.length > 0 && data.some((d) => d.date < mon.month) && <li>{t("emo.mNew", { w: mon.newWords.slice(0, 5).map((id) => wordText(id, lang)).join(", ") })}</li>}
           </ul>
+          <button type="button" className="btn" onClick={saveCard}>{t("emo.shareBtn")}</button>
         </section>
       )}
 
