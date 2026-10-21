@@ -106,7 +106,7 @@ function Main() {
   return (
     <div className="shell">
       <aside className="side">
-        <div className="brand"><Logo height={20} /></div>
+        <div className="brand"><Logo height={24} /></div>
         <nav className="nav">
           {TABS.map((tb) => (
             <button key={tb.key} className={tab === tb.key ? "on" : ""} onClick={() => setTab(tb.key)}>

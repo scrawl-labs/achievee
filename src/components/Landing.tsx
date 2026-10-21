@@ -47,7 +47,7 @@ export default function Landing() {
     <div className="land">
       <div className="hero">
         <nav className="topbar">
-          <div className="brand"><Logo height={22} /></div>
+          <div className="brand"><Logo height={26} /></div>
           <div className="topbar-links">
             <a href="#features">{t("land.nav.f")}</a>
             <a href="#how">{t("land.nav.how")}</a>

@@ -17,7 +17,7 @@ export default function LegalView({ kind, contact }: { kind: "privacy" | "terms"
   return (
     <main className="legal">
       <header>
-        <Link href="/" className="brand" aria-label="Achievee"><Logo height={22} /></Link>
+        <Link href="/" className="brand" aria-label="Achievee"><Logo height={26} /></Link>
       </header>
       <h1>{doc.title}</h1>
       <p className="muted">{doc.updated}: {updated}</p>
