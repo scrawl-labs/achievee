@@ -1090,3 +1090,7 @@ a, button, input, select, textarea, label, summary, [role="button"], [role="tab"
   .hero { margin: 16px 10px 8px; padding-top: 128px; }
   .topbar { padding: 26px 24px 0; }
 }
+.sm-pattern .fams { display: flex; flex-direction: column; gap: 9px; }
+.sm-pattern .fams > div { display: grid; grid-template-columns: 5.5em 1fr; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; }
+.sm-pattern .fams i { height: 12px; border-radius: 99px; background: var(--surface-2); overflow: hidden; display: block; }
+.sm-pattern .fams u { display: block; height: 100%; border-radius: 99px; }

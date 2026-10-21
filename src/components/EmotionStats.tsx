@@ -1,11 +1,14 @@
 "use client";
 import { useMemo } from "react";
 import { dow } from "@/lib/dates";
-import { FAMILIES, WORDS, emoLang, wordById, wordText } from "@/lib/emotions";
+import { FAMILIES, WORDS, emoLang, familyById, wordById, wordText } from "@/lib/emotions";
+import { MIN_FAMILY_DAYS, contexts, portrait } from "@/lib/emotionContext";
+import { todayStr } from "@/lib/clientTime";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 
 type Day = { date: string; mood: string | null; ids: string[] };
+type Ctx = { exercise: string[]; unneeded: string[]; from: string };
 const BARS = ["var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)", "var(--c5)", "var(--c6)"];
 const MIN_FOR_PATTERN = 3; // a weekday pattern needs a few samples to mean anything
 const monIdx = (date: string) => (dow(date) + 6) % 7; // Monday = 0
@@ -16,6 +19,7 @@ export default function EmotionStats() {
   const { t, fmt, locale } = useI18n();
   const lang = emoLang(locale);
   const { data } = useApi<Day[]>("/api/emotions?days=1");
+  const { data: ctx } = useApi<Ctx>(`/api/stats/emotion-context?today=${todayStr()}`);
 
   const s = useMemo(() => {
     const days = data ?? [];
@@ -47,6 +51,13 @@ export default function EmotionStats() {
   if (data && data.length === 0) return <p className="muted">{t("emo.statsEmpty")}</p>;
   if (!data) return null;
 
+  const me = portrait(data);
+  const inWin = ctx ? data.filter((d) => d.date >= ctx.from) : [];
+  const ctxRows = ctx ? [
+    { key: "emo.cEx" as const, rows: contexts(inWin, new Set(ctx.exercise)) },
+    { key: "emo.cWs" as const, rows: contexts(inWin, new Set(ctx.unneeded)) },
+  ] : [];
+  const pct = (x: number) => Math.round(x * 100);
   const fams = FAMILIES.map((f) => ({ f, v: s.family.get(f.id) ?? 0 })).filter((x) => x.v).sort((a, b) => b.v - a.v);
   const famMax = fams[0]?.v ?? 1, wdMax = Math.max(...s.weekdayAll, 1);
 
@@ -56,6 +67,23 @@ export default function EmotionStats() {
         <div><dd>{s.vocab}<small> / {WORDS.length}</small></dd><dt>{t("emo.statsVocab", { n: s.vocab, total: WORDS.length })}</dt></div>
         <div><dd>{s.days}</dd><dt>{t("emo.statsDays", { n: s.days })}</dt></div>
       </dl>
+
+      {me.topFamily && (
+        <section className="panel emome">
+          <h3>{t("emo.pTitle")}</h3>
+          <ul className="peaks">
+            <li>{t("emo.pFamily", { f: familyById(me.topFamily)?.[lang] ?? "" })}</li>
+            <li>{t("emo.pWords", { w: me.topWords.map((id) => wordText(id, lang)).join(", ") })}</li>
+            <li>{t("emo.pLean", { a: me.pleasant, b: me.unpleasant, c: me.between })}</li>
+            {me.lightest !== null && me.heaviest !== null && (
+              <>
+                <li>{t("emo.pLight", { d: fmt.weekdayLong(me.lightest) })}</li>
+                <li>{t("emo.pHeavy", { d: fmt.weekdayLong(me.heaviest) })}</li>
+              </>
+            )}
+          </ul>
+        </section>
+      )}
 
       <div className="two">
         <section className="panel">
@@ -109,6 +137,19 @@ export default function EmotionStats() {
               return <li key={k}>{wordText(a, lang)} + {wordText(b, lang)} <small>×{n}</small></li>;
             })}
           </ul>
+        </section>
+      )}
+      {ctx && (
+        <section className="panel">
+          <h3>{t("emo.cTitle")}</h3>
+          {ctxRows.every((g) => g.rows.length === 0) ? <p className="muted">{t("emo.cNeed", { n: MIN_FAMILY_DAYS })}</p> : (
+            <ul className="peaks">
+              {ctxRows.flatMap((g) => g.rows.map((c) => (
+                <li key={g.key + c.family}>{t(g.key, { f: familyById(c.family)?.[lang] ?? "", a: pct(c.withRate), b: pct(c.otherRate) })}</li>
+              )))}
+            </ul>
+          )}
+          <small className="muted">{t("emo.cNote")}</small>
         </section>
       )}
       <p className="muted">{t("emo.statsMin")}</p>

@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { GOOGLE_HL, type Key } from "@/lib/i18n";
-import { emoLang, wordText } from "@/lib/emotions";
+import { FAMILIES, WORDS, emoLang, wordText } from "@/lib/emotions";
 import Blob from "./Blob";
 import Footer from "./Footer";
 import GCalLogo from "./GCalLogo";
@@ -149,30 +149,34 @@ function BodyMock() {
 }
 
 function PatternMock() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const lang = emoLang(locale);
+  const name = (id: string) => FAMILIES.find((f) => f.id === id)?.[lang] ?? id;
+  const BARS: [string, number][] = [["weary", 78], ["anx", 52], ["joy", 40], ["calm", 24]];
   return (
     <div className="sm sm-pattern">
-      <b>{t("pt.exercise")}</b>
-      <div className="two">
-        <div><small>{t("pt.exYes")}</small><strong>4.1</strong><em>{t("pt.days", { n: 24 })}</em></div>
-        <div><small>{t("pt.exNo")}</small><strong>3.5</strong><em>{t("pt.days", { n: 41 })}</em></div>
+      <b>{t("emo.pTitle")}</b>
+      <div className="fams">
+        {BARS.map(([id, w], i) => (
+          <div key={id}><span>{name(id)}</span><i><u style={{ width: `${w}%`, background: `var(--c${[2, 5, 3, 6][i]})` }} /></i></div>
+        ))}
       </div>
-      <p className="verdict">{t("pt.up", { label: t("pt.exSubject"), d: "0.6" })}</p>
+      <p className="verdict">{t("emo.cEx", { f: name("weary"), a: 12, b: 38 })}</p>
       <div className="faint">
-        <b>{t("pt.waste")}</b>
-        <small>{t("pt.need", { n: 5 })}</small>
+        <b>{t("emo.pLight", { d: new Intl.DateTimeFormat(locale, { weekday: "long", timeZone: "UTC" }).format(Date.UTC(2026, 9, 3)) })}</b>
+        <small>{t("emo.cNote")}</small>
       </div>
     </div>
   );
 }
 
 const SCENES = [
-  { k: "a", tone: "yellow", mock: <DayMock /> },
-  { k: "b", tone: "blue", mock: <GridMock /> },
   { k: "c", tone: "pink", mock: <EmotionMock /> },
-  { k: "d", tone: "green", mock: <MoneyMock /> },
-  { k: "e", tone: "lav", mock: <BodyMock /> },
   { k: "f", tone: "yellow", mock: <PatternMock /> },
+  { k: "a", tone: "blue", mock: <DayMock /> },
+  { k: "b", tone: "lav", mock: <GridMock /> },
+  { k: "d", tone: "green", mock: <MoneyMock /> },
+  { k: "e", tone: "yellow", mock: <BodyMock /> },
 ] as const;
 
 export default function Landing() {
@@ -210,6 +214,7 @@ export default function Landing() {
 
         <div className="hero-copy">
           <h1>{t("login.tagline")}</h1>
+          <p>{t("land.hero.sub", { n: WORDS.length })}</p>
           {gbtn()}
         </div>
 
@@ -239,7 +244,7 @@ export default function Landing() {
             <div className="scene-copy">
               <span className="eyebrow">{t(`land.${s.k}.e` as Key)}</span>
               <h2>{t(`land.${s.k}.t` as Key)}</h2>
-              <p>{t(`land.${s.k}.d` as Key)}</p>
+              <p>{t(`land.${s.k}.d` as Key, { n: WORDS.length })}</p>
             </div>
             <div className={`stage ${s.tone}`} aria-hidden="true">{s.mock}</div>
           </article>
