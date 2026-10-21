@@ -5,11 +5,13 @@ import { GOOGLE_HL, type Key } from "@/lib/i18n";
 import { emoLang, wordText } from "@/lib/emotions";
 import Blob from "./Blob";
 import Footer from "./Footer";
+import GCalLogo from "./GCalLogo";
 import GoogleG from "./GoogleG";
 import Icon from "./Icon";
 import Summary from "./Summary";
 import Logo from "./Logo";
 import { useI18n } from "./I18n";
+import { GithubMark, JiraMark, NotionMark } from "./WorkList";
 
 const MON = [1, 2, 3, 4, 5, 6, 0];
 // A made-up month for the hero window (level 0..4, tasks done), Monday first.
@@ -30,7 +32,13 @@ const START_FLOATERS = [
   { l: "7%", t: "22%", s: 70, lv: 4, n: 5, r: -10, d: 0 }, { l: "17%", t: "62%", s: 48, lv: 3, n: 4, r: 8, d: 1 },
   { l: "84%", t: "20%", s: 56, lv: 2, n: 3, r: 10, d: 0.5 }, { l: "91%", t: "58%", s: 76, lv: 4, n: 6, r: -8, d: 1.6 },
 ];
-const CHIPS: Key[] = ["land.m.search", "land.m.review", "land.m.goals", "land.m.link", "land.m.google", "land.m.lang", "land.m.pwa", "land.m.dark", "land.m.delete"];
+const INTEGRATIONS: { name: string; tone: string; icon: React.ReactNode; d: Key }[] = [
+  { name: "GitHub", tone: "yellow", icon: <GithubMark size={26} />, d: "land.i.gh" },
+  { name: "Jira", tone: "blue", icon: <JiraMark size={26} />, d: "land.i.jira" },
+  { name: "Notion", tone: "pink", icon: <NotionMark size={26} />, d: "land.i.notion" },
+  { name: "Google Calendar · Tasks", tone: "green", icon: <GCalLogo size={28} />, d: "land.i.google" },
+];
+const TOOLBOX: Key[] = ["land.m.search", "land.m.review", "land.m.goals", "land.m.lang", "land.m.pwa", "land.m.dark", "land.m.delete"];
 const TRUST = ["t1", "t2", "t3", "t4", "t5"] as const;
 const LANDING_BG = "#fbf7f3"; // the page colour: the phone's status bar takes it, so the top of the page does not start with a black strip
 
@@ -241,7 +249,12 @@ export default function Landing() {
 
       <section className="more">
         <h2>{t("land.more.title")}</h2>
-        <ul>{CHIPS.map((k) => <li key={k}>{t(k)}</li>)}</ul>
+        <ul className="integ">
+          {INTEGRATIONS.map((x) => (
+            <li key={x.name}><span className={`logo ${x.tone}`} aria-hidden="true">{x.icon}</span><b>{x.name}</b><small>{t(x.d)}</small></li>
+          ))}
+        </ul>
+        <p className="toolbox">{TOOLBOX.map((k) => t(k)).join(" · ")}</p>
       </section>
 
       <section id="privacy" className="trustsec">
@@ -251,7 +264,6 @@ export default function Landing() {
             <div key={k}><dt>{t(`land.${k}.t` as Key)}</dt><dd>{t(`land.${k}.d` as Key)}</dd></div>
           ))}
         </dl>
-        <small>{t("login.note")}</small>
       </section>
 
       <section className="start">

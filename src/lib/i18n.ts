@@ -21,9 +21,8 @@ export function fromAcceptLanguage(h: string | null): Locale {
 
 const en = {
   "nav.calendar": "Log", "nav.stats": "Stats", "nav.diary": "Diary", "nav.expense": "Spending", "nav.google": "Calendar",
-  "login.tagline": "Capture your days beautifully.",
+  "login.tagline": "Capture your days.",
   "login.cta": "Continue with Google",
-  "login.note": "Achievee reads your calendar and tasks (read-only) to show your progress. It never changes them.",
   "legal.privacy": "Privacy Policy", "legal.terms": "Terms of Service", "account.delete": "Delete my data", "account.deleteConfirm": "Permanently delete your diary and spending data and sign out? This can't be undone.",
   "account.signOut": "Sign out", "account.language": "Language",
   "theme.label": "Theme", "theme.system": "System", "theme.light": "Light", "theme.dark": "Dark",
@@ -63,9 +62,8 @@ type Dict = Record<Key, string>;
 
 const ko: BaseDict = {
   "nav.calendar": "기록", "nav.stats": "통계", "nav.diary": "일기", "nav.expense": "지출", "nav.google": "캘린더",
-  "login.tagline": "하루하루를 예쁘게 기록해봐요!",
+  "login.tagline": "하루하루를 기록해봐요!",
   "login.cta": "Google로 계속하기",
-  "login.note": "Achievee는 진행 상황을 보여주기 위해 Google Calendar와 Google Tasks를 읽기 전용으로만 가져오며, 절대 수정하지 않아요.",
   "legal.privacy": "개인정보처리방침", "legal.terms": "이용약관", "account.delete": "내 데이터 삭제", "account.deleteConfirm": "일기와 지출 데이터를 모두 영구 삭제하고 로그아웃할까요? 되돌릴 수 없어요.",
   "account.signOut": "로그아웃", "account.language": "언어",
   "theme.label": "화면 모드", "theme.system": "시스템", "theme.light": "라이트", "theme.dark": "다크",
@@ -100,9 +98,8 @@ const ko: BaseDict = {
 
 const ja: BaseDict = {
   "nav.calendar": "記録", "nav.stats": "統計", "nav.diary": "日記", "nav.expense": "支出", "nav.google": "カレンダー",
-  "login.tagline": "毎日を、きれいに記録しよう！",
+  "login.tagline": "毎日を記録しよう！",
   "login.cta": "Google で続ける",
-  "login.note": "Achievee は進捗を表示するために Google Calendar と Google Tasks を読み取り専用で取得します。変更することはありません。",
   "legal.privacy": "プライバシーポリシー", "legal.terms": "利用規約", "account.delete": "データを削除", "account.deleteConfirm": "日記と支出のデータをすべて完全に削除してログアウトしますか？ 元に戻せません。",
   "account.signOut": "ログアウト", "account.language": "言語",
   "theme.label": "テーマ", "theme.system": "システム", "theme.light": "ライト", "theme.dark": "ダーク",
@@ -137,9 +134,8 @@ const ja: BaseDict = {
 
 const es: BaseDict = {
   "nav.calendar": "Registro", "nav.stats": "Estadísticas", "nav.diary": "Diario", "nav.expense": "Gastos", "nav.google": "Calendario",
-  "login.tagline": "¡Registra tus días de forma bonita!",
+  "login.tagline": "¡Registra tus días!",
   "login.cta": "Continuar con Google",
-  "login.note": "Achievee lee tu Google Calendar y tus Google Tasks (solo lectura) para mostrar tu progreso. Nunca los modifica.",
   "legal.privacy": "Política de privacidad", "legal.terms": "Términos del servicio", "account.delete": "Eliminar mis datos", "account.deleteConfirm": "¿Eliminar de forma permanente tu diario y tus gastos y cerrar sesión? No se puede deshacer.",
   "account.signOut": "Cerrar sesión", "account.language": "Idioma",
   "theme.label": "Tema", "theme.system": "Sistema", "theme.light": "Claro", "theme.dark": "Oscuro",
