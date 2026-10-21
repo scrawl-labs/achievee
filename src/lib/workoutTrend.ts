@@ -1,7 +1,7 @@
 import { addDays, mondayOf } from "./dates";
 import { tally, type WorkoutKind, type WorkoutRow } from "./workout";
 
-/** The last weeks of exercise against the weekly goal. Pure. */
+/** The last weeks of exercise against the weekly goal, counted from the first week with a logged workout. Pure. */
 export type WeekStat = { week: string; sessions: number; minutes: number; met: boolean };
 
 /** Mondays of the last `n` weeks ending with the week that contains `anchor`, oldest first. */
@@ -11,10 +11,13 @@ export const weeksBack = (anchor: string, n: number): string[] => {
 };
 
 export function workoutTrend(rows: readonly WorkoutRow[], anchor: string, n: number, goal: number) {
-  const weeks: WeekStat[] = weeksBack(anchor, n).map((week) => {
+  const all: WeekStat[] = weeksBack(anchor, n).map((week) => {
     const t = tally([...rows], week, addDays(week, 7));
     return { week, sessions: t.sessions, minutes: t.minutes, met: t.sessions >= goal };
   });
+  // Weeks before the first logged workout are weeks before the user started tracking, not weeks off: leave them out of the bars and the averages.
+  const start = all.findIndex((w) => w.sessions > 0);
+  const weeks = start < 0 ? all : all.slice(start);
   const from = weeks[0]?.week ?? anchor, to = addDays(weeks[weeks.length - 1]?.week ?? anchor, 7);
   const inRange = rows.filter((r) => r.date >= from && r.date < to);
   const byKind = new Map<WorkoutKind, number>();

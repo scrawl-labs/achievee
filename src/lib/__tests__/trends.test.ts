@@ -70,10 +70,10 @@ describe("weeksBack / workoutTrend", () => {
     ];
     const t = workoutTrend(rows, "2026-10-14", 3, 3);
     expect(t.weeks.map((w) => [w.week, w.sessions, w.minutes, w.met])).toEqual([
-      ["2026-09-28", 0, 0, false], ["2026-10-05", 1, 30, false], ["2026-10-12", 3, 150, true],
+      ["2026-10-05", 1, 30, false], ["2026-10-12", 3, 150, true],   // the empty week before the first workout is left out
     ]);
     expect(t.metWeeks).toBe(1);
-    expect(t.avgSessions).toBeCloseTo(4 / 3);
+    expect(t.avgSessions).toBeCloseTo(4 / 2);
     expect(t.avgMinutes).toBe(45);            // 180 minutes over 4 sessions
     expect(t.topKind).toBe("run");
     expect(t.max).toBe(3);
@@ -85,5 +85,21 @@ describe("weeksBack / workoutTrend", () => {
   });
   it("the bar scale grows past the goal when a week beats it", () => {
     expect(workoutTrend([wo("2026-10-12", "run", 10, 1), wo("2026-10-13", "run", 10, 2), wo("2026-10-14", "run", 10, 3), wo("2026-10-15", "run", 10, 4), wo("2026-10-16", "run", 10, 5)], "2026-10-14", 2, 3).max).toBe(5);
+  });
+});
+
+describe("workoutTrend: weeks before tracking began", () => {
+  it("counts from the first week with a workout, so an empty start does not drag the averages down", () => {
+    // 8-week window ending the week of 2026-10-14; the first workout is in the week of 2026-09-28 (4 weeks in)
+    const rows = [wo("2026-09-29", "run", 30, 1), wo("2026-10-01", "run", 30, 2), wo("2026-10-06", "run", 30, 3), wo("2026-10-12", "run", 30, 4)];
+    const t = workoutTrend(rows, "2026-10-14", 8, 3);
+    expect(t.weeks.map((w) => w.week)).toEqual(["2026-09-28", "2026-10-05", "2026-10-12"]);
+    expect(t.avgSessions).toBeCloseTo(4 / 3);
+    expect(t.metWeeks).toBe(0);
+  });
+  it("still uses all eight weeks when the first workout is in the first week", () => {
+    const t = workoutTrend([wo("2026-08-25", "run", 30, 1), wo("2026-10-12", "run", 30, 2)], "2026-10-14", 8, 3);
+    expect(t.weeks).toHaveLength(8);
+    expect(t.avgSessions).toBeCloseTo(2 / 8);
   });
 });

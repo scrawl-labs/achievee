@@ -1,49 +1,20 @@
 "use client";
-import { moodVerdict, MIN_DAYS_PER_GROUP, type Comparison, type Interval } from "@/lib/insights";
+import type { Interval } from "@/lib/insights";
 import { todayStr } from "@/lib/clientTime";
-import type { Key } from "@/lib/i18n";
+import EmotionContext from "./EmotionContext";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 
-type Data = { patterns: { exercise: Comparison; waste: Comparison }; body: Interval[]; windowDays: number };
+type Data = { body: Interval[] };
 
-/** What went together in the user's own records. Said carefully: a tendency, not a cause, and nothing until there are enough days. */
+/** What went together in the user's own records: which feelings come with exercise, spending and saving days, and body fat next to exercise. A tendency, not a cause. */
 export default function Insights() {
   const { t, fmt } = useI18n();
   const { data } = useApi<Data>(`/api/stats/insights?today=${todayStr()}`);
   if (!data) return null;
-  const { exercise, waste } = data.patterns;
-  const anyMood = exercise.yes.days + exercise.no.days > 0;
-  const one = (n: number | null) => (n === null ? "-" : n.toFixed(1));
-
-  const row = (c: Comparison, label: Key, yes: Key, no: Key, subject: Key) => {
-    const v = c.diff === null ? null : moodVerdict(c.diff);
-    return (
-      <div className="pt-row" key={label}>
-        <b>{t(label)}</b>
-        <div className="pt-groups">
-          <div><small>{t(yes)}</small><strong>{one(c.yes.mood)}</strong><em>{t("pt.days", { n: c.yes.days })}</em></div>
-          <div><small>{t(no)}</small><strong>{one(c.no.mood)}</strong><em>{t("pt.days", { n: c.no.days })}</em></div>
-        </div>
-        <small className={c.enough ? "pt-verdict" : "muted"}>
-          {!c.enough || v === null ? t("pt.need", { n: MIN_DAYS_PER_GROUP })
-            : v === "none" ? t("pt.same")
-            : t(v === "up" ? "pt.up" : "pt.down", { label: t(subject), d: Math.abs(c.diff!).toFixed(1) })}
-        </small>
-      </div>
-    );
-  };
-
   return (
     <>
-      {anyMood && (
-        <section className="panel pattern">
-          <h3>{t("pt.title")}</h3>
-          {row(exercise, "pt.exercise", "pt.exYes", "pt.exNo", "pt.exSubject")}
-          {row(waste, "pt.waste", "pt.wsYes", "pt.wsNo", "pt.wsSubject")}
-          <small className="muted">{t("pt.note", { n: data.windowDays })}</small>
-        </section>
-      )}
+      <EmotionContext />
       {data.body.length > 0 && (
         <section className="panel pattern">
           <h3>{t("bw.title")}</h3>

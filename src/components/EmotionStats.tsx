@@ -2,14 +2,14 @@
 import { useMemo } from "react";
 import { dow } from "@/lib/dates";
 import { FAMILIES, WORDS, emoLang, familyById, wordById, wordText } from "@/lib/emotions";
-import { MIN_FAMILY_DAYS, MIN_PORTRAIT_DAYS, contexts, monthSummary, portrait } from "@/lib/emotionContext";
+import { MIN_PORTRAIT_DAYS, monthSummary, portrait } from "@/lib/emotionContext";
+import EmotionContext from "./EmotionContext";
 import { todayStr } from "@/lib/clientTime";
 import { drawMonthCard, shareCard } from "@/lib/monthCard";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 
 type Day = { date: string; mood: string | null; ids: string[] };
-type Ctx = { exercise: string[]; unneeded: string[]; saved: string[]; from: string };
 const BARS = ["var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)", "var(--c5)", "var(--c6)"];
 const MIN_FOR_PATTERN = 3; // a weekday pattern needs a few samples to mean anything
 const monIdx = (date: string) => (dow(date) + 6) % 7; // Monday = 0
@@ -20,7 +20,6 @@ export default function EmotionStats() {
   const { t, fmt, locale } = useI18n();
   const lang = emoLang(locale);
   const { data } = useApi<Day[]>("/api/emotions?days=1");
-  const { data: ctx } = useApi<Ctx>(`/api/stats/emotion-context?today=${todayStr()}`);
 
   const s = useMemo(() => {
     const days = data ?? [];
@@ -55,12 +54,6 @@ export default function EmotionStats() {
   const me = portrait(data);
   const mon = monthSummary(data, todayStr().slice(0, 7));
   const delta = mon.prevPleasant === null ? null : mon.portrait.pleasant - mon.prevPleasant;
-  const inWin = ctx ? data.filter((d) => d.date >= ctx.from) : [];
-  const ctxRows = ctx ? [
-    { key: "emo.cEx" as const, rows: contexts(inWin, new Set(ctx.exercise)) },
-    { key: "emo.cWs" as const, rows: contexts(inWin, new Set(ctx.unneeded)) },
-    { key: "emo.cSv" as const, rows: contexts(inWin, new Set(ctx.saved)) },
-  ] : [];
   const pct = (x: number) => Math.round(x * 100);
   const saveCard = async () => {
     const p = mon.portrait;
@@ -175,19 +168,7 @@ export default function EmotionStats() {
           </ul>
         </section>
       )}
-      {ctx && (
-        <section className="panel">
-          <h3>{t("emo.cTitle")}</h3>
-          {ctxRows.every((g) => g.rows.length === 0) ? <p className="muted">{t("emo.cNeed", { n: MIN_FAMILY_DAYS })}</p> : (
-            <ul className="peaks">
-              {ctxRows.flatMap((g) => g.rows.map((c) => (
-                <li key={g.key + c.family}>{t(g.key, { f: familyById(c.family)?.[lang] ?? "", a: pct(c.withRate), b: pct(c.otherRate) })}</li>
-              )))}
-            </ul>
-          )}
-          <small className="muted">{t("emo.cNote")}</small>
-        </section>
-      )}
+      <EmotionContext />
       <p className="muted">{t("emo.statsMin")}</p>
     </div>
   );
