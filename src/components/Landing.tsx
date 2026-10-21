@@ -39,8 +39,8 @@ const TRUST: { t: Key; d: Key }[] = [
 export default function Landing() {
   const { t, fmt, locale } = useI18n();
   const go = () => signIn("google", undefined, { hl: GOOGLE_HL[locale] });
-  const gbtn = (cls = "") => (
-    <button className={`gbtn ${cls}`} onClick={go}><GoogleG size={18} />{t("login.cta")}</button>
+  const gbtn = () => (
+    <button className="gbtn" onClick={go}><GoogleG size={18} />{t("login.cta")}</button>
   );
 
   return (
@@ -53,7 +53,6 @@ export default function Landing() {
             <a href="#how">{t("land.nav.how")}</a>
             <a href="#privacy">{t("land.nav.privacy")}</a>
           </div>
-          {gbtn("small")}
         </nav>
 
         {FLOATERS.map((f, i) => (
