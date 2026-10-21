@@ -95,11 +95,6 @@ function EmotionMock() {
       <div className="words">
         {["proud", "glad", "relieved", "happy"].map((id, i) => <i key={id} className={i === 0 ? "on" : ""}>{wordText(id, lang)}</i>)}
       </div>
-      <div className="sm-review">
-        <small>{t("wk.tab")}</small>
-        <b>{t("wk.good")}</b>
-        <p>{t("land.mk.diary")}</p>
-      </div>
     </div>
   );
 }

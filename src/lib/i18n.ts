@@ -66,7 +66,7 @@ type Dict = Record<Key, string>;
 
 const ko: BaseDict = {
   "nav.calendar": "기록", "nav.stats": "통계", "nav.diary": "일기", "nav.expense": "지출", "nav.google": "캘린더",
-  "login.tagline": "오늘, 정확히 어떤 마음이었나요?",
+  "login.tagline": "오늘 정확히 어떤 마음이었나요?",
   "login.cta": "Google로 계속하기",
   "legal.privacy": "개인정보처리방침", "legal.terms": "이용약관", "account.delete": "내 데이터 삭제", "account.deleteConfirm": "일기와 지출 데이터를 모두 영구 삭제하고 로그아웃할까요? 되돌릴 수 없어요.",
   "account.signOut": "로그아웃", "account.language": "언어",
