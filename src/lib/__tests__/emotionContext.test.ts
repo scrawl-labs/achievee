@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { contexts, monthSummary, portrait, MIN_FAMILY_DAYS } from "../emotionContext";
+import { contexts, monthSummary, portrait, tallies, MIN_FAMILY_DAYS } from "../emotionContext";
 import { WORDS, VALENCE, WORD_IDS, FAMILIES, rankWords, suggestWords } from "../emotions";
 import { wrapText } from "../monthCard";
 
@@ -95,5 +95,15 @@ describe("wrapText", () => {
     expect(wrapText(m, "aaa bbb ccc", 70)).toEqual(["aaa bbb", "ccc"]);
     expect(wrapText(m, "あいうえおかき", 30)).toEqual(["あいう", "えおか", "き"]);
     expect(wrapText(m, "", 30)).toEqual([]);
+  });
+});
+
+describe("tallies", () => {
+  it("counts exercise, unneeded-expense and saving days per feeling family, most frequent first, and skips one-off families", () => {
+    const days = [{ date: day(0), ids: ["sad"] }, { date: day(1), ids: ["sad"] }, { date: day(2), ids: ["sad"] }, { date: day(3), ids: ["glad"] }, { date: day(4), ids: ["glad"] }, { date: day(5), ids: ["angry"] }];
+    const r = tallies(days, { exercise: new Set([day(0), day(3)]), unneeded: new Set([day(1)]), saved: new Set() });
+    expect(r.map((x) => x.family)).toEqual(["sad", "joy"]);          // "anger" showed up once, so it is left out
+    expect(r[0]).toMatchObject({ days: 3, exercise: 1, unneeded: 1, saved: 0 });
+    expect(r[1]).toMatchObject({ days: 2, exercise: 1, unneeded: 0, saved: 0 });
   });
 });

@@ -14,7 +14,7 @@ export default function Insights() {
   if (!data) return null;
   return (
     <>
-      <EmotionContext />
+      <EmotionContext spaced />
       {data.body.length > 0 && (
         <section className="panel pattern">
           <h3>{t("bw.title")}</h3>
