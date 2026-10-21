@@ -21,7 +21,9 @@ function Trend({ rows, metric }: { rows: BodyRow[]; metric: Metric }) {
   if (pts.length < 2) return null;
   const W = 600, H = 170, PX = 44, PY = 22;
   const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
-  const lo = Math.min(...pts.map((p) => p.v)), hi = Math.max(...pts.map((p) => p.v)), span = Math.max(hi - lo, 10);
+  const min = Math.min(...pts.map((p) => p.v)), max = Math.max(...pts.map((p) => p.v)), span = Math.max(max - min, 10);
+  // a flat stretch (a change of a tenth or two) is centred in a one-unit window, so the two axis labels never sit on top of each other
+  const lo = Math.round((min + max) / 2 - span / 2), hi = lo + span;
   const x = (t: number) => PX + ((t - t0) / Math.max(t1 - t0, 1)) * (W - PX - 16);
   const y = (v: number) => PY + (1 - (v - lo) / span) * (H - PY * 2);
   const last = pts[pts.length - 1];
