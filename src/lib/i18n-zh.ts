@@ -7,6 +7,7 @@ export const ZH = {
   "legal.privacy": "隱私權政策", "legal.terms": "服務條款", "account.delete": "刪除我的資料",
   "account.deleteConfirm": "要永久刪除你的日記與支出資料並登出嗎？此動作無法復原。",
   "account.signOut": "登出", "account.language": "語言",
+  "theme.label": "外觀", "theme.system": "跟隨系統", "theme.light": "淺色", "theme.dark": "深色",
   "common.today": "今天", "common.prev": "上一個", "common.next": "下一個", "common.save": "儲存", "common.add": "新增",
   "common.close": "關閉", "common.edit": "編輯", "common.cancel": "取消", "inc.income": "收入", "inc.balance": "剩餘", "inc.new": "新增收入", "inc.addAria": "新增收入", "inc.empty": "還沒有收入", "inc.startDay": "每月起始日", "inc.startHint": "從這一天起算，到下個月的前一天為一個月。", "inc.day": "{n} 日",
   "wk.tab": "每週回顧", "wk.spend": "支出檢視", "wk.spendNone": "本週沒有支出。", "wk.variable": "可調整的支出", "wk.fixed": "固定支出", "wk.vsLast": "與上週相比", "wk.same": "相同", "wk.topCat": "花最多的地方", "wk.biggest": "最大的一筆", "wk.wasteList": "標為不必要的支出", "wk.wasteNone": "沒有標為不必要的支出。", "wk.good": "我做得好的地方", "wk.hard": "讓我困擾的事", "wk.plan": "下週想改變的一件事（選填）", "wk.note": "給自己的一句話（選填）", "wk.sundayTitle": "今天是星期日，來為這週收尾吧？", "wk.write": "寫回顧", "wk.past": "過去的回顧", "wk.empty": "還沒有回顧", "wk.mood": "平均心情", "wk.saved": "已儲存", "wk.sundaySub": "寫幾行就夠了。",

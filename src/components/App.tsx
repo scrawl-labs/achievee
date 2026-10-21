@@ -18,7 +18,7 @@ import { DEFAULT_GOALS, type IntakeKind } from "@/lib/intake";
 import ScheduleView, { type GMode } from "./ScheduleView";
 import CommandBar from "./CommandBar";
 import Icon from "./Icon";
-import Wordmark from "./Wordmark";
+import Logo from "./Logo";
 import Footer from "./Footer";
 import { useI18n } from "./I18n";
 import { prefetch, useApi } from "./useApi";
@@ -106,7 +106,7 @@ function Main() {
   return (
     <div className="shell">
       <aside className="side">
-        <div className="brand"><Wordmark height={22} /></div>
+        <div className="brand"><Logo height={20} /></div>
         <nav className="nav">
           {TABS.map((tb) => (
             <button key={tb.key} className={tab === tb.key ? "on" : ""} onClick={() => setTab(tb.key)}>

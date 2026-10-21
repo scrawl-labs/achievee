@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import LanguageSelect from "./LanguageSelect";
+import ThemeSelect from "./ThemeSelect";
 import { useI18n } from "./I18n";
 
 /** Site footer: legal links (and account actions when signed in) on the left, language on the right. */
@@ -15,6 +16,7 @@ export default function Footer({ onSignOut, onDelete }: { onSignOut?: () => void
       </nav>
       <div className="appfoot-end">
         {onSignOut && <button type="button" className="btn appfoot-signout" onClick={onSignOut}>{t("account.signOut")}</button>}
+        <ThemeSelect />
         <LanguageSelect />
       </div>
     </footer>

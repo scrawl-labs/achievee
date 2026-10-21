@@ -17,7 +17,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const locale = isLocale(saved) ? saved : fromAcceptLanguage(headers().get("accept-language"));
   const session = await getSession();
   return (
-    <html lang={HTML_LANG[locale]}>
+    <html lang={HTML_LANG[locale]} suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem("achievee:theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}` }} /></head>
       <body><Providers session={session} locale={locale}>{children}</Providers></body>
     </html>
   );

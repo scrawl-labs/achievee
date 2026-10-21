@@ -6,7 +6,7 @@ import Footer from "./Footer";
 import GoogleG from "./GoogleG";
 import Icon from "./Icon";
 import Summary from "./Summary";
-import Wordmark from "./Wordmark";
+import Logo from "./Logo";
 import { useI18n } from "./I18n";
 
 const MON = [1, 2, 3, 4, 5, 6, 0];
@@ -47,7 +47,7 @@ export default function Landing() {
     <div className="land">
       <div className="hero">
         <nav className="topbar">
-          <div className="brand"><Wordmark height={24} /></div>
+          <div className="brand"><Logo height={22} /></div>
           <div className="topbar-links">
             <a href="#features">{t("land.nav.f")}</a>
             <a href="#how">{t("land.nav.how")}</a>

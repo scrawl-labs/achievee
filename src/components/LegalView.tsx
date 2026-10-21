@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { PRIVACY, PRIVACY_UPDATED } from "@/lib/legal";
 import { TERMS, TERMS_UPDATED } from "@/lib/terms";
-import Wordmark from "./Wordmark";
+import Logo from "./Logo";
 import Footer from "./Footer";
 import { useI18n } from "./I18n";
 
@@ -17,7 +17,7 @@ export default function LegalView({ kind, contact }: { kind: "privacy" | "terms"
   return (
     <main className="legal">
       <header>
-        <Link href="/" className="brand" aria-label="Achievee"><Wordmark height={24} /></Link>
+        <Link href="/" className="brand" aria-label="Achievee"><Logo height={22} /></Link>
       </header>
       <h1>{doc.title}</h1>
       <p className="muted">{doc.updated}: {updated}</p>

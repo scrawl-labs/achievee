@@ -10,13 +10,21 @@
   --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px;
   --side: 224px;
 }
+/* Light tokens apply when the system is light (unless dark is forced) or when light is forced via <html data-theme="light"> */
 @media (prefers-color-scheme: light) {
-  :root {
+  :root:not([data-theme="dark"]) {
     --bg: #f6f6f7; --surface: #fff; --surface-2: #f0f0f2; --line: #e3e3e7;
     --fg: #17181a; --fg-2: #5d5f68; --fg-3: #9a9ca4;
     --accent: #4a5bf0; --sat: #2f7bf5; --sun: #e5484d; --c0: #ebebef;
   }
 }
+:root[data-theme="light"] {
+  --bg: #f6f6f7; --surface: #fff; --surface-2: #f0f0f2; --line: #e3e3e7;
+  --fg: #17181a; --fg-2: #5d5f68; --fg-3: #9a9ca4;
+  --accent: #4a5bf0; --sat: #2f7bf5; --sun: #e5484d; --c0: #ebebef;
+  color-scheme: light;
+}
+:root[data-theme="dark"] { color-scheme: dark; }
 
 /* Base -------------------------------------------------------------- */
 * { box-sizing: border-box; margin: 0; }
@@ -502,9 +510,8 @@ select {
   background-repeat: no-repeat; background-position: right 12px center; background-size: 16px 16px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0a2aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
-@media (prefers-color-scheme: light) {
-  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235d5f68' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); }
-}
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235d5f68' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); } }
+:root[data-theme="light"] select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235d5f68' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); }
 .land select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235e5a57' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); }
 .lang { padding-right: 30px; background-position: right 9px center; background-size: 14px 14px; }
 
@@ -529,9 +536,8 @@ select {
   background-color: var(--surface-2); background-repeat: no-repeat;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0a2aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
-@media (prefers-color-scheme: light) {
-  .lang { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235d5f68' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); }
-}
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .lang { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235d5f68' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); } }
+:root[data-theme="light"] .lang { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235d5f68' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); }
 .land .lang { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235e5a57' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); }
 
 /* weekly review */
@@ -679,7 +685,8 @@ select {
 .workday .k-review { --k: #58a6ff; }
 .workday .k-issue { --k: #f0883e; }
 .workday .k-closed, .workday .k-resolved { --k: #2dba9f; }
-@media (prefers-color-scheme: light) { .workday .kind { color: color-mix(in oklab, var(--k) 62%, #000); } }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .workday .kind { color: color-mix(in oklab, var(--k) 62%, #000); } }
+:root[data-theme="light"] .workday .kind { color: color-mix(in oklab, var(--k) 62%, #000); }
 
 /* integrations catalog */
 .intsec { margin: var(--s4) 0 0; font-size: 14px; color: var(--fg-2); letter-spacing: -0.01em; }
@@ -705,7 +712,9 @@ select {
 .intok i { width: 7px; height: 7px; border-radius: 50%; background: var(--c3); }
 .intwarn { display: inline-flex; align-items: center; gap: 6px; color: var(--c2); }
 .intwarn i { width: 7px; height: 7px; border-radius: 50%; background: var(--c2); }
-@media (prefers-color-scheme: light) { .intwarn { color: #a15c00; } .intwarn i { background: #a15c00; } }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .intwarn { color: #a15c00; } :root:not([data-theme="dark"]) .intwarn i { background: #a15c00; } }
+:root[data-theme="light"] .intwarn { color: #a15c00; }
+:root[data-theme="light"] .intwarn i { background: #a15c00; }
 .intnote { padding: 0 var(--s4) var(--s3); display: flex; flex-direction: column; gap: var(--s2); }
 .intnote:empty { padding: 0; }
 .intnote p { margin: 0; font-size: 13px; line-height: 1.55; }
@@ -713,7 +722,9 @@ select {
 .glink { display: block; margin: calc(var(--s2) * -1) 0 var(--s3); padding: var(--s1) 0; background: none; border: 0; color: var(--fg-2); font: inherit; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .glink:hover { color: var(--fg); }
 @media (max-width: 560px) { .intcard { flex-wrap: wrap; } .intcard .intbody { flex-basis: calc(100% - 44px - var(--s3)); } .intcard .btn { margin-left: calc(44px + var(--s3)); } }
-@media (prefers-color-scheme: light) { .intok { color: #1f9d55; } .intok i { background: #1f9d55; } }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .intok { color: #1f9d55; } :root:not([data-theme="dark"]) .intok i { background: #1f9d55; } }
+:root[data-theme="light"] .intok { color: #1f9d55; }
+:root[data-theme="light"] .intok i { background: #1f9d55; }
 .workday .k-created { --k: #3fb950; }
 .workday .k-edited { --k: #58a6ff; }
 .workday .k-messages { --k: #e8a33d; }
