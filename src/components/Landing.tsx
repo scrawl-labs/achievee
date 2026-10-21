@@ -39,7 +39,8 @@ const INTEGRATIONS: { name: string; tone: string; icon: React.ReactNode; d: Key 
   { name: "Google Calendar · Tasks", tone: "green", icon: <GCalLogo size={28} />, d: "land.i.google" },
 ];
 const TRUST = ["t1", "t2", "t3", "t4", "t5"] as const;
-const LANDING_BG = "#fbf7f3"; // the page colour: the phone's status bar takes it, so the top of the page does not start with a black strip
+const LANDING_BG = "#fbf7f3";
+const LANDING_BG_DARK = "#0e0f11"; // the page colour: the phone's status bar takes it, so the top of the page does not start with a black strip
 
 /*
  * The product shown as it really looks, with sample data. Each scene pairs a short text with one of these.
@@ -182,11 +183,13 @@ export default function Landing() {
     <button className="gbtn" onClick={go}><GoogleG size={18} />{t("login.cta")}</button>
   );
 
-  // the page is light (cream), so the browser chrome around it must be too; the app's own dark/light colours come back when leaving
+  // the browser chrome (status bar) takes the page colour, cream or charcoal; the app's own dark/light colours come back when leaving
   useEffect(() => {
     const metas = [...document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')];
     const before = metas.map((m) => m.content);
-    metas.forEach((m) => { m.content = LANDING_BG; });
+    const root = document.documentElement.dataset.theme;
+    const dark = root === "dark" || (root !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    metas.forEach((m) => { m.content = dark ? LANDING_BG_DARK : LANDING_BG; });
     return () => metas.forEach((m, i) => { m.content = before[i]; });
   }, []);
 

@@ -310,7 +310,7 @@ button.mcell:hover { background: var(--surface-2); } .mcell.sel { background: co
 
 
 
-/* ---------- landing page (light, warm, playful; always light regardless of system theme) ---------- */
+/* ---------- landing page (warm, playful; light by default, dark block at the end of the file) ---------- */
 .land {
   color-scheme: light;
   --bg: #fbf7f3; --surface: #fff; --surface-2: #f3eee9; --line: #eadfd6;
@@ -974,7 +974,7 @@ a, button, input, select, textarea, label, summary, [role="button"], [role="tab"
 .stage.yellow { background: var(--yellow); } .stage.green { background: var(--green); } .stage.blue { background: var(--blue); }
 .stage.pink { background: var(--pink); } .stage.lav { background: var(--lav); }
 
-.sm { width: 100%; max-width: 420px; padding: 20px; border-radius: 20px; background: #fff; color: var(--fg); font-size: 14px; line-height: 1.5; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 18px 40px -22px rgb(60 40 20 / .38); }
+.sm { width: 100%; max-width: 420px; padding: 20px; border-radius: 20px; background: var(--surface); color: var(--fg); font-size: 14px; line-height: 1.5; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 18px 40px -22px rgb(60 40 20 / .38); }
 .sm h4 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.03em; }
 .sm h4 small { margin-left: 6px; font-size: 13px; font-weight: 500; }
 .sm small { color: var(--fg-3); }
@@ -998,7 +998,7 @@ a, button, input, select, textarea, label, summary, [role="button"], [role="tab"
 
 .sm-grid { padding: 0; gap: 0; overflow: hidden; }
 .sm-strip { padding: 10px 12px; background: var(--surface-2); border-bottom: 1px solid var(--line); }
-.sm-strip .chip { display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 13px; font-weight: 600; }
+.sm-strip .chip { display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font-size: 13px; font-weight: 600; }
 .sm-hours { position: relative; height: 336px; }
 .sm-hours > div { height: 48px; border-top: 1px solid var(--line); padding: 2px 10px; }
 .sm-hours > div:first-child { border-top: 0; }
@@ -1007,13 +1007,13 @@ a, button, input, select, textarea, label, summary, [role="button"], [role="tab"
 .sm-hours .blk small { font-weight: 500; }
 .sm-hours .blk.blue { background: #dfe6ff; border-color: #7c8cff; }
 .sm-hours .blk.pink { background: #fde3ee; border-color: #ff9ec4; }
-.sm-hours .blk.draft { background: color-mix(in oklab, var(--accent) 12%, #fff); border: 2px dashed var(--accent); border-left-style: dashed; }
+.sm-hours .blk.draft { background: color-mix(in oklab, var(--accent) 12%, var(--surface)); border: 2px dashed var(--accent); border-left-style: dashed; }
 .sm-hours .ghost { position: absolute; left: 46%; top: 214px; padding: 5px 12px; border-radius: 8px; background: var(--accent); color: #fff; font-size: 13px; font-weight: 700; transform: rotate(-4deg); box-shadow: 0 10px 22px -8px rgb(40 50 140 / .6); }
 
 .sm-emo .q { font-size: 17px; letter-spacing: -0.02em; }
 .sm-emo .opts { display: grid; gap: 8px; }
 .sm-emo .opts span { padding: 10px 14px; border-radius: 12px; background: var(--surface-2); font-weight: 600; }
-.sm-emo .opts .on { background: color-mix(in oklab, var(--accent) 12%, #fff); box-shadow: inset 0 0 0 2px var(--accent); }
+.sm-emo .opts .on { background: color-mix(in oklab, var(--accent) 12%, var(--surface)); box-shadow: inset 0 0 0 2px var(--accent); }
 .sm-review { padding-top: 12px; border-top: 1px solid var(--line); }
 
 .sm-money .nums { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -1042,7 +1042,7 @@ a, button, input, select, textarea, label, summary, [role="button"], [role="tab"
 .sm-body .trend small { grid-column: 1 / -1; }
 .sm-body .trend svg { width: 100%; height: 70px; }
 .sm-body .trend polyline { stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-.sm-body .trend circle { fill: #fff; stroke: var(--accent); stroke-width: 3; }
+.sm-body .trend circle { fill: var(--surface); stroke: var(--accent); stroke-width: 3; }
 .sm-body .trend b { font-size: 22px; letter-spacing: -0.02em; }
 
 .sm-pattern .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -1090,3 +1090,22 @@ a, button, input, select, textarea, label, summary, [role="button"], [role="tab"
   .hero { margin: 16px 10px 8px; padding-top: 128px; }
   .topbar { padding: 26px 24px 0; }
 }
+
+/* landing, dark: warm charcoal page, the hero and final band stay bright pastel cards */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .land {
+  color-scheme: dark;
+  --bg: #0e0f11; --surface: #242128; --surface-2: #2d2a32; --line: #3a3640;
+  --fg: #f4f1ee; --fg-2: #c3beb9; --fg-3: #918b86; --accent: #7886ff;
+  --c0: #3a3640; --yellow: #4d4524; --green: #26422b; --blue: #26395a; --pink: #522b3f; --lav: #3c3560;
+} }
+:root[data-theme="dark"] .land {
+  color-scheme: dark;
+  --bg: #0e0f11; --surface: #242128; --surface-2: #2d2a32; --line: #3a3640;
+  --fg: #f4f1ee; --fg-2: #c3beb9; --fg-3: #918b86; --accent: #7886ff;
+  --c0: #3a3640; --yellow: #4d4524; --green: #26422b; --blue: #26395a; --pink: #522b3f; --lav: #3c3560;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .land .sm .check, :root:not([data-theme="light"]) .land .sm .ring { border-color: #5a5560; } :root:not([data-theme="light"]) .land .sm .kind { background: #26395a; color: #a9c8f5; } :root:not([data-theme="light"]) .land .sm .tags i, :root:not([data-theme="light"]) .land .sm .words i { background: #34305a; } :root:not([data-theme="light"]) .land .sm-hours .blk.blue { background: #2c3566; } :root:not([data-theme="light"]) .land .sm-hours .blk.pink { background: #5a2e44; } }
+:root[data-theme="dark"] .land .sm .check, :root[data-theme="dark"] .land .sm .ring { border-color: #5a5560; } :root[data-theme="dark"] .land .sm .kind { background: #26395a; color: #a9c8f5; } :root[data-theme="dark"] .land .sm .tags i, :root[data-theme="dark"] .land .sm .words i { background: #34305a; } :root[data-theme="dark"] .land .sm-hours .blk.blue { background: #2c3566; } :root[data-theme="dark"] .land .sm-hours .blk.pink { background: #5a2e44; }
+/* the bright hero and final band keep the light tokens in dark mode so their text and the app window inside stay readable */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .land :is(.hero, .start) { color-scheme: light; --surface: #fff; --surface-2: #f3eee9; --line: #eadfd6; --fg: #1c1b1f; --fg-2: #5e5a57; --fg-3: #8d8883; --accent: #4a5bf0; --c0: #ece6e0; color: var(--fg); } }
+:root[data-theme="dark"] .land :is(.hero, .start) { color-scheme: light; --surface: #fff; --surface-2: #f3eee9; --line: #eadfd6; --fg: #1c1b1f; --fg-2: #5e5a57; --fg-3: #8d8883; --accent: #4a5bf0; --c0: #ece6e0; color: var(--fg); }
