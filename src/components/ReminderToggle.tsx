@@ -11,7 +11,7 @@ type State = "loading" | "off" | "on" | "denied" | "unsupported";
 const supported = () => typeof window !== "undefined" && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
 
 /** The 9 pm "how did today feel?" reminder for this device. Needs an installed app on iPhone; says so instead of failing silently. */
-export default function ReminderToggle() {
+export default function ReminderToggle({ variant = "link" }: { variant?: "link" | "btn" }) {
   const { t, locale } = useI18n();
   const [state, setState] = useState<State>("loading");
 
@@ -53,5 +53,5 @@ export default function ReminderToggle() {
       setState("on");
     } catch { /* the toggle simply stays where it was */ }
   };
-  return <button type="button" onClick={toggle} aria-pressed={state === "on"}>{state === "on" ? t("rem.turnOff") : t("rem.turnOn")}</button>;
+  return <button type="button" className={variant === "btn" ? `btn${state === "on" ? " primary" : ""}` : undefined} onClick={toggle} aria-pressed={state === "on"}>{variant === "btn" ? (state === "on" ? t("rem.on") : t("rem.turnOnShort")) : state === "on" ? t("rem.turnOff") : t("rem.turnOn")}</button>;
 }

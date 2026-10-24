@@ -13,6 +13,7 @@ import StatsView from "./StatsView";
 import DiaryView from "./DiaryView";
 import ExpenseView from "./ExpenseView";
 import IntegrationsView from "./IntegrationsView";
+import SettingsView from "./SettingsView";
 import WorkoutView from "./WorkoutView";
 import { DEFAULT_GOALS, type IntakeKind } from "@/lib/intake";
 import ScheduleView, { type GMode } from "./ScheduleView";
@@ -97,6 +98,7 @@ function Main() {
   // a range wraps only at its dash, never inside "10월 24일"
   const range = (from: string, to: string) => <><span className="nb">{fmt.monthDay(from)}</span> – <span className="nb">{fmt.monthDay(to)}</span></>;
   const title = tab === "integrations" ? t("nav.integrations")
+    : tab === "settings" ? t("nav.settings")
     : tab === "expense" && (startDay > 1 || Object.keys(overrides).length > 0) ? range(per.from, addDays(per.to, -1))
     : tab === "google" && gmode === "DAY" ? fmt.full(sel)
     : tab === "google" && gmode === "WEEK" ? range(wk, we)
@@ -138,7 +140,7 @@ function Main() {
           <h1>{title}</h1>
           <div className="row gap-2">
             <CommandBar go={go} />
-            {tab !== "integrations" && <>
+            {tab !== "integrations" && tab !== "settings" && <>
               <button className="btn" onClick={() => setSel(todayStr())}>{t("common.today")}</button>
               <button className="btn icon" onClick={() => shift(-1)} aria-label={t("common.prev")}><Icon name="left" /></button>
               <button className="btn icon" onClick={() => shift(1)} aria-label={t("common.next")}><Icon name="right" /></button>
@@ -152,6 +154,7 @@ function Main() {
         {tab === "diary" && <DiaryView ym={ym} sel={sel} setSel={setSel} />}
         {tab === "google" && <ScheduleView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} />}
         {tab === "integrations" && <IntegrationsView googleReturn={gret.result} />}
+        {tab === "settings" && <SettingsView user={session?.user} startDay={startDay} onStartDay={changeStartDay} workoutGoal={workoutGoal} onWorkoutGoal={changeGoal} intakeGoals={intakeGoals} onIntakeGoal={changeIntakeGoal} onOpen={setTab} onSignOut={() => signOut()} onDelete={deleteData} />}
         {tab === "workout" && <WorkoutView sel={sel} setSel={setSel} goal={workoutGoal} onGoal={changeGoal} intakeGoals={intakeGoals} onIntakeGoal={changeIntakeGoal} />}
         {tab === "expense" && <ExpenseView sel={sel} setSel={setSel} startDay={startDay} overrides={overrides} onStartDay={changeStartDay} onOverride={changeOverride} />}
         </div>

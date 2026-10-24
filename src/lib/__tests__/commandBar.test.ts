@@ -220,7 +220,7 @@ import { MORE_TABS, PRIMARY_TABS, TABS } from "@/lib/commandBar";
 describe("phone tab bar split", () => {
   it("shows the daily tabs first, in order, and the rest under More", () => {
     expect(PRIMARY_TABS.map((t) => t.key)).toEqual(["calendar", "google", "diary", "expense"]);
-    expect(MORE_TABS.map((t) => t.key)).toEqual(["stats", "workout", "integrations"]);
+    expect(MORE_TABS.map((t) => t.key)).toEqual(["stats", "workout", "integrations", "settings"]);
   });
   it("every tab is reachable exactly once", () => {
     const keys = [...PRIMARY_TABS, ...MORE_TABS].map((t) => t.key).sort();

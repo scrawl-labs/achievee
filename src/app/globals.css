@@ -1100,3 +1100,19 @@ a, button, input, select, textarea, label, summary, [role="button"], [role="tab"
 .period-row { display: grid; grid-template-columns: 1fr auto; gap: var(--s2); align-items: center; }
 .period-row label { grid-column: 1 / -1; }
 .period-row select { min-width: 0; }
+.settings { display: flex; flex-direction: column; gap: var(--s4); max-width: 720px; }
+.settings .panel h3 { margin: 0; }
+.set-me { flex-direction: row; align-items: center; gap: var(--s4); }
+.set-avatar { flex: none; width: 52px; height: 52px; border-radius: 50%; background: var(--surface-2); color: var(--fg-2); display: grid; place-items: center; font-weight: 700; font-size: 20px; overflow: hidden; }
+.set-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.set-who { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.set-who b, .set-who small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.set-row { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); min-height: 44px; }
+.set-row > div { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.set-row > b { font-weight: 600; }
+.set-row small { line-height: 1.5; }
+.set-num { display: inline-flex; align-items: center; gap: var(--s2); }
+.set-num input { width: 96px; text-align: right; }
+.set-links { display: flex; flex-wrap: wrap; gap: var(--s4); }
+.set-links a { color: var(--fg-2); }
+.set-danger { padding-top: var(--s3); border-top: 1px solid var(--line); }
