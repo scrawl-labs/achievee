@@ -246,7 +246,7 @@ export default function Landing() {
         ))}
       </section>
 
-      <section className="more">
+      <section className="integsec">
         <h2>{t("land.more.title")}</h2>
         <ul className="integ">
           {INTEGRATIONS.map((x) => (

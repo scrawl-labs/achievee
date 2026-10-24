@@ -27,7 +27,7 @@ export default function MobileTabBar({ tab, setTab }: { tab: Tab; setTab: (t: Ta
           <Icon name={tb.icon} /><span>{t(tb.label)}</span>
         </button>
       ))}
-      <div className="more" ref={box}>
+      <div className="moretab" ref={box}>
         <button className={inMore || open ? "on" : ""} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)}>
           <Icon name="more" /><span>{t("nav.more")}</span>
         </button>

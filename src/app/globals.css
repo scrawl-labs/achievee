@@ -163,8 +163,8 @@ button.item:hover, button.item.on { border-color: var(--accent); }
   .brand, .account { display: none; }
   .nav { display: none; } /* the phone uses .tabbar */
   .tabbar { display: flex; width: 100%; }
-  .tabbar > button, .tabbar .more > button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 52px; font-size: 11px; padding: 0; width: 100%; color: var(--fg-2); font-weight: 500; }
-  .tabbar > button.on, .tabbar .more > button.on { color: var(--accent); }
+  .tabbar > button, .tabbar .moretab > button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 52px; font-size: 11px; padding: 0; width: 100%; color: var(--fg-2); font-weight: 500; }
+  .tabbar > button.on, .tabbar .moretab > button.on { color: var(--accent); }
   .page { padding: var(--s4) var(--s4) 96px; }
   h1 { font-size: 22px; }
   .pagehead { margin-bottom: var(--s4); }
@@ -430,7 +430,7 @@ button.mcell:hover { background: var(--surface-2); } .mcell.sel { background: co
 @font-face { font-family: "AchieveeMark"; src: url("/fonts/Wordmark-Achievee.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: block; }
 .wordmark { display: inline-block; font-family: "AchieveeMark", "Dunggeun", var(--font), sans-serif; font-weight: 700; letter-spacing: 0; font-kerning: normal; white-space: nowrap; }
 @font-face { font-family: "Dunggeun"; src: url("/fonts/HakgyoansimDunggeunmiso-B.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
-.land .hero-copy h1, .land .scene h2, .land .more h2, .land .trustsec h2, .land .start h2 {
+.land .hero-copy h1, .land .scene h2, .land .integsec h2, .land .trustsec h2, .land .start h2 {
   font-family: "Dunggeun", var(--font), sans-serif; font-weight: 700; letter-spacing: -0.01em; }
 .land .hero-copy h1 { font-size: clamp(34px, 5.4vw, 68px); line-height: 1.16; }
 
@@ -873,7 +873,7 @@ button.ev.native.moving { opacity: .35; cursor: grabbing; }
 button.ev.native:hover .ev-resize::after { opacity: .45; }
 
 /* phone tab bar with a "More" sheet (the bar itself is switched on in the 860px block above) */
-.tabbar .more { position: relative; flex: 1; display: flex; }
+.tabbar .moretab { position: relative; flex: 1; display: flex; }
 .more-sheet { position: absolute; right: 0; bottom: calc(100% + 10px); min-width: 188px; display: flex; flex-direction: column; padding: var(--s2); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); box-shadow: 0 12px 32px rgba(0, 0, 0, .4); }
 .more-sheet button { display: flex; align-items: center; gap: var(--s3); height: 46px; padding: 0 var(--s3); border-radius: var(--r-s); color: var(--fg); font-size: 15px; font-weight: 500; text-align: left; }
 .more-sheet button:hover { background: var(--surface-2); }
@@ -1052,17 +1052,17 @@ a, button, input, select, textarea, label, summary, [role="button"], [role="tab"
 .sm-pattern .verdict { margin: 0; font-weight: 700; }
 .sm-pattern .faint { padding-top: 12px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; opacity: .65; }
 
-.more { width: min(1120px, calc(100% - 40px)); margin: clamp(88px, 11vw, 136px) auto 0; text-align: center; }
-.more h2 { font-size: clamp(26px, 3.2vw, 38px); letter-spacing: -0.02em; }
-.more .integ { list-style: none; margin: 40px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(20px, 3vw, 40px); }
-.more .integ li { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
-.more .integ .logo { width: 68px; height: 68px; margin-bottom: 8px; border-radius: 22px; display: grid; place-items: center; color: var(--fg); }
-.more .integ .logo.yellow { background: var(--yellow); } .more .integ .logo.blue { background: var(--blue); }
-.more .integ .logo.pink { background: var(--pink); } .more .integ .logo.green { background: var(--green); }
-.more .integ b { color: var(--fg); font-size: 17px; letter-spacing: -0.02em; }
-.more .integ small { max-width: 14em; color: var(--fg-2); line-height: 1.55; font-size: 14px; }
-.more .toolbox { margin: 40px auto 0; max-width: 46em; color: var(--fg-3); font-size: 14px; line-height: 1.9; }
-@media (max-width: 900px) { .more .integ { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 32px; } }
+.integsec { width: min(1120px, calc(100% - 40px)); margin: clamp(88px, 11vw, 136px) auto 0; text-align: center; }
+.integsec h2 { font-size: clamp(26px, 3.2vw, 38px); letter-spacing: -0.02em; }
+.integsec .integ { list-style: none; margin: 40px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(20px, 3vw, 40px); }
+.integsec .integ li { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+.integsec .integ .logo { width: 68px; height: 68px; margin-bottom: 8px; border-radius: 22px; display: grid; place-items: center; color: var(--fg); }
+.integsec .integ .logo.yellow { background: var(--yellow); } .integsec .integ .logo.blue { background: var(--blue); }
+.integsec .integ .logo.pink { background: var(--pink); } .integsec .integ .logo.green { background: var(--green); }
+.integsec .integ b { color: var(--fg); font-size: 17px; letter-spacing: -0.02em; }
+.integsec .integ small { max-width: 14em; color: var(--fg-2); line-height: 1.55; font-size: 14px; }
+.integsec .toolbox { margin: 40px auto 0; max-width: 46em; color: var(--fg-3); font-size: 14px; line-height: 1.9; }
+@media (max-width: 900px) { .integsec .integ { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 32px; } }
 
 .trustsec { width: min(1120px, calc(100% - 40px)); margin: clamp(88px, 11vw, 136px) auto 0; display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: clamp(24px, 5vw, 64px); align-items: start; }
 .trustsec h2 { font-size: clamp(28px, 3.6vw, 44px); line-height: 1.2; letter-spacing: -0.02em; text-wrap: balance; }
