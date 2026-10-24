@@ -34,8 +34,8 @@ export default function ReminderToggle({ variant = "link" }: { variant?: "link" 
 
   if (!KEY) return null;
   if (state === "loading") return <span className="muted">…</span>;
-  if (state === "unsupported") return <span className="muted">{t("rem.needInstall")}</span>;
-  if (state === "denied") return <span className="muted">{t("rem.denied")}</span>;
+  if (state === "unsupported") return <small className="muted">{t("rem.needInstall")}</small>;
+  if (state === "denied") return <small className="muted">{t("rem.denied")}</small>;
 
   const toggle = async () => {
     try {

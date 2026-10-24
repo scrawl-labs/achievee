@@ -1111,8 +1111,19 @@ a, button, input, select, textarea, label, summary, [role="button"], [role="tab"
 .set-row > div { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .set-row > b { font-weight: 600; }
 .set-row small { line-height: 1.5; }
-.set-num { display: inline-flex; align-items: center; gap: var(--s2); }
-.set-num input { width: 96px; text-align: right; }
 .set-links { display: flex; flex-wrap: wrap; gap: var(--s4); }
 .set-links a { color: var(--fg-2); }
 .set-danger { padding-top: var(--s3); border-top: 1px solid var(--line); }
+.settings, .settings .panel { min-width: 0; max-width: 100%; }
+.set-row select.lang { width: 132px; flex: none; }
+.set-row > .btn { flex: none; }
+.set-stack { flex-direction: column; align-items: flex-start; gap: var(--s3); }
+.set-stack > small { line-height: 1.5; }
+
+.page, .pagebody { min-width: 0; }
+.settings .panel { gap: var(--s2); }
+.settings .panel h3 { margin-bottom: var(--s1); }
+.set-row { min-height: 48px; }
+.set-row select.lang, .set-row input.set-num { width: 132px; flex: none; text-align: right; }
+.set-me { gap: var(--s3); }
+.set-row select.lang, .set-row input.set-num { height: 40px; }

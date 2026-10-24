@@ -20,11 +20,8 @@ function GoalInput({ value, range, unit, onSave, label }: { value: number; range
     else setDraft(String(value));
   };
   return (
-    <span className="set-num">
-      <input type="number" inputMode="numeric" aria-label={label} value={draft} min={range[0]} max={range[1]}
-        onChange={(e) => setDraft(e.target.value)} onBlur={commit} onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} />
-      <small>{unit}</small>
-    </span>
+    <input className="set-num" type="number" inputMode="numeric" aria-label={`${label} (${unit})`} value={draft} min={range[0]} max={range[1]}
+      onChange={(e) => setDraft(e.target.value)} onBlur={commit} onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} />
   );
 }
 
@@ -55,7 +52,7 @@ export default function SettingsView({ user, startDay, onStartDay, workoutGoal, 
 
       <section className="panel">
         <h3>{t("set.notify")}</h3>
-        <div className="set-row">
+        <div className="set-row set-stack">
           <div><b>{t("set.reminder")}</b><small className="muted">{t("set.reminderDesc")}</small></div>
           <ReminderToggle variant="btn" />
         </div>
@@ -82,11 +79,11 @@ export default function SettingsView({ user, startDay, onStartDay, workoutGoal, 
           </select>
         </div>
         <div className="set-row">
-          <b>{t("set.water")}</b>
+          <b>{t("set.water")} <small className="muted">(ml)</small></b>
           <GoalInput key={`w${intakeGoals.water}`} value={intakeGoals.water} range={GOAL_RANGE.water} unit="ml" label={t("set.water")} onSave={(n) => onIntakeGoal("water", n)} />
         </div>
         <div className="set-row">
-          <b>{t("set.protein")}</b>
+          <b>{t("set.protein")} <small className="muted">(g)</small></b>
           <GoalInput key={`p${intakeGoals.protein}`} value={intakeGoals.protein} range={GOAL_RANGE.protein} unit="g" label={t("set.protein")} onSave={(n) => onIntakeGoal("protein", n)} />
         </div>
       </section>

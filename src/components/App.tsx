@@ -20,7 +20,6 @@ import ScheduleView, { type GMode } from "./ScheduleView";
 import CommandBar from "./CommandBar";
 import Icon from "./Icon";
 import Logo from "./Logo";
-import Footer from "./Footer";
 import { useI18n } from "./I18n";
 import { invalidate, prefetch, useApi } from "./useApi";
 import { useGoogleReturn } from "./useGoogleReturn";
@@ -130,7 +129,6 @@ function Main() {
         </nav>
         <div className="account">
           {session?.user?.email && <small className="muted who" title={session.user.email}>{session.user.email}</small>}
-          <button className="btn" onClick={() => signOut()}>{t("account.signOut")}</button>
         </div>
       <MobileTabBar tab={tab} setTab={setTab} />
       </aside>
@@ -158,7 +156,6 @@ function Main() {
         {tab === "workout" && <WorkoutView sel={sel} setSel={setSel} goal={workoutGoal} onGoal={changeGoal} intakeGoals={intakeGoals} onIntakeGoal={changeIntakeGoal} />}
         {tab === "expense" && <ExpenseView sel={sel} setSel={setSel} startDay={startDay} overrides={overrides} onStartDay={changeStartDay} onOverride={changeOverride} />}
         </div>
-        <Footer onSignOut={() => signOut()} onDelete={deleteData} />
       </main>
     </div>
   );
