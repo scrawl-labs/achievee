@@ -27,6 +27,8 @@ async function sql() {
     s`CREATE INDEX IF NOT EXISTS saving_user_date ON saving ("user", date)`,
     s`CREATE TABLE IF NOT EXISTS settings ("user" TEXT PRIMARY KEY, month_start_day INTEGER NOT NULL DEFAULT 1)`,
     s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS workout_goal INTEGER NOT NULL DEFAULT 3`,
+    s`CREATE TABLE IF NOT EXISTS push_sub (endpoint TEXT PRIMARY KEY, "user" TEXT NOT NULL, p256dh TEXT NOT NULL, auth TEXT NOT NULL, tz TEXT NOT NULL DEFAULT 'UTC', locale TEXT NOT NULL DEFAULT 'en', last_sent TEXT NOT NULL DEFAULT '')`,
+    s`CREATE INDEX IF NOT EXISTS push_sub_user ON push_sub ("user")`,
     s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS start_overrides TEXT NOT NULL DEFAULT ''`,
     s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS water_goal INTEGER NOT NULL DEFAULT 2000`,
     s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS protein_goal INTEGER NOT NULL DEFAULT 100`,
@@ -77,6 +79,12 @@ export const diary = {
     const rows = (await s`SELECT date, mood FROM diary WHERE "user"=${user} AND date >= ${from} AND date <= ${to} AND mood IS NOT NULL`) as { date: string; mood: string }[];
     return rows.map((r) => ({ date: r.date, mood: Number(r.mood) })).filter((r) => r.mood >= 1 && r.mood <= 5);
   },
+  /** Whether the day already has at least one emotion word (the words are decrypted here and only counted). */
+  async hasEmotions(user: string, date: string): Promise<boolean> {
+    const s = await sql();
+    const rows = (await s`SELECT emotions FROM diary WHERE "user"=${user} AND date=${date}`) as { emotions: string }[];
+    return rows.length > 0 && splitIds(rows[0].emotions).length > 0;
+  },
   async month(user: string, ym: string): Promise<DiaryRow[]> {
     const s = await sql(), [a, b] = bounds(ym);
     const rows = (await s`SELECT date, mood, body, emotions FROM diary WHERE "user"=${user} AND date BETWEEN ${a} AND ${b} ORDER BY date`) as DiaryDb[];
@@ -104,7 +112,7 @@ export async function deleteUserData(user: string) {
   const s = await sql();
   await s.transaction([
     s`DELETE FROM diary WHERE "user"=${user}`, s`DELETE FROM expense WHERE "user"=${user}`,
-    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM saving WHERE "user"=${user}`, s`DELETE FROM workout WHERE "user"=${user}`, s`DELETE FROM body WHERE "user"=${user}`, s`DELETE FROM intake WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`, s`DELETE FROM goal WHERE "user"=${user}`, s`DELETE FROM todo WHERE "user"=${user}`, s`DELETE FROM native_event WHERE "user"=${user}`, s`DELETE FROM integration WHERE "user"=${user}`,
+    s`DELETE FROM income WHERE "user"=${user}`, s`DELETE FROM saving WHERE "user"=${user}`, s`DELETE FROM workout WHERE "user"=${user}`, s`DELETE FROM body WHERE "user"=${user}`, s`DELETE FROM intake WHERE "user"=${user}`, s`DELETE FROM settings WHERE "user"=${user}`, s`DELETE FROM weekly_review WHERE "user"=${user}`, s`DELETE FROM goal WHERE "user"=${user}`, s`DELETE FROM todo WHERE "user"=${user}`, s`DELETE FROM native_event WHERE "user"=${user}`, s`DELETE FROM integration WHERE "user"=${user}`, s`DELETE FROM push_sub WHERE "user"=${user}`,
     s`DELETE FROM accounts WHERE user_id=${user}`, s`DELETE FROM users WHERE id=${user}`,
   ]);
 }
@@ -596,5 +604,33 @@ export const search = {
     ];
     warnSkipped(parts.reduce((n, p) => n + p.skipped, 0));
     return parts.flatMap((p) => p.items);
+  },
+};
+
+export type PushSubRow = { endpoint: string; user: string; p256dh: string; auth: string; tz: string; locale: string; lastSent: string };
+
+/** Browser push subscriptions for the evening reminder. The endpoint is a bearer URL, so it is only ever read server-side. */
+export const pushSubs = {
+  async add(user: string, sub: { endpoint: string; p256dh: string; auth: string }, tz: string, locale: string) {
+    const s = await sql();
+    await s`INSERT INTO push_sub (endpoint, "user", p256dh, auth, tz, locale) VALUES (${sub.endpoint}, ${user}, ${sub.p256dh}, ${sub.auth}, ${tz}, ${locale})
+      ON CONFLICT (endpoint) DO UPDATE SET "user" = EXCLUDED."user", p256dh = EXCLUDED.p256dh, auth = EXCLUDED.auth, tz = EXCLUDED.tz, locale = EXCLUDED.locale`;
+  },
+  async remove(user: string, endpoint: string) {
+    const s = await sql();
+    await s`DELETE FROM push_sub WHERE "user"=${user} AND endpoint=${endpoint}`;
+  },
+  async all(): Promise<PushSubRow[]> {
+    const s = await sql();
+    const rows = (await s`SELECT endpoint, "user", p256dh, auth, tz, locale, last_sent FROM push_sub`) as (Omit<PushSubRow, "lastSent"> & { last_sent: string })[];
+    return rows.map(({ last_sent, ...r }) => ({ ...r, lastSent: last_sent }));
+  },
+  async markSent(endpoint: string, date: string) {
+    const s = await sql();
+    await s`UPDATE push_sub SET last_sent=${date} WHERE endpoint=${endpoint}`;
+  },
+  async drop(endpoint: string) {
+    const s = await sql();
+    await s`DELETE FROM push_sub WHERE endpoint=${endpoint}`;
   },
 };

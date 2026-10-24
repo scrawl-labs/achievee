@@ -3,6 +3,7 @@ import Link from "next/link";
 import LanguageSelect from "./LanguageSelect";
 import ThemeSelect from "./ThemeSelect";
 import { useI18n } from "./I18n";
+import ReminderToggle from "./ReminderToggle";
 
 /** Site footer: legal links (and account actions when signed in) on the left, language on the right. */
 export default function Footer({ onSignOut, onDelete }: { onSignOut?: () => void; onDelete?: () => void }) {
@@ -12,6 +13,7 @@ export default function Footer({ onSignOut, onDelete }: { onSignOut?: () => void
       <nav className="appfoot-links">
         <Link href="/privacy">{t("legal.privacy")}</Link>
         <Link href="/terms">{t("legal.terms")}</Link>
+        {onSignOut && <ReminderToggle />}
         {onDelete && <button type="button" onClick={onDelete}>{t("account.delete")}</button>}
       </nav>
       <div className="appfoot-end">

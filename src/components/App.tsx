@@ -42,7 +42,13 @@ function Main() {
   const { t, fmt } = useI18n();
   const { data: session } = useSession();
   const gret = useGoogleReturn(); // ?tab=integrations&google=... after Google's consent screen
-  const [tab, setTab] = useState<Tab>(gret.tab ?? "calendar");
+  const [fromNote] = useState(() => new URLSearchParams(window.location.search).get("open") === "diary"); // the 9 pm reminder opens the diary
+  useEffect(() => {
+    if (!fromNote) return;
+    const u = new URL(window.location.href); u.searchParams.delete("open");
+    window.history.replaceState(window.history.state, "", `${u.pathname}${u.search}${u.hash}`);
+  }, [fromNote]);
+  const [tab, setTab] = useState<Tab>(gret.tab ?? (fromNote ? "diary" : "calendar"));
   const [sel, setSel] = useState(todayStr());
   const [gmode, setGmode] = useState<GMode>("DAY");
   const ym = sel.slice(0, 7);
