@@ -67,8 +67,8 @@ export default function SettingsView({ user, startDay, onStartDay, workoutGoal, 
       <section className="panel">
         <h3>{t("set.goals")}</h3>
         <div className="set-row">
-          <div><b>{t("inc.startDay")}</b><small className="muted">{t("inc.startHint")}</small></div>
-          <select className="lang" value={startDay} aria-label={t("inc.startDay")} onChange={(e) => onStartDay(Number(e.target.value))}>
+          <div><b>{t("set.startDay")}</b><small className="muted">{t("set.startHint")}</small></div>
+          <select className="lang" value={startDay} aria-label={t("set.startDay")} onChange={(e) => onStartDay(Number(e.target.value))}>
             {DAYS.map((d) => <option key={d} value={d}>{t("inc.day", { n: d })}</option>)}
           </select>
         </div>
