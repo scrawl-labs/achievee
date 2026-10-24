@@ -4,7 +4,7 @@ import { signOut, useSession } from "next-auth/react";
 import type { MonthData } from "@/lib/types";
 import { computeStats } from "@/lib/stats";
 import { addDays, mondayOf } from "@/lib/dates";
-import { periodOf } from "@/lib/period";
+import { periodOf, type StartOverrides } from "@/lib/period";
 import { browserTz, todayStr } from "@/lib/clientTime";
 import { type Tab, TABS } from "@/lib/commandBar";
 import MobileTabBar from "./MobileTabBar";
@@ -21,7 +21,7 @@ import Icon from "./Icon";
 import Logo from "./Logo";
 import Footer from "./Footer";
 import { useI18n } from "./I18n";
-import { prefetch, useApi } from "./useApi";
+import { invalidate, prefetch, useApi } from "./useApi";
 import { useGoogleReturn } from "./useGoogleReturn";
 
 const shiftMonth = (ym: string, n: number) => {
@@ -47,8 +47,9 @@ function Main() {
   const [gmode, setGmode] = useState<GMode>("DAY");
   const ym = sel.slice(0, 7);
   const { data: month, error } = useApi<MonthData>(monthUrl(ym));
-  const settings = useApi<{ monthStartDay: number; workoutGoal: number; intakeGoals: Record<IntakeKind, number> }>("/api/settings");
+  const settings = useApi<{ monthStartDay: number; startOverrides?: StartOverrides; workoutGoal: number; intakeGoals: Record<IntakeKind, number> }>("/api/settings");
   const startDay = settings.data?.monthStartDay ?? 1;
+  const overrides = settings.data?.startOverrides ?? {};
   const workoutGoal = settings.data?.workoutGoal ?? 3;
   const intakeGoals = settings.data?.intakeGoals ?? DEFAULT_GOALS;
   const changeIntakeGoal = async (k: IntakeKind, v: number) => {
@@ -58,6 +59,11 @@ function Main() {
   const changeGoal = async (n: number) => {
     await fetch("/api/settings", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ workoutGoal: n }) });
     settings.reload();
+  };
+  const changeOverride = async (month: string, day: number | null) => {
+    await fetch("/api/settings", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ startOverride: { month, day } }) });
+    settings.reload();
+    invalidate("/api/trends/money");
   };
   const changeStartDay = async (d: number) => {
     await fetch("/api/settings", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ monthStartDay: d }) });
@@ -81,11 +87,11 @@ function Main() {
   };
   const stats = useMemo(() => (month?.ym === ym ? computeStats(Object.values(month.days), todayStr()) : null), [month, ym]);
   const wk = mondayOf(sel), we = addDays(wk, 6);
-  const per = periodOf(sel, startDay);
+  const per = periodOf(sel, startDay, overrides);
   // a range wraps only at its dash, never inside "10월 24일"
   const range = (from: string, to: string) => <><span className="nb">{fmt.monthDay(from)}</span> – <span className="nb">{fmt.monthDay(to)}</span></>;
   const title = tab === "integrations" ? t("nav.integrations")
-    : tab === "expense" && startDay > 1 ? range(per.from, addDays(per.to, -1))
+    : tab === "expense" && (startDay > 1 || Object.keys(overrides).length > 0) ? range(per.from, addDays(per.to, -1))
     : tab === "google" && gmode === "DAY" ? fmt.full(sel)
     : tab === "google" && gmode === "WEEK" ? range(wk, we)
     : fmt.monthYear(ym);
@@ -141,7 +147,7 @@ function Main() {
         {tab === "google" && <ScheduleView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} />}
         {tab === "integrations" && <IntegrationsView googleReturn={gret.result} />}
         {tab === "workout" && <WorkoutView sel={sel} setSel={setSel} goal={workoutGoal} onGoal={changeGoal} intakeGoals={intakeGoals} onIntakeGoal={changeIntakeGoal} />}
-        {tab === "expense" && <ExpenseView sel={sel} setSel={setSel} startDay={startDay} onStartDay={changeStartDay} />}
+        {tab === "expense" && <ExpenseView sel={sel} setSel={setSel} startDay={startDay} overrides={overrides} onStartDay={changeStartDay} onOverride={changeOverride} />}
         </div>
         <Footer onSignOut={() => signOut()} onDelete={deleteData} />
       </main>

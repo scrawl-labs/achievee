@@ -1,6 +1,6 @@
-import { addMonths } from "./dates";
+import { addDays } from "./dates";
 import { categoryOf } from "./i18n";
-import { periodOf } from "./period";
+import { periodOf, type StartOverrides } from "./period";
 
 /** Several pay periods side by side: what came in, what went to fixed costs and to spending you can change, what was set aside. Pure. */
 export type MoneyRange = { from: string; to: string }; // `to` exclusive
@@ -14,12 +14,12 @@ export type PeriodMoney = {
 };
 
 /** The last `n` periods ending with the one that contains `anchor`, oldest first. */
-export function periodsBack(anchor: string, startDay: number, n: number): MoneyRange[] {
+export function periodsBack(anchor: string, startDay: number, n: number, overrides?: StartOverrides): MoneyRange[] {
   const out: MoneyRange[] = [];
-  let cursor = periodOf(anchor, startDay);
+  let cursor = periodOf(anchor, startDay, overrides);
   for (let i = 0; i < n; i++) {
     out.unshift(cursor);
-    cursor = periodOf(addMonths(`${cursor.from.slice(0, 7)}-01`, -1).slice(0, 7) + `-${cursor.from.slice(8)}`, startDay);
+    cursor = periodOf(addDays(cursor.from, -1), startDay, overrides);
   }
   return out;
 }

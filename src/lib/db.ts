@@ -1,4 +1,5 @@
 import { neon } from "@neondatabase/serverless";
+import { cleanOverrides, type StartOverrides } from "./period";
 import { decrypt, encrypt, EncryptionConfigError } from "./crypto";
 
 // Diary + expenses live in Postgres (Neon via Vercel Marketplace; sets DATABASE_URL). Rows are keyed by the Google account id.
@@ -26,6 +27,7 @@ async function sql() {
     s`CREATE INDEX IF NOT EXISTS saving_user_date ON saving ("user", date)`,
     s`CREATE TABLE IF NOT EXISTS settings ("user" TEXT PRIMARY KEY, month_start_day INTEGER NOT NULL DEFAULT 1)`,
     s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS workout_goal INTEGER NOT NULL DEFAULT 3`,
+    s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS start_overrides TEXT NOT NULL DEFAULT ''`,
     s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS water_goal INTEGER NOT NULL DEFAULT 2000`,
     s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS protein_goal INTEGER NOT NULL DEFAULT 100`,
     s`CREATE TABLE IF NOT EXISTS intake ("user" TEXT NOT NULL, date TEXT NOT NULL, kind TEXT NOT NULL, amount INTEGER NOT NULL DEFAULT 0, PRIMARY KEY ("user", date, kind))`,
@@ -303,6 +305,21 @@ export const settings = {
     const s = await sql();
     const rows = (await s`SELECT month_start_day FROM settings WHERE "user"=${user}`) as { month_start_day: number }[];
     return rows[0]?.month_start_day ?? 1;
+  },
+  /** Months whose pay period starts on another day than usual (the salary came early), e.g. { "2026-10": 23 }. */
+  async startOverrides(user: string): Promise<StartOverrides> {
+    const s = await sql();
+    const rows = (await s`SELECT start_overrides FROM settings WHERE "user"=${user}`) as { start_overrides: string }[];
+    try { return cleanOverrides(JSON.parse(rows[0]?.start_overrides || "{}")); } catch { return {}; }
+  },
+  /** Set (day 1..28) or clear (null) one month's start day. Only the latest 36 months are kept. */
+  async setStartOverride(user: string, ym: string, day: number | null) {
+    const cur = await this.startOverrides(user);
+    if (day === null) delete cur[ym]; else cur[ym] = day;
+    const kept = Object.fromEntries(Object.entries(cur).sort(([a], [b]) => b.localeCompare(a)).slice(0, 36));
+    const s = await sql();
+    await s`INSERT INTO settings ("user", start_overrides) VALUES (${user}, ${JSON.stringify(kept)})
+      ON CONFLICT ("user") DO UPDATE SET start_overrides = EXCLUDED.start_overrides`;
   },
   async setMonthStartDay(user: string, day: number) {
     const s = await sql();

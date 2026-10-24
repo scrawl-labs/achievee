@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { CATEGORIES, type Category, type Key, categoryOf } from "@/lib/i18n";
-import { periodOf } from "@/lib/period";
+import { periodOf, periodStart, type StartOverrides } from "@/lib/period";
 import Icon from "./Icon";
 import Summary from "./Summary";
 import { useI18n } from "./I18n";
@@ -20,11 +20,12 @@ const send = (url: string, method: string, body?: unknown) =>
 const digits = (s: string) => Number(s.replace(/[^\d]/g, ""));
 
 /** Spending + income for one "month" that starts on `startDay` (e.g. the 25th when the salary arrives on the 25th). */
-export default function ExpenseView({ sel, setSel, startDay, onStartDay }: {
-  sel: string; setSel: (d: string) => void; startDay: number; onStartDay: (d: number) => void;
+export default function ExpenseView({ sel, setSel, startDay, overrides, onStartDay, onOverride }: {
+  sel: string; setSel: (d: string) => void; startDay: number; overrides: StartOverrides; onStartDay: (d: number) => void;
+  onOverride: (month: string, day: number | null) => void;
 }) {
   const { t, fmt } = useI18n();
-  const { from, to } = periodOf(sel, startDay);
+  const { from, to } = periodOf(sel, startDay, overrides);
   const { data, reload } = useApi<Row[]>(`/api/expenses?from=${from}&to=${to}`);
   const { data: incData, reload: reloadInc } = useApi<Inc[]>(`/api/income?from=${from}&to=${to}`);
   const { data: savData, reload: reloadSav } = useApi<Sav[]>(`/api/savings?from=${from}&to=${to}`);
@@ -301,6 +302,20 @@ export default function ExpenseView({ sel, setSel, startDay, onStartDay }: {
               {DAYS.map((d) => <option key={d} value={d}>{t("inc.day", { n: d })}</option>)}
             </select>
             <small>{t("inc.startHint")}</small>
+            <b className="period-sub">{t("inc.payTitle")}</b>
+            {[from, to].map((edge) => {
+              const month = edge.slice(0, 7), day = Number(edge.slice(8)), custom = overrides[month] !== undefined;
+              return (
+                <div className="period-row" key={month}>
+                  <label htmlFor={`pay-${month}`}>{t("inc.startOf", { m: fmt.monthYear(month) })}</label>
+                  <select id={`pay-${month}`} value={day} onChange={(e) => { const d = Number(e.target.value); onOverride(month, d === startDay ? null : d); }}>
+                    {DAYS.map((d) => <option key={d} value={d}>{t("inc.day", { n: d })}</option>)}
+                  </select>
+                  {custom && <button type="button" className="btn ghost" onClick={() => onOverride(month, null)}>{t("inc.payReset", { n: periodStart(month, startDay).slice(8) })}</button>}
+                </div>
+              );
+            })}
+            <small>{t("inc.payHint")}</small>
           </div>
         </section>
       </div>

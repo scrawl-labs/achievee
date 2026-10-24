@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getUser, eSlim, iSlim, sSlim } = vi.hoisted(() => ({ getUser: vi.fn(), eSlim: vi.fn(), iSlim: vi.fn(), sSlim: vi.fn() }));
+const { getUser, eSlim, iSlim, sSlim, overrides } = vi.hoisted(() => ({ getUser: vi.fn(), eSlim: vi.fn(), iSlim: vi.fn(), sSlim: vi.fn(), overrides: vi.fn() }));
 vi.mock("@/lib/auth", () => ({ getUser }));
-vi.mock("@/lib/db", () => ({ expenses: { slim: eSlim }, income: { slim: iSlim }, savings: { slim: sSlim } }));
+vi.mock("@/lib/db", () => ({ expenses: { slim: eSlim }, income: { slim: iSlim }, savings: { slim: sSlim }, settings: { startOverrides: overrides } }));
 
 import { GET } from "@/app/api/trends/money/route";
 
@@ -17,6 +17,7 @@ beforeEach(() => {
   ]);
   iSlim.mockResolvedValue([{ date: "2026-09-25", amount: 3000000 }]);
   sSlim.mockResolvedValue([{ date: "2026-09-30", amount: 600000 }]);
+  overrides.mockResolvedValue({});
 });
 
 describe("GET /api/trends/money", () => {
@@ -28,6 +29,12 @@ describe("GET /api/trends/money", () => {
     expect(periods.map((p: { from: string }) => p.from)).toEqual(["2026-08-01", "2026-09-01", "2026-10-01"]);
     expect(periods[1]).toMatchObject({ income: 3000000, fixed: 700000, variable: 100000, waste: 100000, saved: 600000 });
     for (const m of [eSlim, iSlim, sSlim]) expect(m).toHaveBeenCalledWith("me", "2026-08-01", "2026-11-01");
+  });
+
+  it("follows a month's own start day (the salary came on the 23rd instead of the 25th)", async () => {
+    overrides.mockResolvedValue({ "2026-10": 23 });
+    const { periods } = await (await call("anchor=2026-10-24&startDay=25&n=2")).json();
+    expect(periods.map((p: { from: string; to: string }) => [p.from, p.to])).toEqual([["2026-09-25", "2026-10-23"], ["2026-10-23", "2026-11-25"]]);
   });
 
   it("is unauthorized without a user and reads nothing", async () => {

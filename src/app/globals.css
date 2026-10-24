@@ -1096,3 +1096,7 @@ a, button, input, select, textarea, label, summary, [role="button"], [role="tab"
 .sm-pattern .fams u { display: block; height: 100%; border-radius: 99px; }
 .hero-copy p { white-space: pre-line; }
 .trustsec + .start { margin-top: clamp(64px, 9vw, 112px); }
+.period .period-sub { margin-top: var(--s3); font-size: 13px; color: var(--fg-2); }
+.period-row { display: grid; grid-template-columns: 1fr auto; gap: var(--s2); align-items: center; }
+.period-row label { grid-column: 1 / -1; }
+.period-row select { min-width: 0; }
