@@ -20,11 +20,20 @@ export default function ReminderToggle() {
     if (!supported()) { setState("unsupported"); return; }
     if (Notification.permission === "denied") { setState("denied"); return; }
     let live = true;
-    navigator.serviceWorker.ready.then((reg) => reg.pushManager.getSubscription()).then((sub) => { if (live) setState(sub ? "on" : "off"); }).catch(() => { if (live) setState("off"); });
+    // `ready` never settles when no service worker was registered (it is only registered in production), so make sure one exists and do not wait forever
+    const waitReady = async () => {
+      if (!(await navigator.serviceWorker.getRegistration())) await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+      return Promise.race([navigator.serviceWorker.ready, new Promise<null>((r) => setTimeout(() => r(null), 4000))]);
+    };
+    waitReady()
+      .then((reg) => (reg ? reg.pushManager.getSubscription() : null))
+      .then((sub) => { if (live) setState(sub ? "on" : "off"); })
+      .catch(() => { if (live) setState("off"); });
     return () => { live = false; };
   }, []);
 
-  if (!KEY || state === "loading") return null;
+  if (!KEY) return null;
+  if (state === "loading") return <span className="muted">…</span>;
   if (state === "unsupported") return <span className="muted">{t("rem.needInstall")}</span>;
   if (state === "denied") return <span className="muted">{t("rem.denied")}</span>;
 
