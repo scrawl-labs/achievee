@@ -1,8 +1,8 @@
 name: Evening reminder
-# Runs every hour; the endpoint itself decides who is at 21:xx local time and has not been reminded yet.
+# Runs four times an hour so one dropped or late run does not skip the evening; the endpoint itself decides who is at 21:xx local time and has not been reminded yet.
 on:
   schedule:
-    - cron: "5 * * * *"
+    - cron: "5,20,35,50 * * * *"
   workflow_dispatch:
 jobs:
   ping:
