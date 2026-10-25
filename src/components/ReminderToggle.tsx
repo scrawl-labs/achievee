@@ -53,5 +53,5 @@ export default function ReminderToggle({ variant = "link" }: { variant?: "link" 
       setState("on");
     } catch { /* the toggle simply stays where it was */ }
   };
-  return <button type="button" className={variant === "btn" ? `btn${state === "on" ? " primary" : ""}` : undefined} onClick={toggle} aria-pressed={state === "on"}>{variant === "btn" ? (state === "on" ? t("rem.on") : t("rem.turnOnShort")) : state === "on" ? t("rem.turnOff") : t("rem.turnOn")}</button>;
+  return <button type="button" className={variant === "btn" ? "btn" : undefined} onClick={toggle} aria-pressed={state === "on"}>{variant === "btn" ? (state === "on" ? t("rem.turnOffShort") : t("rem.turnOnShort")) : state === "on" ? t("rem.turnOff") : t("rem.turnOn")}</button>;
 }
