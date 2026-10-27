@@ -6,7 +6,7 @@ import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 
 type Day = { date: string; mood: string | null; ids: string[] };
-type Ctx = { exercise: string[]; unneeded: string[]; saved: string[]; from: string };
+type Ctx = { exercise: string[]; unneeded: string[]; from: string };
 
 /** Which feelings go with exercise days, unneeded spending and saving days. Said as a tendency, and only once both sides have enough days. */
 export default function EmotionContext({ spaced = false }: { spaced?: boolean }) {
@@ -19,11 +19,10 @@ export default function EmotionContext({ spaced = false }: { spaced?: boolean })
   const groups = [
     { key: "emo.cEx" as const, rows: contexts(days, new Set(ctx.exercise)) },
     { key: "emo.cWs" as const, rows: contexts(days, new Set(ctx.unneeded)) },
-    { key: "emo.cSv" as const, rows: contexts(days, new Set(ctx.saved)) },
   ];
   const pct = (x: number) => Math.round(x * 100);
   const none = groups.every((g) => g.rows.length === 0);
-  const counts = none ? tallies(days, { exercise: new Set(ctx.exercise), unneeded: new Set(ctx.unneeded), saved: new Set(ctx.saved) }) : [];
+  const counts = none ? tallies(days, { exercise: new Set(ctx.exercise), unneeded: new Set(ctx.unneeded) }) : [];
   return (
     <section className={`panel${spaced ? " pattern" : ""}`}>
       <h3>{t("emo.cTitle")}</h3>
@@ -31,7 +30,7 @@ export default function EmotionContext({ spaced = false }: { spaced?: boolean })
         <>
           {counts.length > 0 && (
             <ul className="peaks">
-              {counts.map((c) => <li key={c.family}>{t("emo.cTally", { f: familyById(c.family)?.[lang] ?? "", n: c.days, a: c.exercise, b: c.unneeded, c: c.saved })}</li>)}
+              {counts.map((c) => <li key={c.family}>{t("emo.cTally", { f: familyById(c.family)?.[lang] ?? "", n: c.days, a: c.exercise, b: c.unneeded })}</li>)}
             </ul>
           )}
           <small className="muted">{t("emo.cNeed", { n: MIN_FAMILY_DAYS })}</small>

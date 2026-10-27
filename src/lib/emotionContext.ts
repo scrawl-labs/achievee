@@ -84,18 +84,18 @@ export function monthSummary(all: readonly EmoDay[], month: string): MonthSummar
   };
 }
 
-export type Tally = { family: string; days: number; exercise: number; unneeded: number; saved: number };
+export type Tally = { family: string; days: number; exercise: number; unneeded: number };
 
-/** While there are too few days to compare, just count: on the days a feeling family showed up, how many had exercise, an unneeded expense, saving. Most frequent first. */
+/** While there are too few days to compare, just count: on the days a feeling family showed up, how many had exercise or an unneeded expense. Most frequent first. */
 export function tallies(
-  days: readonly EmoDay[], flags: { exercise: ReadonlySet<string>; unneeded: ReadonlySet<string>; saved: ReadonlySet<string> }, max = 3, minDays = 2,
+  days: readonly EmoDay[], flags: { exercise: ReadonlySet<string>; unneeded: ReadonlySet<string> }, max = 3, minDays = 2,
 ): Tally[] {
   const out: Tally[] = [];
   for (const f of FAMILIES) {
     const withF = days.filter((d) => familiesOf(d).has(f.id));
     if (withF.length < minDays) continue;
     const n = (set: ReadonlySet<string>) => withF.filter((d) => set.has(d.date)).length;
-    out.push({ family: f.id, days: withF.length, exercise: n(flags.exercise), unneeded: n(flags.unneeded), saved: n(flags.saved) });
+    out.push({ family: f.id, days: withF.length, exercise: n(flags.exercise), unneeded: n(flags.unneeded) });
   }
   return out.sort((a, b) => b.days - a.days).slice(0, max);
 }
