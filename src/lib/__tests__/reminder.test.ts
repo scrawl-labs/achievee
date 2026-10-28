@@ -29,11 +29,11 @@ describe("dueDate", () => {
   });
 });
 
-const { getUser, add, remove, all, markSent, drop, hasEmotions, send } = vi.hoisted(() => ({
-  getUser: vi.fn(), add: vi.fn(), remove: vi.fn(), all: vi.fn(), markSent: vi.fn(), drop: vi.fn(), hasEmotions: vi.fn(), send: vi.fn(),
+const { getUser, add, remove, all, markSent, drop, count, hasEmotions, send } = vi.hoisted(() => ({
+  getUser: vi.fn(), add: vi.fn(), remove: vi.fn(), all: vi.fn(), markSent: vi.fn(), drop: vi.fn(), count: vi.fn(), hasEmotions: vi.fn(), send: vi.fn(),
 }));
 vi.mock("@/lib/auth", () => ({ getUser }));
-vi.mock("@/lib/db", () => ({ pushSubs: { add, remove, all, markSent, drop }, diary: { hasEmotions } }));
+vi.mock("@/lib/db", () => ({ pushSubs: { add, remove, all, markSent, drop, count }, diary: { hasEmotions } }));
 vi.mock("web-push", () => ({ default: { setVapidDetails: vi.fn(), sendNotification: send } }));
 
 import { GET } from "@/app/api/cron/reminders/route";
@@ -45,6 +45,7 @@ const post = (body: unknown) => POST(new Request("http://x/api/push/subscribe", 
 beforeEach(() => {
   vi.clearAllMocks();
   getUser.mockResolvedValue({ id: "me" });
+  count.mockResolvedValue(1);
   process.env.CRON_SECRET = "s3cret"; process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY = "pub"; process.env.VAPID_PRIVATE_KEY = "priv"; process.env.VAPID_SUBJECT = "mailto:a@b.c";
 });
 

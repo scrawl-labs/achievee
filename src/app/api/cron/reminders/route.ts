@@ -6,6 +6,7 @@ import { REMINDER_TEXT, dueDate } from "@/lib/reminder";
 import type { Locale } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 const authorised = (req: Request) => {
   const want = process.env.CRON_SECRET;
@@ -49,5 +50,5 @@ export async function GET(req: Request) {
       if (code === 404 || code === 410) { await pushSubs.drop(sub.endpoint); dropped++; }
     }
   }
-  return NextResponse.json({ sent, skipped, dropped, devices: subs.length, due, at: now.toISOString(), db: dbFingerprint() });
+  return NextResponse.json({ sent, skipped, dropped, devices: subs.length, rows: await pushSubs.count(), due, at: now.toISOString(), db: dbFingerprint() });
 }

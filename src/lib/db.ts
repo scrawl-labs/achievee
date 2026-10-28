@@ -8,7 +8,7 @@ let _ready: Promise<unknown> | undefined;
 
 /** Lazily connected so `next build` never needs the database; the schema is created on first use. */
 async function sql() {
-  _sql ??= neon(process.env.DATABASE_URL ?? "");
+  _sql ??= neon(process.env.DATABASE_URL ?? "", { fetchOptions: { cache: "no-store" } }); // never let the framework's data cache answer a query
   const s = _sql;
   _ready ??= s.transaction([
     s`CREATE TABLE IF NOT EXISTS diary (
@@ -628,6 +628,10 @@ export const pushSubs = {
   async markSent(endpoint: string, date: string) {
     const s = await sql();
     await s`UPDATE push_sub SET last_sent=${date} WHERE endpoint=${endpoint}`;
+  },
+  async count(): Promise<number> {
+    const s = await sql();
+    return ((await s`SELECT count(*)::int AS n FROM push_sub`) as { n: number }[])[0].n;
   },
   async drop(endpoint: string) {
     const s = await sql();
