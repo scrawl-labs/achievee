@@ -8,7 +8,7 @@ export const ZH = {
   "account.signOut": "登出", "account.language": "語言",
   "theme.label": "外觀", "theme.system": "跟隨系統", "theme.light": "淺色", "theme.dark": "深色",
   "common.today": "今天", "common.prev": "上一個", "common.next": "下一個", "common.save": "儲存", "common.add": "新增",
-  "common.close": "關閉", "common.edit": "編輯", "common.cancel": "取消", "inc.income": "收入", "inc.balance": "剩餘", "inc.new": "新增收入", "inc.addAria": "新增收入", "inc.empty": "還沒有收入", "inc.startDay": "每月起始日", "inc.startHint": "從這一天起算，到下個月的前一天為一個月。", "inc.day": "{n} 日",
+  "common.close": "關閉", "common.edit": "編輯", "common.cancel": "取消", "inc.income": "收入", "inc.balance": "剩餘", "inc.new": "新增收入", "inc.addAria": "新增收入", "inc.empty": "還沒有收入", "inc.startDay": "支出月份起始日", "inc.startHint": "從這一天起算，到下個月的前一天為一個月。", "inc.day": "{n} 日",
   "inc.payTitle": "依月份指定發薪日", "inc.startOf": "{m} 起始日", "inc.payReset": "恢復預設（{n} 日）", "inc.payHint": "若因週末或假日提早發薪，請在此指定當月起始日。只會改變該月。",
   "rem.turnOn": "晚上 9 點提醒我", "rem.turnOff": "晚上 9 點提醒：已開啟（關閉）", "rem.needInstall": "加入主畫面後即可收到提醒。", "rem.denied": "瀏覽器設定已封鎖通知。",
   "nav.settings": "設定", "set.notify": "通知", "set.reminder": "晚上 9 點提醒", "set.reminderDesc": "若當天還沒選情緒詞，晚上 9 點會提醒你。", "rem.turnOffShort": "關閉", "rem.turnOnShort": "開啟", "set.look": "畫面與語言", "set.goals": "目標與基準", "set.workoutGoal": "每週運動目標", "set.perWeek": "每週 {n} 次", "set.water": "每日飲水目標", "set.protein": "每日蛋白質目標", "set.links": "連結", "set.linksDesc": "Google 日曆、GitHub、Jira、Notion", "set.manage": "管理", "set.about": "關於", "set.contact": "聯絡我們", "set.deleteDesc": "這會刪除你在 Achievee 儲存的所有紀錄。", "set.vocab": "到目前為止你用過 {n} 個情緒詞。",

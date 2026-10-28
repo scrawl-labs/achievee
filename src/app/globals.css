@@ -92,7 +92,8 @@ button.cell:hover { background: var(--surface-2); }
 .blob .lbl { font: 800 17px var(--font); fill: var(--ink); }
 .blob .spark { fill: var(--spark); }
 .blob.l0 .lbl { fill: var(--fg-3); }
-.blob.l1 .body { fill: var(--c1); } .blob.l2 .body { fill: var(--c2); } .blob.l3 .body { fill: var(--c3); } .blob.l4 .body { fill: var(--c4); }
+/* every task done: green. Anything short of that: pink, deeper the closer it is */
+.blob.l1 .body { fill: color-mix(in oklab, var(--c4) 50%, var(--c0)); } .blob.l2 .body { fill: color-mix(in oklab, var(--c4) 75%, var(--c0)); } .blob.l3 .body { fill: var(--c4); } .blob.l4 .body { fill: var(--c3); }
 .confetti { position: absolute; left: 50%; top: 50%; pointer-events: none; z-index: 2; }
 .confetti i { position: absolute; left: -4px; top: -4px; opacity: 0; animation: burst .9s cubic-bezier(.2, .7, .3, 1) forwards; }
 @keyframes burst {
@@ -145,7 +146,7 @@ button.item:hover, button.item.on { border-color: var(--accent); }
 .daily { height: 180px; display: flex; align-items: flex-end; gap: 3px; }
 .daily > div { flex: 1; height: 100%; display: flex; align-items: flex-end; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
 .daily i { display: block; width: 100%; background: var(--line); } .daily i.off { background: var(--line); opacity: .5; }
-.track i.l1, .daily i.l1 { background: var(--c1); } .track i.l2, .daily i.l2 { background: var(--c2); } .track i.l3, .daily i.l3 { background: var(--c3); } .track i.l4, .daily i.l4 { background: var(--c4); }
+.track i.l1, .daily i.l1 { background: color-mix(in oklab, var(--c4) 50%, var(--c0)); } .track i.l2, .daily i.l2 { background: color-mix(in oklab, var(--c4) 75%, var(--c0)); } .track i.l3, .daily i.l3 { background: var(--c4); } .track i.l4, .daily i.l4 { background: var(--c3); }
 .axis { display: flex; justify-content: space-between; font-size: 12px; color: var(--fg-3); }
 .hbar { display: grid; grid-template-columns: 48px 1fr auto; gap: var(--s3); align-items: center; }
 .hbar div { height: 8px; border-radius: 9px; background: var(--surface-2); overflow: hidden; } .hbar i { display: block; height: 100%; border-radius: 9px; background: var(--bar, var(--accent)); }
