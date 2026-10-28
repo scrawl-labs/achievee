@@ -27,10 +27,12 @@ export async function GET(req: Request) {
   webpush.setVapidDetails(subject, pub, priv);
 
   const now = new Date();
-  let sent = 0, skipped = 0, dropped = 0;
-  for (const sub of await pushSubs.all()) {
+  let sent = 0, skipped = 0, dropped = 0, due = 0;
+  const subs = await pushSubs.all();
+  for (const sub of subs) {
     const date = dueDate(sub, now);
     if (!date) continue;
+    due++;
     if (await diary.hasEmotions(sub.user, date)) { await pushSubs.markSent(sub.endpoint, date); skipped++; continue; }
     const text = REMINDER_TEXT[(sub.locale in REMINDER_TEXT ? sub.locale : "en") as Locale];
     try {
@@ -42,5 +44,5 @@ export async function GET(req: Request) {
       if (code === 404 || code === 410) { await pushSubs.drop(sub.endpoint); dropped++; }
     }
   }
-  return NextResponse.json({ sent, skipped, dropped });
+  return NextResponse.json({ sent, skipped, dropped, devices: subs.length, due, at: now.toISOString() });
 }

@@ -84,18 +84,18 @@ describe("GET /api/cron/reminders", () => {
   });
   it("sends the nudge to a device at 21:xx that has no emotion word yet, then remembers the date", async () => {
     at21(); all.mockResolvedValue([row()]); hasEmotions.mockResolvedValue(false); send.mockResolvedValue({});
-    expect(await (await call("s3cret")).json()).toEqual({ sent: 1, skipped: 0, dropped: 0 });
+    expect(await (await call("s3cret")).json()).toMatchObject({ sent: 1, skipped: 0, dropped: 0, devices: 1, due: 1 });
     expect(JSON.parse(send.mock.calls[0][1])).toMatchObject({ title: REMINDER_TEXT.ko.title, url: "/?open=diary" });
     expect(markSent).toHaveBeenCalledWith(sub.endpoint, "2026-10-24");
   });
   it("skips someone who already picked a word today, and anyone who is not at 21:xx", async () => {
     at21(); all.mockResolvedValue([row(), row({ endpoint: "https://push.example/other", tz: "Asia/Seoul" })]); hasEmotions.mockResolvedValue(true);
-    expect(await (await call("s3cret")).json()).toEqual({ sent: 0, skipped: 1, dropped: 0 });
+    expect(await (await call("s3cret")).json()).toMatchObject({ sent: 0, skipped: 1, dropped: 0, devices: 2, due: 1 });
     expect(send).not.toHaveBeenCalled();
   });
   it("drops a subscription the browser says is gone", async () => {
     at21(); all.mockResolvedValue([row()]); hasEmotions.mockResolvedValue(false); send.mockRejectedValue({ statusCode: 410 });
-    expect(await (await call("s3cret")).json()).toEqual({ sent: 0, skipped: 0, dropped: 1 });
+    expect(await (await call("s3cret")).json()).toMatchObject({ sent: 0, skipped: 0, dropped: 1, devices: 1, due: 1 });
     expect(drop).toHaveBeenCalledWith(sub.endpoint);
   });
 });
