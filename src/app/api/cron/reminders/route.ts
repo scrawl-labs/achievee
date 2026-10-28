@@ -1,4 +1,4 @@
-import { timingSafeEqual } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import webpush from "web-push";
 import { diary, pushSubs } from "@/lib/db";
@@ -15,8 +15,13 @@ const authorised = (req: Request) => {
   return a.length === b.length && timingSafeEqual(a, b);
 };
 
+/** A short hash of which database this deployment talks to (host and name only), so two environments can be compared without exposing credentials. */
+const dbFingerprint = () => {
+  try { const u = new URL(process.env.DATABASE_URL ?? ""); return createHash("sha256").update(u.host + u.pathname).digest("hex").slice(0, 8); } catch { return "none"; }
+};
+
 /**
- * Called once an hour by the scheduler (.github/workflows/reminder.yml) with `Authorization: Bearer $CRON_SECRET`.
+ * Called by the scheduler by the scheduler (.github/workflows/reminder.yml) with `Authorization: Bearer $CRON_SECRET`.
  * For every device whose local clock says 21:xx and that has not been reminded today, sends "how did today feel?",
  * unless the day already has an emotion word. The message holds no personal data.
  */
@@ -44,5 +49,5 @@ export async function GET(req: Request) {
       if (code === 404 || code === 410) { await pushSubs.drop(sub.endpoint); dropped++; }
     }
   }
-  return NextResponse.json({ sent, skipped, dropped, devices: subs.length, due, at: now.toISOString() });
+  return NextResponse.json({ sent, skipped, dropped, devices: subs.length, due, at: now.toISOString(), db: dbFingerprint() });
 }
