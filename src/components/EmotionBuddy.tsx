@@ -8,7 +8,7 @@ import type { Key } from "@/lib/i18n";
 import { useI18n } from "./I18n";
 
 type Ans = { lean?: Lean; focus?: Focus | "skip"; energy?: Energy | "skip"; intensity?: Intensity | "skip" };
-import { CAT_H, CAT_W, type Face, catCanvas } from "@/lib/pixelArt";
+import type { Face } from "@/lib/buddy3d/character";
 type Emote = "note" | "drop" | "q" | "spark" | null;
 
 const OPTS: [string, Key][][] = [
@@ -19,7 +19,7 @@ const OPTS: [string, Key][][] = [
 ];
 const PAGE = 6;
 const SOUND_KEY = "achievee:buddyVoice";
-const PixelScene = dynamic(() => import("./PixelScene"), { ssr: false });
+const BuddyScene = dynamic(() => import("./BuddyScene"), { ssr: false });
 
 /* ---------- a tiny markup for dialogue: ^name^ is green, *keyword* is orange ---------- */
 type Seg = { s: string; c?: "n" | "k" };
@@ -44,11 +44,11 @@ function blip(ch: string) {
   const o = ctx.createOscillator();
   const g = ctx.createGain();
   const code = ch.codePointAt(0) ?? 0;
-  o.type = "square";
+  o.type = "triangle";
   o.frequency.setValueAtTime(560 + (code % 9) * 34, t);
   o.frequency.exponentialRampToValueAtTime(420 + (code % 5) * 30, t + 0.06);
   g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(0.025, t + 0.006);
+  g.gain.exponentialRampToValueAtTime(0.05, t + 0.008);
   g.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
   o.connect(g).connect(ctx.destination);
   o.start(t);
@@ -96,31 +96,16 @@ function Line({ segs, shown }: { segs: Seg[]; shown: number }) {
   );
 }
 
-/** Bori as a small pixel sprite (the launcher card), blinking now and then. */
-function PixelCat() {
-  const ref = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const c = ref.current!;
-    const ctx = c.getContext("2d")!;
-    let blink = false;
-    const paint = () => { ctx.clearRect(0, 0, CAT_W, CAT_H); ctx.drawImage(catCanvas({ face: "idle", blink, talk: false, tail: 0 }), 0, 0); };
-    paint();
-    const id = window.setInterval(() => { blink = true; paint(); window.setTimeout(() => { blink = false; paint(); }, 140); }, 3200);
-    return () => window.clearInterval(id);
-  }, []);
-  return <canvas ref={ref} width={CAT_W} height={CAT_H} className="px-art" />;
-}
-
 /** The diary's entry point: a small card that opens the full-screen subway conversation with Bori. */
 export default function EmotionBuddy({ value, onChange, onBrowse }: { value: string[]; onChange: (v: string[]) => void; onBrowse: () => void }) {
   const { t } = useI18n();
   const [playing, setPlaying] = useState(false);
   return (
     <>
-      <button type="button" className="bd bd-launch px-box" onClick={() => setPlaying(true)}>
-        <span className="bd-launch-art"><PixelCat /></span>
+      <button type="button" className="bd bd-launch" onClick={() => setPlaying(true)}>
+        <span className="bd-launch-art"><img src="/buddy/bori.png" alt="" width={96} height={96} /></span>
         <span className="bd-launch-txt"><b>{t("buddy.start")}</b><small>{t("buddy.startSub")}</small></span>
-        <span className="bd-launch-go px-box" aria-hidden="true">▶</span>
+        <span className="bd-launch-go" aria-hidden="true">▶</span>
       </button>
       {playing && createPortal(
         <BuddyGame value={value} onChange={onChange} onClose={() => setPlaying(false)} onBrowse={() => { setPlaying(false); onBrowse(); }} />,
@@ -130,36 +115,21 @@ export default function EmotionBuddy({ value, onChange, onBrowse }: { value: str
   );
 }
 
-function useNight() {
-  const [night, setNight] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const read = () => {
-      const forced = document.documentElement.getAttribute("data-theme");
-      setNight(forced === "dark" || (forced !== "light" && mq.matches));
-    };
-    read();
-    mq.addEventListener("change", read);
-    return () => mq.removeEventListener("change", read);
-  }, []);
-  return night;
-}
-
 /**
- * Full-screen: Bori sits next to you on a city subway and asks the four "help me find it" questions in a game-style
+ * Full-screen: Bori, tired after work, stands next to you on a night subway and asks the four "help me find it" questions in a game-style
  * speech box, then offers words that might fit. Same questions and ranking as before; only the way they are asked changed.
  */
 function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; onChange: (v: string[]) => void; onClose: () => void; onBrowse: () => void }) {
   const { t, locale } = useI18n();
   const lang = emoLang(locale);
   const { data: session } = useSession();
-  const night = useNight();
   const root = useRef<HTMLDivElement>(null);
   const [ans, setAns] = useState<Ans>({});
   const [pages, setPages] = useState(1);
   const [picked, setPicked] = useState<string | null>(null);
   const [beat, setBeat] = useState(0); // bumps on every new line so Bori hops and the emote replays
   const [voice, setVoice] = useState(false);
+  const [no3d, setNo3d] = useState(false);
   useEffect(() => { try { setVoice(localStorage.getItem(SOUND_KEY) === "1"); } catch { /* storage blocked */ } }, []);
 
   // take over the screen: lock page scroll, go full screen where the browser allows it, Esc closes
@@ -244,8 +214,10 @@ function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; on
   const choices = step <= 4 ? OPTS[step - 1] : null;
 
   return (
-    <div className={`bdg bd${night ? " night" : ""}`} ref={root} role="dialog" aria-modal="true" aria-label={t("buddy.start")} tabIndex={-1}>
-      <PixelScene face={face} talking={!done} beat={beat} night={night} />
+    <div className="bdg bd" ref={root} role="dialog" aria-modal="true" aria-label={t("buddy.start")} tabIndex={-1}>
+      {no3d
+        ? <div className="bdg-flat"><img src="/buddy/bori.png" alt="" /></div>
+        : <BuddyScene face={face} talking={!done} beat={beat} onFail={() => setNo3d(true)} />}
       <div className="bdg-vignette" aria-hidden="true" />
 
       <div className="bdg-top">
@@ -272,13 +244,13 @@ function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; on
             {results.map((w, i) => {
               const on = value.includes(w.id);
               return (
-                <button key={w.id} type="button" className={`bd-card px-box${on ? " on" : ""}`} style={{ animationDelay: `${i * 50}ms` }} disabled={!on && full} aria-pressed={on} onClick={() => toggle(w.id)}>
+                <button key={w.id} type="button" className={`bd-card${on ? " on" : ""}`} style={{ animationDelay: `${i * 50}ms` }} disabled={!on && full} aria-pressed={on} onClick={() => toggle(w.id)}>
                   <span className="bd-card-h"><b>{w[lang][0]}</b><small>{familyById(w.family)?.[lang]}</small><i aria-hidden="true">{on ? "✓" : "+"}</i></span>
                   <span className="bd-card-d">{w[lang][1]}</span>
                 </button>
               );
             })}
-            {ranked.length > results.length && <button type="button" className="bd-card bd-card-more px-box" onClick={() => setPages(pages + 1)}><b>{t("emo.more")}</b><span aria-hidden="true">→</span></button>}
+            {ranked.length > results.length && <button type="button" className="bd-card bd-card-more" onClick={() => setPages(pages + 1)}><b>{t("emo.more")}</b><span aria-hidden="true">→</span></button>}
           </div>
         )}
 
@@ -286,19 +258,19 @@ function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; on
           {choices && (
             <div className={`bd-choices${done ? " on" : ""}`} key={`c-${step}`}>
               {choices.map(([k, label], i) => (
-                <button key={k} type="button" className="bd-choice px-box" style={{ animationDelay: `${i * 60}ms` }} disabled={!done} onClick={() => answer(k)}>{t(label)}</button>
+                <button key={k} type="button" className="bd-choice" style={{ animationDelay: `${i * 60}ms` }} disabled={!done} onClick={() => answer(k)}>{t(label)}</button>
               ))}
             </div>
           )}
           {step === 5 && (
-            <div className={`bd-choices${done || pickedWord ? " on" : ""}`} key="c-end">
-              {value.length > 0 && <button type="button" className="bd-choice bd-choice-main px-box" onClick={onClose}>{t("buddy.done")}</button>}
-              <button type="button" className="bd-choice px-box" onClick={restart}>{t("buddy.again")}</button>
-              <button type="button" className="bd-choice px-box" onClick={onBrowse}>{t("emo.noneFit")}</button>
+            <div className={`bd-choices bd-choices-row${done || pickedWord ? " on" : ""}`} key="c-end">
+              {value.length > 0 && <button type="button" className="bd-choice bd-choice-main" onClick={onClose}>{t("buddy.done")}</button>}
+              <button type="button" className="bd-choice" onClick={restart}>{t("buddy.again")}</button>
+              <button type="button" className="bd-choice" onClick={onBrowse}>{t("emo.noneFit")}</button>
             </div>
           )}
 
-          <div className="bd-box px-box" onClick={() => !done && finish()} role="group" aria-label={t("buddy.name")}>
+          <div className="bd-box" onClick={() => !done && finish()} role="group" aria-label={t("buddy.name")}>
             <span className="bd-tag">{t("buddy.name")}</span>
             <p className="bd-text" aria-live="polite"><Line segs={segs} shown={shown} /></p>
             <span className="sr-only">{plain}</span>
