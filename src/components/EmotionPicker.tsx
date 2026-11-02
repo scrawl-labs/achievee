@@ -1,16 +1,8 @@
 "use client";
 import { useState } from "react";
-import { FAMILIES, MAX_EMOTIONS, type Energy, type Focus, type Intensity, type Lean, emoLang, familyById, rankWords, wordById, wordText, wordsOfFamily } from "@/lib/emotions";
-import type { Key } from "@/lib/i18n";
+import { FAMILIES, MAX_EMOTIONS, emoLang, wordById, wordText, wordsOfFamily } from "@/lib/emotions";
 import { useI18n } from "./I18n";
-
-const Q: { title: Key; opts: [string, Key][] }[] = [
-  { title: "emo.q1", opts: [["pos", "emo.q1pos"], ["neg", "emo.q1neg"], ["mixed", "emo.q1mixed"]] },
-  { title: "emo.q2", opts: [["self", "emo.q2self"], ["other", "emo.q2other"], ["situation", "emo.q2situation"], ["skip", "emo.skip"]] },
-  { title: "emo.q3", opts: [["high", "emo.q3high"], ["low", "emo.q3low"], ["skip", "emo.skip"]] },
-  { title: "emo.q4", opts: [["mild", "emo.q4mild"], ["strong", "emo.q4strong"], ["skip", "emo.skip"]] },
-];
-const PAGE = 6;
+import EmotionBuddy from "./EmotionBuddy";
 
 /**
  * "What exactly am I feeling?" — pick up to 3 emotion words. Tapping a word selects it and shows what it means,
@@ -23,16 +15,6 @@ export default function EmotionPicker({ value, onChange }: { value: string[]; on
   const [fam, setFam] = useState(FAMILIES[0].id);
   const [focus, setFocus] = useState<string | null>(null);
   const [mode, setMode] = useState<"ask" | "browse">("ask");
-  const [ans, setAns] = useState<{ lean?: Lean; focus?: Focus | "skip"; energy?: Energy | "skip"; intensity?: Intensity | "skip" }>({});
-  const [pages, setPages] = useState(1);
-  const total = ans.lean === "mixed" ? 3 : 4; // "how strong" says little when the feeling is mixed
-  const step = !ans.lean ? 1 : !ans.focus ? 2 : !ans.energy ? 3 : total === 4 && !ans.intensity ? 4 : 5;
-  const ranked = step === 5
-    ? rankWords({ lean: ans.lean!, focus: ans.focus === "skip" ? undefined : ans.focus, energy: ans.energy === "skip" ? undefined : ans.energy, intensity: ans.intensity === "skip" ? undefined : ans.intensity })
-    : [];
-  const results = ranked.slice(0, PAGE * pages);
-  const back = () => setAns(ans.intensity ? { ...ans, intensity: undefined } : ans.energy ? { ...ans, energy: undefined } : ans.focus ? { ...ans, focus: undefined } : {});
-  const restart = () => { setAns({}); setPages(1); };
 
   const pick = (id: string) => {
     const w = wordById(id);
@@ -72,38 +54,7 @@ export default function EmotionPicker({ value, onChange }: { value: string[]; on
             <button role="tab" aria-selected={mode === "browse"} type="button" className={mode === "browse" ? "on" : ""} onClick={() => setMode("browse")}>{t("emo.browse")}</button>
           </div>
           {mode === "ask" ? (
-            <div className="emo-ask">
-              {step <= 4 ? (
-                <>
-                  <div className="emo-step"><small>{step} / {total}</small><b>{t(Q[step - 1].title)}</b></div>
-                  <div className="emo-opts">
-                    {Q[step - 1].opts.map(([k, label]) => (
-                      <button key={k} type="button" className="btn" onClick={() => setAns(step === 1 ? { lean: k as Lean } : step === 2 ? { ...ans, focus: k as Focus | "skip" } : step === 3 ? { ...ans, energy: k as Energy | "skip" } : { ...ans, intensity: k as Intensity | "skip" })}>{t(label)}</button>
-                    ))}
-                  </div>
-                  {step > 1 && <button type="button" className="btn ghost emo-back" onClick={back}>{t("emo.back")}</button>}
-                </>
-              ) : (
-                <>
-                  <small className="muted">{t("emo.helpResult")}</small>
-                  <div className="emo-near">
-                    {results.map((w) => {
-                      const on = value.includes(w.id);
-                      return (
-                        <div className="emo-nearrow" key={w.id}>
-                          <div><b>{w[lang][0]}<small className="muted"> · {familyById(w.family)?.[lang]}</small></b><span>{w[lang][1]}</span></div>
-                          <button type="button" className={`btn${on ? " primary" : ""}`} disabled={!on && full} onClick={() => toggle(w.id)}>{on ? t("emo.chosen") : t("emo.choose")}</button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {full && <small className="muted">{t("emo.max")}</small>}
-                  {ranked.length > results.length && <button type="button" className="btn ghost emo-back" onClick={() => setPages(pages + 1)}>{t("emo.more")}</button>}
-                  <button type="button" className="btn ghost emo-back" onClick={() => setMode("browse")}>{t("emo.noneFit")}</button>
-                  <button type="button" className="btn ghost emo-back" onClick={restart}>{t("emo.again")}</button>
-                </>
-              )}
-            </div>
+            <EmotionBuddy value={value} onChange={onChange} onBrowse={() => setMode("browse")} />
           ) : (
             <>
           <div className="emo-fams" role="tablist">
