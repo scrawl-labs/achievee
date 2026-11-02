@@ -1,12 +1,14 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
 import { MAX_EMOTIONS, type Energy, type Focus, type Intensity, type Lean, emoLang, familyById, rankWords, wordById } from "@/lib/emotions";
 import type { Key } from "@/lib/i18n";
 import { useI18n } from "./I18n";
 
 type Ans = { lean?: Lean; focus?: Focus | "skip"; energy?: Energy | "skip"; intensity?: Intensity | "skip" };
-type Face = "idle" | "happy" | "sad" | "think" | "joy";
+import type { Face } from "./BuddyScene";
 type Emote = "note" | "drop" | "q" | "spark" | null;
 
 const OPTS: [string, Key][][] = [
@@ -17,6 +19,7 @@ const OPTS: [string, Key][][] = [
 ];
 const PAGE = 6;
 const SOUND_KEY = "achievee:buddyVoice";
+const BuddyScene = dynamic(() => import("./BuddyScene"), { ssr: false });
 
 /* ---------- a tiny markup for dialogue: ^name^ is green, *keyword* is orange ---------- */
 type Seg = { s: string; c?: "n" | "k" };
@@ -224,20 +227,76 @@ function Emoticon({ face, beat }: { face: Face; beat: number }) {
   );
 }
 
-/**
- * Bori the bunny asks the four "help me find it" questions as a little conversation, then offers words that might fit.
- * Same questions and ranking as before; only the way they are asked changed.
- */
+/** The diary's entry point: a small card that opens the full-screen 3D conversation with Bori. */
 export default function EmotionBuddy({ value, onChange, onBrowse }: { value: string[]; onChange: (v: string[]) => void; onBrowse: () => void }) {
+  const { t } = useI18n();
+  const [playing, setPlaying] = useState(false);
+  return (
+    <>
+      <button type="button" className="bd-launch" onClick={() => setPlaying(true)}>
+        <span className="bd-launch-art"><Bori face="idle" talking={false} beat={0} /></span>
+        <span className="bd-launch-txt"><b>{t("buddy.start")}</b><small>{t("buddy.startSub")}</small></span>
+        <span className="bd-launch-go" aria-hidden="true">▶</span>
+      </button>
+      {playing && createPortal(
+        <BuddyGame value={value} onChange={onChange} onClose={() => setPlaying(false)} onBrowse={() => { setPlaying(false); onBrowse(); }} />,
+        document.body,
+      )}
+    </>
+  );
+}
+
+function useNight() {
+  const [night, setNight] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const read = () => {
+      const forced = document.documentElement.getAttribute("data-theme");
+      setNight(forced === "dark" || (forced !== "light" && mq.matches));
+    };
+    read();
+    mq.addEventListener("change", read);
+    return () => mq.removeEventListener("change", read);
+  }, []);
+  return night;
+}
+
+/**
+ * Full-screen: Bori stands on a little 3D island and asks the four "help me find it" questions in a game-style
+ * speech box, then offers words that might fit. Same questions and ranking as before; only the way they are asked changed.
+ */
+function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; onChange: (v: string[]) => void; onClose: () => void; onBrowse: () => void }) {
   const { t, locale } = useI18n();
   const lang = emoLang(locale);
   const { data: session } = useSession();
+  const night = useNight();
+  const root = useRef<HTMLDivElement>(null);
   const [ans, setAns] = useState<Ans>({});
   const [pages, setPages] = useState(1);
   const [picked, setPicked] = useState<string | null>(null);
   const [beat, setBeat] = useState(0); // bumps on every new line so Bori hops and the emote replays
   const [voice, setVoice] = useState(false);
+  const [no3d, setNo3d] = useState(false);
   useEffect(() => { try { setVoice(localStorage.getItem(SOUND_KEY) === "1"); } catch { /* storage blocked */ } }, []);
+
+  // take over the screen: lock page scroll, go full screen where the browser allows it, Esc closes
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const el = root.current;
+    if (el?.requestFullscreen && window.matchMedia("(pointer: coarse)").matches) el.requestFullscreen().catch(() => { /* not allowed */ });
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape" && !document.fullscreenElement) onClose(); };
+    const onFs = () => { if (!document.fullscreenElement && el?.dataset.fs === "1") onClose(); if (document.fullscreenElement) el && (el.dataset.fs = "1"); };
+    window.addEventListener("keydown", onKey);
+    document.addEventListener("fullscreenchange", onFs);
+    el?.focus();
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+      document.removeEventListener("fullscreenchange", onFs);
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => { /* already gone */ });
+    };
+  }, [onClose]);
 
   const raw = session?.user?.name?.trim() ?? "";
   const name = raw ? (/\s/.test(raw) && !/[぀-ヿ㐀-鿿가-힯]/.test(raw) ? raw.split(/\s+/)[0] : raw) : t("buddy.friend");
@@ -302,44 +361,33 @@ export default function EmotionBuddy({ value, onChange, onBrowse }: { value: str
   const choices = step <= 4 ? OPTS[step - 1] : null;
 
   return (
-    <div className="bd">
-      <div className="bd-stage">
-        <div className="bd-top">
-          {step > 1 ? <button type="button" className="bd-mini" onClick={back}>‹ {t("emo.back")}</button> : <span />}
-          <span className="bd-progress" aria-label={`${Math.min(step, total)} / ${total}`}>
-            {Array.from({ length: total }, (_, i) => <i key={i} className={i < step - 1 ? "on" : i === step - 1 ? "now" : ""} />)}
-          </span>
+    <div className={`bdg bd${night ? " night" : ""}`} ref={root} role="dialog" aria-modal="true" aria-label={t("buddy.start")} tabIndex={-1}>
+      {no3d
+        ? <div className="bdg-flat"><div className="bdg-flat-char"><Bori face={face} talking={!done} beat={beat} /></div></div>
+        : <BuddyScene face={face} talking={!done} beat={beat} night={night} onFail={() => setNo3d(true)} />}
+      <div className="bdg-vignette" aria-hidden="true" />
+
+      <div className="bdg-top">
+        <button type="button" className="bd-mini bdg-close" onClick={onClose} aria-label={t("common.close")}>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+        <span className="bd-progress" aria-label={`${Math.min(step, total)} / ${total}`}>
+          {Array.from({ length: total }, (_, i) => <i key={i} className={i < step - 1 ? "on" : i === step - 1 ? "now" : ""} />)}
+        </span>
+        <span className="bdg-right">
+          {step > 1 && <button type="button" className="bd-mini" onClick={back}>‹ {t("emo.back")}</button>}
           <button type="button" className={`bd-mini bd-voice${voice ? " on" : ""}`} aria-pressed={voice} onClick={toggleVoice} title={t("buddy.voice")} aria-label={t("buddy.voice")}>
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" stroke="none" />
               {voice ? <><path d="M15.5 9a4 4 0 0 1 0 6" /><path d="M18 6.5a7.5 7.5 0 0 1 0 11" /></> : <path d="M16 9.5l5 5M21 9.5l-5 5" />}
             </svg>
           </button>
-        </div>
-        <div className="bd-hill" aria-hidden="true" />
-        <div className="bd-stars" aria-hidden="true"><i /><i /><i /><i /><i /></div>
-        <div className="bd-char"><Bori face={face} talking={!done} beat={beat} /></div>
+        </span>
       </div>
 
-      <div className="bd-box" onClick={() => !done && finish()} role="group" aria-label={t("buddy.name")}>
-        <span className="bd-tag">{t("buddy.name")}</span>
-        <p className="bd-text" aria-live="polite"><Line segs={segs} shown={shown} /></p>
-        <span className="sr-only">{plain}</span>
-        {!done && <button type="button" className="sr-only" onClick={finish}>{t("buddy.skip")}</button>}
-        <svg className={`bd-next${done ? " on" : ""}`} viewBox="0 0 20 14" aria-hidden="true"><path d="M2.5 2.5h15q1.8 0 .9 1.6l-7.3 8q-1.1 1.2-2.2 0l-7.3-8q-.9-1.6.9-1.6z" /></svg>
-      </div>
-
-      {choices && (
-        <div className={`bd-choices${done ? " on" : ""}`} key={`c-${step}`}>
-          {choices.map(([k, label], i) => (
-            <button key={k} type="button" className="bd-choice" style={{ animationDelay: `${i * 60}ms` }} disabled={!done} onClick={() => answer(k)}>{t(label)}</button>
-          ))}
-        </div>
-      )}
-
-      {step === 5 && (
-        <div className={`bd-results${done || pickedWord ? " on" : ""}`}>
-          <div className="bd-cards">
+      <div className="bdg-hud">
+        {step === 5 && (
+          <div className={`bdg-cards${done || pickedWord ? " on" : ""}`}>
             {results.map((w, i) => {
               const on = value.includes(w.id);
               return (
@@ -349,14 +397,35 @@ export default function EmotionBuddy({ value, onChange, onBrowse }: { value: str
                 </button>
               );
             })}
+            {ranked.length > results.length && <button type="button" className="bd-card bd-card-more" onClick={() => setPages(pages + 1)}><b>{t("emo.more")}</b><span aria-hidden="true">→</span></button>}
           </div>
-          <div className="bd-choices on">
-            {ranked.length > results.length && <button type="button" className="bd-choice" onClick={() => setPages(pages + 1)}>{t("emo.more")}</button>}
-            <button type="button" className="bd-choice" onClick={restart}>{t("buddy.again")}</button>
-            <button type="button" className="bd-choice" onClick={onBrowse}>{t("emo.noneFit")}</button>
+        )}
+
+        <div className="bdg-talk">
+          {choices && (
+            <div className={`bd-choices${done ? " on" : ""}`} key={`c-${step}`}>
+              {choices.map(([k, label], i) => (
+                <button key={k} type="button" className="bd-choice" style={{ animationDelay: `${i * 60}ms` }} disabled={!done} onClick={() => answer(k)}>{t(label)}</button>
+              ))}
+            </div>
+          )}
+          {step === 5 && (
+            <div className={`bd-choices${done || pickedWord ? " on" : ""}`} key="c-end">
+              {value.length > 0 && <button type="button" className="bd-choice bd-choice-main" onClick={onClose}>{t("buddy.done")}</button>}
+              <button type="button" className="bd-choice" onClick={restart}>{t("buddy.again")}</button>
+              <button type="button" className="bd-choice" onClick={onBrowse}>{t("emo.noneFit")}</button>
+            </div>
+          )}
+
+          <div className="bd-box" onClick={() => !done && finish()} role="group" aria-label={t("buddy.name")}>
+            <span className="bd-tag">{t("buddy.name")}</span>
+            <p className="bd-text" aria-live="polite"><Line segs={segs} shown={shown} /></p>
+            <span className="sr-only">{plain}</span>
+            {!done && <button type="button" className="sr-only" onClick={finish}>{t("buddy.skip")}</button>}
+            <svg className={`bd-next${done ? " on" : ""}`} viewBox="0 0 20 14" aria-hidden="true"><path d="M2.5 2.5h15q1.8 0 .9 1.6l-7.3 8q-1.1 1.2-2.2 0l-7.3-8q-.9-1.6.9-1.6z" /></svg>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
