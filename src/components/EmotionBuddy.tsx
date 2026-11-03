@@ -9,6 +9,7 @@ import { useI18n } from "./I18n";
 
 type Ans = { lean?: Lean; focus?: Focus | "skip"; energy?: Energy | "skip"; intensity?: Intensity | "skip" };
 import type { Face } from "@/lib/buddy3d/character";
+import type { MapId } from "./BuddyScene";
 type Emote = "note" | "drop" | "q" | "spark" | null;
 
 const OPTS: [string, Key][][] = [
@@ -19,6 +20,13 @@ const OPTS: [string, Key][][] = [
 ];
 const PAGE = 6;
 const SOUND_KEY = "achievee:buddyVoice";
+const MAP_KEY = "achievee:buddyMap";
+const MAPS: MapId[] = ["forest", "subway"];
+/** The place for today: the one picked last time on this device, otherwise it changes from day to day. */
+function startMap(): MapId {
+  try { const m = localStorage.getItem(MAP_KEY); if (m && (MAPS as string[]).includes(m)) return m as MapId; } catch { /* storage blocked */ }
+  return MAPS[Math.floor(Date.now() / 86_400_000) % MAPS.length];
+}
 const BuddyScene = dynamic(() => import("./BuddyScene"), { ssr: false });
 
 /* ---------- a tiny markup for dialogue: ^name^ is green, *keyword* is orange ---------- */
@@ -96,7 +104,7 @@ function Line({ segs, shown }: { segs: Seg[]; shown: number }) {
   );
 }
 
-/** The diary's entry point: a small card that opens the full-screen forest conversation with Bori. */
+/** The diary's entry point: a small card that opens the full-screen conversation with Bori. */
 export default function EmotionBuddy({ value, onChange, onBrowse }: { value: string[]; onChange: (v: string[]) => void; onBrowse: () => void }) {
   const { t } = useI18n();
   const [playing, setPlaying] = useState(false);
@@ -116,7 +124,7 @@ export default function EmotionBuddy({ value, onChange, onBrowse }: { value: str
 }
 
 /**
- * Full-screen: Bori, resting in a forest after work, asks the four "help me find it" questions in a game-style
+ * Full-screen: Bori after work, in a forest or on the subway home, asks the four "help me find it" questions in a game-style
  * speech box, then offers words that might fit. Same questions and ranking as before; only the way they are asked changed.
  */
 function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; onChange: (v: string[]) => void; onClose: () => void; onBrowse: () => void }) {
@@ -130,6 +138,13 @@ function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; on
   const [beat, setBeat] = useState(0); // bumps on every new line so Bori hops and the emote replays
   const [voice, setVoice] = useState(false);
   const [no3d, setNo3d] = useState(false);
+  const [map, setMap] = useState<MapId>("forest");
+  useEffect(() => { setMap(startMap()); }, []);
+  const nextMap = () => {
+    const m = MAPS[(MAPS.indexOf(map) + 1) % MAPS.length];
+    setMap(m);
+    try { localStorage.setItem(MAP_KEY, m); } catch { /* storage blocked */ }
+  };
   useEffect(() => { try { setVoice(localStorage.getItem(SOUND_KEY) === "1"); } catch { /* storage blocked */ } }, []);
 
   // take over the screen: lock page scroll, go full screen where the browser allows it, Esc closes
@@ -165,12 +180,12 @@ function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; on
   const reaction: Key = ans.lean === "pos" ? "buddy.rpos" : ans.lean === "neg" ? "buddy.rneg" : "buddy.rmixed";
   const pickedWord = picked ? wordById(picked) : null;
   const line =
-    step === 1 ? t("buddy.hi", { name })
+    step === 1 ? t(map === "subway" ? "buddy.hiSubway" : "buddy.hi", { name })
     : step === 2 ? `${t(reaction)} ${t("buddy.q2")}`
     : step === 3 ? t("buddy.q3")
     : step === 4 ? t("buddy.q4")
     : pickedWord ? (full ? t("buddy.full") : t("buddy.picked", { word: pickedWord[lang][0] }))
-    : t("buddy.result");
+    : t(map === "subway" ? "buddy.resultSubway" : "buddy.result");
   const face: Face =
     step === 5 && pickedWord ? "joy"
     : step === 2 ? (ans.lean === "pos" ? "happy" : ans.lean === "neg" ? "sad" : "think")
@@ -217,7 +232,7 @@ function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; on
     <div className="bdg bd" ref={root} role="dialog" aria-modal="true" aria-label={t("buddy.start")} tabIndex={-1}>
       {no3d
         ? <div className="bdg-flat"><img src="/buddy/bori.png" alt="" /></div>
-        : <BuddyScene face={face} talking={!done} beat={beat} onFail={() => setNo3d(true)} />}
+        : <BuddyScene key={map} map={map} face={face} talking={!done} beat={beat} onFail={() => setNo3d(true)} />}
       <div className="bdg-vignette" aria-hidden="true" />
 
       <div className="bdg-top">
@@ -229,6 +244,15 @@ function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; on
         </span>
         <span className="bdg-right">
           {step > 1 && <button type="button" className="bd-mini" onClick={back}>‹ {t("emo.back")}</button>}
+          {!no3d && (
+            <button type="button" className="bd-mini bd-place" onClick={nextMap} title={t("buddy.place")} aria-label={`${t("buddy.place")}: ${t(map === "subway" ? "buddy.mapSubway" : "buddy.mapForest")}`}>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                {map === "subway"
+                  ? <><rect x="5" y="3" width="14" height="14" rx="4" /><path d="M5 11h14M8.5 14.5h.01M15.5 14.5h.01M8 21l2-4M16 21l-2-4" /></>
+                  : <><path d="M12 3l5 8h-3l4 6H6l4-6H7z" /><path d="M12 17v4" /></>}
+              </svg>
+            </button>
+          )}
           <button type="button" className={`bd-mini bd-voice${voice ? " on" : ""}`} aria-pressed={voice} onClick={toggleVoice} title={t("buddy.voice")} aria-label={t("buddy.voice")}>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" stroke="none" />

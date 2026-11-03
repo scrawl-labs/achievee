@@ -4,8 +4,11 @@ import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { buildBori, type Face } from "@/lib/buddy3d/character";
 import { buildForest } from "@/lib/buddy3d/forest";
+import { buildSubway } from "@/lib/buddy3d/subway";
 
-type Props = { face: Face; talking: boolean; beat: number; onFail: () => void };
+export type MapId = "forest" | "subway";
+
+type Props = { map: MapId; face: Face; talking: boolean; beat: number; onFail: () => void };
 
 function emoteTexture(kind: "note" | "drop" | "q" | "spark") {
   const c = document.createElement("canvas"); c.width = c.height = 256;
@@ -34,8 +37,8 @@ function emoteTexture(kind: "note" | "drop" | "q" | "spark") {
 
 const damp = (a: number, b: number, k: number, dt: number) => THREE.MathUtils.lerp(a, b, 1 - Math.exp(-k * dt));
 
-/** The full-screen 3D scene: Bori, resting after work in a forest clearing at golden hour. */
-export default function BuddyScene({ face, talking, beat, onFail }: Props) {
+/** The full-screen 3D scene: Bori after work, in a forest clearing or on the subway home. */
+export default function BuddyScene({ map, face, talking, beat, onFail }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const state = useRef({ face, talking, beat });
   state.current = { face, talking, beat };
@@ -54,30 +57,17 @@ export default function BuddyScene({ face, talking, beat, onFail }: Props) {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#e6dcae");
-    scene.fog = new THREE.Fog("#d8d6a8", 10, 34);
+    const world = map === "subway" ? buildSubway() : buildForest();
+    scene.background = world.background;
+    scene.fog = world.fog;
     const pmrem = new THREE.PMREMGenerator(renderer);
     const env = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
     scene.environment = env;
     scene.environmentIntensity = 0.25;
+    scene.add(world.group);
 
-    // golden-hour sun from behind on the left, soft sky light, and a gentle fill so Bori's face reads
-    scene.add(new THREE.HemisphereLight("#ffeccc", "#4d6b35", 1.0));
-    const key = new THREE.DirectionalLight("#ffd28f", 3.2);
-    key.position.set(-4, 6.5, -2.5);
-    key.castShadow = true;
-    key.shadow.mapSize.set(2048, 2048);
-    Object.assign(key.shadow.camera, { left: -7, right: 7, top: 7, bottom: -4, near: 1, far: 22 });
-    key.shadow.bias = -0.0004; key.shadow.normalBias = 0.03; key.shadow.radius = 6;
-    scene.add(key);
-    const fill = new THREE.DirectionalLight("#fff4e4", 0.9);
-    fill.position.set(3, 3.5, 6);
-    scene.add(fill);
-
-    const forest = buildForest();
-    scene.add(forest.group);
     const bori = buildBori();
-    const S = 0.62; // Bori is small: about the height of a fern
+    const S = 0.62; // Bori is small: about the height of a fern, or of a subway seat back
     bori.root.scale.setScalar(S);
     bori.root.position.set(0, 0, 0.35);
     scene.add(bori.root);
@@ -163,7 +153,7 @@ export default function BuddyScene({ face, talking, beat, onFail }: Props) {
       emote.position.y = 1.48 + jump + Math.sin(t * 2.5) * 0.02 * m;
 
       // the world outside and the straps
-      forest.update(t, dt, m);
+      world.update(t, dt, m);
       camera.position.y = 1.2 + Math.sin(t * 0.3) * 0.02 * m;
       camera.position.x = 0.35 + Math.sin(t * 0.17) * 0.08 * m;
       camera.lookAt(target);

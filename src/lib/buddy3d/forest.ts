@@ -292,8 +292,23 @@ function buildGrass(count: number) {
   return { mesh, uniforms };
 }
 
-export function buildForest() {
+export type World = { group: THREE.Group; update: (t: number, dt: number, motion: number) => void; background: THREE.Color; fog: THREE.Fog };
+
+export function buildForest(): World {
   const group = new THREE.Group();
+
+  // golden-hour sun from behind on the left, soft sky light, and a gentle fill so Bori's face reads
+  group.add(new THREE.HemisphereLight("#ffeccc", "#4d6b35", 1.0));
+  const key = new THREE.DirectionalLight("#ffd28f", 3.2);
+  key.position.set(-4, 6.5, -2.5);
+  key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048);
+  Object.assign(key.shadow.camera, { left: -7, right: 7, top: 7, bottom: -4, near: 1, far: 22 });
+  key.shadow.bias = -0.0004; key.shadow.normalBias = 0.03; key.shadow.radius = 6;
+  group.add(key);
+  const fill = new THREE.DirectionalLight("#fff4e4", 0.9);
+  fill.position.set(3, 3.5, 6);
+  group.add(fill);
 
   // painted woods behind, farthest first
   const layers: [number, number, number, number][] = [[0, -26, 70, 30], [1, -18, 52, 22], [2, -11, 38, 16]];
@@ -368,5 +383,5 @@ export function buildForest() {
     }
   };
 
-  return { group, update };
+  return { group, update, background: new THREE.Color("#e6dcae"), fog: new THREE.Fog("#d8d6a8", 10, 34) };
 }

@@ -632,7 +632,9 @@ select {
   background: color-mix(in oklab, var(--bd-box) 88%, transparent); color: var(--bd-ink); font-size: 14px; font-weight: 800;
   box-shadow: 0 2px 0 rgba(120, 90, 50, .18), 0 6px 14px -6px rgba(60, 40, 10, .3); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
 .bd-mini:hover { background: var(--bd-box); }
-.bd-voice, .bdg-close { padding: 0; width: 40px; }
+.bd-voice, .bdg-close, .bd-place { padding: 0; width: 40px; }
+.bd-mini { white-space: nowrap; flex: none; }
+@media (max-width: 420px) { .bdg-top .bd-mini { height: 36px; min-width: 36px; } .bd-voice, .bdg-close, .bd-place { width: 36px; } .bd-route { gap: 9px; padding: 10px 11px; } .bd-route i { width: 10px; height: 10px; } .bdg-right { gap: 6px; } }
 .bd-voice { color: color-mix(in oklab, var(--bd-ink) 55%, transparent); }
 .bd-voice.on { color: var(--bd-key); }
 /* progress: one stop per question, plus the end */
