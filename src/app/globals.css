@@ -693,6 +693,16 @@ select {
 .bd-choice:active { transform: scale(.97); }
 @media (min-width: 700px) { .bd-choices-row { flex-direction: row; flex-wrap: wrap; justify-content: flex-end; } }
 a.bd-choice { display: inline-flex; align-items: center; text-decoration: none; }
+/* writing a line or two for the diary, on /bori */
+.bd-write { display: flex; flex-direction: column; gap: 12px; }
+.bd-write:not(.on) { visibility: hidden; }
+.bd-write.on { animation: bd-rise .38s cubic-bezier(.3, 1.4, .5, 1) both; }
+.bd-note { width: 100%; min-height: 104px; resize: none; padding: 16px 20px; border: 0; border-radius: 26px 30px 28px 32px / 24px 26px 30px 28px;
+  background: var(--bd-box); color: var(--bd-ink); font: 600 16px/1.65 var(--font); letter-spacing: -0.01em;
+  box-shadow: 0 3px 0 rgba(150, 115, 60, .18), 0 12px 26px -12px rgba(60, 40, 10, .45); outline: none; user-select: text; -webkit-user-select: text; }
+.bd-note::placeholder { color: color-mix(in oklab, var(--bd-ink) 45%, transparent); }
+.bd-note:focus { box-shadow: 0 0 0 3px color-mix(in oklab, var(--bd-key) 45%, transparent), 0 12px 26px -12px rgba(60, 40, 10, .45); }
+.bd-choice:disabled { opacity: .5; cursor: default; }
 .bd-choice-main { background: var(--bd-name); color: #fff; }
 .bd-choice-main::before { border-left-color: #fff; }
 .bd-choice-main:hover, .bd-choice-main:focus-visible { background: color-mix(in oklab, var(--bd-name) 85%, #000); }

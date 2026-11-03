@@ -33,6 +33,7 @@ describe("POST /api/diary/emotions", () => {
   it("rejects a bad date or no known words", async () => {
     expect((await call({ date: "nope", emotions: [a] })).status).toBe(400);
     expect((await call({ date: "2026-11-03", emotions: ["not-a-word"] })).status).toBe(400);
+    expect((await call({ date: "2026-11-03", emotions: [], note: "   " })).status).toBe(400);
   });
 
   it("starts a new day with the words and an empty body", async () => {
@@ -45,6 +46,19 @@ describe("POST /api/diary/emotions", () => {
     day.mockResolvedValue({ date: "2026-11-03", mood: "3", body: "오늘은 길었다", emotions: [a] });
     await call({ date: "2026-11-03", emotions: [b] });
     expect(upsert).toHaveBeenCalledWith("me", "2026-11-03", expect.anything(), "오늘은 길었다", [a, b]);
+  });
+
+  it("adds a note after what is already written, never replacing it", async () => {
+    day.mockResolvedValue({ date: "2026-11-03", mood: "3", body: "아침엔 바빴다", emotions: [a] });
+    const j = await (await call({ date: "2026-11-03", emotions: [b], note: "  저녁엔 바다를 봤다  " })).json();
+    expect(j).toMatchObject({ added: [b], noted: true });
+    expect(upsert).toHaveBeenCalledWith("me", "2026-11-03", expect.anything(), "아침엔 바빴다\n\n저녁엔 바다를 봤다", [a, b]);
+  });
+
+  it("saves a note on its own, even when the words did not fit", async () => {
+    day.mockResolvedValue({ date: "2026-11-03", mood: "3", body: "", emotions: [a, b, c] });
+    await call({ date: "2026-11-03", emotions: [d], note: "그냥 그런 날" });
+    expect(upsert).toHaveBeenCalledWith("me", "2026-11-03", expect.anything(), "그냥 그런 날", [a, b, c]);
   });
 
   it("changes nothing when the day is already full", async () => {

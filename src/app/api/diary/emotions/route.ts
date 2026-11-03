@@ -6,22 +6,27 @@ import { cleanEmotionIds, mergeEmotionIds, moodFromEmotions } from "@/lib/emotio
 
 export const dynamic = "force-dynamic";
 const YMD = /^\d{4}-\d{2}-\d{2}$/;
+const MAX_BODY = 5000;
 
 /**
- * Adds emotion words to a day's diary without touching what is already written there (used by Bori's /bori page).
- * The day's own words stay; new ones fill the free places. Answers which were added and which did not fit.
+ * Adds to a day's diary without replacing what is already there (used by Bori's /bori page):
+ * emotion words fill the free places (the day's own words stay), and a note is added after any text already written.
+ * Answers which words were added and which did not fit.
  */
 export async function POST(req: Request) {
-  const { date, emotions } = await req.json().catch(() => ({}));
+  const { date, emotions, note } = await req.json().catch(() => ({}));
   const ids = cleanEmotionIds(emotions);
-  if (typeof date !== "string" || !YMD.test(date) || ids.length === 0) return bad("bad input");
+  const text = typeof note === "string" ? note.trim().slice(0, MAX_BODY) : "";
+  if (typeof date !== "string" || !YMD.test(date) || (ids.length === 0 && !text)) return bad("bad input");
   const u = await getUser();
   if (!u) return unauthorized();
   const day = await diary.day(u.id, date);
   const { ids: merged, added, left } = mergeEmotionIds(day?.emotions ?? [], ids);
-  if (added.length) {
+  const before = day?.body?.trim() ?? "";
+  const body = text ? (before ? `${before}\n\n${text}` : text).slice(0, MAX_BODY) : day?.body ?? "";
+  if (added.length || text) {
     const mood = moodFromEmotions(merged);
-    await diary.upsert(u.id, date, mood ? String(mood) : day?.mood ?? null, day?.body ?? "", merged);
+    await diary.upsert(u.id, date, mood ? String(mood) : day?.mood ?? null, body, merged);
   }
-  return NextResponse.json({ added, left, emotions: merged });
+  return NextResponse.json({ added, left, emotions: merged, noted: !!text });
 }

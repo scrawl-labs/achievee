@@ -141,7 +141,9 @@ export default function EmotionBuddy({ value, onChange, onBrowse }: { value: str
 /** What saving to the diary came back with: which words went in and which did not fit, or that it failed. */
 export type SaveResult = { added: string[]; left: string[] } | "error";
 /** On the standalone /bori page: save the chosen words to today's diary (signing in first if needed). */
-export type SaveTo = { signedIn: boolean; run: (ids: string[]) => Promise<SaveResult | void>; initial?: SaveResult };
+export type SaveTo = { signedIn: boolean; run: (ids: string[], note: string) => Promise<SaveResult | void>; initial?: SaveResult };
+/** After the words, on /bori: write a line or two, then Bori asks whether to save it. */
+type Phase = "chat" | "write" | "ask" | "declined";
 
 /**
  * Full-screen: Bori after work, in one of a few places, asks the four "help me find it" questions in a game-style
@@ -161,7 +163,14 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
   const [map, setMap] = useState<MapId>("forest");
   const [saved, setSaved] = useState<SaveResult | null>(save?.initial ?? null);
   const [saving, setSaving] = useState(false);
+  const [phase, setPhase] = useState<Phase>("chat");
+  const [note, setNote] = useState("");
   useEffect(() => { if (save?.initial) setSaved(save.initial); }, [save?.initial]);
+  useEffect(() => {
+    if (!save || saved === null || saved === "error") return;
+    const id = window.setTimeout(() => window.location.assign("/?open=diary"), 3200); // Bori says thanks, then the diary opens
+    return () => window.clearTimeout(id);
+  }, [save, saved]);
   useEffect(() => { setMap(startMap()); }, []);
   const nextMap = () => {
     const m = MAPS[(MAPS.indexOf(map) + 1) % MAPS.length];
@@ -207,8 +216,12 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
     : saved.added.length === 0 ? t("buddy.savedFull")
     : saved.left.length ? t("buddy.savedSome", { n: saved.left.length })
     : t("buddy.saved");
+  const phaseLine = phase === "write" ? t("buddy.writeAsk")
+    : phase === "ask" ? t(save?.signedIn ? "buddy.saveAsk" : "buddy.saveAskGuest")
+    : phase === "declined" ? t("buddy.declined") : null;
   const line =
     savedLine !== null ? savedLine
+    : phaseLine !== null ? phaseLine
     : step === 1 ? t(LINES[map].hi, { name })
     : step === 2 ? `${t(reaction)} ${t("buddy.q2")}`
     : step === 3 ? t("buddy.q3")
@@ -216,7 +229,8 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
     : pickedWord ? (full ? t("buddy.full") : t("buddy.picked", { word: pickedWord[lang][0] }))
     : t(LINES[map].result);
   const face: Face =
-    saved === "error" ? "sad"
+    phase === "write" ? "think" : phase === "ask" || phase === "declined" ? "happy"
+    : saved === "error" ? "sad"
     : saved !== null ? (saved.added.length ? "joy" : "think")
     : step === 5 && pickedWord ? "joy"
     : step === 2 ? (ans.lean === "pos" ? "happy" : ans.lean === "neg" ? "sad" : "think")
@@ -234,13 +248,14 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
     else say({ ...ans, intensity: k as Intensity | "skip" });
   };
   const back = () => { setPicked(null); say(ans.intensity ? { ...ans, intensity: undefined } : ans.energy ? { ...ans, energy: undefined } : ans.focus ? { ...ans, focus: undefined } : {}); };
-  const restart = () => { setPages(1); setPicked(null); setSaved(null); say({}); };
+  const restart = () => { setPages(1); setPicked(null); setSaved(null); setPhase("chat"); setNote(""); say({}); };
+  const goPhase = (p: Phase) => { setPhase(p); setBeat((b) => b + 1); };
   const doSave = async () => {
     if (!save || saving || value.length === 0) return;
     setSaving(true);
     try {
-      const r = await save.run(value);
-      if (r) { setSaved(r); setBeat((b) => b + 1); }
+      const r = await save.run(value, note.trim());
+      if (r) { setPhase("chat"); setSaved(r); setBeat((b) => b + 1); }
     } finally { setSaving(false); }
   };
   const toggle = (id: string) => {
@@ -265,8 +280,8 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
     return () => window.removeEventListener("pointerdown", wake);
   }, [voice]);
 
-  const choices = saved === null && step <= 4 ? OPTS[step - 1] : null;
-  const routeAt = saved !== null ? total + 1 : step;
+  const choices = saved === null && phase === "chat" && step <= 4 ? OPTS[step - 1] : null;
+  const routeAt = saved !== null || phase !== "chat" ? total + 1 : step;
 
   return (
     <div className="bdg bd" ref={root} role="dialog" aria-modal="true" aria-label={t("buddy.start")} tabIndex={-1}>
@@ -287,7 +302,7 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
             <button type="button" aria-pressed={locale === "ko"} className={locale === "ko" ? "on" : ""} onClick={() => setLocale("ko")} lang="ko">한</button>
             <button type="button" aria-pressed={locale === "en"} className={locale === "en" ? "on" : ""} onClick={() => setLocale("en")} lang="en">EN</button>
           </span>
-          {step > 1 && saved === null && <button type="button" className="bd-mini bd-back" onClick={back} aria-label={t("emo.back")}>‹<span className="bd-back-txt"> {t("emo.back")}</span></button>}
+          {step > 1 && saved === null && phase === "chat" && <button type="button" className="bd-mini bd-back" onClick={back} aria-label={t("emo.back")}>‹<span className="bd-back-txt"> {t("emo.back")}</span></button>}
           {!no3d && (
             <button type="button" className="bd-mini bd-place" onClick={nextMap} title={t("buddy.place")} aria-label={`${t("buddy.place")}: ${t(LINES[map].name)}`}>
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -305,7 +320,7 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
       </div>
 
       <div className="bdg-hud">
-        {step === 5 && saved === null && (
+        {step === 5 && saved === null && phase === "chat" && (
           <div className={`bdg-cards${done || pickedWord ? " on" : ""}`}>
             {results.map((w, i) => {
               const on = value.includes(w.id);
@@ -328,13 +343,34 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
               ))}
             </div>
           )}
-          {step === 5 && saved === null && (
+          {step === 5 && saved === null && phase === "chat" && (
             <div className={`bd-choices bd-choices-row${done || pickedWord ? " on" : ""}`} key="c-end">
               {value.length > 0 && (save
-                ? <button type="button" className="bd-choice bd-choice-main" onClick={doSave} disabled={saving}>{t(save.signedIn ? "buddy.saveToday" : "buddy.saveSignup")}</button>
+                ? <button type="button" className="bd-choice bd-choice-main" onClick={() => goPhase("write")}>{t("buddy.donePick")}</button>
                 : <button type="button" className="bd-choice bd-choice-main" onClick={onClose}>{t("buddy.done")}</button>)}
               <button type="button" className="bd-choice" onClick={restart}>{t("buddy.again")}</button>
               {onBrowse && <button type="button" className="bd-choice" onClick={onBrowse}>{t("emo.noneFit")}</button>}
+            </div>
+          )}
+          {phase === "write" && (
+            <div className={`bd-write${done ? " on" : ""}`}>
+              <textarea className="bd-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={2000} rows={4} placeholder={t("buddy.notePh")} aria-label={t("buddy.notePh")} />
+              <div className="bd-choices bd-choices-row on">
+                <button type="button" className="bd-choice bd-choice-main" onClick={() => goPhase("ask")} disabled={!note.trim()}>{t("buddy.noteDone")}</button>
+                <button type="button" className="bd-choice" onClick={() => { setNote(""); goPhase("ask"); }}>{t("buddy.noteSkip")}</button>
+              </div>
+            </div>
+          )}
+          {phase === "ask" && (
+            <div className={`bd-choices bd-choices-row${done ? " on" : ""}`} key="c-ask">
+              <button type="button" className="bd-choice bd-choice-main" onClick={doSave} disabled={saving}>{t(save?.signedIn ? "buddy.saveYes" : "buddy.saveYesGuest")}</button>
+              <button type="button" className="bd-choice" onClick={() => goPhase("declined")}>{t("buddy.saveNo")}</button>
+            </div>
+          )}
+          {phase === "declined" && (
+            <div className={`bd-choices bd-choices-row${done ? " on" : ""}`} key="c-declined">
+              <button type="button" className="bd-choice" onClick={restart}>{t("buddy.again")}</button>
+              <button type="button" className="bd-choice" onClick={onClose}>{t("buddy.leave")}</button>
             </div>
           )}
           {saved !== null && (
