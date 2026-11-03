@@ -4,7 +4,7 @@ import { ZH_LAND } from "./i18n-zh";
 // Landing page copy. Merged into the main dictionary in i18n.ts.
 // Scenes: a log, b calendar, c diary, d spending, e exercise, f stats. Each has an eyebrow (.e), a title (.t) and a description (.d).
 const en = {
-  "land.nav.f": "Features", "land.nav.privacy": "Privacy", "land.bori.e": "Bori", "land.bori.t": "Feelings that are hard to name? Bori asks first", "land.bori.d": "On the subway home, at a rainy bus stop, in the forest or by the sea, Bori asks four small questions and helps you find the word for today's feeling. Write a line or two, and keep it in your diary.", "land.bori.cta": "Talk with Bori", "land.bori.note": "No sign-in needed · about a minute", 
+  "land.nav.f": "Features", "land.nav.privacy": "Privacy", "land.bori.e": "Bori", "land.bori.t": "Feelings that are hard to name? Bori asks first", "land.bori.d": "On the subway home, at a rainy bus stop, in the forest or by the sea, Bori asks four small questions and helps you find the word for today's feeling. Write a line or two, and keep it in your diary.", "land.bori.cta": "Talk with Bori", "land.bori.note": "No sign-in needed, about a minute", 
   "land.a.e": "Log", "land.a.t": "Your whole day on one screen",
   "land.a.d": "Goals, to-dos, events, exercise, spending and your diary.\nFinish your day and watch the flowers bloom.",
   "land.b.e": "Calendar", "land.b.t": "Drag a to-do onto the calendar and it becomes an event",
@@ -19,7 +19,7 @@ const en = {
   "land.f.d": "The feelings you visit most, your lightest day, your mood on exercise days and on other days, all in one place.\nEverything is based on enough records.",
   "land.mk.goal": "Be healthy and happy, no strain", "land.mk.todo1": "Grocery run", "land.mk.todo2": "Reply to a friend",
   "land.mk.event": "Team meeting", "land.mk.diary": "A long day. But I made it.", "land.mk.plan": "Write the proposal", "land.mk.lunch": "Lunch with Jin",
-  "land.hero.sub": "Name your feelings in {n} words, and get to know yourself.\nGoals, to-dos, schedule, workouts, spending: spend your days well and keep track.", "land.more.title": "Plus integrations!", "land.i.gh": "Pull requests, reviews, issues and commits in your day", "land.i.jira": "Issues you finished or created", "land.i.notion": "Pages you created or edited", "land.i.google": "Events and tasks, read-only (optional)",
+  "land.hero.sub": "Name your feelings in {n} words, and get to know yourself.\nGoals, to-dos, schedule, workouts, spending: spend your days well and keep track.", "land.more.title": "Plus integrations", "land.i.gh": "Pull requests, reviews, issues and commits in your day", "land.i.jira": "Issues you finished or created", "land.i.notion": "Pages you created or edited", "land.i.google": "Events and tasks, read-only (optional)",
   "land.m.search": "Search · Ctrl K", "land.m.review": "Weekly review", "land.m.goals": "Day and week goals",
   "land.m.lang": "5 languages", "land.m.pwa": "Install on your phone",
   "land.m.dark": "Dark and light", "land.m.delete": "Delete your data anytime",
@@ -36,7 +36,7 @@ const en = {
 type K = keyof typeof en;
 
 const ko: Record<K, string> = {
-  "land.nav.f": "기능", "land.nav.privacy": "개인정보", "land.bori.e": "보리", "land.bori.t": "말로 하기 어려운 마음, 보리가 먼저 물어봐요", "land.bori.d": "퇴근길 지하철, 비 오는 버스 정류장, 숲, 바닷가. 보리가 네 가지 작은 질문으로 오늘 마음에 맞는 단어를 같이 찾아 줘요. 한두 줄 적어서 일기로 남길 수도 있어요.", "land.bori.cta": "보리랑 얘기해 보기", "land.bori.note": "로그인 없이 · 1분이면 충분해요", 
+  "land.nav.f": "기능", "land.nav.privacy": "개인정보", "land.bori.e": "보리", "land.bori.t": "말로 하기 어려운 마음, 보리가 먼저 물어봐요", "land.bori.d": "퇴근길 지하철, 비 오는 버스 정류장, 숲, 바닷가. 보리가 네 가지 작은 질문으로 오늘 마음에 맞는 단어를 같이 찾아 줘요. 한두 줄 적어서 일기로 남길 수도 있어요.", "land.bori.cta": "보리랑 얘기해 보기", "land.bori.note": "로그인 없이, 1분이면 충분해요", 
   "land.a.e": "기록", "land.a.t": "하루의 모든 기록을 한 화면에",
   "land.a.d": "목표, 할 일, 일정, 운동, 지출, 일기까지.\n일을 다 마치고 꽃을 피워보세요.",
   "land.b.e": "캘린더", "land.b.t": "할 일을 끌어다 놓으면 일정이 돼요",
@@ -51,7 +51,7 @@ const ko: Record<K, string> = {
   "land.f.d": "자주 찾아오는 감정, 가장 가벼운 요일, 운동한 날과 그렇지 않은 날의 마음을 한곳에 모아 보여줘요.\n충분한 기록을 바탕으로 통계를 내어요!",
   "land.mk.goal": "건강하고 즐겁게, 애쓰지 말기", "land.mk.todo1": "장보기", "land.mk.todo2": "친구에게 답장하기",
   "land.mk.event": "팀 미팅", "land.mk.diary": "오늘은 긴 하루였다. 그래도 해냈다.", "land.mk.plan": "기획서 쓰기", "land.mk.lunch": "점심 약속",
-  "land.hero.sub": "감정을 {n}가지 단어로 나눠 적고, 나를 알아가요.\n하루를 알차게 보내고, 목표·할 일·일정·운동·지출까지 기록해요.", "land.more.title": "연동도!", "land.i.gh": "PR, 리뷰, 이슈, 커밋을 하루 기록에", "land.i.jira": "끝낸 이슈와 만든 이슈를", "land.i.notion": "만들고 고친 페이지를", "land.i.google": "일정과 할 일을 읽기 전용으로 (선택)",
+  "land.hero.sub": "감정을 {n}가지 단어로 나눠 적고, 나를 알아가요.\n하루를 알차게 보내고, 목표·할 일·일정·운동·지출까지 기록해요.", "land.more.title": "연동도 돼요", "land.i.gh": "PR, 리뷰, 이슈, 커밋을 하루 기록에", "land.i.jira": "끝낸 이슈와 만든 이슈를", "land.i.notion": "만들고 고친 페이지를", "land.i.google": "일정과 할 일을 읽기 전용으로 (선택)",
   "land.m.search": "검색 · Ctrl K", "land.m.review": "주간 회고", "land.m.goals": "하루·주간 목표",
   "land.m.lang": "5개 언어", "land.m.pwa": "폰에 설치",
   "land.m.dark": "다크·라이트 모드", "land.m.delete": "언제든 데이터 삭제",
@@ -66,7 +66,7 @@ const ko: Record<K, string> = {
 };
 
 const ja: Record<K, string> = {
-  "land.nav.f": "機能", "land.nav.privacy": "プライバシー", "land.bori.e": "ボリ", "land.bori.t": "言葉にしにくい気持ち、ボリが先に聞いてくれます", "land.bori.d": "帰りの地下鉄、雨のバス停、森、海辺。ボリが4つの小さな質問で、今日の気持ちにぴったりの言葉をいっしょに探してくれます。一、二行書いて日記に残すこともできます。", "land.bori.cta": "ボリとお話しする", "land.bori.note": "ログイン不要 · 1分ほど", 
+  "land.nav.f": "機能", "land.nav.privacy": "プライバシー", "land.bori.e": "ボリ", "land.bori.t": "言葉にしにくい気持ち、ボリが先に聞いてくれます", "land.bori.d": "帰りの地下鉄、雨のバス停、森、海辺。ボリが4つの小さな質問で、今日の気持ちにぴったりの言葉をいっしょに探してくれます。一、二行書いて日記に残すこともできます。", "land.bori.cta": "ボリとお話しする", "land.bori.note": "ログイン不要、1分ほど", 
   "land.a.e": "記録", "land.a.t": "一日の記録を、ひとつの画面に",
   "land.a.d": "目標、ToDo、予定、運動、支出、日記まで。\nやり終えて、花を咲かせてみましょう。",
   "land.b.e": "カレンダー", "land.b.t": "ToDoをドラッグすると予定になります",
@@ -81,7 +81,7 @@ const ja: Record<K, string> = {
   "land.f.d": "よく訪れる気持ち、いちばん軽い曜日、運動した日としなかった日の気分をひとつにまとめて見せます。\n十分な記録をもとに統計を出します！",
   "land.mk.goal": "健康で楽しく、頑張りすぎない", "land.mk.todo1": "買い物", "land.mk.todo2": "友だちに返信",
   "land.mk.event": "チームミーティング", "land.mk.diary": "長い一日だった。でもやりきった。", "land.mk.plan": "企画書を書く", "land.mk.lunch": "ランチの約束",
-  "land.hero.sub": "気持ちを{n}の言葉で書き分けて、自分を知ろう。\n一日を充実させて、目標・ToDo・予定・運動・支出まで記録します。", "land.more.title": "連携もあります！", "land.i.gh": "PR、レビュー、課題、コミットを一日の記録に", "land.i.jira": "完了・作成した課題", "land.i.notion": "作成・編集したページ", "land.i.google": "予定とタスクを読み取り専用で（任意）",
+  "land.hero.sub": "気持ちを{n}の言葉で書き分けて、自分を知ろう。\n一日を充実させて、目標・ToDo・予定・運動・支出まで記録します。", "land.more.title": "連携もできます", "land.i.gh": "PR、レビュー、課題、コミットを一日の記録に", "land.i.jira": "完了・作成した課題", "land.i.notion": "作成・編集したページ", "land.i.google": "予定とタスクを読み取り専用で（任意）",
   "land.m.search": "検索 · Ctrl K", "land.m.review": "週間レビュー", "land.m.goals": "日・週の目標",
   "land.m.lang": "5つの言語", "land.m.pwa": "スマホにインストール",
   "land.m.dark": "ダーク・ライトモード", "land.m.delete": "いつでもデータ削除",
@@ -96,7 +96,7 @@ const ja: Record<K, string> = {
 };
 
 const es: Record<K, string> = {
-  "land.nav.f": "Funciones", "land.nav.privacy": "Privacidad", "land.bori.e": "Bori", "land.bori.t": "¿Sentimientos difíciles de nombrar? Bori pregunta primero", "land.bori.d": "En el metro de vuelta, en una parada bajo la lluvia, en el bosque o junto al mar, Bori te hace cuatro preguntas pequeñas y te ayuda a encontrar la palabra para lo que sientes hoy. Escribe una o dos líneas y guárdalas en tu diario.", "land.bori.cta": "Hablar con Bori", "land.bori.note": "Sin registrarte · un minuto", 
+  "land.nav.f": "Funciones", "land.nav.privacy": "Privacidad", "land.bori.e": "Bori", "land.bori.t": "¿Sentimientos difíciles de nombrar? Bori pregunta primero", "land.bori.d": "En el metro de vuelta, en una parada bajo la lluvia, en el bosque o junto al mar, Bori te hace cuatro preguntas pequeñas y te ayuda a encontrar la palabra para lo que sientes hoy. Escribe una o dos líneas y guárdalas en tu diario.", "land.bori.cta": "Hablar con Bori", "land.bori.note": "Sin registrarte, en un minuto", 
   "land.a.e": "Registro", "land.a.t": "Todo tu día en una sola pantalla",
   "land.a.d": "Objetivos, tareas, eventos, ejercicio, gastos y tu diario.\nTermina lo que te propones y haz florecer tus flores.",
   "land.b.e": "Calendario", "land.b.t": "Arrastra una tarea al calendario y se vuelve un evento",
@@ -111,7 +111,7 @@ const es: Record<K, string> = {
   "land.f.d": "Las emociones que más te visitan, tu día más ligero y tu ánimo en días de ejercicio y en los demás, todo en un lugar.\nTodo se basa en suficientes registros.",
   "land.mk.goal": "Estar bien y feliz, sin forzar", "land.mk.todo1": "Hacer la compra", "land.mk.todo2": "Responder a una amiga",
   "land.mk.event": "Reunión de equipo", "land.mk.diary": "Un día largo. Pero lo logré.", "land.mk.plan": "Escribir la propuesta", "land.mk.lunch": "Almuerzo con Jin",
-  "land.hero.sub": "Nombra lo que sientes con {n} palabras y conócete mejor.\nAprovecha tu día y registra metas, tareas, agenda, ejercicio y gastos.", "land.more.title": "¡Y también integraciones!", "land.i.gh": "Pull requests, revisiones, incidencias y commits en tu día", "land.i.jira": "Incidencias que terminaste o creaste", "land.i.notion": "Páginas que creaste o editaste", "land.i.google": "Eventos y tareas, solo lectura (opcional)",
+  "land.hero.sub": "Nombra lo que sientes con {n} palabras y conócete mejor.\nAprovecha tu día y registra metas, tareas, agenda, ejercicio y gastos.", "land.more.title": "Y también integraciones", "land.i.gh": "Pull requests, revisiones, incidencias y commits en tu día", "land.i.jira": "Incidencias que terminaste o creaste", "land.i.notion": "Páginas que creaste o editaste", "land.i.google": "Eventos y tareas, solo lectura (opcional)",
   "land.m.search": "Búsqueda · Ctrl K", "land.m.review": "Revisión semanal", "land.m.goals": "Objetivos del día y la semana",
   "land.m.lang": "5 idiomas", "land.m.pwa": "Instálala en el móvil",
   "land.m.dark": "Modo oscuro y claro", "land.m.delete": "Borra tus datos cuando quieras",

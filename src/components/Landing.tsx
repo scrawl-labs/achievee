@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { signIn } from "next-auth/react";
 import LandingBori from "./LandingBori";
 import { GOOGLE_HL, type Key } from "@/lib/i18n";
@@ -13,6 +13,7 @@ import Summary from "./Summary";
 import Logo from "./Logo";
 import { useI18n } from "./I18n";
 import { GithubMark, JiraMark, NotionMark } from "./WorkList";
+import "./landing.css";
 
 const MON = [1, 2, 3, 4, 5, 6, 0];
 // A made-up month for the hero window (level 0..4, tasks done), Monday first.
@@ -25,19 +26,11 @@ const NAV: { icon: "calendar" | "chart" | "book" | "wallet" | "external"; k: Key
   { icon: "calendar", k: "nav.calendar" }, { icon: "chart", k: "nav.stats" }, { icon: "book", k: "nav.diary" },
   { icon: "wallet", k: "nav.expense" }, { icon: "external", k: "nav.google" },
 ];
-const FLOATERS = [
-  { l: "6%", t: "30%", s: 78, lv: 4, n: 5, r: -10, d: 0 }, { l: "15%", t: "56%", s: 56, lv: 3, n: 4, r: 8, d: 1.2 },
-  { l: "90%", t: "17%", s: 58, lv: 2, n: 3, r: 10, d: 0.6 }, { l: "90%", t: "52%", s: 84, lv: 4, n: 6, r: -8, d: 1.8 },
-];
-const START_FLOATERS = [
-  { l: "7%", t: "22%", s: 70, lv: 4, n: 5, r: -10, d: 0 }, { l: "17%", t: "62%", s: 48, lv: 3, n: 4, r: 8, d: 1 },
-  { l: "84%", t: "20%", s: 56, lv: 2, n: 3, r: 10, d: 0.5 }, { l: "91%", t: "58%", s: 76, lv: 4, n: 6, r: -8, d: 1.6 },
-];
-const INTEGRATIONS: { name: string; tone: string; icon: React.ReactNode; d: Key }[] = [
-  { name: "GitHub", tone: "yellow", icon: <GithubMark size={26} />, d: "land.i.gh" },
-  { name: "Jira", tone: "blue", icon: <JiraMark size={26} />, d: "land.i.jira" },
-  { name: "Notion", tone: "pink", icon: <NotionMark size={26} />, d: "land.i.notion" },
-  { name: "Google Calendar · Tasks", tone: "green", icon: <GCalLogo size={28} />, d: "land.i.google" },
+const INTEGRATIONS: { name: string; icon: React.ReactNode; d: Key }[] = [
+  { name: "GitHub", icon: <GithubMark size={24} />, d: "land.i.gh" },
+  { name: "Jira", icon: <JiraMark size={24} />, d: "land.i.jira" },
+  { name: "Notion", icon: <NotionMark size={24} />, d: "land.i.notion" },
+  { name: "Google Calendar and Tasks", icon: <GCalLogo size={24} />, d: "land.i.google" },
 ];
 const TRUST = ["t1", "t2", "t3", "t4", "t5"] as const;
 const LANDING_BG = "#fbf7f3"; // the page colour: the phone's status bar takes it, so the top of the page does not start with a black strip
@@ -78,7 +71,7 @@ function GridMock() {
         {[9, 10, 11, 12, 13, 14, 15].map((h) => <div key={h}><em>{h}</em></div>)}
         <b className="blk blue" style={{ top: 48 }}>{t("land.mk.event")}<small>10:00</small></b>
         <b className="blk pink" style={{ top: 144 }}>{t("land.mk.lunch")}<small>12:00</small></b>
-        <b className="blk draft" style={{ top: 240 }}><small>14:00 – 15:00</small></b>
+        <b className="blk draft" style={{ top: 240 }}><small>14:00</small></b>
         <span className="ghost">{t("land.mk.plan")}</span>
       </div>
     </div>
@@ -177,10 +170,17 @@ const SCENES = [
 
 export default function Landing() {
   const { t, fmt, locale } = useI18n();
+  const [scene, setScene] = useState(0);
+  const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const go = () => signIn("google", undefined, { hl: GOOGLE_HL[locale] });
   const gbtn = () => (
-    <button className="gbtn" onClick={go}><GoogleG size={18} />{t("login.cta")}</button>
+    <button type="button" className="gbtn" onClick={go}><GoogleG size={18} />{t("login.cta")}</button>
   );
+  const pick = (i: number, focus = false) => {
+    const n = (i + SCENES.length) % SCENES.length;
+    setScene(n);
+    if (focus) tabs.current[n]?.focus();
+  };
 
   // the page is light (cream), so the browser chrome around it must be too; the app's own dark/light colours come back when leaving
   useEffect(() => {
@@ -192,75 +192,77 @@ export default function Landing() {
 
   return (
     <div className="land">
-      <div className="hero">
-        <nav className="topbar">
-          <div className="brand"><Logo height={26} /></div>
-          <div className="topbar-links">
-            <a href="#features">{t("land.nav.f")}</a>
-            <a href="#privacy">{t("land.nav.privacy")}</a>
-          </div>
+      <header className="ld-nav">
+        <div className="brand"><Logo height={26} /></div>
+        <nav className="ld-nav-links" aria-label={t("land.nav.f")}>
+          <a href="#features">{t("land.nav.f")}</a>
+          <a href="#privacy">{t("land.nav.privacy")}</a>
         </nav>
+      </header>
 
-        {FLOATERS.map((f, i) => (
-          <span key={i} className="floater" aria-hidden="true"
-            style={{ left: f.l, top: f.t, width: f.s, height: f.s, transform: `rotate(${f.r}deg)`, animationDelay: `${f.d}s` }}>
-            <Blob level={f.lv} label={f.n} />
-          </span>
-        ))}
-
-        <div className="hero-copy">
-          <h1>{t("login.tagline")}</h1>
+      <section className="ld-hero" aria-labelledby="ld-hero-title">
+        <div className="ld-hero-copy">
+          <h1 id="ld-hero-title">{t("login.tagline")}</h1>
           <p>{t("land.hero.sub", { n: WORDS.length })}</p>
-          {gbtn()}
-          <a className="try-bori" href="/bori"><img src="/buddy/bori.png" alt="" width={34} height={34} />{t("buddy.tryCta")}<span aria-hidden="true">→</span></a>
+          <div className="ld-hero-actions">
+            {gbtn()}
+            <a className="try-bori" href="/bori"><img src="/buddy/bori.png" alt="" width={34} height={34} />{t("buddy.tryCta")}</a>
+          </div>
         </div>
 
-        <div className="win" aria-hidden="true">
-          <div className="win-bar"><i /><i /><i /></div>
-          <div className="win-body">
-            <aside className="win-side">
+        <div className="ld-hero-stage" aria-hidden="true">
+          <div className="ld-app">
+            <aside className="ld-app-side">
               {NAV.map((n, i) => (
                 <span key={n.k} className={i === 0 ? "on" : ""}><Icon name={n.icon} size={16} />{t(n.k)}</span>
               ))}
             </aside>
-            <div className="win-main">
+            <div className="ld-app-main">
               <h4>{fmt.monthYear("2026-10")}</h4>
               <Summary items={[[t("cal.rate"), "86%"], [t("cal.done"), "42 / 49"], [t("cal.streak"), t("cal.days", { n: 5 })]]} />
-              <div className="win-head">{MON.map((d) => <span key={d}>{fmt.weekdayShort(d)}</span>)}</div>
-              <div className="win-grid">
+              <div className="ld-app-head">{MON.map((d) => <span key={d}>{fmt.weekdayShort(d)}</span>)}</div>
+              <div className="ld-app-grid">
                 {MONTH.map(([lv, n], i) => <span key={i}><Blob level={lv} label={lv ? n : ""} /></span>)}
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       <LandingBori />
 
-      <section id="features" className="scenes">
+      <section id="features" className="ld-feats">
+        <div className="ld-tabs" role="tablist" aria-label={t("land.nav.f")}>
+          {SCENES.map((s, i) => (
+            <button key={s.k} ref={(el) => { tabs.current[i] = el; }} type="button" role="tab" id={`ld-tab-${s.k}`} aria-controls={`ld-panel-${s.k}`}
+              aria-selected={i === scene} tabIndex={i === scene ? 0 : -1} onClick={() => pick(i)}
+              onKeyDown={(e) => { if (e.key === "ArrowRight") pick(i + 1, true); if (e.key === "ArrowLeft") pick(i - 1, true); }}>
+              {t(`land.${s.k}.e` as Key)}
+            </button>
+          ))}
+        </div>
         {SCENES.map((s, i) => (
-          <article key={s.k} className={`scene${i % 2 ? " flip" : ""}`}>
-            <div className="scene-copy">
-              <span className="eyebrow">{t(`land.${s.k}.e` as Key)}</span>
+          <article key={s.k} role="tabpanel" id={`ld-panel-${s.k}`} aria-labelledby={`ld-tab-${s.k}`} hidden={i !== scene} className="ld-scene">
+            <div className="ld-scene-copy">
               <h2>{t(`land.${s.k}.t` as Key)}</h2>
               <p>{t(`land.${s.k}.d` as Key, { n: WORDS.length })}</p>
             </div>
-            <div className={`stage ${s.tone}`} aria-hidden="true">{s.mock}</div>
+            <div className={`ld-stage ${s.tone}`} aria-hidden="true">{s.mock}</div>
           </article>
         ))}
       </section>
 
-      <section className="integsec">
-        <h2>{t("land.more.title")}</h2>
-        <ul className="integ">
+      <section className="ld-integ" aria-labelledby="ld-integ-title">
+        <h2 id="ld-integ-title">{t("land.more.title")}</h2>
+        <ul>
           {INTEGRATIONS.map((x) => (
-            <li key={x.name}><span className={`logo ${x.tone}`} aria-hidden="true">{x.icon}</span><b>{x.name}</b><small>{t(x.d)}</small></li>
+            <li key={x.name}><span className="ld-integ-logo" aria-hidden="true">{x.icon}</span><b>{x.name}</b><span>{t(x.d)}</span></li>
           ))}
         </ul>
       </section>
 
-      <section id="privacy" className="trustsec">
-        <h2>{t("land.trust.title")}</h2>
+      <section id="privacy" className="ld-trust" aria-labelledby="ld-trust-title">
+        <h2 id="ld-trust-title">{t("land.trust.title")}</h2>
         <dl>
           {TRUST.map((k) => (
             <div key={k}><dt>{t(`land.${k}.t` as Key)}</dt><dd>{t(`land.${k}.d` as Key)}</dd></div>
@@ -268,15 +270,11 @@ export default function Landing() {
         </dl>
       </section>
 
-      <section className="start">
-        {START_FLOATERS.map((f, i) => (
-          <span key={i} className="floater" aria-hidden="true"
-            style={{ left: f.l, top: f.t, width: f.s, height: f.s, transform: `rotate(${f.r}deg)`, animationDelay: `${f.d}s` }}>
-            <Blob level={f.lv} label={f.n} />
-          </span>
-        ))}
-        <h2>{t("land.final.title")}</h2>
-        <p>{t("land.final.sub")}</p>
+      <section className="ld-start" aria-labelledby="ld-start-title">
+        <div>
+          <h2 id="ld-start-title">{t("land.final.title")}</h2>
+          <p>{t("land.final.sub")}</p>
+        </div>
         {gbtn()}
       </section>
 
