@@ -634,7 +634,13 @@ select {
 .bd-mini:hover { background: var(--bd-box); }
 .bd-voice, .bdg-close, .bd-place { padding: 0; width: 40px; }
 .bd-mini { white-space: nowrap; flex: none; }
-@media (max-width: 420px) { .bdg-top .bd-mini { height: 36px; min-width: 36px; } .bd-voice, .bdg-close, .bd-place { width: 36px; } .bd-route { gap: 9px; padding: 10px 11px; } .bd-route i { width: 10px; height: 10px; } .bdg-right { gap: 6px; } }
+/* Korean / English switch */
+.bd-lang { display: inline-flex; flex: none; padding: 3px; margin: 0; height: 40px; border-radius: 999px; align-items: center;
+  background: color-mix(in oklab, var(--bd-box) 88%, transparent); box-shadow: 0 2px 0 rgba(120, 90, 50, .18), 0 6px 14px -6px rgba(60, 40, 10, .3);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.bd-lang button { height: 34px; min-width: 36px; padding: 0 9px; border-radius: 999px; font-size: 13px; font-weight: 800; color: color-mix(in oklab, var(--bd-ink) 55%, transparent); transition: background .15s, color .15s; }
+.bd-lang button.on { background: var(--bd-tag); color: #fff; }
+.bd-lang button:not(.on):hover { color: var(--bd-ink); }
 .bd-voice { color: color-mix(in oklab, var(--bd-ink) 55%, transparent); }
 .bd-voice.on { color: var(--bd-key); }
 /* progress: one stop per question, plus the end */
@@ -757,6 +763,18 @@ select {
   .bd-text { font-size: 17px; }
   .bd-choice { font-size: 15px; min-height: 44px; }
   .bd-card { flex-basis: 190px; }
+}
+@media (max-width: 420px) {
+  .bdg-top { left: 10px; right: 10px; }
+  .bdg-top .bd-mini { height: 36px; min-width: 36px; }
+  .bd-voice, .bdg-close, .bd-place, .bd-back { width: 36px; padding: 0; }
+  .bd-back-txt { display: none; }
+  .bd-route { gap: 6px; padding: 10px 9px; }
+  .bd-route::before { left: 12px; right: 12px; }
+  .bd-route i { width: 9px; height: 9px; }
+  .bdg-right { gap: 5px; }
+  .bd-lang { height: 36px; }
+  .bd-lang button { height: 30px; min-width: 30px; padding: 0 7px; font-size: 12px; }
 }
 
 /* integrations */

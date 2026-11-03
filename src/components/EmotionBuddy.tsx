@@ -143,7 +143,7 @@ export default function EmotionBuddy({ value, onChange, onBrowse }: { value: str
  * speech box, then offers words that might fit. Same questions and ranking as before; only the way they are asked changed.
  */
 function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; onChange: (v: string[]) => void; onClose: () => void; onBrowse: () => void }) {
-  const { t, locale } = useI18n();
+  const { t, locale, setLocale } = useI18n();
   const lang = emoLang(locale);
   const { data: session } = useSession();
   const root = useRef<HTMLDivElement>(null);
@@ -258,7 +258,11 @@ function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; on
           {Array.from({ length: total + 1 }, (_, i) => <i key={i} className={i < step - 1 ? "on" : i === step - 1 ? "now" : ""} />)}
         </span>
         <span className="bdg-right">
-          {step > 1 && <button type="button" className="bd-mini" onClick={back}>‹ {t("emo.back")}</button>}
+          <span className="bd-lang" role="group" aria-label={t("account.language")}>
+            <button type="button" aria-pressed={locale === "ko"} className={locale === "ko" ? "on" : ""} onClick={() => setLocale("ko")} lang="ko">한</button>
+            <button type="button" aria-pressed={locale === "en"} className={locale === "en" ? "on" : ""} onClick={() => setLocale("en")} lang="en">EN</button>
+          </span>
+          {step > 1 && <button type="button" className="bd-mini bd-back" onClick={back} aria-label={t("emo.back")}>‹<span className="bd-back-txt"> {t("emo.back")}</span></button>}
           {!no3d && (
             <button type="button" className="bd-mini bd-place" onClick={nextMap} title={t("buddy.place")} aria-label={`${t("buddy.place")}: ${t(LINES[map].name)}`}>
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
