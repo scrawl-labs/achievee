@@ -1,7 +1,7 @@
 /**
- * Bori, an original, slightly tired office-worker creature: one soft sculpted body (built from a signed distance
- * field and shrink-wrapped into a single smooth mesh), a face painted onto the surface so it can change expression,
- * a loosened polka-dot tie, a shirt collar and a briefcase.
+ * Bori, an original little office-worker creature: one soft sculpted body (built from a signed distance
+ * field and shrink-wrapped into a single smooth mesh), a face painted onto the surface so it can change expression
+ * (small bean eyes, rosy cheeks, a tiny mouth), and a briefcase.
  */
 import * as THREE from "three";
 import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
@@ -132,213 +132,83 @@ function buildFacePatch(body: THREE.BufferGeometry) {
 export type FaceState = { face: Face; blink: number; talk: number; look: number };
 
 const INK = "#2b2238";
-function lidPath(g: CanvasRenderingContext2D, cx: number, cy: number, rx: number, ry: number, close: number, tilt: number, side: number) {
-  // the upper lid is a straight-ish line that comes down over the eye; `close` 0 = wide open, 1 = shut
-  const top = cy - ry, bottom = cy + ry;
-  const ly = top + (bottom - top) * close;
-  const tl = tilt * side * ry * 0.6;
-  return { inner: ly - tl, outer: ly + tl };
+
+function bean(g: CanvasRenderingContext2D, x: number, y: number, rx: number, ry: number, shine = 1) {
+  g.fillStyle = INK; g.beginPath(); g.ellipse(X(x), Y(y), U(rx), U(ry), 0, 0, Math.PI * 2); g.fill();
+  if (!shine) return;
+  g.fillStyle = "#fff";
+  g.beginPath(); g.arc(X(x + rx * 0.32), Y(y + ry * 0.36), U(rx * 0.34 * shine), 0, Math.PI * 2); g.fill();
+}
+function stroke(g: CanvasRenderingContext2D, w: number, draw: () => void, col = INK) {
+  g.strokeStyle = col; g.lineWidth = U(w); g.lineCap = "round"; g.lineJoin = "round";
+  g.beginPath(); draw(); g.stroke();
 }
 
-/** Draws Bori's face for one moment into the canvas. */
+/** Draws Bori's face for one moment: small bean eyes, rosy cheeks, a tiny mouth. */
 export function paintFace(g: CanvasRenderingContext2D, s: FaceState) {
   g.clearRect(0, 0, FW, FH);
-  g.lineCap = "round"; g.lineJoin = "round";
   const happy = s.face === "happy" || s.face === "joy";
-  const eyeY = 1.52, eyeX = 0.3;
+  const EY = 1.5, EX = 0.25, MY = 1.36;
 
   // cheeks
-  const blush = s.face === "sad" ? 0.12 : happy ? 0.45 : 0.22;
+  const blush = s.face === "sad" ? 0.38 : happy ? 0.62 : 0.5;
   for (const side of [-1, 1]) {
-    const gx = X(side * 0.5), gy = Y(1.33);
-    const gr = g.createRadialGradient(gx, gy, 0, gx, gy, U(0.14));
-    gr.addColorStop(0, `rgba(255,140,160,${blush})`); gr.addColorStop(1, "rgba(255,140,160,0)");
-    g.fillStyle = gr; g.beginPath(); g.ellipse(gx, gy, U(0.16), U(0.11), 0, 0, Math.PI * 2); g.fill();
+    const gx = X(side * 0.44), gy = Y(1.36);
+    const gr = g.createRadialGradient(gx, gy, 0, gx, gy, U(0.1));
+    gr.addColorStop(0, `rgba(255,135,160,${blush})`); gr.addColorStop(1, "rgba(255,135,160,0)");
+    g.fillStyle = gr; g.beginPath(); g.ellipse(gx, gy, U(0.12), U(0.075), 0, 0, Math.PI * 2); g.fill();
   }
 
+  // eyes
   for (const side of [-1, 1]) {
-    const cx = X(side * eyeX), cy = Y(eyeY);
-    const rx = U(0.15), ry = U(0.11);
+    const cx = side * EX + s.look * 0.008;
     if (happy) {
-      // happy: closed, upward-curving eyes
-      g.strokeStyle = INK; g.lineWidth = U(0.03);
-      g.beginPath(); g.moveTo(cx - rx * 0.9, cy + ry * 0.35); g.quadraticCurveTo(cx, cy - ry * 1.15, cx + rx * 0.9, cy + ry * 0.35); g.stroke();
-      continue;
+      // ^ ^
+      stroke(g, 0.02, () => { g.moveTo(X(cx - 0.05), Y(EY - 0.01)); g.quadraticCurveTo(X(cx), Y(EY + 0.06), X(cx + 0.05), Y(EY - 0.01)); });
+    } else if (s.blink > 0.5) {
+      stroke(g, 0.018, () => { g.moveTo(X(cx - 0.045), Y(EY)); g.quadraticCurveTo(X(cx), Y(EY - 0.02), X(cx + 0.045), Y(EY)); });
+    } else if (s.face === "sad") {
+      // glossy, a bit bigger, with a line of tears along the bottom
+      const ry = 0.07 * (1 - s.blink * 0.8);
+      bean(g, cx, EY - 0.005, 0.06, ry, 0);
+      g.fillStyle = "#fff";
+      g.beginPath(); g.arc(X(cx + 0.02), Y(EY + 0.02), U(0.022), 0, Math.PI * 2); g.fill();
+      g.beginPath(); g.arc(X(cx - 0.022), Y(EY - 0.025), U(0.011), 0, Math.PI * 2); g.fill();
+      stroke(g, 0.012, () => { g.moveTo(X(cx - 0.06), Y(EY - 0.065)); g.quadraticCurveTo(X(cx), Y(EY - 0.08), X(cx + 0.06), Y(EY - 0.065)); }, "rgba(140,200,255,.95)");
+      // worried brows, inner ends up
+      stroke(g, 0.014, () => { g.moveTo(X(cx + side * 0.05), Y(EY + 0.1)); g.lineTo(X(cx - side * 0.04), Y(EY + 0.13)); }, "#3d4a78");
+    } else {
+      const ry = 0.062 * (1 - s.blink * 0.85);
+      const up = s.face === "think" ? 0.012 : 0;
+      bean(g, cx + (s.face === "think" ? 0.012 : 0), EY + up, 0.05, ry);
+      if (s.face === "think" && side === 1) stroke(g, 0.014, () => { g.moveTo(X(cx - 0.045), Y(EY + 0.11)); g.lineTo(X(cx + 0.045), Y(EY + 0.125)); }, "#3d4a78");
     }
-    // how far the lid is down: tired by default
-    const base = s.face === "sad" ? 0.3 : s.face === "think" ? (side === 1 ? 0.25 : 0.42) : 0.44;
-    const close = Math.min(1, base + (1 - base) * s.blink);
-    const tilt = s.face === "sad" ? -0.55 : s.face === "think" && side === 1 ? 0.3 : 0.25;
-    const { inner, outer } = lidPath(g, cx, cy, rx, ry, close, tilt, side);
-    const innerX = cx - side * rx * 1.1, outerX = cx + side * rx * 1.1;
-    // eye white, only below the lid line (the skin itself is the lid)
-    g.save();
-    g.beginPath(); g.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); g.clip();
-    g.beginPath(); g.moveTo(innerX, inner); g.lineTo(outerX, outer); g.lineTo(outerX, cy + ry * 2); g.lineTo(innerX, cy + ry * 2); g.closePath(); g.clip();
-    const wg = g.createLinearGradient(0, cy - ry, 0, cy + ry);
-    wg.addColorStop(0, "#dfe3ef"); wg.addColorStop(1, "#ffffff");
-    g.fillStyle = wg; g.fillRect(cx - rx, cy - ry, rx * 2, ry * 2);
-    // pupil: small, a little low, slightly looking sideways
-    const pxo = cx + (s.face === "think" ? U(0.035) : U(0.012) * -side) + s.look * U(0.02);
-    const pyo = cy + ry * (s.face === "think" ? -0.05 : 0.22);
-    const pr = s.face === "sad" ? 1.35 : 1;
-    g.fillStyle = INK; g.beginPath(); g.ellipse(pxo, pyo, U(0.048) * pr, U(0.054) * pr, 0, 0, Math.PI * 2); g.fill();
-    g.fillStyle = "#fff"; g.beginPath(); g.arc(pxo + U(0.015), pyo - U(0.02), U(0.014), 0, Math.PI * 2); g.fill();
-    if (s.face === "sad") { g.beginPath(); g.arc(pxo + U(0.02), pyo - U(0.026), U(0.02), 0, Math.PI * 2); g.fill(); g.beginPath(); g.arc(pxo - U(0.022), pyo + U(0.024), U(0.01), 0, Math.PI * 2); g.fill(); }
-    // a soft shadow under the lid
-    g.strokeStyle = "rgba(60,50,90,.28)"; g.lineWidth = U(0.03);
-    g.beginPath(); g.moveTo(innerX, inner); g.lineTo(outerX, outer); g.stroke();
+  }
+
+  // mouth
+  const open = s.face === "joy" ? 1 : s.talk;
+  if (open > 0.15) {
+    // a small open mouth with a tongue
+    const w = 0.04 + open * 0.012, h = 0.022 + open * 0.03;
+    g.fillStyle = "#5b2240";
+    g.beginPath(); g.ellipse(X(0), Y(MY - h * 0.25), U(w), U(h), 0, 0, Math.PI * 2); g.fill();
+    g.save(); g.clip();
+    g.fillStyle = "#ff7d93"; g.beginPath(); g.ellipse(X(0), Y(MY - h * 0.95), U(w * 0.75), U(h * 0.55), 0, 0, Math.PI * 2); g.fill();
     g.restore();
-    // eye outline and the lid line
-    g.strokeStyle = INK; g.lineWidth = U(0.016);
-    g.beginPath(); g.ellipse(cx, cy, rx, ry, 0, Math.asin(Math.max(-1, Math.min(1, (Math.max(inner, outer) - cy) / ry))), Math.PI - Math.asin(Math.max(-1, Math.min(1, (Math.max(inner, outer) - cy) / ry)))); g.stroke();
-    g.lineWidth = U(0.024);
-    g.beginPath(); g.moveTo(innerX + side * rx * 0.12, inner); g.lineTo(outerX - side * rx * 0.05, outer); g.stroke();
-    // tired bags under the eyes
-    g.strokeStyle = "rgba(70,60,120,.35)"; g.lineWidth = U(0.012);
-    g.beginPath(); g.ellipse(cx, cy + ry * 0.55, rx * 0.8, ry * 0.85, 0, Math.PI * 0.2, Math.PI * 0.8); g.stroke();
-    // brows for worried / thinking
-    if (s.face === "sad" || s.face === "think") {
-      g.strokeStyle = "#3d4a78"; g.lineWidth = U(0.026);
-      if (s.face === "sad") {
-        // worried: the inner ends go up
-        g.beginPath(); g.moveTo(cx - side * rx * 0.75, cy - ry * 2.05); g.quadraticCurveTo(cx - side * rx * 0.1, cy - ry * 1.55, cx + side * rx * 0.85, cy - ry * 1.25); g.stroke();
-      } else {
-        const lift = side === 1 ? ry * 0.6 : 0;
-        g.beginPath(); g.moveTo(cx - rx * 0.8, cy - ry * 1.45 - lift); g.quadraticCurveTo(cx, cy - ry * 1.8 - lift, cx + rx * 0.8, cy - ry * 1.5 - lift); g.stroke();
-      }
-    }
+    stroke(g, 0.012, () => g.ellipse(X(0), Y(MY - h * 0.25), U(w), U(h), 0, 0, Math.PI * 2));
+  } else if (s.face === "sad") {
+    // wobbly "uuung"
+    stroke(g, 0.016, () => { g.moveTo(X(-0.05), Y(MY - 0.005)); g.bezierCurveTo(X(-0.03), Y(MY + 0.015), X(-0.015), Y(MY - 0.02), X(0), Y(MY)); g.bezierCurveTo(X(0.015), Y(MY + 0.02), X(0.03), Y(MY - 0.02), X(0.05), Y(MY)); });
+  } else if (s.face === "think") {
+    stroke(g, 0.016, () => { g.moveTo(X(-0.035), Y(MY)); g.lineTo(X(0.04), Y(MY + 0.012)); });
+  } else {
+    // ω
+    const k = happy ? 1.25 : 1;
+    stroke(g, 0.016, () => { g.moveTo(X(-0.05 * k), Y(MY)); g.quadraticCurveTo(X(-0.025 * k), Y(MY - 0.04 * k), X(0), Y(MY - 0.005)); g.quadraticCurveTo(X(0.025 * k), Y(MY - 0.04 * k), X(0.05 * k), Y(MY)); });
   }
-
-  // the mouth
-  const mx = X(0), my = Y(1.28);
-  const mw = U(s.face === "joy" ? 0.36 : 0.32), mh = U(0.085);
-  const open = s.face === "joy" ? 1 : happy ? 0.7 : s.talk;
-  g.lineWidth = U(0.016); g.strokeStyle = INK;
-  if (s.face === "sad" && open < 0.2) {
-    // a small wobbly frown
-    g.lineWidth = U(0.02);
-    g.beginPath(); g.moveTo(mx - mw * 0.35, my + mh * 0.5); g.bezierCurveTo(mx - mw * 0.15, my - mh * 0.2, mx + mw * 0.15, my - mh * 0.2, mx + mw * 0.35, my + mh * 0.5); g.stroke();
-    return;
-  }
-  if (s.face === "think" && open < 0.2) {
-    g.lineWidth = U(0.02);
-    g.beginPath(); g.moveTo(mx - mw * 0.3, my); g.quadraticCurveTo(mx, my + mh * 0.15, mx + mw * 0.35, my - mh * 0.25); g.stroke();
-    return;
-  }
-  // the gritted-teeth grimace; when talking or happy the jaw opens
-  const h = mh * (1 + open * (happy ? 0.9 : 1.2));
-  const top = my - mh / 2 - (happy ? mh * 0.2 : 0);
-  const smile = happy ? mh * 0.9 : -mh * 0.12;
-  const shape = () => {
-    g.beginPath();
-    g.moveTo(mx - mw / 2, top + (happy ? 0 : mh * 0.1));
-    g.bezierCurveTo(mx - mw / 4, top - smile * 0.3, mx + mw / 4, top - smile * 0.3, mx + mw / 2, top + (happy ? 0 : mh * 0.1));
-    g.bezierCurveTo(mx + mw / 2 + mh * 0.25, top + h * 0.5, mx + mw / 2, top + h + smile * 0.4, mx + mw * 0.35, top + h + smile * 0.5);
-    g.bezierCurveTo(mx, top + h + smile, mx, top + h + smile, mx - mw * 0.35, top + h + smile * 0.5);
-    g.bezierCurveTo(mx - mw / 2, top + h + smile * 0.4, mx - mw / 2 - mh * 0.25, top + h * 0.5, mx - mw / 2, top + (happy ? 0 : mh * 0.1));
-    g.closePath();
-  };
-  shape();
-  g.fillStyle = "#5b2240"; g.fill();
-  g.save(); shape(); g.clip();
-  // tongue
-  if (open > 0.25) { g.fillStyle = "#ff7d93"; g.beginPath(); g.ellipse(mx, top + h + smile * 0.6, mw * 0.28, h * 0.42, 0, 0, Math.PI * 2); g.fill(); }
-  // teeth: top row, and the bottom row when the jaw is closed
-  const teeth = (y0: number, y1: number, n: number) => {
-    g.fillStyle = "#fffdf6"; g.fillRect(mx - mw, y0, mw * 2, y1 - y0);
-    g.strokeStyle = "rgba(90,70,110,.55)"; g.lineWidth = U(0.007);
-    for (let i = 1; i < n; i++) { const x = mx - mw / 2 + (mw * i) / n; g.beginPath(); g.moveTo(x, y0); g.lineTo(x, y1); g.stroke(); }
-  };
-  const gap = h - mh;
-  teeth(top - mh, top + mh * 0.5 + (happy ? mh * 0.2 : 0), happy ? 6 : 7);
-  if (!happy) teeth(top + mh * 0.5 + gap, top + h + mh, 7);
-  g.restore();
-  shape(); g.strokeStyle = INK; g.lineWidth = U(0.017); g.stroke();
-  if (!happy && open < 0.15) { g.strokeStyle = "rgba(90,70,110,.7)"; g.lineWidth = U(0.008); g.beginPath(); g.moveTo(mx - mw / 2 + U(0.01), top + mh * 0.52); g.lineTo(mx + mw / 2 - U(0.01), top + mh * 0.52); g.stroke(); }
 }
 
-/* ---------- tie, collar, briefcase ---------- */
-function dotsTexture() {
-  const c = document.createElement("canvas"); c.width = c.height = 128;
-  const g = c.getContext("2d")!;
-  g.fillStyle = "#33416e"; g.fillRect(0, 0, 128, 128);
-  g.fillStyle = "#f08a4b";
-  for (const [x, y] of [[32, 32], [96, 96]] as const) { g.beginPath(); g.arc(x, y, 15, 0, Math.PI * 2); g.fill(); }
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(7, 7); t.anisotropy = 4;
-  return t;
-}
-
-/** Bends a flat (x, y) piece onto the front of the body, `lift` above the skin. */
-function conform(geo: THREE.BufferGeometry, baseY: number, lift: number, curl = 0) {
-  const pos = geo.getAttribute("position") as THREE.BufferAttribute;
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i), y = pos.getY(i) + baseY, z = pos.getZ(i);
-    const fz = frontZ(x, y);
-    pos.setXYZ(i, x, y, fz + lift + z + curl * (baseY - y) * (baseY - y));
-  }
-  const merged = mergeVertices(geo, 1e-4);
-  merged.computeVertexNormals();
-  return merged;
-}
-
-function buildTie(mat: THREE.Material, knotMat: THREE.Material) {
-  const blade = new THREE.Shape();
-  blade.moveTo(-0.055, 0); blade.lineTo(0.055, 0); blade.lineTo(0.13, -0.5); blade.lineTo(0, -0.63); blade.lineTo(-0.13, -0.5); blade.closePath();
-  const bg = new THREE.ExtrudeGeometry(blade, { depth: 0.015, bevelEnabled: true, bevelThickness: 0.012, bevelSize: 0.012, bevelSegments: 3, curveSegments: 4, steps: 1 });
-  // subdivide by re-sampling along y so it can bend over the belly
-  const tie = new THREE.Group();
-  const bladeMesh = new THREE.Mesh(conform(tessellate(bg, 0.03), 1.04, 0.015), mat);
-  const knot = new THREE.Shape();
-  knot.moveTo(-0.085, 0.05); knot.lineTo(0.085, 0.05); knot.lineTo(0.055, -0.07); knot.lineTo(-0.055, -0.07); knot.closePath();
-  const kg = new THREE.ExtrudeGeometry(knot, { depth: 0.03, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.015, bevelSegments: 3, curveSegments: 4 });
-  const knotMesh = new THREE.Mesh(conform(tessellate(kg, 0.03), 1.04, 0.03), knotMat);
-  bladeMesh.castShadow = knotMesh.castShadow = true;
-  tie.add(bladeMesh, knotMesh);
-  return tie;
-}
-/** Splits long triangles so a flat piece can follow a curved surface. */
-function tessellate(geo: THREE.BufferGeometry, maxEdge: number) {
-  let g = geo.index ? geo.toNonIndexed() : geo;
-  for (let pass = 0; pass < 6; pass++) {
-    const p = g.getAttribute("position"), uv = g.getAttribute("uv");
-    const P: number[] = [], T: number[] = [];
-    let split = false;
-    const v = (i: number) => new THREE.Vector3(p.getX(i), p.getY(i), p.getZ(i));
-    const w = (i: number) => new THREE.Vector2(uv.getX(i), uv.getY(i));
-    for (let i = 0; i < p.count; i += 3) {
-      const a = v(i), b = v(i + 1), c = v(i + 2), ta = w(i), tb = w(i + 1), tc = w(i + 2);
-      const ab = a.distanceTo(b), bc = b.distanceTo(c), ca = c.distanceTo(a);
-      const m = Math.max(ab, bc, ca);
-      const push = (...vs: [THREE.Vector3, THREE.Vector2][]) => vs.forEach(([q, t]) => { P.push(q.x, q.y, q.z); T.push(t.x, t.y); });
-      if (m <= maxEdge) { push([a, ta], [b, tb], [c, tc]); continue; }
-      split = true;
-      if (m === ab) { const d = a.clone().lerp(b, 0.5), td = ta.clone().lerp(tb, 0.5); push([a, ta], [d, td], [c, tc], [d, td], [b, tb], [c, tc]); }
-      else if (m === bc) { const d = b.clone().lerp(c, 0.5), td = tb.clone().lerp(tc, 0.5); push([a, ta], [b, tb], [d, td], [a, ta], [d, td], [c, tc]); }
-      else { const d = c.clone().lerp(a, 0.5), td = tc.clone().lerp(ta, 0.5); push([a, ta], [b, tb], [d, td], [d, td], [b, tb], [c, tc]); }
-    }
-    g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.Float32BufferAttribute(P, 3));
-    g.setAttribute("uv", new THREE.Float32BufferAttribute(T, 2));
-    if (!split) break;
-  }
-  return g;
-}
-
-function buildCollar(mat: THREE.Material) {
-  const group = new THREE.Group();
-  for (const side of [-1, 1]) {
-    const s = new THREE.Shape();
-    s.moveTo(0, 0.06); s.lineTo(side * 0.2, 0.08); s.lineTo(side * 0.13, -0.1); s.closePath();
-    const g = new THREE.ExtrudeGeometry(s, { depth: 0.01, bevelEnabled: true, bevelThickness: 0.01, bevelSize: 0.01, bevelSegments: 2 });
-    const m = new THREE.Mesh(conform(tessellate(g, 0.03), 1.04, 0.012), mat);
-    m.castShadow = true;
-    group.add(m);
-  }
-  return group;
-}
-
+/* ---------- briefcase ---------- */
 function buildBriefcase() {
   const leather = new THREE.MeshPhysicalMaterial({ color: "#c9772f", roughness: 0.45, clearcoat: 0.35, clearcoatRoughness: 0.4, sheen: 0.3 });
   const dark = new THREE.MeshPhysicalMaterial({ color: "#7a431a", roughness: 0.55 });
@@ -384,13 +254,6 @@ export function buildBori() {
   face.renderOrder = 2;
   bodyGroup.add(face);
 
-  const tieTex = dotsTexture();
-  const tieMat = new THREE.MeshPhysicalMaterial({ map: tieTex, roughness: 0.35, sheen: 0.8, sheenColor: new THREE.Color("#8fa4ff"), clearcoat: 0.2 });
-  const tie = buildTie(tieMat, tieMat);
-  bodyGroup.add(tie);
-  const collar = buildCollar(new THREE.MeshPhysicalMaterial({ color: "#fbfbff", roughness: 0.6, sheen: 0.4 }));
-  bodyGroup.add(collar);
-
   // the briefcase hangs from the right hand and swings a little
   const hand = new THREE.Group();
   hand.position.set(1.1, 0.6, 0.26);
@@ -409,5 +272,5 @@ export function buildBori() {
   };
   setFace({ face: "idle", blink: 0, talk: 0, look: 0 });
 
-  return { root, bodyGroup, body, hand, briefcase, tie, setFace };
+  return { root, bodyGroup, body, hand, briefcase, setFace };
 }
