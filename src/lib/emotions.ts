@@ -491,5 +491,18 @@ export const wordsOfFamily = (family: string) => WORDS.filter((w) => w.family ==
 /** The word's display text in the given language (falls back to the id for unknown/removed words). */
 export const wordText = (id: string, lang: EmoLang) => byId.get(id)?.[lang][0] ?? id;
 /** Keep only known ids, unique, at most MAX_EMOTIONS. */
+/**
+ * Adds new emotion words to a day that may already have some: the day's own words stay first, new ones fill the
+ * free places (up to MAX_EMOTIONS). `added` are the ones that went in, `left` the ones that did not fit.
+ */
+export function mergeEmotionIds(existing: string[], incoming: string[]): { ids: string[]; added: string[]; left: string[] } {
+  const ids = [...existing];
+  const added: string[] = [], left: string[] = [];
+  for (const id of incoming) {
+    if (ids.includes(id)) continue;
+    if (ids.length < MAX_EMOTIONS) { ids.push(id); added.push(id); } else left.push(id);
+  }
+  return { ids, added, left };
+}
 export const cleanEmotionIds = (ids: unknown): string[] =>
   Array.isArray(ids) ? [...new Set(ids.filter((i): i is string => typeof i === "string" && WORD_IDS.has(i)))].slice(0, MAX_EMOTIONS) : [];

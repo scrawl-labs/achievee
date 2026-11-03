@@ -138,11 +138,16 @@ export default function EmotionBuddy({ value, onChange, onBrowse }: { value: str
   );
 }
 
+/** What saving to the diary came back with: which words went in and which did not fit, or that it failed. */
+export type SaveResult = { added: string[]; left: string[] } | "error";
+/** On the standalone /bori page: save the chosen words to today's diary (signing in first if needed). */
+export type SaveTo = { signedIn: boolean; run: (ids: string[]) => Promise<SaveResult | void>; initial?: SaveResult };
+
 /**
  * Full-screen: Bori after work, in one of a few places, asks the four "help me find it" questions in a game-style
  * speech box, then offers words that might fit. Same questions and ranking as before; only the way they are asked changed.
  */
-function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; onChange: (v: string[]) => void; onClose: () => void; onBrowse: () => void }) {
+export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value: string[]; onChange: (v: string[]) => void; onClose: () => void; onBrowse?: () => void; save?: SaveTo }) {
   const { t, locale, setLocale } = useI18n();
   const lang = emoLang(locale);
   const { data: session } = useSession();
@@ -154,6 +159,9 @@ function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; on
   const [voice, setVoice] = useState(false);
   const [no3d, setNo3d] = useState(false);
   const [map, setMap] = useState<MapId>("forest");
+  const [saved, setSaved] = useState<SaveResult | null>(save?.initial ?? null);
+  const [saving, setSaving] = useState(false);
+  useEffect(() => { if (save?.initial) setSaved(save.initial); }, [save?.initial]);
   useEffect(() => { setMap(startMap()); }, []);
   const nextMap = () => {
     const m = MAPS[(MAPS.indexOf(map) + 1) % MAPS.length];
@@ -194,15 +202,23 @@ function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; on
 
   const reaction: Key = ans.lean === "pos" ? "buddy.rpos" : ans.lean === "neg" ? "buddy.rneg" : "buddy.rmixed";
   const pickedWord = picked ? wordById(picked) : null;
+  const savedLine = saved === null ? null
+    : saved === "error" ? t("buddy.saveFail")
+    : saved.added.length === 0 ? t("buddy.savedFull")
+    : saved.left.length ? t("buddy.savedSome", { n: saved.left.length })
+    : t("buddy.saved");
   const line =
-    step === 1 ? t(LINES[map].hi, { name })
+    savedLine !== null ? savedLine
+    : step === 1 ? t(LINES[map].hi, { name })
     : step === 2 ? `${t(reaction)} ${t("buddy.q2")}`
     : step === 3 ? t("buddy.q3")
     : step === 4 ? t("buddy.q4")
     : pickedWord ? (full ? t("buddy.full") : t("buddy.picked", { word: pickedWord[lang][0] }))
     : t(LINES[map].result);
   const face: Face =
-    step === 5 && pickedWord ? "joy"
+    saved === "error" ? "sad"
+    : saved !== null ? (saved.added.length ? "joy" : "think")
+    : step === 5 && pickedWord ? "joy"
     : step === 2 ? (ans.lean === "pos" ? "happy" : ans.lean === "neg" ? "sad" : "think")
     : step === 5 ? "happy" : "idle";
 
@@ -218,7 +234,15 @@ function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; on
     else say({ ...ans, intensity: k as Intensity | "skip" });
   };
   const back = () => { setPicked(null); say(ans.intensity ? { ...ans, intensity: undefined } : ans.energy ? { ...ans, energy: undefined } : ans.focus ? { ...ans, focus: undefined } : {}); };
-  const restart = () => { setPages(1); setPicked(null); say({}); };
+  const restart = () => { setPages(1); setPicked(null); setSaved(null); say({}); };
+  const doSave = async () => {
+    if (!save || saving || value.length === 0) return;
+    setSaving(true);
+    try {
+      const r = await save.run(value);
+      if (r) { setSaved(r); setBeat((b) => b + 1); }
+    } finally { setSaving(false); }
+  };
   const toggle = (id: string) => {
     if (value.includes(id)) { onChange(value.filter((x) => x !== id)); if (picked === id) setPicked(null); return; }
     if (full) return;
@@ -241,7 +265,8 @@ function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; on
     return () => window.removeEventListener("pointerdown", wake);
   }, [voice]);
 
-  const choices = step <= 4 ? OPTS[step - 1] : null;
+  const choices = saved === null && step <= 4 ? OPTS[step - 1] : null;
+  const routeAt = saved !== null ? total + 1 : step;
 
   return (
     <div className="bdg bd" ref={root} role="dialog" aria-modal="true" aria-label={t("buddy.start")} tabIndex={-1}>
@@ -255,14 +280,14 @@ function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; on
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
         </button>
         <span className="bd-route" aria-label={`${Math.min(step, total)} / ${total}`}>
-          {Array.from({ length: total + 1 }, (_, i) => <i key={i} className={i < step - 1 ? "on" : i === step - 1 ? "now" : ""} />)}
+          {Array.from({ length: total + 1 }, (_, i) => <i key={i} className={i < routeAt - 1 ? "on" : i === routeAt - 1 ? "now" : ""} />)}
         </span>
         <span className="bdg-right">
           <span className="bd-lang" role="group" aria-label={t("account.language")}>
             <button type="button" aria-pressed={locale === "ko"} className={locale === "ko" ? "on" : ""} onClick={() => setLocale("ko")} lang="ko">한</button>
             <button type="button" aria-pressed={locale === "en"} className={locale === "en" ? "on" : ""} onClick={() => setLocale("en")} lang="en">EN</button>
           </span>
-          {step > 1 && <button type="button" className="bd-mini bd-back" onClick={back} aria-label={t("emo.back")}>‹<span className="bd-back-txt"> {t("emo.back")}</span></button>}
+          {step > 1 && saved === null && <button type="button" className="bd-mini bd-back" onClick={back} aria-label={t("emo.back")}>‹<span className="bd-back-txt"> {t("emo.back")}</span></button>}
           {!no3d && (
             <button type="button" className="bd-mini bd-place" onClick={nextMap} title={t("buddy.place")} aria-label={`${t("buddy.place")}: ${t(LINES[map].name)}`}>
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -280,7 +305,7 @@ function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; on
       </div>
 
       <div className="bdg-hud">
-        {step === 5 && (
+        {step === 5 && saved === null && (
           <div className={`bdg-cards${done || pickedWord ? " on" : ""}`}>
             {results.map((w, i) => {
               const on = value.includes(w.id);
@@ -303,11 +328,21 @@ function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; on
               ))}
             </div>
           )}
-          {step === 5 && (
+          {step === 5 && saved === null && (
             <div className={`bd-choices bd-choices-row${done || pickedWord ? " on" : ""}`} key="c-end">
-              {value.length > 0 && <button type="button" className="bd-choice bd-choice-main" onClick={onClose}>{t("buddy.done")}</button>}
+              {value.length > 0 && (save
+                ? <button type="button" className="bd-choice bd-choice-main" onClick={doSave} disabled={saving}>{t(save.signedIn ? "buddy.saveToday" : "buddy.saveSignup")}</button>
+                : <button type="button" className="bd-choice bd-choice-main" onClick={onClose}>{t("buddy.done")}</button>)}
               <button type="button" className="bd-choice" onClick={restart}>{t("buddy.again")}</button>
-              <button type="button" className="bd-choice" onClick={onBrowse}>{t("emo.noneFit")}</button>
+              {onBrowse && <button type="button" className="bd-choice" onClick={onBrowse}>{t("emo.noneFit")}</button>}
+            </div>
+          )}
+          {saved !== null && (
+            <div className={`bd-choices bd-choices-row${done ? " on" : ""}`} key={`c-saved-${saved === "error" ? "e" : "ok"}`}>
+              {saved === "error"
+                ? <button type="button" className="bd-choice bd-choice-main" onClick={doSave} disabled={saving}>{t("buddy.saveRetry")}</button>
+                : <a className="bd-choice bd-choice-main" href="/?open=diary">{t("buddy.openDiary")}</a>}
+              <button type="button" className="bd-choice" onClick={restart}>{t("buddy.again")}</button>
             </div>
           )}
 

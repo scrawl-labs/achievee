@@ -85,6 +85,12 @@ export const diary = {
     const rows = (await s`SELECT emotions FROM diary WHERE "user"=${user} AND date=${date}`) as { emotions: string }[];
     return rows.length > 0 && splitIds(rows[0].emotions).length > 0;
   },
+  /** One day's entry, or null. */
+  async day(user: string, date: string): Promise<DiaryRow | null> {
+    const s = await sql();
+    const rows = (await s`SELECT date, mood, body, emotions FROM diary WHERE "user"=${user} AND date=${date}`) as DiaryDb[];
+    return rows.length ? { ...rows[0], body: decrypt(rows[0].body), emotions: splitIds(rows[0].emotions) } : null;
+  },
   async month(user: string, ym: string): Promise<DiaryRow[]> {
     const s = await sql(), [a, b] = bounds(ym);
     const rows = (await s`SELECT date, mood, body, emotions FROM diary WHERE "user"=${user} AND date BETWEEN ${a} AND ${b} ORDER BY date`) as DiaryDb[];

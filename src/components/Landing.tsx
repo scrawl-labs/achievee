@@ -211,6 +211,7 @@ export default function Landing() {
           <h1>{t("login.tagline")}</h1>
           <p>{t("land.hero.sub", { n: WORDS.length })}</p>
           {gbtn()}
+          <a className="try-bori" href="/bori"><img src="/buddy/bori.png" alt="" width={34} height={34} />{t("buddy.tryCta")}<span aria-hidden="true">→</span></a>
         </div>
 
         <div className="win" aria-hidden="true">
