@@ -278,7 +278,7 @@ export default function Landing() {
         {gbtn()}
       </section>
 
-      <Footer />
+      <Footer theme={false} />
     </div>
   );
 }
