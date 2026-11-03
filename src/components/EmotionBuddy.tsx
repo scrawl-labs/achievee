@@ -21,7 +21,22 @@ const OPTS: [string, Key][][] = [
 const PAGE = 6;
 const SOUND_KEY = "achievee:buddyVoice";
 const MAP_KEY = "achievee:buddyMap";
-const MAPS: MapId[] = ["forest", "subway"];
+const MAPS: MapId[] = ["forest", "subway", "rain", "store", "beach"];
+const LINES: Record<MapId, { hi: Key; result: Key; name: Key }> = {
+  forest: { hi: "buddy.hi", result: "buddy.result", name: "buddy.mapForest" },
+  subway: { hi: "buddy.hiSubway", result: "buddy.resultSubway", name: "buddy.mapSubway" },
+  rain: { hi: "buddy.hiRain", result: "buddy.resultRain", name: "buddy.mapRain" },
+  store: { hi: "buddy.hiStore", result: "buddy.resultStore", name: "buddy.mapStore" },
+  beach: { hi: "buddy.hiBeach", result: "buddy.resultBeach", name: "buddy.mapBeach" },
+};
+/** Little line icons for the place button. */
+const PLACE_ICON: Record<MapId, JSX.Element> = {
+  forest: <><path d="M12 3l5 8h-3l4 6H6l4-6H7z" /><path d="M12 17v4" /></>,
+  subway: <><rect x="5" y="3" width="14" height="14" rx="4" /><path d="M5 11h14M8.5 14.5h.01M15.5 14.5h.01M8 21l2-4M16 21l-2-4" /></>,
+  rain: <><path d="M4 11a8 8 0 0 1 16 0z" /><path d="M12 11v7a2 2 0 0 0 4 0" /></>,
+  store: <><path d="M4 9l1.5-5h13L20 9" /><path d="M4 9h16v2a3 3 0 0 1-5.3 1.9A3 3 0 0 1 12 14a3 3 0 0 1-2.7-1.1A3 3 0 0 1 4 11z" /><path d="M6 14v6h12v-6" /></>,
+  beach: <><path d="M3 15c2 0 2-1.5 4.5-1.5S10 15 12 15s2-1.5 4.5-1.5S19 15 21 15" /><path d="M3 19c2 0 2-1.5 4.5-1.5S10 19 12 19s2-1.5 4.5-1.5S19 19 21 19" /><circle cx="16" cy="7" r="3" /></>,
+};
 /** The place for today: the one picked last time on this device, otherwise it changes from day to day. */
 function startMap(): MapId {
   try { const m = localStorage.getItem(MAP_KEY); if (m && (MAPS as string[]).includes(m)) return m as MapId; } catch { /* storage blocked */ }
@@ -124,7 +139,7 @@ export default function EmotionBuddy({ value, onChange, onBrowse }: { value: str
 }
 
 /**
- * Full-screen: Bori after work, in a forest or on the subway home, asks the four "help me find it" questions in a game-style
+ * Full-screen: Bori after work, in one of a few places, asks the four "help me find it" questions in a game-style
  * speech box, then offers words that might fit. Same questions and ranking as before; only the way they are asked changed.
  */
 function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; onChange: (v: string[]) => void; onClose: () => void; onBrowse: () => void }) {
@@ -180,12 +195,12 @@ function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; on
   const reaction: Key = ans.lean === "pos" ? "buddy.rpos" : ans.lean === "neg" ? "buddy.rneg" : "buddy.rmixed";
   const pickedWord = picked ? wordById(picked) : null;
   const line =
-    step === 1 ? t(map === "subway" ? "buddy.hiSubway" : "buddy.hi", { name })
+    step === 1 ? t(LINES[map].hi, { name })
     : step === 2 ? `${t(reaction)} ${t("buddy.q2")}`
     : step === 3 ? t("buddy.q3")
     : step === 4 ? t("buddy.q4")
     : pickedWord ? (full ? t("buddy.full") : t("buddy.picked", { word: pickedWord[lang][0] }))
-    : t(map === "subway" ? "buddy.resultSubway" : "buddy.result");
+    : t(LINES[map].result);
   const face: Face =
     step === 5 && pickedWord ? "joy"
     : step === 2 ? (ans.lean === "pos" ? "happy" : ans.lean === "neg" ? "sad" : "think")
@@ -245,11 +260,9 @@ function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; on
         <span className="bdg-right">
           {step > 1 && <button type="button" className="bd-mini" onClick={back}>‹ {t("emo.back")}</button>}
           {!no3d && (
-            <button type="button" className="bd-mini bd-place" onClick={nextMap} title={t("buddy.place")} aria-label={`${t("buddy.place")}: ${t(map === "subway" ? "buddy.mapSubway" : "buddy.mapForest")}`}>
+            <button type="button" className="bd-mini bd-place" onClick={nextMap} title={t("buddy.place")} aria-label={`${t("buddy.place")}: ${t(LINES[map].name)}`}>
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                {map === "subway"
-                  ? <><rect x="5" y="3" width="14" height="14" rx="4" /><path d="M5 11h14M8.5 14.5h.01M15.5 14.5h.01M8 21l2-4M16 21l-2-4" /></>
-                  : <><path d="M12 3l5 8h-3l4 6H6l4-6H7z" /><path d="M12 17v4" /></>}
+                {PLACE_ICON[map]}
               </svg>
             </button>
           )}

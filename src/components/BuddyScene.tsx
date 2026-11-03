@@ -5,8 +5,12 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
 import { buildBori, type Face } from "@/lib/buddy3d/character";
 import { buildForest } from "@/lib/buddy3d/forest";
 import { buildSubway } from "@/lib/buddy3d/subway";
+import { buildBusStop } from "@/lib/buddy3d/busstop";
+import { buildStore } from "@/lib/buddy3d/store";
+import { buildBeach } from "@/lib/buddy3d/beach";
 
-export type MapId = "forest" | "subway";
+export type MapId = "forest" | "subway" | "rain" | "store" | "beach";
+const WORLDS = { forest: buildForest, subway: buildSubway, rain: buildBusStop, store: buildStore, beach: buildBeach };
 
 type Props = { map: MapId; face: Face; talking: boolean; beat: number; onFail: () => void };
 
@@ -37,7 +41,7 @@ function emoteTexture(kind: "note" | "drop" | "q" | "spark") {
 
 const damp = (a: number, b: number, k: number, dt: number) => THREE.MathUtils.lerp(a, b, 1 - Math.exp(-k * dt));
 
-/** The full-screen 3D scene: Bori after work, in a forest clearing or on the subway home. */
+/** The full-screen 3D scene: Bori after work, in one of a few places (a forest, the subway home, a rainy bus stop, a corner shop at night, the beach). */
 export default function BuddyScene({ map, face, talking, beat, onFail }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const state = useRef({ face, talking, beat });
@@ -57,7 +61,7 @@ export default function BuddyScene({ map, face, talking, beat, onFail }: Props) 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const scene = new THREE.Scene();
-    const world = map === "subway" ? buildSubway() : buildForest();
+    const world = WORLDS[map]();
     scene.background = world.background;
     scene.fog = world.fog;
     const pmrem = new THREE.PMREMGenerator(renderer);
