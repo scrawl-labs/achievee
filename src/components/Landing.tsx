@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { signIn } from "next-auth/react";
+import LandingBori from "./LandingBori";
 import { GOOGLE_HL, type Key } from "@/lib/i18n";
 import { FAMILIES, WORDS, emoLang, wordText } from "@/lib/emotions";
 import Blob from "./Blob";
@@ -233,6 +234,8 @@ export default function Landing() {
           </div>
         </div>
       </div>
+
+      <LandingBori />
 
       <section id="features" className="scenes">
         {SCENES.map((s, i) => (

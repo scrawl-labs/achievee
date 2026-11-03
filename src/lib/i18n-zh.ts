@@ -46,7 +46,7 @@ export const ZH = {
 } as const;
 
 export const ZH_LAND = {
-  "land.nav.f": "功能", "land.nav.privacy": "隱私",
+  "land.nav.f": "功能", "land.nav.privacy": "隱私", "land.bori.e": "寶莉", "land.bori.t": "說不出口的心情，寶莉先來問你", "land.bori.d": "下班的地鐵、下雨的公車站、森林、海邊。寶莉用四個小問題，陪你找出最貼近今天心情的詞。也可以寫一兩句，存成日記。", "land.bori.cta": "和寶莉聊聊", "land.bori.note": "不用登入 · 大約一分鐘", 
   "land.a.e": "紀錄", "land.a.t": "一天的所有紀錄，一個畫面",
   "land.a.d": "目標、待辦事項、行程、運動、支出到日記。\n把事情做完，讓花朵綻放吧。",
   "land.b.e": "行事曆", "land.b.t": "把待辦事項拖到行事曆，就變成行程",
