@@ -33,7 +33,8 @@ export default function LandingBori() {
   const [at, setAt] = useState(0);
   const [paused, setPaused] = useState(false);
   const [reduce, setReduce] = useState(false);
-  useEffect(() => { setReduce(window.matchMedia("(prefers-reduced-motion: reduce)").matches); }, []);
+  const [live, setLive] = useState(false);
+  useEffect(() => { setReduce(window.matchMedia("(prefers-reduced-motion: reduce)").matches); setLive(true); }, []);
   useEffect(() => {
     if (paused || reduce) return;
     const id = window.setInterval(() => setAt((a) => (a + 1) % PLACES.length), 6500);
@@ -43,15 +44,14 @@ export default function LandingBori() {
   const line = useTyped(plain(t(place.hi, { name: t("buddy.friend") })), reduce);
 
   return (
-    <section className="borisec" aria-labelledby="borisec-title">
+    <section className={`borisec${live ? " js" : ""}`} aria-labelledby="borisec-title">
       <div className="borisec-copy">
-        <span className="eyebrow">{t("land.bori.e")}</span>
         <h2 id="borisec-title">{t("land.bori.t")}</h2>
         <p>{t("land.bori.d")}</p>
-        <a className="borisec-cta" href="/bori">{t("land.bori.cta")}<span aria-hidden="true">→</span></a>
+        <a className="borisec-cta" href="/bori">{t("land.bori.cta")}</a>
         <small>{t("land.bori.note")}</small>
       </div>
-      <div className="borisec-stage" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+      <div className="borisec-stage" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)}>
         <div className="borisec-screen">
           {PLACES.map((p, i) => (
             <img key={p.id} src={`/buddy/places/${p.id}.jpg`} alt="" className={i === at ? "on" : ""} loading={i ? "lazy" : "eager"} width={960} height={720} />

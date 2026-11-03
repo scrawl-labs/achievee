@@ -46,7 +46,7 @@ export const ZH = {
 } as const;
 
 export const ZH_LAND = {
-  "land.nav.f": "功能", "land.nav.privacy": "隱私", "land.bori.e": "寶莉", "land.bori.t": "說不出口的心情，寶莉先來問你", "land.bori.d": "下班的地鐵、下雨的公車站、森林、海邊。寶莉用四個小問題，陪你找出最貼近今天心情的詞。也可以寫一兩句，存成日記。", "land.bori.cta": "和寶莉聊聊", "land.bori.note": "不用登入 · 大約一分鐘", 
+  "land.nav.f": "功能", "land.nav.privacy": "隱私", "land.bori.e": "寶莉", "land.bori.t": "說不出口的心情，寶莉先來問你", "land.bori.d": "下班的地鐵、下雨的公車站、森林、海邊。寶莉用四個小問題，陪你找出最貼近今天心情的詞。也可以寫一兩句，存成日記。", "land.bori.cta": "和寶莉聊聊", "land.bori.note": "不用登入，大約一分鐘", 
   "land.a.e": "紀錄", "land.a.t": "一天的所有紀錄，一個畫面",
   "land.a.d": "目標、待辦事項、行程、運動、支出到日記。\n把事情做完，讓花朵綻放吧。",
   "land.b.e": "行事曆", "land.b.t": "把待辦事項拖到行事曆，就變成行程",
@@ -61,7 +61,7 @@ export const ZH_LAND = {
   "land.f.d": "最常造訪的情緒、最輕鬆的一天、運動日與其他日子的心情，全都集中在一處。\n以足夠的紀錄為基礎來統計！",
   "land.mk.goal": "健康愉快，不要太用力", "land.mk.todo1": "買菜", "land.mk.todo2": "回覆朋友",
   "land.mk.event": "團隊會議", "land.mk.diary": "漫長的一天，但我做到了。", "land.mk.plan": "寫企劃書", "land.mk.lunch": "午餐約會",
-  "land.hero.sub": "用 {n} 個詞彙說出心情，更認識自己。\n把一天過得充實，目標、待辦、行程、運動、支出都記下來。", "land.more.title": "還有整合功能！", "land.i.gh": "PR、審查、議題與提交，記在你的一天裡", "land.i.jira": "你完成或建立的議題", "land.i.notion": "你建立或編輯的頁面", "land.i.google": "以唯讀方式讀取行程與待辦事項（選用）",
+  "land.hero.sub": "用 {n} 個詞彙說出心情，更認識自己。\n把一天過得充實，目標、待辦、行程、運動、支出都記下來。", "land.more.title": "還有整合功能", "land.i.gh": "PR、審查、議題與提交，記在你的一天裡", "land.i.jira": "你完成或建立的議題", "land.i.notion": "你建立或編輯的頁面", "land.i.google": "以唯讀方式讀取行程與待辦事項（選用）",
   "land.m.search": "搜尋 · Ctrl K", "land.m.review": "每週回顧", "land.m.goals": "每日、每週目標",
   "land.m.lang": "5 種語言", "land.m.pwa": "安裝到手機",
   "land.m.dark": "深色與淺色模式", "land.m.delete": "隨時刪除資料",
