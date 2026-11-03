@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { buildBori, type Face } from "@/lib/buddy3d/character";
-import { buildSubway } from "@/lib/buddy3d/subway";
+import { buildForest } from "@/lib/buddy3d/forest";
 
 type Props = { face: Face; talking: boolean; beat: number; onFail: () => void };
 
@@ -34,7 +34,7 @@ function emoteTexture(kind: "note" | "drop" | "q" | "spark") {
 
 const damp = (a: number, b: number, k: number, dt: number) => THREE.MathUtils.lerp(a, b, 1 - Math.exp(-k * dt));
 
-/** The full-screen 3D scene: Bori, tired after work, standing in a night subway car. */
+/** The full-screen 3D scene: Bori, resting after work in a forest clearing at golden hour. */
 export default function BuddyScene({ face, talking, beat, onFail }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const state = useRef({ face, talking, beat });
@@ -54,32 +54,30 @@ export default function BuddyScene({ face, talking, beat, onFail }: Props) {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#141833");
+    scene.background = new THREE.Color("#e6dcae");
+    scene.fog = new THREE.Fog("#d8d6a8", 10, 34);
     const pmrem = new THREE.PMREMGenerator(renderer);
     const env = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
     scene.environment = env;
-    scene.environmentIntensity = 0.35;
+    scene.environmentIntensity = 0.25;
 
-    // warm fluorescent light from the ceiling, cool city light from the windows behind
-    scene.add(new THREE.HemisphereLight("#fff3df", "#3a4258", 0.7));
-    const key = new THREE.DirectionalLight("#fff1dc", 2.1);
-    key.position.set(1.6, 4.5, 3.6);
+    // golden-hour sun from behind on the left, soft sky light, and a gentle fill so Bori's face reads
+    scene.add(new THREE.HemisphereLight("#ffeccc", "#4d6b35", 1.0));
+    const key = new THREE.DirectionalLight("#ffd28f", 3.2);
+    key.position.set(-4, 6.5, -2.5);
     key.castShadow = true;
     key.shadow.mapSize.set(2048, 2048);
-    Object.assign(key.shadow.camera, { left: -4, right: 4, top: 4, bottom: -2, near: 1, far: 12 });
-    key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02; key.shadow.radius = 5;
+    Object.assign(key.shadow.camera, { left: -7, right: 7, top: 7, bottom: -4, near: 1, far: 22 });
+    key.shadow.bias = -0.0004; key.shadow.normalBias = 0.03; key.shadow.radius = 6;
     scene.add(key);
-    const rim = new THREE.DirectionalLight("#7fa8ff", 1.6);
-    rim.position.set(-2.5, 2.4, -3.5);
-    scene.add(rim);
-    const fill = new THREE.PointLight("#ffb98a", 1.2, 8, 2);
-    fill.position.set(-2.2, 1.4, 2.4);
+    const fill = new THREE.DirectionalLight("#fff4e4", 0.9);
+    fill.position.set(3, 3.5, 6);
     scene.add(fill);
 
-    const subway = buildSubway();
-    scene.add(subway.group);
+    const forest = buildForest();
+    scene.add(forest.group);
     const bori = buildBori();
-    const S = 0.62; // Bori is a small commuter: his ears come up to the window sill
+    const S = 0.62; // Bori is small: about the height of a fern
     bori.root.scale.setScalar(S);
     bori.root.position.set(0, 0, 0.35);
     scene.add(bori.root);
@@ -127,9 +125,9 @@ export default function BuddyScene({ face, talking, beat, onFail }: Props) {
       if (st.beat !== lastBeat) { lastBeat = st.beat; hopT = 0; swingV += 2.2; }
       hopT += dt;
 
-      // the train: a slow sway with an occasional jolt
-      const jolt = Math.sin(t * 0.9) > 0.985 ? 1 : 0;
-      const sway = (Math.sin(t * 1.3) * 0.012 + Math.sin(t * 2.9) * 0.004) * m;
+      // a light breeze: Bori rocks a tiny bit, the briefcase sways now and then
+      const jolt = 0;
+      const sway = Math.sin(t * 0.8) * 0.005 * m;
 
       // Bori: breathing, a little hop on each new line
       const h = hopT < 0.5 ? hopT / 0.5 : 1;
@@ -165,10 +163,10 @@ export default function BuddyScene({ face, talking, beat, onFail }: Props) {
       emote.position.y = 1.48 + jump + Math.sin(t * 2.5) * 0.02 * m;
 
       // the world outside and the straps
-      subway.farTex.offset.x = (t * 0.006 * m) % 1;
-      subway.nearTex.offset.x = (t * 0.045 * m) % 1;
-      subway.straps.forEach((s, i) => { s.rotation.z = (Math.sin(t * 1.3 + i * 0.15) * 0.08 + jolt * 0.1) * m; s.rotation.x = Math.sin(t * 0.9 + i * 0.3) * 0.04 * m; });
-      camera.position.y = 1.2 + sway * 0.6 + jolt * 0.01;
+      forest.update(t, dt, m);
+      camera.position.y = 1.2 + Math.sin(t * 0.3) * 0.02 * m;
+      camera.position.x = 0.35 + Math.sin(t * 0.17) * 0.08 * m;
+      camera.lookAt(target);
 
       renderer.render(scene, camera);
     };

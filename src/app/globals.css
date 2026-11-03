@@ -596,7 +596,7 @@ select {
 .emo-opts .btn { justify-content: flex-start; height: 44px; padding: 0 var(--s4); font-weight: 600; }
 .emo-back { align-self: flex-start; }
 
-/* Bori on the night subway: the guided questions as a full-screen 3D conversation */
+/* Bori in the forest: the guided questions as a full-screen 3D conversation */
 .bd {
   --bd-box: #fffaeb; --bd-ink: #6f5a3c; --bd-tag: #ee9d4e; --bd-tag-fg: #fff8ec; --bd-key: #e9801c; --bd-name: #2fa25a;
   --bd-arrow: #f3b23a; --bd-pill: #fffaeb; --bd-pill-on: #ffe9b8;
@@ -604,26 +604,26 @@ select {
 
 /* the card in the diary that opens it */
 .bd-launch { display: flex; align-items: center; gap: var(--s4); width: 100%; padding: 10px 18px 10px 10px; text-align: left;
-  border-radius: 22px; color: #f4f1ff; background: linear-gradient(135deg, #1c2350, #2d2f6b 60%, #3e3a78);
-  box-shadow: 0 2px 0 rgba(10, 10, 40, .25), 0 12px 26px -14px rgba(20, 20, 70, .7); transition: transform .15s; }
+  border-radius: 22px; color: #fffbea; background: linear-gradient(135deg, #3d6b3a, #5c8a46 55%, #c9a95a);
+  box-shadow: 0 2px 0 rgba(20, 40, 10, .25), 0 12px 26px -14px rgba(30, 60, 20, .7); transition: transform .15s; }
 .bd-launch:hover { transform: translateY(-2px); }
 .bd-launch:active { transform: scale(.98); }
 .bd-launch-art { width: 92px; height: 92px; flex: none; border-radius: 18px; overflow: hidden;
-  background: radial-gradient(circle at 50% 35%, #4b5a9a, #232a5c 75%); display: grid; place-items: end center; }
+  background: radial-gradient(circle at 40% 25%, #fff1c4, #b9cf8a 45%, #5f8a46 85%); display: grid; place-items: end center; }
 .bd-launch-art img { width: 92px; height: 92px; object-fit: contain; translate: 0 6px; }
 .bd-launch-txt { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
 .bd-launch-txt b { font-size: 17px; font-weight: 800; color: #fff; }
-.bd-launch-txt small { color: #c7c8ee; font-size: 13px; }
+.bd-launch-txt small { color: #eef3d8; font-size: 13px; }
 .bd-launch-go { width: 40px; height: 40px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 14px; padding-left: 3px;
   background: #f08a4b; color: #fff; box-shadow: 0 3px 0 #c4632a; animation: bd-pulse 2s ease-in-out infinite; }
 
 /* the game screen */
-.bdg { position: fixed; inset: 0; z-index: 1000; overflow: hidden; background: #141833; outline: none; color: var(--bd-ink);
+.bdg { position: fixed; inset: 0; z-index: 1000; overflow: hidden; background: #6f8f45; outline: none; color: var(--bd-ink);
   animation: bdg-in .45s cubic-bezier(.2, .9, .3, 1) both; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
 .bdg-canvas, .bdg-canvas canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .bdg-canvas canvas { animation: bdg-iris .9s cubic-bezier(.3, .8, .3, 1) both; }
 .bdg-vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(130% 90% at 50% 35%, transparent 55%, rgba(40, 30, 10, .22)); }
-.bdg-flat { position: absolute; inset: 0; background: radial-gradient(120% 80% at 50% 20%, #34407a, #141833 70%); display: flex; justify-content: center; }
+.bdg-flat { position: absolute; inset: 0; background: radial-gradient(120% 80% at 30% 15%, #f6dca0, #8fb062 55%, #4f7038); display: flex; justify-content: center; }
 .bdg-flat img { width: min(70vw, 340px); height: auto; margin-top: 12vh; align-self: flex-start; }
 
 .bdg-top { position: absolute; z-index: 2; top: max(14px, env(safe-area-inset-top)); left: 14px; right: 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -635,12 +635,12 @@ select {
 .bd-voice, .bdg-close { padding: 0; width: 40px; }
 .bd-voice { color: color-mix(in oklab, var(--bd-ink) 55%, transparent); }
 .bd-voice.on { color: var(--bd-key); }
-/* progress as a subway route map: one station per question, plus the stop where you get off */
+/* progress: one stop per question, plus the end */
 .bd-route { position: relative; display: flex; gap: 16px; padding: 11px 14px; border-radius: 999px; background: color-mix(in oklab, var(--bd-box) 88%, transparent);
   box-shadow: 0 2px 0 rgba(120, 90, 50, .18), 0 6px 14px -6px rgba(0, 0, 20, .4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-.bd-route::before { content: ""; position: absolute; left: 20px; right: 20px; top: 50%; height: 4px; margin-top: -2px; border-radius: 2px; background: #3e8f9a; }
-.bd-route i { position: relative; width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2.5px #3e8f9a; transition: all .3s; }
-.bd-route i.on { background: #3e8f9a; }
+.bd-route::before { content: ""; position: absolute; left: 20px; right: 20px; top: 50%; height: 4px; margin-top: -2px; border-radius: 2px; background: #6f9a44; }
+.bd-route i { position: relative; width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2.5px #6f9a44; transition: all .3s; }
+.bd-route i.on { background: #6f9a44; }
 .bd-route i.now { background: var(--bd-key); box-shadow: 0 0 0 2.5px var(--bd-key), 0 0 0 6px color-mix(in oklab, var(--bd-key) 30%, transparent); animation: bd-pulse 1.4s ease-in-out infinite; }
 
 .bdg-hud { position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 12px;

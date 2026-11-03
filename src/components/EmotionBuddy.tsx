@@ -96,7 +96,7 @@ function Line({ segs, shown }: { segs: Seg[]; shown: number }) {
   );
 }
 
-/** The diary's entry point: a small card that opens the full-screen subway conversation with Bori. */
+/** The diary's entry point: a small card that opens the full-screen forest conversation with Bori. */
 export default function EmotionBuddy({ value, onChange, onBrowse }: { value: string[]; onChange: (v: string[]) => void; onBrowse: () => void }) {
   const { t } = useI18n();
   const [playing, setPlaying] = useState(false);
@@ -116,7 +116,7 @@ export default function EmotionBuddy({ value, onChange, onBrowse }: { value: str
 }
 
 /**
- * Full-screen: Bori, tired after work, stands next to you on a night subway and asks the four "help me find it" questions in a game-style
+ * Full-screen: Bori, resting in a forest after work, asks the four "help me find it" questions in a game-style
  * speech box, then offers words that might fit. Same questions and ranking as before; only the way they are asked changed.
  */
 function BuddyGame({ value, onChange, onClose, onBrowse }: { value: string[]; onChange: (v: string[]) => void; onClose: () => void; onBrowse: () => void }) {
