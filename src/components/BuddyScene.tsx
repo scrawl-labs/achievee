@@ -50,9 +50,13 @@ export default function BuddyScene({ map, face, talking, beat, onFail }: Props) 
   useEffect(() => {
     const el = host.current!;
     let renderer: THREE.WebGLRenderer;
-    try { renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" }); }
+    // phones and tablets get a lighter scene (fewer grass blades and raindrops, smaller shadows)
+    const lite = window.matchMedia("(pointer: coarse)").matches || (navigator.hardwareConcurrency ?? 8) <= 4;
+    const dprCap = Math.min(window.devicePixelRatio || 1, lite ? 1.5 : 1.75);
+    try { renderer = new THREE.WebGLRenderer({ antialias: dprCap < 1.5, powerPreference: "high-performance" }); }
     catch { onFail(); return; }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    let dpr = dprCap;
+    renderer.setPixelRatio(dpr);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.NeutralToneMapping;
     renderer.shadowMap.enabled = true;
@@ -61,7 +65,7 @@ export default function BuddyScene({ map, face, talking, beat, onFail }: Props) 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const scene = new THREE.Scene();
-    const world = WORLDS[map]();
+    const world = WORLDS[map]({ lite });
     scene.background = world.background;
     scene.fog = world.fog;
     const pmrem = new THREE.PMREMGenerator(renderer);
@@ -82,6 +86,11 @@ export default function BuddyScene({ map, face, talking, beat, onFail }: Props) 
     emote.position.set(0.5, 1.45, 0.6);
     scene.add(emote);
 
+    // shadows: one size fits all, and they are redrawn every other frame (only Bori and a few small things move)
+    scene.traverse((o) => { const l = o as THREE.DirectionalLight; if (l.isLight && l.castShadow && l.shadow) l.shadow.mapSize.set(lite ? 1024 : 1536, lite ? 1024 : 1536); });
+    renderer.shadowMap.autoUpdate = false;
+    renderer.shadowMap.needsUpdate = true;
+
     const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 60);
     const target = new THREE.Vector3(0.1, 0.95, 0.35);
     const resize = () => {
@@ -92,8 +101,8 @@ export default function BuddyScene({ map, face, talking, beat, onFail }: Props) 
       // Bori fills a set share of the screen height and sits in the upper part, clear of the dialogue box
       const share = aspect < 0.8 ? 0.3 : 0.38;
       const tan = 2 * Math.tan(THREE.MathUtils.degToRad(15));
-      // fit by height, and on narrow screens also by width (Bori plus his briefcase is about 2.4 wide)
-      const dist = Math.max((2.3 * S) / share / tan, (2.4 * S) / 0.62 / (tan * aspect));
+      // fit by height, and on narrow screens also by width (Bori, arms included, is about 2.2 wide)
+      const dist = Math.max((2.3 * S) / share / tan, (2.2 * S) / 0.62 / (tan * aspect));
       camera.position.set(0.35, 1.2, 0.35 + dist);
       camera.lookAt(target);
       camera.setViewOffset(w, h, 0, h * (aspect < 0.8 ? 0.17 : 0.12), w, h);
@@ -105,8 +114,18 @@ export default function BuddyScene({ map, face, talking, beat, onFail }: Props) 
 
     const clock = new THREE.Clock();
     let lastBeat = state.current.beat, hopT = 9, emoteT = 9, lastEmote = "";
-    let nextBlink = 1.5, blinkT = 9, talk = 0, swing = 0, swingV = 0;
-    let raf = 0, running = true;
+    let nextBlink = 1.5, blinkT = 9, talk = 0;
+    let raf = 0, running = true, frames = 0;
+    // keep it smooth: if frames run slow, render at a lower resolution; if there is room again, go back up
+    let slowSum = 0, slowN = 0, calmUntil = 2;
+    const adapt = (dt: number, t: number) => {
+      if (t < calmUntil) return;
+      slowSum += dt; slowN++;
+      if (slowN < 45) return;
+      const avg = slowSum / slowN; slowSum = 0; slowN = 0;
+      const next = avg > 1 / 42 ? Math.max(0.75, dpr - 0.25) : avg < 1 / 58 ? Math.min(dprCap, dpr + 0.25) : dpr;
+      if (next !== dpr) { dpr = next; renderer.setPixelRatio(dpr); resize(); calmUntil = t + 1.5; }
+    };
 
     const frame = () => {
       if (!running) return;
@@ -116,11 +135,10 @@ export default function BuddyScene({ map, face, talking, beat, onFail }: Props) 
       const st = state.current;
       const m = reduce ? 0 : 1;
 
-      if (st.beat !== lastBeat) { lastBeat = st.beat; hopT = 0; swingV += 2.2; }
+      if (st.beat !== lastBeat) { lastBeat = st.beat; hopT = 0; }
       hopT += dt;
 
-      // a light breeze: Bori rocks a tiny bit, the briefcase sways now and then
-      const jolt = 0;
+      // a light breeze: Bori rocks a tiny bit
       const sway = Math.sin(t * 0.8) * 0.005 * m;
 
       // Bori: breathing, a little hop on each new line
@@ -135,11 +153,6 @@ export default function BuddyScene({ map, face, talking, beat, onFail }: Props) 
       bori.bodyGroup.rotation.z = damp(bori.bodyGroup.rotation.z, lean, 4, dt);
       bori.bodyGroup.rotation.x = damp(bori.bodyGroup.rotation.x, st.face === "sad" ? 0.06 : 0, 4, dt);
       bori.root.rotation.y = Math.sin(t * 0.5) * 0.06 * m - 0.1;
-
-      // the briefcase swings like a pendulum
-      swingV += (-swing * 18 - swingV * 2.2 + (sway * 40 + jolt * 3) * m) * dt;
-      swing += swingV * dt;
-      bori.hand.rotation.z = swing * 0.12;
 
       // face
       if (t > nextBlink) { blinkT = 0; nextBlink = t + 2.2 + Math.random() * 3.5; }
@@ -162,6 +175,8 @@ export default function BuddyScene({ map, face, talking, beat, onFail }: Props) 
       camera.position.x = 0.35 + Math.sin(t * 0.17) * 0.08 * m;
       camera.lookAt(target);
 
+      if (++frames % 2 === 0) renderer.shadowMap.needsUpdate = true;
+      adapt(dt, t);
       renderer.render(scene, camera);
     };
     frame();

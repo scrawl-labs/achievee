@@ -164,6 +164,13 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
   const [saved, setSaved] = useState<SaveResult | null>(save?.initial ?? null);
   const [saving, setSaving] = useState(false);
   const [phase, setPhase] = useState<Phase>("chat");
+  const cardsRef = useRef<HTMLDivElement>(null);
+  // "show more" brings the first new card into view, so it is not left hidden off to the side
+  useEffect(() => {
+    if (pages < 2) return;
+    const el = cardsRef.current?.children[PAGE * (pages - 1)] as HTMLElement | undefined;
+    el?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }, [pages]);
   const [note, setNote] = useState("");
   useEffect(() => { if (save?.initial) setSaved(save.initial); }, [save?.initial]);
   useEffect(() => {
@@ -321,7 +328,7 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
 
       <div className="bdg-hud">
         {step === 5 && saved === null && phase === "chat" && (
-          <div className={`bdg-cards${done || pickedWord ? " on" : ""}`}>
+          <div className={`bdg-cards${done || pickedWord ? " on" : ""}`} ref={cardsRef}>
             {results.map((w, i) => {
               const on = value.includes(w.id);
               return (

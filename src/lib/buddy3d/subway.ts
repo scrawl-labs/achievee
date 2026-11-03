@@ -5,7 +5,7 @@
  * window-shaped light across the floor, while a soft-focus city slides past outside.
  */
 import * as THREE from "three";
-import type { World } from "./forest";
+import type { World, WorldOpts } from "./forest";
 
 function rng(seed: number) { return () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646; }
 const canvas = (w: number, h: number) => { const c = document.createElement("canvas"); c.width = w; c.height = h; return [c, c.getContext("2d")!] as const; };
@@ -171,7 +171,7 @@ function softDot() {
   return tex(c, false);
 }
 
-export function buildSubway(): World {
+export function buildSubway(_opts: WorldOpts = {}): World {
   const group = new THREE.Group();
   const X0 = -9, X1 = 9;
   const add = (o: THREE.Object3D) => { group.add(o); return o; };

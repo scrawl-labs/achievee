@@ -4,7 +4,7 @@
  * parasol and towel, a starfish, shells and gulls.
  */
 import * as THREE from "three";
-import type { World } from "./forest";
+import type { World, WorldOpts } from "./forest";
 import { backdrop, canvas, fbm, hash, lathe, noise, rng, soft, softDot, tex } from "./util";
 
 const SHORE = -1.7; // where the sea meets the sand, on average
@@ -73,7 +73,7 @@ function stripes(cols: string[], n: number) {
 
 const sandY = (x: number, z: number) => (z - SHORE) * 0.045 + (fbm(x * 0.3, z * 0.3) - 0.5) * 0.12 * THREE.MathUtils.smoothstep(Math.hypot(x, z - 0.35), 1.2, 3);
 
-export function buildBeach(): World {
+export function buildBeach(_opts: WorldOpts = {}): World {
   const group = new THREE.Group();
   const add = <T extends THREE.Object3D>(o: T) => { group.add(o); return o; };
 

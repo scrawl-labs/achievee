@@ -1,11 +1,10 @@
 /**
  * Bori, an original little office-worker creature: one soft sculpted body (built from a signed distance
  * field and shrink-wrapped into a single smooth mesh), a face painted onto the surface so it can change expression
- * (small bean eyes, rosy cheeks, a tiny mouth), and a briefcase.
+ * (small bean eyes, rosy cheeks, a tiny mouth).
  */
 import * as THREE from "three";
 import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
-import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 
 export type Face = "idle" | "happy" | "sad" | "think" | "joy";
 
@@ -68,10 +67,12 @@ export function frontZ(x: number, y: number) {
   return (lo + hi) / 2;
 }
 
-const BODY = new THREE.Color("#6f93c9");
-const BELLY = new THREE.Color("#b9cbe6");
+/** Bori's colours: the body, and the paler belly patch. */
+export type Palette = { body: string; belly: string };
+export const DEFAULT_PALETTE: Palette = { body: "#6f93c9", belly: "#b9cbe6" };
 
-function buildBodyGeometry() {
+function buildBodyGeometry(pal: Palette) {
+  const BODY = new THREE.Color(pal.body), BELLY = new THREE.Color(pal.belly);
   let g: THREE.BufferGeometry = new THREE.IcosahedronGeometry(1, 72);
   g.deleteAttribute("normal"); g.deleteAttribute("uv");
   g = mergeVertices(g);
@@ -101,7 +102,7 @@ function buildBodyGeometry() {
 
 /* ---------- the face, painted onto a patch of the skin ---------- */
 const FX0 = -0.78, FX1 = 0.78, FY0 = 0.92, FY1 = 1.78; // the face box in body space
-const FW = 1024, FH = Math.round((FW * (FY1 - FY0)) / (FX1 - FX0));
+const FW = 640, FH = Math.round((FW * (FY1 - FY0)) / (FX1 - FX0));
 const X = (x: number) => ((x - FX0) / (FX1 - FX0)) * FW;
 const Y = (y: number) => ((FY1 - y) / (FY1 - FY0)) * FH;
 const U = (k: number) => (k / (FX1 - FX0)) * FW; // body units to pixels
@@ -208,38 +209,15 @@ export function paintFace(g: CanvasRenderingContext2D, s: FaceState) {
   }
 }
 
-/* ---------- briefcase ---------- */
-function buildBriefcase() {
-  const leather = new THREE.MeshPhysicalMaterial({ color: "#c9772f", roughness: 0.45, clearcoat: 0.35, clearcoatRoughness: 0.4, sheen: 0.3 });
-  const dark = new THREE.MeshPhysicalMaterial({ color: "#7a431a", roughness: 0.55 });
-  const metal = new THREE.MeshStandardMaterial({ color: "#e8c46a", roughness: 0.25, metalness: 1 });
-  const g = new THREE.Group();
-  const box = new THREE.Mesh(new RoundedBoxGeometry(0.6, 0.42, 0.17, 5, 0.05), leather);
-  box.position.y = -0.3; box.castShadow = true;
-  const flap = new THREE.Mesh(new RoundedBoxGeometry(0.62, 0.12, 0.18, 4, 0.04), leather);
-  flap.position.y = -0.13; flap.castShadow = true;
-  const seam = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.012, 0.182), dark);
-  seam.position.y = -0.19;
-  const handle = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.022, 12, 24, Math.PI), dark);
-  handle.position.y = -0.07; handle.castShadow = true;
-  g.add(box, flap, seam, handle);
-  for (const s of [-1, 1]) {
-    const clasp = new THREE.Mesh(new RoundedBoxGeometry(0.06, 0.06, 0.03, 2, 0.01), metal);
-    clasp.position.set(s * 0.17, -0.18, 0.095);
-    g.add(clasp);
-  }
-  return g;
-}
-
 export type Bori = ReturnType<typeof buildBori>;
 
-export function buildBori() {
+export function buildBori(pal: Palette = DEFAULT_PALETTE) {
   const root = new THREE.Group();
   const bodyGroup = new THREE.Group(); // squashes and sways
   root.add(bodyGroup);
 
-  const geo = buildBodyGeometry();
-  const skin = new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.55, sheen: 0.35, sheenRoughness: 0.6, sheenColor: new THREE.Color("#a9c2ec"), clearcoat: 0.1, clearcoatRoughness: 0.5 });
+  const geo = buildBodyGeometry(pal);
+  const skin = new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.55, sheen: 0.35, sheenRoughness: 0.6, sheenColor: new THREE.Color(pal.belly), clearcoat: 0.1, clearcoatRoughness: 0.5 });
   const body = new THREE.Mesh(geo, skin);
   body.castShadow = true; body.receiveShadow = true;
   bodyGroup.add(body);
@@ -248,19 +226,11 @@ export function buildBori() {
   faceCanvas.width = FW; faceCanvas.height = FH;
   const faceCtx = faceCanvas.getContext("2d")!;
   const faceTex = new THREE.CanvasTexture(faceCanvas);
-  faceTex.colorSpace = THREE.SRGBColorSpace; faceTex.anisotropy = 8;
+  faceTex.colorSpace = THREE.SRGBColorSpace; faceTex.anisotropy = 4;
   const faceMat = new THREE.MeshPhysicalMaterial({ map: faceTex, transparent: true, roughness: 0.45, clearcoat: 0.15, polygonOffset: true, polygonOffsetFactor: -2, depthWrite: false });
   const face = new THREE.Mesh(buildFacePatch(geo), faceMat);
   face.renderOrder = 2;
   bodyGroup.add(face);
-
-  // the briefcase hangs from the right hand and swings a little
-  const hand = new THREE.Group();
-  hand.position.set(1.1, 0.6, 0.26);
-  bodyGroup.add(hand);
-  const briefcase = buildBriefcase();
-  briefcase.rotation.y = -0.25;
-  hand.add(briefcase);
 
   let last = "";
   const setFace = (s: FaceState) => {
@@ -272,5 +242,5 @@ export function buildBori() {
   };
   setFace({ face: "idle", blink: 0, talk: 0, look: 0 });
 
-  return { root, bodyGroup, body, hand, briefcase, setFace };
+  return { root, bodyGroup, body, setFace };
 }

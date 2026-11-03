@@ -4,7 +4,7 @@
  * and a blurred street behind with headlights going by.
  */
 import * as THREE from "three";
-import type { World } from "./forest";
+import type { World, WorldOpts } from "./forest";
 import { backdrop, canvas, curve, fbm, glow, rng, soft, sweep, tex, tube, wetStreak } from "./util";
 
 function streetLayer(kind: 0 | 1) {
@@ -73,7 +73,7 @@ function wetGround() {
   return { map: t, rough: rt };
 }
 
-export function buildBusStop(): World {
+export function buildBusStop(opts: WorldOpts = {}): World {
   const group = new THREE.Group();
   const add = <T extends THREE.Object3D>(o: T) => { group.add(o); return o; };
 
@@ -153,7 +153,7 @@ export function buildBusStop(): World {
   });
 
   /* ---- rain, splashes, drips ---- */
-  const N = 1800;
+  const N = opts.lite ? 1000 : 1800;
   const pos = new Float32Array(N * 6);
   const drops = Array.from({ length: N }, (_, i) => { const r = rng(900 + i); return { x: 0, y: r() * 6, z: 0, s: 6 + r() * 3, seed: i }; });
   const under = (x: number, z: number) => Math.abs(x) < 2.75 && z > -1.6 && z < 1.5;

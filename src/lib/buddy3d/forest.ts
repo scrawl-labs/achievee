@@ -293,8 +293,10 @@ function buildGrass(count: number) {
 }
 
 export type World = { group: THREE.Group; update: (t: number, dt: number, motion: number) => void; background: THREE.Color; fog: THREE.Fog };
+/** lite: phones and small devices, so fewer small things (grass, raindrops). */
+export type WorldOpts = { lite?: boolean };
 
-export function buildForest(): World {
+export function buildForest(opts: WorldOpts = {}): World {
   const group = new THREE.Group();
 
   // golden-hour sun from behind on the left, soft sky light, and a gentle fill so Bori's face reads
@@ -325,7 +327,7 @@ export function buildForest(): World {
   group.add(buildStone(1.3, 0.2, 0.32, 1), buildStone(-1.7, -0.6, 0.45, 2), buildStone(2.4, -1.6, 0.25, 3), buildStone(-3.4, -1.4, 0.3, 4));
   group.add(buildMushrooms(-0.85, 0.75), buildMushrooms(1.75, -0.35));
   group.add(buildFerns([[-2.2, 0.3, 0.9], [2.6, 0.1, 1.0], [-3.6, -2.6, 1.2], [3.9, -2.4, 1.1], [-1.2, -2.8, 0.8], [1.2, -3.4, 0.9], [-5, 0, 1.1], [5.4, 0.8, 1.2]]));
-  const grass = buildGrass(9000);
+  const grass = buildGrass(opts.lite ? 4500 : 9000);
   group.add(grass.mesh);
 
   // shafts of light slanting through the trees
