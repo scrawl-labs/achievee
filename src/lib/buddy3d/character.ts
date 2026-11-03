@@ -69,7 +69,7 @@ export function frontZ(x: number, y: number) {
 
 /** Bori's colours: the body, and the paler belly patch. */
 export type Palette = { body: string; belly: string };
-export const DEFAULT_PALETTE: Palette = { body: "#6f93c9", belly: "#b9cbe6" };
+export const DEFAULT_PALETTE: Palette = { body: "#e9e4dc", belly: "#ffffff" }; // rice-cake white
 
 function buildBodyGeometry(pal: Palette) {
   const BODY = new THREE.Color(pal.body), BELLY = new THREE.Color(pal.belly);

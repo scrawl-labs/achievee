@@ -21,12 +21,11 @@ const OPTS: [string, Key][][] = [
 const PAGE = 6;
 const SOUND_KEY = "achievee:buddyVoice";
 const MAP_KEY = "achievee:buddyMap";
-const MAPS: MapId[] = ["forest", "subway", "rain", "store", "beach"];
+const MAPS: MapId[] = ["forest", "subway", "rain", "beach"];
 const LINES: Record<MapId, { hi: Key; result: Key; name: Key }> = {
   forest: { hi: "buddy.hi", result: "buddy.result", name: "buddy.mapForest" },
   subway: { hi: "buddy.hiSubway", result: "buddy.resultSubway", name: "buddy.mapSubway" },
   rain: { hi: "buddy.hiRain", result: "buddy.resultRain", name: "buddy.mapRain" },
-  store: { hi: "buddy.hiStore", result: "buddy.resultStore", name: "buddy.mapStore" },
   beach: { hi: "buddy.hiBeach", result: "buddy.resultBeach", name: "buddy.mapBeach" },
 };
 /** Little line icons for the place button. */
@@ -34,7 +33,6 @@ const PLACE_ICON: Record<MapId, JSX.Element> = {
   forest: <><path d="M12 3l5 8h-3l4 6H6l4-6H7z" /><path d="M12 17v4" /></>,
   subway: <><rect x="5" y="3" width="14" height="14" rx="4" /><path d="M5 11h14M8.5 14.5h.01M15.5 14.5h.01M8 21l2-4M16 21l-2-4" /></>,
   rain: <><path d="M4 11a8 8 0 0 1 16 0z" /><path d="M12 11v7a2 2 0 0 0 4 0" /></>,
-  store: <><path d="M4 9l1.5-5h13L20 9" /><path d="M4 9h16v2a3 3 0 0 1-5.3 1.9A3 3 0 0 1 12 14a3 3 0 0 1-2.7-1.1A3 3 0 0 1 4 11z" /><path d="M6 14v6h12v-6" /></>,
   beach: <><path d="M3 15c2 0 2-1.5 4.5-1.5S10 15 12 15s2-1.5 4.5-1.5S19 15 21 15" /><path d="M3 19c2 0 2-1.5 4.5-1.5S10 19 12 19s2-1.5 4.5-1.5S19 19 21 19" /><circle cx="16" cy="7" r="3" /></>,
 };
 /** The place for today: the one picked last time on this device, otherwise it changes from day to day. */
@@ -165,12 +163,35 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
   const [saving, setSaving] = useState(false);
   const [phase, setPhase] = useState<Phase>("chat");
   const cardsRef = useRef<HTMLDivElement>(null);
+  // the cards are one sideways row: arrows at the ends (only where there is more to see), and the mouse wheel scrolls it sideways
+  const [canScroll, setCanScroll] = useState({ left: false, right: false });
+  const checkScroll = useCallback(() => {
+    const el = cardsRef.current;
+    if (!el) return;
+    setCanScroll({ left: el.scrollLeft > 4, right: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 });
+  }, []);
+  const scrollCards = (dir: number) => { const el = cardsRef.current; if (el) el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: "smooth" }); };
+  useEffect(() => {
+    const el = cardsRef.current;
+    if (!el) return;
+    checkScroll();
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX) || el.scrollWidth <= el.clientWidth) return;
+      e.preventDefault();
+      el.scrollBy({ left: e.deltaY });
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    const ro = new ResizeObserver(checkScroll);
+    ro.observe(el);
+    return () => { el.removeEventListener("wheel", onWheel); ro.disconnect(); };
+  });
   // "show more" brings the first new card into view, so it is not left hidden off to the side
   useEffect(() => {
     if (pages < 2) return;
     const el = cardsRef.current?.children[PAGE * (pages - 1)] as HTMLElement | undefined;
     el?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-  }, [pages]);
+    window.setTimeout(checkScroll, 400);
+  }, [pages, checkScroll]);
   const [note, setNote] = useState("");
   useEffect(() => { if (save?.initial) setSaved(save.initial); }, [save?.initial]);
   useEffect(() => {
@@ -328,7 +349,10 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
 
       <div className="bdg-hud">
         {step === 5 && saved === null && phase === "chat" && (
-          <div className={`bdg-cards${done || pickedWord ? " on" : ""}`} ref={cardsRef}>
+          <div className={`bdg-cardrow${done || pickedWord ? " on" : ""}`}>
+          {canScroll.left && <button type="button" className="bd-scroll left" onClick={() => scrollCards(-1)} aria-label={t("common.prev")}>‹</button>}
+          {canScroll.right && <button type="button" className="bd-scroll right" onClick={() => scrollCards(1)} aria-label={t("common.next")}>›</button>}
+          <div className={`bdg-cards${done || pickedWord ? " on" : ""}`} ref={cardsRef} onScroll={checkScroll}>
             {results.map((w, i) => {
               const on = value.includes(w.id);
               return (
@@ -339,6 +363,7 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
               );
             })}
             {ranked.length > results.length && <button type="button" className="bd-card bd-card-more" onClick={() => setPages(pages + 1)}><b>{t("emo.more")}</b><span aria-hidden="true">→</span></button>}
+          </div>
           </div>
         )}
 
