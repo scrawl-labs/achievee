@@ -139,7 +139,9 @@ export default function EmotionBuddy({ value, onChange, onBrowse }: { value: str
 /** What saving to the diary came back with: which words went in and which did not fit, or that it failed. */
 export type SaveResult = { added: string[]; left: string[] } | "error";
 /** On the standalone /bori page: save the chosen words to today's diary (signing in first if needed). */
-export type SaveTo = { signedIn: boolean; run: (ids: string[], note: string) => Promise<SaveResult | void>; initial?: SaveResult };
+/** On /bori or from the diary's floating button: save the chosen words (and a note) to today's diary, signing in first if needed.
+ * `after` replaces the default "go to the diary page" once it is saved (used inside the app, where the diary is already open). */
+export type SaveTo = { signedIn: boolean; run: (ids: string[], note: string) => Promise<SaveResult | void>; initial?: SaveResult; after?: () => void };
 /** After the words, on /bori: write a line or two, then Bori asks whether to save it. */
 type Phase = "chat" | "write" | "ask" | "declined";
 
@@ -196,7 +198,7 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
   useEffect(() => { if (save?.initial) setSaved(save.initial); }, [save?.initial]);
   useEffect(() => {
     if (!save || saved === null || saved === "error") return;
-    const id = window.setTimeout(() => window.location.assign("/?open=diary"), 3200); // Bori says thanks, then the diary opens
+    const id = window.setTimeout(() => (save.after ? save.after() : window.location.assign("/?open=diary")), 3200); // Bori says thanks, then the diary opens
     return () => window.clearTimeout(id);
   }, [save, saved]);
   useEffect(() => { setMap(startMap()); }, []);
@@ -409,7 +411,9 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
             <div className={`bd-choices bd-choices-row${done ? " on" : ""}`} key={`c-saved-${saved === "error" ? "e" : "ok"}`}>
               {saved === "error"
                 ? <button type="button" className="bd-choice bd-choice-main" onClick={doSave} disabled={saving}>{t("buddy.saveRetry")}</button>
-                : <a className="bd-choice bd-choice-main" href="/?open=diary">{t("buddy.openDiary")}</a>}
+                : save?.after
+                  ? <button type="button" className="bd-choice bd-choice-main" onClick={save.after}>{t("buddy.openDiary")}</button>
+                  : <a className="bd-choice bd-choice-main" href="/?open=diary">{t("buddy.openDiary")}</a>}
               <button type="button" className="bd-choice" onClick={restart}>{t("buddy.again")}</button>
             </div>
           )}

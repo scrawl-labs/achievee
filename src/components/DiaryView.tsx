@@ -9,6 +9,7 @@ import WeeklyReview from "./WeeklyReview";
 import EmotionPicker from "./EmotionPicker";
 import EmotionDictionary from "./EmotionDictionary";
 import EmotionStats from "./EmotionStats";
+import BoriFab from "./BoriFab";
 import { emoLang, wordText } from "@/lib/emotions";
 import { dow, mondayOf } from "@/lib/dates";
 import { todayStr } from "@/lib/clientTime";
@@ -54,6 +55,7 @@ function DayDiary({ ym, sel, setSel }: Props) {
         <textarea rows={10} value={body} onChange={(e) => { setBody(e.target.value); setSaved(false); }} />
         <div className="row end"><button className="btn primary" disabled={saved} onClick={save}>{t("common.save")}</button></div>
       </section>
+      <BoriFab beforeOpen={saved ? undefined : save} onSaved={() => { setSel(todayStr()); void reload(); }} />
       <section className="list">
         {rows.map((r) => {
           const isOpen = open.has(r.date);

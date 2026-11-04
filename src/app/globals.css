@@ -602,6 +602,23 @@ select {
 .emo-opts .btn { justify-content: flex-start; height: 44px; padding: 0 var(--s4); font-weight: 600; }
 .emo-back { align-self: flex-start; }
 
+/* Bori floating at the bottom right of the diary, like a help-desk chat button */
+.bori-fab { position: fixed; z-index: 40; right: 22px; bottom: 22px; display: flex; align-items: center; gap: 10px; pointer-events: none; }
+.bori-fab.hidden { display: none; }
+.bori-fab-btn { pointer-events: auto; width: 64px; height: 64px; padding: 0; border-radius: 50%; overflow: hidden; flex: none;
+  background: radial-gradient(circle at 40% 30%, #fffdf6, #f1e9da 70%); box-shadow: 0 0 0 3px #fff, 0 10px 26px -6px rgb(40 30 20 / .45);
+  transition: transform .2s cubic-bezier(.3, 1.6, .5, 1), box-shadow .2s; animation: bori-bob 3s ease-in-out infinite; }
+.bori-fab-btn img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 32%; transform: scale(1.6) translateY(4%); }
+.bori-fab-btn:hover { transform: translateY(-3px) scale(1.06); box-shadow: 0 0 0 3px #fff, 0 14px 30px -6px rgb(40 30 20 / .5); }
+.bori-fab-btn:active { transform: scale(.95); }
+.bori-fab-btn:disabled { opacity: .7; }
+.bori-fab-hint { order: -1; padding: 9px 14px; border-radius: 16px 16px 4px 16px; background: #fffaeb; color: #6f5a3c; font-size: 14px; font-weight: 700; white-space: nowrap;
+  box-shadow: 0 6px 18px -6px rgb(60 40 10 / .35); opacity: 0; translate: 6px 4px; transition: opacity .25s, translate .25s; }
+.bori-fab-hint.on { opacity: 1; translate: 0 0; }
+@keyframes bori-bob { 50% { translate: 0 -4px; } }
+@media (max-width: 860px) { .bori-fab { right: 14px; bottom: calc(64px + 14px + env(safe-area-inset-bottom)); } .bori-fab-btn { width: 56px; height: 56px; } }
+@media (prefers-reduced-motion: reduce) { .bori-fab-btn { animation: none; } }
+
 /* Bori in the forest: the guided questions as a full-screen 3D conversation */
 .bd {
   --bd-box: #fffaeb; --bd-ink: #6f5a3c; --bd-tag: #ee9d4e; --bd-tag-fg: #fff8ec; --bd-key: #e9801c; --bd-name: #2fa25a;

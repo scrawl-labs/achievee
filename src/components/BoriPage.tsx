@@ -5,20 +5,12 @@ import { signIn } from "next-auth/react";
 import { GOOGLE_HL } from "@/lib/i18n";
 import { todayStr } from "@/lib/clientTime";
 import { useI18n } from "./I18n";
+import { postBoriSave as post, type BoriSave } from "@/lib/boriSave";
 import { BuddyGame, type SaveResult } from "./EmotionBuddy";
 
 /** Words waiting to be saved while a guest signs in. */
 const PENDING = "achievee:boriPending";
-type Pending = { date: string; ids: string[]; note?: string };
-
-async function post(p: Pending): Promise<SaveResult> {
-  try {
-    const res = await fetch("/api/diary/emotions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ date: p.date, emotions: p.ids, note: p.note ?? "" }) });
-    if (!res.ok) return "error";
-    const j = await res.json();
-    return { added: j.added ?? [], left: j.left ?? [] };
-  } catch { return "error"; }
-}
+type Pending = BoriSave;
 
 /**
  * /bori: talk with Bori without signing in. At the end the words go into today's diary; a guest signs in with
