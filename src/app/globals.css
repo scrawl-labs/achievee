@@ -463,7 +463,7 @@ select {
 .emo-opts .btn { justify-content: flex-start; height: 44px; padding: 0 var(--s4); font-weight: 600; }
 .emo-back { align-self: flex-start; }
 
-/* Bori floating at the bottom right of the diary, like a help-desk chat button */
+/* Mallow floating at the bottom right of the diary, like a help-desk chat button */
 .bori-fab { position: fixed; z-index: 40; right: 22px; bottom: 22px; display: flex; align-items: center; gap: 10px; pointer-events: none; }
 .bori-fab.hidden { display: none; }
 .bori-fab-btn { pointer-events: auto; width: 64px; height: 64px; padding: 0; border-radius: 50%; overflow: hidden; flex: none;
@@ -480,7 +480,7 @@ select {
 @media (max-width: 860px) { .bori-fab { right: 14px; bottom: calc(64px + 14px + env(safe-area-inset-bottom)); } .bori-fab-btn { width: 56px; height: 56px; } }
 @media (prefers-reduced-motion: reduce) { .bori-fab-btn { animation: none; } }
 
-/* Bori in the forest: the guided questions as a full-screen 3D conversation */
+/* Mallow in the forest: the guided questions as a full-screen 3D conversation */
 .bd {
   --bd-box: #fffaeb; --bd-ink: #6f5a3c; --bd-tag: #ee9d4e; --bd-tag-fg: #fff8ec; --bd-key: #e9801c; --bd-name: #2fa25a;
   --bd-arrow: #f3b23a; --bd-pill: #fffaeb; --bd-pill-on: #ffe9b8;
@@ -506,7 +506,7 @@ select {
   animation: bdg-in .45s cubic-bezier(.2, .9, .3, 1) both; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
 .bdg-canvas, .bdg-canvas canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .bdg-canvas canvas { animation: bdg-iris .9s cubic-bezier(.3, .8, .3, 1) both; }
-/* while the scene gets ready: Bori bouncing, "Looking for Bori…" */
+/* while the scene gets ready: Mallow bouncing, "Looking for Mallow…" */
 .bdg-loading { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
   background: radial-gradient(120% 90% at 50% 35%, #fffaf0, #f1e7d6 70%); color: #6f5a3c; transition: opacity .5s ease, visibility .5s; }
 .bdg-loading.out { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -588,7 +588,7 @@ select {
 }
 .bd-choice:active { transform: scale(.97); }
 @media (min-width: 700px) { .bd-choices-row { flex-direction: row; flex-wrap: wrap; justify-content: flex-end; } }
-/* writing a line or two for the diary, on /bori */
+/* writing a line or two for the diary, on /mallow */
 .bd-write { display: flex; flex-direction: column; gap: 12px; }
 .bd-write:not(.on) { visibility: hidden; }
 .bd-write.on { animation: bd-rise .38s cubic-bezier(.3, 1.4, .5, 1) both; }
@@ -602,7 +602,7 @@ select {
 .bd-choice-main::before { border-left-color: #fff; }
 .bd-choice-main:hover:not(:disabled), .bd-choice-main:focus-visible, .bd-choice-main:active:not(:disabled) { background: color-mix(in oklab, var(--bd-name) 85%, #000); }
 
-/* word cards Bori offers: a swipeable row */
+/* word cards Mallow offers: a swipeable row */
 .bdg-cards { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 16px 10px; margin: 0 -16px;
   scrollbar-width: none; mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 16px), transparent); }
 .bdg-cards::-webkit-scrollbar { display: none; }
@@ -639,7 +639,7 @@ select {
 @keyframes bd-bounce { 50% { translate: 0 3px; } }
 @keyframes bd-rise { from { opacity: 0; translate: 0 10px; scale: .96; } to { opacity: 1; translate: 0 0; scale: 1; } }
 
-/* the 2D Bori (launcher art, and the fallback when 3D is unavailable) */
+/* the 2D Mallow (launcher art, and the fallback when 3D is unavailable) */
 .bori { width: 100%; height: 100%; overflow: visible; }
 .bori * { transform-box: fill-box; }
 .bd-shadow { fill: rgba(70, 50, 20, .2); transform-origin: center; animation: bd-shadow 2.6s ease-in-out infinite; }

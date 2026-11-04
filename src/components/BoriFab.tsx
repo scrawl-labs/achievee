@@ -7,8 +7,8 @@ import { useI18n } from "./I18n";
 import { BuddyGame, usePrefetchBori, type SaveResult } from "./EmotionBuddy";
 
 /**
- * Bori floating at the bottom right of the diary, like a help-desk chat button. Tapping it opens the full-screen
- * conversation; at the end the words and a note go into today's diary and Bori brings you back to it.
+ * Mallow floating at the bottom right of the diary, like a help-desk chat button. Tapping it opens the full-screen
+ * conversation; at the end the words and a note go into today's diary and Mallow brings you back to it.
  * `beforeOpen` saves anything typed in the diary but not yet saved, so nothing is lost when the diary reloads.
  */
 export default function BoriFab({ beforeOpen, onSaved }: { beforeOpen?: () => Promise<void>; onSaved: () => void }) {

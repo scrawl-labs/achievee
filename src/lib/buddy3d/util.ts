@@ -1,4 +1,4 @@
-/** Small shared helpers for Bori's places: seeded randomness, noise, canvases, and swept / curved shapes. */
+/** Small shared helpers for Mallow's places: seeded randomness, noise, canvases, and swept / curved shapes. */
 import * as THREE from "three";
 
 export function rng(seed: number) { return () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646; }

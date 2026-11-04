@@ -13,7 +13,7 @@ const WORLDS = { forest: buildForest, subway: buildSubway, rain: buildBusStop, b
 
 type Props = { map: MapId; face: Face; talking: boolean; beat: number; onFail: () => void; onReady?: () => void };
 
-/** Builds Bori's body in idle time before the scene is opened (call from a launcher once it is on screen). */
+/** Builds Mallow's body in idle time before the scene is opened (call from a launcher once it is on screen). */
 export function warmUp() { prewarmBori(); }
 
 function emoteTexture(kind: "note" | "drop" | "q" | "spark") {
@@ -58,7 +58,7 @@ function toStandard(m: THREE.MeshPhysicalMaterial) {
 
 const damp = (a: number, b: number, k: number, dt: number) => THREE.MathUtils.lerp(a, b, 1 - Math.exp(-k * dt));
 
-/** The full-screen 3D scene: Bori after work, in one of a few places (a forest, the subway home, a rainy bus stop, the beach). */
+/** The full-screen 3D scene: Mallow after work, in one of a few places (a forest, the subway home, a rainy bus stop, the beach). */
 export default function BuddyScene({ map, face, talking, beat, onFail, onReady }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const state = useRef({ face, talking, beat });
@@ -95,7 +95,7 @@ export default function BuddyScene({ map, face, talking, beat, onFail, onReady }
     scene.add(world.group);
 
     const bori = buildBori();
-    const S = 0.62; // Bori is small: about the height of a fern, or of a subway seat back
+    const S = 0.62; // Mallow is small: about the height of a fern, or of a subway seat back
     bori.root.scale.setScalar(S);
     bori.root.position.set(0, 0, 0.35);
     scene.add(bori.root);
@@ -106,7 +106,7 @@ export default function BuddyScene({ map, face, talking, beat, onFail, onReady }
     emote.position.set(0.5, 1.45, 0.6);
     scene.add(emote);
 
-    // shadows: one size fits all, and they are redrawn every other frame (only Bori and a few small things move)
+    // shadows: one size fits all, and they are redrawn every other frame (only Mallow and a few small things move)
     scene.traverse((o) => { const l = o as THREE.DirectionalLight; if (l.isLight && l.castShadow && l.shadow) l.shadow.mapSize.set(lite ? 1024 : 1536, lite ? 1024 : 1536); });
     renderer.shadowMap.autoUpdate = false;
     renderer.shadowMap.needsUpdate = true;
@@ -125,10 +125,10 @@ export default function BuddyScene({ map, face, talking, beat, onFail, onReady }
       renderer.setSize(w, h, false);
       const aspect = w / h;
       camera.aspect = aspect;
-      // Bori fills a set share of the screen height and sits in the upper part, clear of the dialogue box
+      // Mallow fills a set share of the screen height and sits in the upper part, clear of the dialogue box
       const share = aspect < 0.8 ? 0.3 : 0.38;
       const tan = 2 * Math.tan(THREE.MathUtils.degToRad(15));
-      // fit by height, and on narrow screens also by width (Bori, arms included, is about 2.2 wide)
+      // fit by height, and on narrow screens also by width (Mallow, arms included, is about 2.2 wide)
       const dist = Math.max((2.3 * S) / share / tan, (2.2 * S) / 0.62 / (tan * aspect));
       camera.position.set(0.35, 1.2, 0.35 + dist);
       camera.lookAt(target);
@@ -169,10 +169,10 @@ export default function BuddyScene({ map, face, talking, beat, onFail, onReady }
       if (st.beat !== lastBeat) { lastBeat = st.beat; hopT = 0; }
       hopT += dt;
 
-      // a light breeze: Bori rocks a tiny bit
+      // a light breeze: Mallow rocks a tiny bit
       const sway = Math.sin(t * 0.8) * 0.005 * m;
 
-      // Bori: breathing, a little hop on each new line
+      // Mallow: breathing, a little hop on each new line
       const h = hopT < 0.5 ? hopT / 0.5 : 1;
       const jump = h < 1 ? Math.sin(h * Math.PI) * 0.08 * m : 0;
       const squash = h < 1 ? 1 - Math.sin(h * Math.PI * 2) * 0.05 * m : 1;
@@ -206,7 +206,7 @@ export default function BuddyScene({ map, face, talking, beat, onFail, onReady }
       camera.position.x = 0.35 + Math.sin(t * 0.17) * 0.08 * m;
       camera.lookAt(target);
 
-      // shadows: every other frame on computers; on phones only while Bori hops (the rest of the scene stands still)
+      // shadows: every other frame on computers; on phones only while Mallow hops (the rest of the scene stands still)
       frames++;
       if (lite ? hopT < 0.7 : frames % 2 === 0) renderer.shadowMap.needsUpdate = true;
       adapt(dt, t);

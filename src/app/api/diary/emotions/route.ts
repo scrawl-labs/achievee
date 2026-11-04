@@ -9,7 +9,7 @@ const YMD = /^\d{4}-\d{2}-\d{2}$/;
 const MAX_BODY = 5000;
 
 /**
- * Adds to a day's diary without replacing what is already there (used by Bori's /bori page):
+ * Adds to a day's diary without replacing what is already there (used by Mallow's /mallow page):
  * emotion words fill the free places (the day's own words stay), and a note is added after any text already written.
  * Answers which words were added and which did not fit.
  */

@@ -4,7 +4,7 @@ import { ZH_LAND } from "./i18n-zh";
 // Landing page copy. Merged into the main dictionary in i18n.ts.
 // Scenes: a log, b calendar, c diary, d spending, e exercise, f stats. Each has an eyebrow (.e), a title (.t) and a description (.d).
 const en = {
-  "land.nav.f": "Features", "land.nav.privacy": "Privacy", "land.bori.e": "Bori", "land.bori.t": "Feelings that are hard to name? Bori asks first", "land.bori.d": "On the subway home, at a rainy bus stop, in the forest or by the sea, Bori asks four small questions and helps you find the word for today's feeling. Write a line or two, and keep it in your diary.", "land.bori.cta": "Talk with Bori", "land.bori.note": "No sign-in needed, about a minute", 
+  "land.nav.f": "Features", "land.nav.privacy": "Privacy", "land.bori.e": "Mallow", "land.bori.t": "Feelings that are hard to name? Mallow asks first", "land.bori.d": "On the subway home, at a rainy bus stop, in the forest or by the sea, Mallow asks four small questions and helps you find the word for today's feeling. Write a line or two, and keep it in your diary.", "land.bori.cta": "Talk with Mallow", "land.bori.note": "No sign-in needed, about a minute", 
   "land.a.e": "Log", "land.a.t": "Your whole day on one screen",
   "land.a.d": "Goals, to-dos, events, exercise, spending and your diary.\nFinish your day and watch the flowers bloom.",
   "land.b.e": "Calendar", "land.b.t": "Drag a to-do onto the calendar and it becomes an event",
@@ -36,7 +36,7 @@ const en = {
 type K = keyof typeof en;
 
 const ko: Record<K, string> = {
-  "land.nav.f": "기능", "land.nav.privacy": "개인정보", "land.bori.e": "보리", "land.bori.t": "말로 하기 어려운 마음, 보리가 먼저 물어봐요", "land.bori.d": "퇴근길 지하철, 비 오는 버스 정류장, 숲, 바닷가. 보리가 네 가지 작은 질문으로 오늘 마음에 맞는 단어를 같이 찾아 줘요. 한두 줄 적어서 일기로 남길 수도 있어요.", "land.bori.cta": "보리랑 얘기해 보기", "land.bori.note": "로그인 없이, 1분이면 충분해요", 
+  "land.nav.f": "기능", "land.nav.privacy": "개인정보", "land.bori.e": "멜로", "land.bori.t": "말로 하기 어려운 마음, 멜로가 먼저 물어봐요", "land.bori.d": "퇴근길 지하철, 비 오는 버스 정류장, 숲, 바닷가. 멜로가 네 가지 작은 질문으로 오늘 마음에 맞는 단어를 같이 찾아 줘요. 한두 줄 적어서 일기로 남길 수도 있어요.", "land.bori.cta": "멜로랑 얘기해 보기", "land.bori.note": "로그인 없이, 1분이면 충분해요", 
   "land.a.e": "기록", "land.a.t": "하루의 모든 기록을 한 화면에",
   "land.a.d": "목표, 할 일, 일정, 운동, 지출, 일기까지.\n일을 다 마치고 꽃을 피워보세요.",
   "land.b.e": "캘린더", "land.b.t": "할 일을 끌어다 놓으면 일정이 돼요",
@@ -66,7 +66,7 @@ const ko: Record<K, string> = {
 };
 
 const ja: Record<K, string> = {
-  "land.nav.f": "機能", "land.nav.privacy": "プライバシー", "land.bori.e": "ボリ", "land.bori.t": "言葉にしにくい気持ち、ボリが先に聞いてくれます", "land.bori.d": "帰りの地下鉄、雨のバス停、森、海辺。ボリが4つの小さな質問で、今日の気持ちにぴったりの言葉をいっしょに探してくれます。一、二行書いて日記に残すこともできます。", "land.bori.cta": "ボリとお話しする", "land.bori.note": "ログイン不要、1分ほど", 
+  "land.nav.f": "機能", "land.nav.privacy": "プライバシー", "land.bori.e": "マロ", "land.bori.t": "言葉にしにくい気持ち、マロが先に聞いてくれます", "land.bori.d": "帰りの地下鉄、雨のバス停、森、海辺。マロが4つの小さな質問で、今日の気持ちにぴったりの言葉をいっしょに探してくれます。一、二行書いて日記に残すこともできます。", "land.bori.cta": "マロとお話しする", "land.bori.note": "ログイン不要、1分ほど", 
   "land.a.e": "記録", "land.a.t": "一日の記録を、ひとつの画面に",
   "land.a.d": "目標、ToDo、予定、運動、支出、日記まで。\nやり終えて、花を咲かせてみましょう。",
   "land.b.e": "カレンダー", "land.b.t": "ToDoをドラッグすると予定になります",
@@ -96,7 +96,7 @@ const ja: Record<K, string> = {
 };
 
 const es: Record<K, string> = {
-  "land.nav.f": "Funciones", "land.nav.privacy": "Privacidad", "land.bori.e": "Bori", "land.bori.t": "¿Sentimientos difíciles de nombrar? Bori pregunta primero", "land.bori.d": "En el metro de vuelta, en una parada bajo la lluvia, en el bosque o junto al mar, Bori te hace cuatro preguntas pequeñas y te ayuda a encontrar la palabra para lo que sientes hoy. Escribe una o dos líneas y guárdalas en tu diario.", "land.bori.cta": "Hablar con Bori", "land.bori.note": "Sin registrarte, en un minuto", 
+  "land.nav.f": "Funciones", "land.nav.privacy": "Privacidad", "land.bori.e": "Mallow", "land.bori.t": "¿Sentimientos difíciles de nombrar? Mallow pregunta primero", "land.bori.d": "En el metro de vuelta, en una parada bajo la lluvia, en el bosque o junto al mar, Mallow te hace cuatro preguntas pequeñas y te ayuda a encontrar la palabra para lo que sientes hoy. Escribe una o dos líneas y guárdalas en tu diario.", "land.bori.cta": "Hablar con Mallow", "land.bori.note": "Sin registrarte, en un minuto", 
   "land.a.e": "Registro", "land.a.t": "Todo tu día en una sola pantalla",
   "land.a.d": "Objetivos, tareas, eventos, ejercicio, gastos y tu diario.\nTermina lo que te propones y haz florecer tus flores.",
   "land.b.e": "Calendario", "land.b.t": "Arrastra una tarea al calendario y se vuelve un evento",

@@ -13,7 +13,7 @@ const PENDING = "achievee:boriPending";
 type Pending = BoriSave;
 
 /**
- * /bori: talk with Bori without signing in. At the end the words go into today's diary; a guest signs in with
+ * /mallow: talk with Mallow without signing in. At the end the words go into today's diary; a guest signs in with
  * Google first and comes back here, where the waiting words are saved straight away.
  */
 export default function BoriPage({ signedIn }: { signedIn: boolean }) {
@@ -39,7 +39,7 @@ export default function BoriPage({ signedIn }: { signedIn: boolean }) {
     const p = { date: todayStr(), ids, note };
     if (signedIn) return post(p);
     try { localStorage.setItem(PENDING, JSON.stringify(p)); } catch { /* storage blocked: they will pick again after signing in */ }
-    await signIn("google", { callbackUrl: "/bori" }, { hl: GOOGLE_HL[locale] });
+    await signIn("google", { callbackUrl: "/mallow" }, { hl: GOOGLE_HL[locale] });
   };
 
   if (!ready) return <div className="bdg bd" aria-busy="true" />;

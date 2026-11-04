@@ -1,5 +1,5 @@
 /**
- * Bori, an original little office-worker creature: one soft sculpted body (built from a signed distance
+ * Mallow, an original little office-worker creature: one soft sculpted body (built from a signed distance
  * field and shrink-wrapped into a single smooth mesh), a face painted onto the surface so it can change expression
  * (small bean eyes, rosy cheeks, a tiny mouth).
  */
@@ -25,7 +25,7 @@ function capsule(px: number, py: number, pz: number, a: V, b: V, r: number) {
 }
 function smin(a: number, b: number, k: number) { const h = Math.max(k - Math.abs(a - b), 0) / k; return Math.min(a, b) - h * h * k * 0.25; }
 
-/** Distance to Bori's skin. About 2.1 tall, standing on y = 0, facing +z. */
+/** Distance to Mallow's skin. About 2.1 tall, standing on y = 0, facing +z. */
 export function sdf(x: number, y: number, z: number) {
   let d = ell(x, y, z, [0, 1.02, 0], [0.9, 0.96, 0.8]);                    // upper body / head (no neck, one blob)
   d = smin(d, ell(x, y, z, [0, 0.62, 0.05], [1.0, 0.6, 0.86]), 0.42);       // the round belly, pear-shaped
@@ -68,7 +68,7 @@ export function frontZ(x: number, y: number) {
   return (lo + hi) / 2;
 }
 
-/** Bori's colours: the body, and the paler belly patch. */
+/** Mallow's colours: the body, and the paler belly patch. */
 export type Palette = { body: string; belly: string };
 export const DEFAULT_PALETTE: Palette = { body: "#e9e4dc", belly: "#ffffff" }; // rice-cake white
 
@@ -146,7 +146,7 @@ function stroke(g: CanvasRenderingContext2D, w: number, draw: () => void, col = 
   g.beginPath(); draw(); g.stroke();
 }
 
-/** Draws Bori's face for one moment: small bean eyes, rosy cheeks, a tiny mouth. */
+/** Draws Mallow's face for one moment: small bean eyes, rosy cheeks, a tiny mouth. */
 export function paintFace(g: CanvasRenderingContext2D, s: FaceState) {
   g.clearRect(0, 0, FW, FH);
   const happy = s.face === "happy" || s.face === "joy";
@@ -210,7 +210,7 @@ export function paintFace(g: CanvasRenderingContext2D, s: FaceState) {
   }
 }
 
-export type Bori = ReturnType<typeof buildBori>;
+export type Mallow = ReturnType<typeof buildBori>;
 
 const SHAPES = new Map<string, { geo: THREE.BufferGeometry; face: THREE.BufferGeometry }>();
 function shapesFor(pal: Palette) {
@@ -224,7 +224,7 @@ function shapesFor(pal: Palette) {
   }
   return cached;
 }
-/** Builds Bori's body ahead of time (in idle time), so opening the scene is quicker. */
+/** Builds Mallow's body ahead of time (in idle time), so opening the scene is quicker. */
 export function prewarmBori(pal: Palette = DEFAULT_PALETTE) { shapesFor(pal); }
 
 export function buildBori(pal: Palette = DEFAULT_PALETTE) {
@@ -237,7 +237,7 @@ export function buildBori(pal: Palette = DEFAULT_PALETTE) {
   const geo = cached.geo;
   const skin = new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.55, sheen: 0.35, sheenRoughness: 0.6, sheenColor: new THREE.Color(pal.belly), clearcoat: 0.1, clearcoatRoughness: 0.5 });
   const body = new THREE.Mesh(geo, skin);
-  body.castShadow = true; body.receiveShadow = false; // no hard window or leaf shadows across Bori
+  body.castShadow = true; body.receiveShadow = false; // no hard window or leaf shadows across Mallow
   bodyGroup.add(body);
 
   const faceCanvas = document.createElement("canvas");
