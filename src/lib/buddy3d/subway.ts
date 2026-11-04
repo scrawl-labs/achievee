@@ -156,7 +156,7 @@ function cityLayer(kind: 0 | 1 | 2) {
 function shaftTexture() {
   const [c, g] = canvas(64, 256);
   const gr = g.createLinearGradient(0, 0, 0, 256);
-  gr.addColorStop(0, "rgba(255,214,150,.75)"); gr.addColorStop(1, "rgba(255,214,150,0)");
+  gr.addColorStop(0, "rgba(255,214,150,.75)"); gr.addColorStop(0.75, "rgba(255,214,150,.12)"); gr.addColorStop(1, "rgba(255,214,150,0)");
   g.fillStyle = gr; g.fillRect(0, 0, 64, 256);
   const side = g.createLinearGradient(0, 0, 64, 0);
   side.addColorStop(0, "rgba(0,0,0,1)"); side.addColorStop(0.25, "rgba(0,0,0,0)"); side.addColorStop(0.75, "rgba(0,0,0,0)"); side.addColorStop(1, "rgba(0,0,0,1)");
@@ -279,7 +279,7 @@ export function buildSubway(_opts: WorldOpts = {}): World {
   const shafts: THREE.Mesh[] = [];
   const dir = new THREE.Vector3().subVectors(sun.target.position, sun.position).normalize();
   for (let x = X0 + PITCH / 2; x < X1; x += PITCH) {
-    const o = new THREE.Vector3(x, 1.65, -1.88), w = PITCH * 0.75, L = 4.2;
+    const o = new THREE.Vector3(x, 1.65, -1.88), w = PITCH * 0.75, L = 2.1; // short enough to fade out before reaching Bori
     const p = [o.clone().add(new THREE.Vector3(-w / 2, 0, 0)), o.clone().add(new THREE.Vector3(w / 2, 0, 0))];
     const q = p.map((v) => v.clone().addScaledVector(dir, L));
     const g = new THREE.BufferGeometry();

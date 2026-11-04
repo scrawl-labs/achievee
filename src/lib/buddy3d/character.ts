@@ -211,15 +211,26 @@ export function paintFace(g: CanvasRenderingContext2D, s: FaceState) {
 
 export type Bori = ReturnType<typeof buildBori>;
 
+const SHAPES = new Map<string, { geo: THREE.BufferGeometry; face: THREE.BufferGeometry }>();
+
 export function buildBori(pal: Palette = DEFAULT_PALETTE) {
   const root = new THREE.Group();
   const bodyGroup = new THREE.Group(); // squashes and sways
   root.add(bodyGroup);
 
-  const geo = buildBodyGeometry(pal);
+  // the body and face patch take a moment to build, so they are made once per colour and shared between scenes
+  const key = `${pal.body}|${pal.belly}`;
+  let cached = SHAPES.get(key);
+  if (!cached) {
+    const g = buildBodyGeometry(pal), f = buildFacePatch(g);
+    g.userData.shared = f.userData.shared = true;
+    cached = { geo: g, face: f };
+    SHAPES.set(key, cached);
+  }
+  const geo = cached.geo;
   const skin = new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.55, sheen: 0.35, sheenRoughness: 0.6, sheenColor: new THREE.Color(pal.belly), clearcoat: 0.1, clearcoatRoughness: 0.5 });
   const body = new THREE.Mesh(geo, skin);
-  body.castShadow = true; body.receiveShadow = true;
+  body.castShadow = true; body.receiveShadow = false; // no hard window or leaf shadows across Bori
   bodyGroup.add(body);
 
   const faceCanvas = document.createElement("canvas");
@@ -228,7 +239,7 @@ export function buildBori(pal: Palette = DEFAULT_PALETTE) {
   const faceTex = new THREE.CanvasTexture(faceCanvas);
   faceTex.colorSpace = THREE.SRGBColorSpace; faceTex.anisotropy = 4;
   const faceMat = new THREE.MeshPhysicalMaterial({ map: faceTex, transparent: true, roughness: 0.45, clearcoat: 0.15, polygonOffset: true, polygonOffsetFactor: -2, depthWrite: false });
-  const face = new THREE.Mesh(buildFacePatch(geo), faceMat);
+  const face = new THREE.Mesh(cached.face, faceMat);
   face.renderOrder = 2;
   bodyGroup.add(face);
 
