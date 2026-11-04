@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
-import { buildBori, type Face } from "@/lib/buddy3d/character";
+import { buildBori, prewarmBori, type Face } from "@/lib/buddy3d/character";
 import { buildForest } from "@/lib/buddy3d/forest";
 import { buildSubway } from "@/lib/buddy3d/subway";
 import { buildBusStop } from "@/lib/buddy3d/busstop";
@@ -11,7 +11,10 @@ import { buildBeach } from "@/lib/buddy3d/beach";
 export type MapId = "forest" | "subway" | "rain" | "beach";
 const WORLDS = { forest: buildForest, subway: buildSubway, rain: buildBusStop, beach: buildBeach };
 
-type Props = { map: MapId; face: Face; talking: boolean; beat: number; onFail: () => void };
+type Props = { map: MapId; face: Face; talking: boolean; beat: number; onFail: () => void; onReady?: () => void };
+
+/** Builds Bori's body in idle time before the scene is opened (call from a launcher once it is on screen). */
+export function warmUp() { prewarmBori(); }
 
 function emoteTexture(kind: "note" | "drop" | "q" | "spark") {
   const c = document.createElement("canvas"); c.width = c.height = 256;
@@ -56,7 +59,7 @@ function toStandard(m: THREE.MeshPhysicalMaterial) {
 const damp = (a: number, b: number, k: number, dt: number) => THREE.MathUtils.lerp(a, b, 1 - Math.exp(-k * dt));
 
 /** The full-screen 3D scene: Bori after work, in one of a few places (a forest, the subway home, a rainy bus stop, the beach). */
-export default function BuddyScene({ map, face, talking, beat, onFail }: Props) {
+export default function BuddyScene({ map, face, talking, beat, onFail, onReady }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const state = useRef({ face, talking, beat });
   state.current = { face, talking, beat };
@@ -209,7 +212,22 @@ export default function BuddyScene({ map, face, talking, beat, onFail }: Props) 
       adapt(dt, t);
       renderer.render(scene, camera);
     };
-    frame();
+    // prepare every material on the graphics card first, so the first seconds don't stutter; then start and say so
+    let started = false;
+    const begin = () => {
+      if (started || !running) return;
+      started = true;
+      frame();
+      onReady?.();
+    };
+    // wait two frames so the loading screen is on screen, then compile everything in one go and draw
+    let warm = requestAnimationFrame(() => {
+      warm = requestAnimationFrame(() => {
+        try { renderer.compile(scene, camera); } catch { /* compiling on first draw instead */ }
+        begin();
+      });
+    });
+    const fallback = window.setTimeout(begin, 8000); // never wait forever
 
     const onVis = () => {
       if (document.hidden) { running = false; cancelAnimationFrame(raf); }
@@ -218,7 +236,7 @@ export default function BuddyScene({ map, face, talking, beat, onFail }: Props) 
     document.addEventListener("visibilitychange", onVis);
 
     return () => {
-      running = false; cancelAnimationFrame(raf);
+      running = false; cancelAnimationFrame(raf); cancelAnimationFrame(warm); window.clearTimeout(fallback);
       document.removeEventListener("visibilitychange", onVis);
       ro.disconnect();
       scene.traverse((o) => {

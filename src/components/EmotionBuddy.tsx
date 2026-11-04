@@ -22,6 +22,18 @@ const PAGE = 6;
 const SOUND_KEY = "achievee:buddyVoice";
 const MAP_KEY = "achievee:buddyMap";
 const MAPS: MapId[] = ["forest", "subway", "rain", "beach"];
+const LOADING: Record<MapId, Key> = { forest: "buddy.loadForest", subway: "buddy.loadSubway", rain: "buddy.loadRain", beach: "buddy.loadBeach" };
+
+/** Once a way in to Bori is on screen, fetch the 3D code and build Bori's body in idle time, so opening is quick. */
+export function usePrefetchBori() {
+  useEffect(() => {
+    const run = () => { void import("./BuddyScene").then((m) => m.warmUp()).catch(() => { /* it will load on open instead */ }); };
+    const w = window as Window & { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
+    if (w.requestIdleCallback) { const id = w.requestIdleCallback(run, { timeout: 5000 }); return () => w.cancelIdleCallback?.(id); }
+    const id = window.setTimeout(run, 2500);
+    return () => window.clearTimeout(id);
+  }, []);
+}
 const LINES: Record<MapId, { hi: Key; result: Key; name: Key }> = {
   forest: { hi: "buddy.hi", result: "buddy.result", name: "buddy.mapForest" },
   subway: { hi: "buddy.hiSubway", result: "buddy.resultSubway", name: "buddy.mapSubway" },
@@ -121,6 +133,7 @@ function Line({ segs, shown }: { segs: Seg[]; shown: number }) {
 export default function EmotionBuddy({ value, onChange, onBrowse }: { value: string[]; onChange: (v: string[]) => void; onBrowse: () => void }) {
   const { t } = useI18n();
   const [playing, setPlaying] = useState(false);
+  usePrefetchBori();
   return (
     <>
       <button type="button" className="bd bd-launch" onClick={() => setPlaying(true)}>
@@ -160,6 +173,7 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
   const [beat, setBeat] = useState(0); // bumps on every new line so Bori hops and the emote replays
   const [voice, setVoice] = useState(false);
   const [no3d, setNo3d] = useState(false);
+  const [ready, setReady] = useState(false); // the 3D scene has drawn its first frame
   const [map, setMap] = useState<MapId>("forest");
   const [saved, setSaved] = useState<SaveResult | null>(save?.initial ?? null);
   const [saving, setSaving] = useState(false);
@@ -204,7 +218,7 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
   useEffect(() => { setMap(startMap()); }, []);
   const nextMap = () => {
     const m = MAPS[(MAPS.indexOf(map) + 1) % MAPS.length];
-    setMap(m);
+    setMap(m); setReady(false);
     try { localStorage.setItem(MAP_KEY, m); } catch { /* storage blocked */ }
   };
   useEffect(() => { try { setVoice(localStorage.getItem(SOUND_KEY) === "1"); } catch { /* storage blocked */ } }, []);
@@ -266,7 +280,8 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
     : step === 2 ? (ans.lean === "pos" ? "happy" : ans.lean === "neg" ? "sad" : "think")
     : step === 5 ? "happy" : "idle";
 
-  const segs = useMemo(() => parse(line), [line]);
+  const live = ready || no3d; // Bori starts talking once the scene is there
+  const segs = useMemo(() => parse(live ? line : ""), [line, live]);
   const plain = useMemo(() => segs.map((s) => s.s).join(""), [segs]);
   const { shown, done, finish } = useTypewriter(plain, voice);
 
@@ -317,7 +332,12 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
     <div className="bdg bd" ref={root} role="dialog" aria-modal="true" aria-label={t("buddy.start")} tabIndex={-1}>
       {no3d
         ? <div className="bdg-flat"><img src="/buddy/bori.png" alt="" /></div>
-        : <BuddyScene key={map} map={map} face={face} talking={!done} beat={beat} onFail={() => setNo3d(true)} />}
+        : <BuddyScene key={map} map={map} face={face} talking={!done} beat={beat} onFail={() => setNo3d(true)} onReady={() => setReady(true)} />}
+      <div className={`bdg-loading${live ? " out" : ""}`} aria-hidden={live} role="status">
+        <img src="/buddy/bori.png" alt="" width={120} height={120} />
+        <b>{t("buddy.loading")}<span className="bdg-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span></b>
+        <small>{t(LOADING[map])}</small>
+      </div>
       <div className="bdg-vignette" aria-hidden="true" />
 
       <div className="bdg-top">

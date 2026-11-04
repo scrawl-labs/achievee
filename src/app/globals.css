@@ -506,11 +506,23 @@ select {
   animation: bdg-in .45s cubic-bezier(.2, .9, .3, 1) both; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
 .bdg-canvas, .bdg-canvas canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .bdg-canvas canvas { animation: bdg-iris .9s cubic-bezier(.3, .8, .3, 1) both; }
+/* while the scene gets ready: Bori bouncing, "Looking for Bori…" */
+.bdg-loading { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  background: radial-gradient(120% 90% at 50% 35%, #fffaf0, #f1e7d6 70%); color: #6f5a3c; transition: opacity .5s ease, visibility .5s; }
+.bdg-loading.out { opacity: 0; visibility: hidden; pointer-events: none; }
+.bdg-loading img { width: 120px; height: 120px; object-fit: contain; animation: bdg-hop 1.1s cubic-bezier(.3, .0, .4, 1) infinite; }
+.bdg-loading b { font-size: 18px; font-weight: 800; }
+.bdg-loading small { font-size: 14px; color: #9a8466; }
+.bdg-dots i { font-style: normal; animation: bdg-dot 1.2s infinite; }
+.bdg-dots i:nth-child(2) { animation-delay: .2s; } .bdg-dots i:nth-child(3) { animation-delay: .4s; }
+@keyframes bdg-hop { 0%, 100% { translate: 0 0; scale: 1 1; } 12% { scale: 1.06 .94; } 45% { translate: 0 -22px; scale: .97 1.04; } 80% { translate: 0 0; scale: 1.04 .96; } }
+@keyframes bdg-dot { 0%, 60%, 100% { opacity: .2; } 30% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .bdg-loading img, .bdg-dots i { animation: none; } }
 .bdg-vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(130% 90% at 50% 35%, transparent 55%, rgba(40, 30, 10, .22)); }
 .bdg-flat { position: absolute; inset: 0; background: radial-gradient(120% 80% at 30% 15%, #f6dca0, #8fb062 55%, #4f7038); display: flex; justify-content: center; }
 .bdg-flat img { width: min(70vw, 340px); height: auto; margin-top: 12vh; align-self: flex-start; }
 
-.bdg-top { position: absolute; z-index: 2; top: max(14px, env(safe-area-inset-top)); left: 14px; right: 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.bdg-top { position: absolute; z-index: 6; top: max(14px, env(safe-area-inset-top)); left: 14px; right: 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .bdg-right { display: flex; gap: 8px; }
 .bd-mini { height: 40px; min-width: 40px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
   background: color-mix(in oklab, var(--bd-box) 88%, transparent); color: var(--bd-ink); font-size: 14px; font-weight: 800;
