@@ -40,17 +40,18 @@ export function sdf(x: number, y: number, z: number) {
 const CENTER = new THREE.Vector3(0, 0.95, 0.02);
 
 /** Marches in from outside along a ray and returns the outermost surface crossing. */
-function surface(o: THREE.Vector3, d: THREE.Vector3, tMax: number, step = 0.015) {
-  let t = tMax;
-  let prev = sdf(o.x + d.x * t, o.y + d.y * t, o.z + d.z * t);
-  for (; t > 0; t -= step) {
+function surface(o: THREE.Vector3, d: THREE.Vector3, tMax: number) {
+  // sphere tracing: from outside, step in by (most of) the distance to the skin, then pin the crossing down
+  let t = tMax, outT = tMax;
+  for (let i = 0; i < 96 && t > 0; i++) {
     const v = sdf(o.x + d.x * t, o.y + d.y * t, o.z + d.z * t);
-    if (v < 0 && prev >= 0) {
-      let lo = t, hi = t + step;
-      for (let i = 0; i < 14; i++) { const m = (lo + hi) / 2; if (sdf(o.x + d.x * m, o.y + d.y * m, o.z + d.z * m) < 0) lo = m; else hi = m; }
+    if (v < 0) {
+      let lo = t, hi = outT; // lo is inside, hi outside
+      for (let k = 0; k < 12; k++) { const m = (lo + hi) / 2; if (sdf(o.x + d.x * m, o.y + d.y * m, o.z + d.z * m) < 0) lo = m; else hi = m; }
       return (lo + hi) / 2;
     }
-    prev = v;
+    outT = t;
+    t -= Math.max(v * 0.7, 0.004);
   }
   return 0;
 }
@@ -73,7 +74,7 @@ export const DEFAULT_PALETTE: Palette = { body: "#e9e4dc", belly: "#ffffff" }; /
 
 function buildBodyGeometry(pal: Palette) {
   const BODY = new THREE.Color(pal.body), BELLY = new THREE.Color(pal.belly);
-  let g: THREE.BufferGeometry = new THREE.IcosahedronGeometry(1, 72);
+  let g: THREE.BufferGeometry = new THREE.IcosahedronGeometry(1, 56);
   g.deleteAttribute("normal"); g.deleteAttribute("uv");
   g = mergeVertices(g);
   const pos = g.getAttribute("position") as THREE.BufferAttribute;
@@ -212,13 +213,7 @@ export function paintFace(g: CanvasRenderingContext2D, s: FaceState) {
 export type Bori = ReturnType<typeof buildBori>;
 
 const SHAPES = new Map<string, { geo: THREE.BufferGeometry; face: THREE.BufferGeometry }>();
-
-export function buildBori(pal: Palette = DEFAULT_PALETTE) {
-  const root = new THREE.Group();
-  const bodyGroup = new THREE.Group(); // squashes and sways
-  root.add(bodyGroup);
-
-  // the body and face patch take a moment to build, so they are made once per colour and shared between scenes
+function shapesFor(pal: Palette) {
   const key = `${pal.body}|${pal.belly}`;
   let cached = SHAPES.get(key);
   if (!cached) {
@@ -227,6 +222,18 @@ export function buildBori(pal: Palette = DEFAULT_PALETTE) {
     cached = { geo: g, face: f };
     SHAPES.set(key, cached);
   }
+  return cached;
+}
+/** Builds Bori's body ahead of time (in idle time), so opening the scene is quicker. */
+export function prewarmBori(pal: Palette = DEFAULT_PALETTE) { shapesFor(pal); }
+
+export function buildBori(pal: Palette = DEFAULT_PALETTE) {
+  const root = new THREE.Group();
+  const bodyGroup = new THREE.Group(); // squashes and sways
+  root.add(bodyGroup);
+
+  // the body and face patch take a moment to build, so they are made once per colour and shared between scenes
+  const cached = shapesFor(pal);
   const geo = cached.geo;
   const skin = new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.55, sheen: 0.35, sheenRoughness: 0.6, sheenColor: new THREE.Color(pal.belly), clearcoat: 0.1, clearcoatRoughness: 0.5 });
   const body = new THREE.Mesh(geo, skin);

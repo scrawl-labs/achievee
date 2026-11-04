@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import { todayStr } from "@/lib/clientTime";
 import { postBoriSave } from "@/lib/boriSave";
 import { useI18n } from "./I18n";
-import { BuddyGame, type SaveResult } from "./EmotionBuddy";
+import { BuddyGame, usePrefetchBori, type SaveResult } from "./EmotionBuddy";
 
 /**
  * Bori floating at the bottom right of the diary, like a help-desk chat button. Tapping it opens the full-screen
@@ -17,6 +17,7 @@ export default function BoriFab({ beforeOpen, onSaved }: { beforeOpen?: () => Pr
   const [busy, setBusy] = useState(false);
   const [words, setWords] = useState<string[]>([]);
   const [hint, setHint] = useState(false);
+  usePrefetchBori();
 
   // a little "how was your heart today?" bubble now and then
   useEffect(() => {
