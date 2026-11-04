@@ -38,6 +38,21 @@ function emoteTexture(kind: "note" | "drop" | "q" | "spark") {
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 
+/** A plain standard material with the same look, for phones. */
+function toStandard(m: THREE.MeshPhysicalMaterial) {
+  const n = new THREE.MeshStandardMaterial();
+  for (const k of ["name", "color", "map", "roughness", "roughnessMap", "metalness", "normalMap", "normalScale", "emissive", "emissiveMap", "emissiveIntensity",
+    "vertexColors", "transparent", "opacity", "alphaTest", "side", "depthWrite", "depthTest", "blending", "polygonOffset", "polygonOffsetFactor", "polygonOffsetUnits", "fog"] as const) {
+    const v = (m as unknown as Record<string, unknown>)[k];
+    const cur = (n as unknown as Record<string, unknown>)[k];
+    if (cur && typeof (cur as { copy?: unknown }).copy === "function" && v) (cur as { copy: (x: unknown) => void }).copy(v);
+    else (n as unknown as Record<string, unknown>)[k] = v;
+  }
+  n.onBeforeCompile = m.onBeforeCompile; // the sea's waves live here
+  m.dispose();
+  return n;
+}
+
 const damp = (a: number, b: number, k: number, dt: number) => THREE.MathUtils.lerp(a, b, 1 - Math.exp(-k * dt));
 
 /** The full-screen 3D scene: Bori after work, in one of a few places (a forest, the subway home, a rainy bus stop, the beach). */
@@ -51,8 +66,11 @@ export default function BuddyScene({ map, face, talking, beat, onFail }: Props) 
     let renderer: THREE.WebGLRenderer;
     // phones and tablets get a lighter scene (fewer grass blades and raindrops, smaller shadows)
     const lite = window.matchMedia("(pointer: coarse)").matches || (navigator.hardwareConcurrency ?? 8) <= 4;
-    const dprCap = Math.min(window.devicePixelRatio || 1, lite ? 1.5 : 1.75);
-    try { renderer = new THREE.WebGLRenderer({ antialias: dprCap < 1.5, powerPreference: "high-performance" }); }
+    // phones draw 30 frames a second at a sharp resolution rather than 60 at a blurry one
+    const dprCap = Math.min(window.devicePixelRatio || 1, 1.75);
+    const dprMin = Math.min(dprCap, lite ? 1.25 : 1);
+    const frameGap = lite ? 1000 / 31 : 0;
+    try { renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" }); }
     catch { onFail(); return; }
     let dpr = dprCap;
     renderer.setPixelRatio(dpr);
@@ -89,6 +107,13 @@ export default function BuddyScene({ map, face, talking, beat, onFail }: Props) 
     scene.traverse((o) => { const l = o as THREE.DirectionalLight; if (l.isLight && l.castShadow && l.shadow) l.shadow.mapSize.set(lite ? 1024 : 1536, lite ? 1024 : 1536); });
     renderer.shadowMap.autoUpdate = false;
     renderer.shadowMap.needsUpdate = true;
+    // phones: plain materials instead of the costlier sheen / clearcoat ones (they look almost the same at this size)
+    if (lite) scene.traverse((o) => {
+      const mesh = o as THREE.Mesh;
+      const mats = Array.isArray(mesh.material) ? mesh.material : mesh.material ? [mesh.material] : [];
+      const swapped = mats.map((mt) => (mt as THREE.MeshPhysicalMaterial).isMeshPhysicalMaterial ? toStandard(mt as THREE.MeshPhysicalMaterial) : mt);
+      if (mats.length) mesh.material = Array.isArray(mesh.material) ? swapped : swapped[0];
+    });
 
     const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 60);
     const target = new THREE.Vector3(0.1, 0.95, 0.35);
@@ -114,22 +139,26 @@ export default function BuddyScene({ map, face, talking, beat, onFail }: Props) 
     const clock = new THREE.Clock();
     let lastBeat = state.current.beat, hopT = 9, emoteT = 9, lastEmote = "";
     let nextBlink = 1.5, blinkT = 9, talk = 0;
-    let raf = 0, running = true, frames = 0;
+    let raf = 0, running = true, frames = 0, lastDraw = 0;
     // keep it smooth: if frames run slow, render at a lower resolution; if there is room again, go back up
     let slowSum = 0, slowN = 0, calmUntil = 2;
+    const goal = lite ? 1 / 30 : 1 / 60; // seconds per frame we aim for
     const adapt = (dt: number, t: number) => {
       if (t < calmUntil) return;
       slowSum += dt; slowN++;
       if (slowN < 45) return;
       const avg = slowSum / slowN; slowSum = 0; slowN = 0;
-      const next = avg > 1 / 42 ? Math.max(0.75, dpr - 0.25) : avg < 1 / 58 ? Math.min(dprCap, dpr + 0.25) : dpr;
+      const next = avg > goal * 1.35 ? Math.max(dprMin, dpr - 0.25) : avg < goal * 1.08 ? Math.min(dprCap, dpr + 0.25) : dpr;
       if (next !== dpr) { dpr = next; renderer.setPixelRatio(dpr); resize(); calmUntil = t + 1.5; }
     };
 
     const frame = () => {
       if (!running) return;
       raf = requestAnimationFrame(frame);
-      const dt = Math.min(clock.getDelta(), 0.05);
+      const now = performance.now();
+      if (frameGap && now - lastDraw < frameGap) return;
+      lastDraw = now;
+      const dt = Math.min(clock.getDelta(), 0.1);
       const t = clock.elapsedTime;
       const st = state.current;
       const m = reduce ? 0 : 1;
@@ -174,7 +203,9 @@ export default function BuddyScene({ map, face, talking, beat, onFail }: Props) 
       camera.position.x = 0.35 + Math.sin(t * 0.17) * 0.08 * m;
       camera.lookAt(target);
 
-      if (++frames % 2 === 0) renderer.shadowMap.needsUpdate = true;
+      // shadows: every other frame on computers; on phones only while Bori hops (the rest of the scene stands still)
+      frames++;
+      if (lite ? hopT < 0.7 : frames % 2 === 0) renderer.shadowMap.needsUpdate = true;
       adapt(dt, t);
       renderer.render(scene, camera);
     };
@@ -192,7 +223,7 @@ export default function BuddyScene({ map, face, talking, beat, onFail }: Props) 
       ro.disconnect();
       scene.traverse((o) => {
         const mesh = o as THREE.Mesh;
-        if (mesh.geometry) mesh.geometry.dispose();
+        if (mesh.geometry && !mesh.geometry.userData.shared) mesh.geometry.dispose();
         const mat = mesh.material as THREE.Material | THREE.Material[] | undefined;
         if (mat) (Array.isArray(mat) ? mat : [mat]).forEach((x) => { (x as THREE.MeshStandardMaterial).map?.dispose(); x.dispose(); });
       });
