@@ -11,7 +11,7 @@ const PLACES: { id: string; name: Key; hi: Key }[] = [
 ];
 const plain = (s: string) => s.replace(/[\^*]/g, "");
 
-/** Types a line out, the way Bori talks in the game. */
+/** Types a line out, the way Mallow talks in the game. */
 function useTyped(text: string, reduce: boolean) {
   const [n, setN] = useState(0);
   useEffect(() => {
@@ -25,8 +25,8 @@ function useTyped(text: string, reduce: boolean) {
 }
 
 /**
- * The landing page's Bori section: stills of the four places turning like a slideshow, with Bori's opening line
- * typed in a speech bubble, the place tabs, and the way in to /bori (no account needed).
+ * The landing page's Mallow section: stills of the four places turning like a slideshow, with Mallow's opening line
+ * typed in a speech bubble, the place tabs, and the way in to /mallow (no account needed).
  */
 export default function LandingBori() {
   const { t } = useI18n();
@@ -48,7 +48,7 @@ export default function LandingBori() {
       <div className="borisec-copy">
         <h2 id="borisec-title">{t("land.bori.t")}</h2>
         <p>{t("land.bori.d")}</p>
-        <a className="borisec-cta" href="/bori">{t("land.bori.cta")}</a>
+        <a className="borisec-cta" href="/mallow">{t("land.bori.cta")}</a>
         <small>{t("land.bori.note")}</small>
       </div>
       <div className="borisec-stage" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)}>

@@ -206,7 +206,7 @@ export default function Landing() {
           <p>{t("land.hero.sub", { n: WORDS.length })}</p>
           <div className="ld-hero-actions">
             {gbtn()}
-            <a className="try-bori" href="/bori"><img src="/buddy/bori.png" alt="" width={34} height={34} />{t("buddy.tryCta")}</a>
+            <a className="try-bori" href="/mallow"><img src="/buddy/bori.png" alt="" width={34} height={34} />{t("buddy.tryCta")}</a>
           </div>
         </div>
 

@@ -279,7 +279,7 @@ export function buildSubway(_opts: WorldOpts = {}): World {
   const shafts: THREE.Mesh[] = [];
   const dir = new THREE.Vector3().subVectors(sun.target.position, sun.position).normalize();
   for (let x = X0 + PITCH / 2; x < X1; x += PITCH) {
-    const o = new THREE.Vector3(x, 1.65, -1.88), w = PITCH * 0.75, L = 2.1; // short enough to fade out before reaching Bori
+    const o = new THREE.Vector3(x, 1.65, -1.88), w = PITCH * 0.75, L = 2.1; // short enough to fade out before reaching Mallow
     const p = [o.clone().add(new THREE.Vector3(-w / 2, 0, 0)), o.clone().add(new THREE.Vector3(w / 2, 0, 0))];
     const q = p.map((v) => v.clone().addScaledVector(dir, L));
     const g = new THREE.BufferGeometry();

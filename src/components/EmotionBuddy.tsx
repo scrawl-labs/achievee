@@ -24,7 +24,7 @@ const MAP_KEY = "achievee:buddyMap";
 const MAPS: MapId[] = ["forest", "subway", "rain", "beach"];
 const LOADING: Record<MapId, Key> = { forest: "buddy.loadForest", subway: "buddy.loadSubway", rain: "buddy.loadRain", beach: "buddy.loadBeach" };
 
-/** Once a way in to Bori is on screen, fetch the 3D code and build Bori's body in idle time, so opening is quick. */
+/** Once a way in to Mallow is on screen, fetch the 3D code and build Mallow's body in idle time, so opening is quick. */
 export function usePrefetchBori() {
   useEffect(() => {
     const run = () => { void import("./BuddyScene").then((m) => m.warmUp()).catch(() => { /* it will load on open instead */ }); };
@@ -129,7 +129,7 @@ function Line({ segs, shown }: { segs: Seg[]; shown: number }) {
   );
 }
 
-/** The diary's entry point: a small card that opens the full-screen conversation with Bori. */
+/** The diary's entry point: a small card that opens the full-screen conversation with Mallow. */
 export default function EmotionBuddy({ value, onChange, onBrowse }: { value: string[]; onChange: (v: string[]) => void; onBrowse: () => void }) {
   const { t } = useI18n();
   const [playing, setPlaying] = useState(false);
@@ -151,15 +151,15 @@ export default function EmotionBuddy({ value, onChange, onBrowse }: { value: str
 
 /** What saving to the diary came back with: which words went in and which did not fit, or that it failed. */
 export type SaveResult = { added: string[]; left: string[] } | "error";
-/** On the standalone /bori page: save the chosen words to today's diary (signing in first if needed). */
-/** On /bori or from the diary's floating button: save the chosen words (and a note) to today's diary, signing in first if needed.
+/** On the standalone /mallow page: save the chosen words to today's diary (signing in first if needed). */
+/** On /mallow or from the diary's floating button: save the chosen words (and a note) to today's diary, signing in first if needed.
  * `after` replaces the default "go to the diary page" once it is saved (used inside the app, where the diary is already open). */
 export type SaveTo = { signedIn: boolean; run: (ids: string[], note: string) => Promise<SaveResult | void>; initial?: SaveResult; after?: () => void };
-/** After the words, on /bori: write a line or two, then Bori asks whether to save it. */
+/** After the words, on /mallow: write a line or two, then Mallow asks whether to save it. */
 type Phase = "chat" | "write" | "ask" | "declined";
 
 /**
- * Full-screen: Bori after work, in one of a few places, asks the four "help me find it" questions in a game-style
+ * Full-screen: Mallow after work, in one of a few places, asks the four "help me find it" questions in a game-style
  * speech box, then offers words that might fit. Same questions and ranking as before; only the way they are asked changed.
  */
 export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value: string[]; onChange: (v: string[]) => void; onClose: () => void; onBrowse?: () => void; save?: SaveTo }) {
@@ -170,7 +170,7 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
   const [ans, setAns] = useState<Ans>({});
   const [pages, setPages] = useState(1);
   const [picked, setPicked] = useState<string | null>(null);
-  const [beat, setBeat] = useState(0); // bumps on every new line so Bori hops and the emote replays
+  const [beat, setBeat] = useState(0); // bumps on every new line so Mallow hops and the emote replays
   const [voice, setVoice] = useState(false);
   const [no3d, setNo3d] = useState(false);
   const [ready, setReady] = useState(false); // the 3D scene has drawn its first frame
@@ -212,7 +212,7 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
   useEffect(() => { if (save?.initial) setSaved(save.initial); }, [save?.initial]);
   useEffect(() => {
     if (!save || saved === null || saved === "error") return;
-    const id = window.setTimeout(() => (save.after ? save.after() : window.location.assign("/?open=diary")), 3200); // Bori says thanks, then the diary opens
+    const id = window.setTimeout(() => (save.after ? save.after() : window.location.assign("/?open=diary")), 3200); // Mallow says thanks, then the diary opens
     return () => window.clearTimeout(id);
   }, [save, saved]);
   useEffect(() => { setMap(startMap()); }, []);
@@ -280,7 +280,7 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
     : step === 2 ? (ans.lean === "pos" ? "happy" : ans.lean === "neg" ? "sad" : "think")
     : step === 5 ? "happy" : "idle";
 
-  const live = ready || no3d; // Bori starts talking once the scene is there
+  const live = ready || no3d; // Mallow starts talking once the scene is there
   const segs = useMemo(() => parse(live ? line : ""), [line, live]);
   const plain = useMemo(() => segs.map((s) => s.s).join(""), [segs]);
   const { shown, done, finish } = useTypewriter(plain, voice);

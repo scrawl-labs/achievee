@@ -1,5 +1,5 @@
 /* Hallmark · shape: Feature Stack · genre: playful · theme: brand (Achievee: cream paper, pastel fields, Dunggeun heads over Pretendard, the flower blobs) · redesign: full
- * hero: Stage · nav: edge-aligned · footer: kept (Footer) · imagery: the product built (the app's own Summary, Blob and mocks with sample data) and Bori's four place stills · signature: the month of flowers beside the sign-in
+ * hero: Stage · nav: edge-aligned · footer: kept (Footer) · imagery: the product built (the app's own Summary, Blob and mocks with sample data) and Mallow's four place stills · signature: the month of flowers beside the sign-in
  * axes: light/rounded-display/warm · posture: committed (one pastel field per section) · contrast: pass · fold: pass · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · weakest: R, six product mocks is a lot; one switcher shows one at a time instead of six zigzag rows */
 /* Hallmark · dropped the floating flower blobs, the purple-to-pink hero gradient and the drawn window bar · decoration and drawn chrome (2a, 47a) */
@@ -8,7 +8,7 @@
 /* Hallmark · reworded "Plus integrations!" and "No sign-in needed · about a minute" in all five languages · no exclamation marks or middle-dot strings (63) */
 
 :root {
-  /* the landing palette: cream paper, pastel fields, navy for Bori */
+  /* the landing palette: cream paper, pastel fields, navy for Mallow */
   --land-bg: #fbf7f3;
   --land-surface: #fffdfb;
   --land-surface-2: #f3eee9;
@@ -95,7 +95,7 @@ html:lang(ja) .land, html:lang(zh-Hant) .land { word-break: normal; line-break: 
 .ld-app-grid span { min-width: 0; aspect-ratio: 1.1; display: grid; place-items: center; padding: 2px; }
 .ld-app-grid .blob { width: 100%; height: 100%; max-width: 48px; }
 
-/* Bori */
+/* Mallow */
 .borisec { width: var(--wrap); margin: var(--s10) auto 0; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--s8); align-items: center; }
 .borisec h2, .ld-scene h2, .ld-integ h2, .ld-trust h2, .ld-start h2 { font-size: clamp(28px, 3.4vw, 44px); line-height: 1.2; }
 .borisec-copy p { margin: var(--s4) 0 0; max-width: 30em; color: var(--fg-2); font-size: clamp(16px, 1.3vw, 18px); line-height: 1.7; text-wrap: pretty; }

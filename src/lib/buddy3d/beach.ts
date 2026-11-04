@@ -1,6 +1,6 @@
 /**
  * A beach in the late afternoon: a painted sky and horizon, a gently moving sea that glitters under the sun,
- * foam that washes in and slides back over darker wet sand, rippled dry sand with Bori's footprints, a striped
+ * foam that washes in and slides back over darker wet sand, rippled dry sand with Mallow's footprints, a striped
  * parasol and towel, a starfish, shells and gulls.
  */
 import * as THREE from "three";
@@ -144,7 +144,7 @@ export function buildBeach(_opts: WorldOpts = {}): World {
   wetSheen.rotation.x = -Math.PI / 2;
 
   /* ---- things on the sand ---- */
-  // Bori's footprints, coming from the left
+  // Mallow's footprints, coming from the left
   const printMat = new THREE.MeshBasicMaterial({ color: "#a98a58", transparent: true, opacity: 0.45, depthWrite: false });
   for (let i = 0; i < 9; i++) {
     const x = -0.55 - i * 0.42, z = 0.6 + Math.sin(i * 0.6) * 0.15 + (i % 2 ? 0.1 : -0.1);

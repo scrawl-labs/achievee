@@ -299,7 +299,7 @@ export type WorldOpts = { lite?: boolean };
 export function buildForest(opts: WorldOpts = {}): World {
   const group = new THREE.Group();
 
-  // golden-hour sun from behind on the left, soft sky light, and a gentle fill so Bori's face reads
+  // golden-hour sun from behind on the left, soft sky light, and a gentle fill so Mallow's face reads
   group.add(new THREE.HemisphereLight("#ffeccc", "#4d6b35", 1.0));
   const key = new THREE.DirectionalLight("#ffd28f", 3.2);
   key.position.set(-4, 6.5, -2.5);
