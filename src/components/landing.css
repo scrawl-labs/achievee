@@ -95,21 +95,23 @@ html:lang(ja) .land, html:lang(zh-Hant) .land { word-break: normal; line-break: 
 .borisec h2, .ld-scene h2, .ld-integ h2, .ld-trust h2, .ld-start h2 { font-size: clamp(28px, 3.4vw, 44px); line-height: 1.2; }
 .borisec-copy p { margin: var(--s4) 0 0; max-width: 30em; color: var(--fg-2); font-size: clamp(16px, 1.3vw, 18px); line-height: 1.7; text-wrap: pretty; }
 .borisec-stage { display: flex; flex-direction: column; gap: var(--s3); }
-.borisec-screen { position: relative; aspect-ratio: 16 / 11; border-radius: 28px; overflow: hidden; background: var(--green); transition: background-color 500ms var(--ease); }
-.borisec-screen.green { background: var(--green); } .borisec-screen.blue { background: var(--blue); }
-.borisec-screen.lav { background: var(--lav); } .borisec-screen.yellow { background: var(--yellow); }
+.borisec-screen { position: relative; aspect-ratio: 16 / 11; border-radius: 28px; overflow: hidden; background: var(--green); }
 .borisec-mallow { position: absolute; right: 4%; bottom: -6%; height: 88%; width: auto; max-width: 52%; object-fit: contain; filter: drop-shadow(0 18px 18px rgb(60 40 50 / .14)); }
-.borisec-bubble { z-index: 2; position: absolute; left: 5%; right: 46%; top: 14%; padding: var(--s5) var(--s5) var(--s4); border-radius: 26px 30px 28px 32px / 24px 26px 30px 28px;
+.borisec-talk { z-index: 2; position: absolute; left: 5%; right: 46%; top: 12%; display: flex; flex-direction: column; gap: var(--s3); }
+.borisec-bubble { position: relative; padding: var(--s5) var(--s5) var(--s4); border-radius: 26px 30px 28px 32px / 24px 26px 30px 28px;
   background: var(--bubble); color: var(--bubble-ink); box-shadow: 0 14px 30px -12px var(--land-bubble-shadow); }
 .borisec-bubble b { position: absolute; top: -14px; left: 20px; padding: var(--s1) var(--s3); border-radius: 999px; rotate: -4deg; background: var(--badge); color: var(--badge-ink); font-size: 14px; }
 .borisec-bubble p { margin: 0; min-height: 3.3em; font-size: clamp(14px, 1.3vw, 17px); font-weight: 650; line-height: 1.65; word-break: keep-all; }
 .borisec-caret { display: inline-block; width: 2px; height: 1.05em; margin-left: 2px; vertical-align: -0.15em; background: var(--caret); animation: borisec-blink 1s steps(1) 5; }
 @keyframes borisec-blink { 50% { opacity: 0; } }
-.borisec-tabs { display: flex; flex-wrap: wrap; gap: var(--s2); justify-content: center; }
-.borisec-tabs button { min-height: 40px; padding: 0 var(--s4); border: 0; border-radius: 999px; font: 700 14px/1 var(--font); color: var(--fg-2); background: var(--surface-2); cursor: pointer;
-  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease); }
-.borisec-tabs button:hover { color: var(--fg); background: var(--line); }
-.borisec-tabs button.on { background: var(--navy); color: var(--accent-fg); }
+.borisec-opts { display: flex; flex-wrap: wrap; gap: var(--s2); min-height: 40px; }
+.borisec-opts span { padding: 9px 14px; border-radius: 999px; background: var(--surface); color: var(--fg); font: 700 14px/1.2 var(--font); box-shadow: 0 2px 6px -3px rgb(60 40 50 / .25); animation: borisec-pop 420ms var(--ease) both; }
+.borisec-opts span:nth-child(2) { animation-delay: 90ms; } .borisec-opts span:nth-child(3) { animation-delay: 180ms; }
+.borisec-opts span.on { background: var(--navy); color: var(--accent-fg); }
+@keyframes borisec-pop { from { opacity: 0; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
+.borisec-dots { display: flex; gap: var(--s2); justify-content: center; }
+.borisec-dots button { width: 10px; height: 10px; padding: 0; border: 0; border-radius: 50%; background: var(--line); cursor: pointer; transition: background-color var(--dur) var(--ease), width var(--dur) var(--ease); }
+.borisec-dots button.on { width: 26px; border-radius: 999px; background: var(--navy); }
 
 /* features: one switcher, one scene at a time */
 .ld-feats { width: var(--wrap); margin: var(--s10) auto 0; }
@@ -171,11 +173,12 @@ html:lang(ja) .land, html:lang(zh-Hant) .land { word-break: normal; line-break: 
   .ld-tabs { flex-wrap: nowrap; overflow-x: auto; margin-inline: -24px; padding-inline: 24px; scrollbar-width: none; }
   .borisec-screen { aspect-ratio: 4 / 4.4; border-radius: 22px; }
   .borisec-mallow { height: 56%; right: 50%; translate: 50% 0; max-width: 80%; bottom: -4%; }
-  .borisec-bubble { padding: var(--s4) var(--s4) var(--s3); left: 5%; right: 5%; top: 6%; }
+  .borisec-talk { left: 5%; right: 5%; top: 5%; }
+  .borisec-bubble { padding: var(--s4) var(--s4) var(--s3); }
   .borisec-bubble p { min-height: 2.6em; font-size: 14px; line-height: 1.55; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .borisec-screen { transition: none; }
+  .borisec-opts span { animation: none; }
   .borisec-caret { animation: none; }
-  .gbtn, .ld-tabs button, .borisec-tabs button { transition: none; }
+  .gbtn, .ld-tabs button, .borisec-dots button { transition: none; }
 }
