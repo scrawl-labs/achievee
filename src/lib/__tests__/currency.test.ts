@@ -11,7 +11,7 @@ describe("currency", () => {
     for (const locale of ["ko", "en", "ja", "es", "zh"] as const) {
       const text = makeFormat(locale, "KRW").money(3000000);
       expect(text.replace(/\D/g, "")).toBe("3000000");
-      expect(text.includes("₩") || text.includes("KRW")).toBe(true);
+      expect(text).toMatch(/₩|￦|KRW/); // each language draws the won sign its own way
     }
     expect(makeFormat("ko", "USD").money(1234)).toContain("$");
     expect(makeFormat("en", "JPY").money(1234)).toMatch(/¥|JPY/);
