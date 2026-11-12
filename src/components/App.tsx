@@ -21,6 +21,7 @@ import CommandBar from "./CommandBar";
 import Icon from "./Icon";
 import Logo from "./Logo";
 import { useI18n } from "./I18n";
+import { type Currency, isCurrency } from "@/lib/i18n";
 import { invalidate, prefetch, useApi } from "./useApi";
 import { useGoogleReturn } from "./useGoogleReturn";
 
@@ -39,7 +40,7 @@ export default function App() {
 }
 
 function Main() {
-  const { t, fmt } = useI18n();
+  const { t, fmt, currency, setCurrency } = useI18n();
   const { data: session } = useSession();
   const gret = useGoogleReturn(); // ?tab=integrations&google=... after Google's consent screen
   const [fromNote] = useState(() => new URLSearchParams(window.location.search).get("open") === "diary"); // the 9 pm reminder opens the diary
@@ -53,8 +54,10 @@ function Main() {
   const [gmode, setGmode] = useState<GMode>("DAY");
   const ym = sel.slice(0, 7);
   const { data: month, error } = useApi<MonthData>(monthUrl(ym));
-  const settings = useApi<{ monthStartDay: number; startOverrides?: StartOverrides; workoutGoal: number; intakeGoals: Record<IntakeKind, number> }>("/api/settings");
+  const settings = useApi<{ monthStartDay: number; startOverrides?: StartOverrides; currency?: string; workoutGoal: number; intakeGoals: Record<IntakeKind, number> }>("/api/settings");
   const startDay = settings.data?.monthStartDay ?? 1;
+  const savedCurrency = settings.data?.currency;
+  useEffect(() => { if (isCurrency(savedCurrency) && savedCurrency !== currency) setCurrency(savedCurrency); }, [savedCurrency]); // eslint-disable-line react-hooks/exhaustive-deps -- a choice made on another device
   const overrides = settings.data?.startOverrides ?? {};
   const workoutGoal = settings.data?.workoutGoal ?? 3;
   const intakeGoals = settings.data?.intakeGoals ?? DEFAULT_GOALS;
@@ -70,6 +73,11 @@ function Main() {
     await fetch("/api/settings", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ startOverride: { month, day } }) });
     settings.reload();
     invalidate("/api/trends/money");
+  };
+  const changeCurrency = async (c: Currency) => {
+    setCurrency(c);
+    await fetch("/api/settings", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ currency: c }) });
+    settings.reload();
   };
   const changeStartDay = async (d: number) => {
     await fetch("/api/settings", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ monthStartDay: d }) });
@@ -152,7 +160,7 @@ function Main() {
         {tab === "diary" && <DiaryView ym={ym} sel={sel} setSel={setSel} />}
         {tab === "google" && <ScheduleView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} />}
         {tab === "integrations" && <IntegrationsView googleReturn={gret.result} />}
-        {tab === "settings" && <SettingsView user={session?.user} startDay={startDay} onStartDay={changeStartDay} workoutGoal={workoutGoal} onWorkoutGoal={changeGoal} intakeGoals={intakeGoals} onIntakeGoal={changeIntakeGoal} onOpen={setTab} onSignOut={() => signOut()} onDelete={deleteData} />}
+        {tab === "settings" && <SettingsView user={session?.user} currency={currency} onCurrency={changeCurrency} startDay={startDay} onStartDay={changeStartDay} workoutGoal={workoutGoal} onWorkoutGoal={changeGoal} intakeGoals={intakeGoals} onIntakeGoal={changeIntakeGoal} onOpen={setTab} onSignOut={() => signOut()} onDelete={deleteData} />}
         {tab === "workout" && <WorkoutView sel={sel} setSel={setSel} goal={workoutGoal} onGoal={changeGoal} intakeGoals={intakeGoals} onIntakeGoal={changeIntakeGoal} />}
         {tab === "expense" && <ExpenseView sel={sel} setSel={setSel} startDay={startDay} overrides={overrides} onStartDay={changeStartDay} onOverride={changeOverride} />}
         </div>

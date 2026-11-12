@@ -27,6 +27,7 @@ async function sql() {
     s`CREATE INDEX IF NOT EXISTS saving_user_date ON saving ("user", date)`,
     s`CREATE TABLE IF NOT EXISTS settings ("user" TEXT PRIMARY KEY, month_start_day INTEGER NOT NULL DEFAULT 1)`,
     s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS workout_goal INTEGER NOT NULL DEFAULT 3`,
+    s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS currency TEXT NOT NULL DEFAULT ''`,
     s`CREATE TABLE IF NOT EXISTS push_sub (endpoint TEXT PRIMARY KEY, "user" TEXT NOT NULL, p256dh TEXT NOT NULL, auth TEXT NOT NULL, tz TEXT NOT NULL DEFAULT 'UTC', locale TEXT NOT NULL DEFAULT 'en', last_sent TEXT NOT NULL DEFAULT '')`,
     s`CREATE INDEX IF NOT EXISTS push_sub_user ON push_sub ("user")`,
     s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS start_overrides TEXT NOT NULL DEFAULT ''`,
@@ -314,6 +315,17 @@ export const settings = {
     const s = await sql();
     await s`INSERT INTO settings ("user", workout_goal) VALUES (${user}, ${goal})
       ON CONFLICT ("user") DO UPDATE SET workout_goal = EXCLUDED.workout_goal`;
+  },
+  /** The money symbol the person chose ("" = follow the language). */
+  async currency(user: string): Promise<string> {
+    const s = await sql();
+    const rows = (await s`SELECT currency FROM settings WHERE "user"=${user}`) as { currency: string }[];
+    return rows[0]?.currency ?? "";
+  },
+  async setCurrency(user: string, code: string) {
+    const s = await sql();
+    await s`INSERT INTO settings ("user", currency) VALUES (${user}, ${code})
+      ON CONFLICT ("user") DO UPDATE SET currency = EXCLUDED.currency`;
   },
   async monthStartDay(user: string): Promise<number> {
     const s = await sql();

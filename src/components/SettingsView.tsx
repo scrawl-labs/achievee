@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { GOAL_RANGE, type IntakeKind } from "@/lib/intake";
+import { CURRENCIES, INTL_TAG, type Currency } from "@/lib/i18n";
 import type { Tab } from "@/lib/commandBar";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
@@ -26,14 +27,16 @@ function GoalInput({ value, range, unit, onSave, label }: { value: number; range
 }
 
 /** Settings / my page: account, reminder, look, goals and basics, connections, about. Every control saves as soon as it changes. */
-export default function SettingsView({ user, startDay, onStartDay, workoutGoal, onWorkoutGoal, intakeGoals, onIntakeGoal, onOpen, onSignOut, onDelete }: {
+export default function SettingsView({ user, currency, onCurrency, startDay, onStartDay, workoutGoal, onWorkoutGoal, intakeGoals, onIntakeGoal, onOpen, onSignOut, onDelete }: {
   user?: { name?: string | null; email?: string | null; image?: string | null };
+  currency: Currency; onCurrency: (c: Currency) => void;
   startDay: number; onStartDay: (d: number) => void;
   workoutGoal: number; onWorkoutGoal: (n: number) => void;
   intakeGoals: Record<IntakeKind, number>; onIntakeGoal: (k: IntakeKind, v: number) => void;
   onOpen: (tab: Tab) => void; onSignOut: () => void; onDelete: () => void;
 }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const names = new Intl.DisplayNames(INTL_TAG[locale], { type: "currency" });
   const { data: words } = useApi<{ id: string }[]>("/api/emotions");
   const contact = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
   const initial = (user?.name || user?.email || "?").trim().slice(0, 1).toUpperCase();
@@ -66,6 +69,12 @@ export default function SettingsView({ user, startDay, onStartDay, workoutGoal, 
 
       <section className="panel">
         <h3>{t("set.goals")}</h3>
+        <div className="set-row">
+          <div><b>{t("set.currency")}</b><small className="muted">{t("set.currencyNote")}</small></div>
+          <select className="lang" value={currency} aria-label={t("set.currency")} onChange={(e) => onCurrency(e.target.value as Currency)}>
+            {CURRENCIES.map((c) => <option key={c} value={c}>{names.of(c) ?? c}</option>)}
+          </select>
+        </div>
         <div className="set-row">
           <div><b>{t("set.startDay")}</b><small className="muted">{t("set.startHint")}</small></div>
           <select className="lang" value={startDay} aria-label={t("set.startDay")} onChange={(e) => onStartDay(Number(e.target.value))}>

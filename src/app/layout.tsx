@@ -4,7 +4,7 @@ import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import { getSession } from "@/lib/auth";
-import { HTML_LANG, fromAcceptLanguage, isLocale } from "@/lib/i18n";
+import { HTML_LANG, fromAcceptLanguage, isCurrency, isLocale } from "@/lib/i18n";
 
 export const metadata: Metadata = { title: "Achievee", appleWebApp: { capable: true, title: "Achievee", statusBarStyle: "default" } };
 export const viewport: Viewport = {
@@ -15,11 +15,12 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const saved = cookies().get("locale")?.value;
   const locale = isLocale(saved) ? saved : fromAcceptLanguage(headers().get("accept-language"));
+  const savedCurrency = cookies().get("currency")?.value;
   const session = await getSession();
   return (
     <html lang={HTML_LANG[locale]} suppressHydrationWarning>
       <head><link rel="preload" href="/fonts/Wordmark-Achievee.woff2" as="font" type="font/woff2" crossOrigin="anonymous" /><script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem("achievee:theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}` }} /></head>
-      <body><Providers session={session} locale={locale}>{children}</Providers></body>
+      <body><Providers session={session} locale={locale} currency={isCurrency(savedCurrency) ? savedCurrency : undefined}>{children}</Providers></body>
     </html>
   );
 }
