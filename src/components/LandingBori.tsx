@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import type { Key } from "@/lib/i18n";
 import { useI18n } from "./I18n";
 
-const PLACES: { id: string; name: Key; hi: Key }[] = [
-  { id: "forest", name: "buddy.mapForest", hi: "buddy.hi" },
-  { id: "subway", name: "buddy.mapSubway", hi: "buddy.hiSubway" },
-  { id: "rain", name: "buddy.mapRain", hi: "buddy.hiRain" },
-  { id: "beach", name: "buddy.mapBeach", hi: "buddy.hiBeach" },
+const PLACES: { id: string; name: Key; hi: Key; tone: string }[] = [
+  { id: "forest", name: "buddy.mapForest", hi: "buddy.hi", tone: "green" },
+  { id: "subway", name: "buddy.mapSubway", hi: "buddy.hiSubway", tone: "blue" },
+  { id: "rain", name: "buddy.mapRain", hi: "buddy.hiRain", tone: "lav" },
+  { id: "beach", name: "buddy.mapBeach", hi: "buddy.hiBeach", tone: "yellow" },
 ];
 const plain = (s: string) => s.replace(/[\^*]/g, "");
 
@@ -25,8 +25,8 @@ function useTyped(text: string, reduce: boolean) {
 }
 
 /**
- * The landing page's Mallow section: stills of the four places turning like a slideshow, with Mallow's opening line
- * typed in a speech bubble, the place tabs, and the way in to /mallow (no account needed).
+ * The landing page's Mallow section: Mallow on a pastel field (a new colour for each of the four places) with his opening line
+ * typed in a speech bubble, and the place tabs. The way in to /mallow is the floating Mallow (LandingFab).
  */
 export default function LandingBori() {
   const { t } = useI18n();
@@ -48,14 +48,10 @@ export default function LandingBori() {
       <div className="borisec-copy">
         <h2 id="borisec-title">{t("land.bori.t")}</h2>
         <p>{t("land.bori.d")}</p>
-        <a className="borisec-cta" href="/mallow">{t("land.bori.cta")}</a>
-        <small>{t("land.bori.note")}</small>
       </div>
       <div className="borisec-stage" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)}>
-        <div className="borisec-screen">
-          {PLACES.map((p, i) => (
-            <img key={p.id} src={`/buddy/places/${p.id}.jpg`} alt="" className={i === at ? "on" : ""} loading={i ? "lazy" : "eager"} width={960} height={720} />
-          ))}
+        <div className={`borisec-screen ${place.tone}`}>
+          <img className="borisec-mallow" src="/buddy/bori.png" alt="" width={420} height={420} />
           <div className="borisec-bubble" aria-live="polite">
             <b>{t("buddy.name")}</b>
             <p>{line}<span className="borisec-caret" aria-hidden="true" /></p>

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { signIn } from "next-auth/react";
 import LandingBori from "./LandingBori";
+import LandingFab from "./LandingFab";
 import { GOOGLE_HL, type Key } from "@/lib/i18n";
 import { FAMILIES, WORDS, emoLang, wordText } from "@/lib/emotions";
 import Blob from "./Blob";
@@ -206,7 +207,6 @@ export default function Landing() {
           <p>{t("land.hero.sub", { n: WORDS.length })}</p>
           <div className="ld-hero-actions">
             {gbtn()}
-            <a className="try-bori" href="/mallow"><img src="/buddy/bori.png" alt="" width={34} height={34} />{t("buddy.tryCta")}</a>
           </div>
         </div>
 
@@ -230,6 +230,7 @@ export default function Landing() {
       </section>
 
       <LandingBori />
+      <LandingFab />
 
       <section id="features" className="ld-feats">
         <div className="ld-tabs" role="tablist" aria-label={t("land.nav.f")}>

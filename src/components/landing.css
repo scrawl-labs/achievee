@@ -70,11 +70,6 @@ html:lang(ja) .land, html:lang(zh-Hant) .land { word-break: normal; line-break: 
 .gbtn:hover { border-color: var(--fg-3); }
 .gbtn:active { transform: translateY(1px); }
 .gbtn:disabled { opacity: .55; cursor: not-allowed; }
-.try-bori { display: inline-flex; align-items: center; gap: var(--s2); min-height: 44px; padding: var(--s1) var(--s4) var(--s1) var(--s1); border-radius: 999px;
-  color: var(--navy); font-weight: 700; font-size: 15px; text-decoration: none; transition: background-color var(--dur) var(--ease); }
-.try-bori:hover { background: var(--surface-2); }
-.try-bori:active { background: var(--line); }
-.try-bori img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; object-position: 50% 30%; background: var(--blue); }
 
 /* hero: the sign-in beside a month of flowers */
 .ld-hero { width: var(--wrap); margin: 0 auto; min-height: min(calc(100svh - 72px), 820px); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--s8); align-items: center; padding-block: var(--s7); }
@@ -99,19 +94,12 @@ html:lang(ja) .land, html:lang(zh-Hant) .land { word-break: normal; line-break: 
 .borisec { width: var(--wrap); margin: var(--s10) auto 0; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--s8); align-items: center; }
 .borisec h2, .ld-scene h2, .ld-integ h2, .ld-trust h2, .ld-start h2 { font-size: clamp(28px, 3.4vw, 44px); line-height: 1.2; }
 .borisec-copy p { margin: var(--s4) 0 0; max-width: 30em; color: var(--fg-2); font-size: clamp(16px, 1.3vw, 18px); line-height: 1.7; text-wrap: pretty; }
-.land .borisec-cta { display: inline-flex; align-items: center; min-height: 52px; margin-top: var(--s6); padding: 0 var(--s5); border-radius: 999px; text-decoration: none;
-  background: var(--navy); color: var(--accent-fg); font-size: 17px; font-weight: 700; transition: background-color var(--dur) var(--ease), transform var(--dur) var(--ease); }
-.land .borisec-cta:hover { background: var(--navy-2); }
-.land .borisec-cta:active { transform: translateY(1px); }
-.borisec-copy small { display: block; margin-top: var(--s3); font-size: 14px; color: var(--fg-2); }
 .borisec-stage { display: flex; flex-direction: column; gap: var(--s3); }
-.borisec-screen { position: relative; aspect-ratio: 16 / 11; border-radius: 28px; overflow: hidden; background: var(--green); box-shadow: var(--shadow); }
-/* the first place is server-rendered with .on, so a still shows before any script runs */
-.borisec-screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; transition: opacity 600ms var(--ease); }
-/* without script every still is there, the current one on top; once the slideshow runs the others fade out */
-.borisec-screen img.on { z-index: 1; }
-.js .borisec-screen img:not(.on) { opacity: 0; }
-.borisec-bubble { z-index: 2; position: absolute; left: 4%; right: 4%; bottom: 5%; padding: var(--s5) var(--s5) var(--s4); border-radius: 26px 30px 28px 32px / 24px 26px 30px 28px;
+.borisec-screen { position: relative; aspect-ratio: 16 / 11; border-radius: 28px; overflow: hidden; background: var(--green); transition: background-color 500ms var(--ease); }
+.borisec-screen.green { background: var(--green); } .borisec-screen.blue { background: var(--blue); }
+.borisec-screen.lav { background: var(--lav); } .borisec-screen.yellow { background: var(--yellow); }
+.borisec-mallow { position: absolute; right: 4%; bottom: -6%; height: 88%; width: auto; max-width: 52%; object-fit: contain; filter: drop-shadow(0 18px 18px rgb(60 40 50 / .14)); }
+.borisec-bubble { z-index: 2; position: absolute; left: 5%; right: 46%; top: 14%; padding: var(--s5) var(--s5) var(--s4); border-radius: 26px 30px 28px 32px / 24px 26px 30px 28px;
   background: var(--bubble); color: var(--bubble-ink); box-shadow: 0 14px 30px -12px var(--land-bubble-shadow); }
 .borisec-bubble b { position: absolute; top: -14px; left: 20px; padding: var(--s1) var(--s3); border-radius: 999px; rotate: -4deg; background: var(--badge); color: var(--badge-ink); font-size: 14px; }
 .borisec-bubble p { margin: 0; min-height: 3.3em; font-size: clamp(14px, 1.3vw, 17px); font-weight: 650; line-height: 1.65; word-break: keep-all; }
@@ -181,12 +169,13 @@ html:lang(ja) .land, html:lang(zh-Hant) .land { word-break: normal; line-break: 
   .ld-integ li > span:last-child { grid-column: 2; }
   .ld-trust dl > div { grid-template-columns: minmax(0, 1fr); gap: var(--s1); }
   .ld-tabs { flex-wrap: nowrap; overflow-x: auto; margin-inline: -24px; padding-inline: 24px; scrollbar-width: none; }
-  .borisec-screen { aspect-ratio: 4 / 3.6; border-radius: 22px; }
-  .borisec-bubble { padding: var(--s4) var(--s4) var(--s3); bottom: 4%; }
+  .borisec-screen { aspect-ratio: 4 / 4.4; border-radius: 22px; }
+  .borisec-mallow { height: 56%; right: 50%; translate: 50% 0; max-width: 80%; bottom: -4%; }
+  .borisec-bubble { padding: var(--s4) var(--s4) var(--s3); left: 5%; right: 5%; top: 6%; }
   .borisec-bubble p { min-height: 2.6em; font-size: 14px; line-height: 1.55; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .borisec-screen img { transition: none; }
+  .borisec-screen { transition: none; }
   .borisec-caret { animation: none; }
-  .gbtn, .try-bori, .borisec-cta, .ld-tabs button, .borisec-tabs button { transition: none; }
+  .gbtn, .ld-tabs button, .borisec-tabs button { transition: none; }
 }
