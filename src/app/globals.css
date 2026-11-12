@@ -1178,3 +1178,4 @@ a, button, input, select, textarea, label, summary, [role="button"], [role="tab"
 .set-row select.lang, .set-row input.set-num { width: 132px; flex: none; text-align: right; }
 .set-me { gap: var(--s3); }
 .set-row select.lang, .set-row input.set-num { height: 40px; }
+.set-row select.lang { text-align: left; text-align-last: left; font-size: 14px; color: var(--fg); }
