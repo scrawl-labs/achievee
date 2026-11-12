@@ -10,7 +10,7 @@ describe("currency", () => {
   it("keeps the chosen symbol whatever the language, and never converts the number", () => {
     for (const locale of ["ko", "en", "ja", "es", "zh"] as const) {
       const text = makeFormat(locale, "KRW").money(3000000);
-      expect(text.replace(/[.,s00a0]/g, "")).toContain("3000000");
+      expect(text.replace(/\D/g, "")).toBe("3000000");
       expect(text.includes("₩") || text.includes("KRW")).toBe(true);
     }
     expect(makeFormat("ko", "USD").money(1234)).toContain("$");
