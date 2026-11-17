@@ -41,7 +41,7 @@ export default function BoriFab({ beforeOpen, onSaved }: { beforeOpen?: () => Pr
         <span className={`bori-fab-hint${hint ? " on" : ""}`} aria-hidden="true">{t("buddy.fabHint")}</span>
         <button type="button" className="bori-fab-btn" onClick={start} disabled={busy} aria-label={t("buddy.start")} title={t("buddy.start")}
           onMouseEnter={() => setHint(true)} onMouseLeave={() => setHint(false)}>
-          <img src="/buddy/bori.png" alt="" width={64} height={64} />
+          <img src="/mallow/mallow.webp" alt="" width={64} height={64} />
         </button>
       </div>
       {open && createPortal(

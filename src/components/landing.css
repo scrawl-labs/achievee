@@ -107,21 +107,14 @@ html:lang(ja) .land, html:lang(zh-Hant) .land { word-break: normal; line-break: 
 .borisec-stage { display: flex; flex-direction: column; gap: var(--s3); }
 .borisec-screen { position: relative; aspect-ratio: 16 / 11; border-radius: 28px; overflow: hidden; background: var(--green); box-shadow: var(--shadow); }
 /* the first place is server-rendered with .on, so a still shows before any script runs */
-.borisec-screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; transition: opacity 600ms var(--ease); }
+.borisec-screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; }
 /* without script every still is there, the current one on top; once the slideshow runs the others fade out */
-.borisec-screen img.on { z-index: 1; }
-.js .borisec-screen img:not(.on) { opacity: 0; }
 .borisec-bubble { z-index: 2; position: absolute; left: 4%; right: 4%; bottom: 5%; padding: var(--s5) var(--s5) var(--s4); border-radius: 26px 30px 28px 32px / 24px 26px 30px 28px;
   background: var(--bubble); color: var(--bubble-ink); box-shadow: 0 14px 30px -12px var(--land-bubble-shadow); }
 .borisec-bubble b { position: absolute; top: -14px; left: 20px; padding: var(--s1) var(--s3); border-radius: 999px; rotate: -4deg; background: var(--badge); color: var(--badge-ink); font-size: 14px; }
 .borisec-bubble p { margin: 0; min-height: 3.3em; font-size: clamp(14px, 1.3vw, 17px); font-weight: 650; line-height: 1.65; word-break: keep-all; }
 .borisec-caret { display: inline-block; width: 2px; height: 1.05em; margin-left: 2px; vertical-align: -0.15em; background: var(--caret); animation: borisec-blink 1s steps(1) 5; }
 @keyframes borisec-blink { 50% { opacity: 0; } }
-.borisec-tabs { display: flex; flex-wrap: wrap; gap: var(--s2); justify-content: center; }
-.borisec-tabs button { min-height: 40px; padding: 0 var(--s4); border: 0; border-radius: 999px; font: 700 14px/1 var(--font); color: var(--fg-2); background: var(--surface-2); cursor: pointer;
-  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease); }
-.borisec-tabs button:hover { color: var(--fg); background: var(--line); }
-.borisec-tabs button.on { background: var(--navy); color: var(--accent-fg); }
 
 /* features: one switcher, one scene at a time */
 .ld-feats { width: var(--wrap); margin: var(--s10) auto 0; }
@@ -186,7 +179,5 @@ html:lang(ja) .land, html:lang(zh-Hant) .land { word-break: normal; line-break: 
   .borisec-bubble p { min-height: 2.6em; font-size: 14px; line-height: 1.55; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .borisec-screen img { transition: none; }
   .borisec-caret { animation: none; }
-  .gbtn, .try-bori, .borisec-cta, .ld-tabs button, .borisec-tabs button { transition: none; }
-}
+  .gbtn, .try-bori, .borisec-cta, .ld-tabs button, }

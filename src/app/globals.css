@@ -502,10 +502,26 @@ select {
   background: #f08a4b; color: #fff; box-shadow: 0 3px 0 #c4632a; animation: bd-pulse 2s ease-in-out infinite; }
 
 /* the game screen */
-.bdg { position: fixed; inset: 0; z-index: 1000; overflow: hidden; background: #6f8f45; outline: none; color: var(--bd-ink);
+.bdg { position: fixed; inset: 0; z-index: 1000; overflow: hidden; background: #e9dcc4; outline: none; color: var(--bd-ink);
   animation: bdg-in .45s cubic-bezier(.2, .9, .3, 1) both; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
-.bdg-canvas, .bdg-canvas canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.bdg-canvas canvas { animation: bdg-iris .9s cubic-bezier(.3, .8, .3, 1) both; }
+/* Mallow's meadow: a pre-rendered picture covering the screen, the face swapped per expression */
+.mp { position: absolute; inset: 0; overflow: hidden; }
+.mp-pic { position: absolute; animation: mp-breathe 6s ease-in-out infinite; transform-origin: 50% 40%; }
+.mp-base { position: absolute; inset: 0; width: 100%; height: 100%; display: block; user-select: none; }
+.mp-face { position: absolute; display: block; opacity: 0; user-select: none;
+  -webkit-mask-image: radial-gradient(closest-side, #000 72%, transparent); mask-image: radial-gradient(closest-side, #000 72%, transparent); }
+.mp-face.on { opacity: 1; }
+.mp-emote { position: absolute; translate: -10% -90%; filter: drop-shadow(0 2px 3px rgb(60 40 10 / .25)); animation: mp-pop .5s cubic-bezier(.3, 1.8, .5, 1) both, mp-float 2.4s ease-in-out .5s infinite; }
+/* little feelings drifting up out of the jar */
+.mp-feelings { position: absolute; width: 0; height: 0; }
+.mp-feelings i { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%; opacity: 0;
+  box-shadow: 0 0 10px 3px currentColor; animation: mp-drift 6.9s ease-out infinite; }
+@keyframes mp-breathe { 50% { scale: 1.012; } }
+@keyframes mp-pop { from { scale: 0; opacity: 0; } to { scale: 1; opacity: 1; } }
+@keyframes mp-float { 50% { translate: -10% -100%; } }
+@keyframes mp-drift { 0% { opacity: 0; transform: translate(0, 0) scale(.6); } 12% { opacity: .95; } 70% { opacity: .55; }
+  100% { opacity: 0; transform: translate(var(--dx), -260px) scale(1.1); } }
+@media (prefers-reduced-motion: reduce) { .mp-pic, .mp-emote, .mp-feelings i { animation: none; } }
 /* while the scene gets ready: Mallow bouncing, "Looking for Mallow…" */
 .bdg-loading { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
   background: radial-gradient(120% 90% at 50% 35%, #fffaf0, #f1e7d6 70%); color: #6f5a3c; transition: opacity .5s ease, visibility .5s; }
@@ -519,8 +535,6 @@ select {
 @keyframes bdg-dot { 0%, 60%, 100% { opacity: .2; } 30% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .bdg-loading img, .bdg-dots i { animation: none; } }
 .bdg-vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(130% 90% at 50% 35%, transparent 55%, rgba(40, 30, 10, .22)); }
-.bdg-flat { position: absolute; inset: 0; background: radial-gradient(120% 80% at 30% 15%, #f6dca0, #8fb062 55%, #4f7038); display: flex; justify-content: center; }
-.bdg-flat img { width: min(70vw, 340px); height: auto; margin-top: 12vh; align-self: flex-start; }
 
 .bdg-top { position: absolute; z-index: 6; top: max(14px, env(safe-area-inset-top)); left: 14px; right: 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .bdg-right { display: flex; gap: 8px; }
@@ -528,7 +542,7 @@ select {
   background: color-mix(in oklab, var(--bd-box) 88%, transparent); color: var(--bd-ink); font-size: 14px; font-weight: 800;
   box-shadow: 0 2px 0 rgba(120, 90, 50, .18), 0 6px 14px -6px rgba(60, 40, 10, .3); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
 .bd-mini:hover { background: var(--bd-box); }
-.bd-voice, .bdg-close, .bd-place { padding: 0; width: 40px; }
+.bd-voice, .bdg-close { padding: 0; width: 40px; }
 .bd-mini { white-space: nowrap; flex: none; }
 /* Korean / English switch */
 .bd-lang { display: inline-flex; flex: none; padding: 3px; margin: 0; height: 40px; border-radius: 999px; align-items: center;
@@ -634,7 +648,6 @@ select {
 .bd-card-more { flex-basis: 120px; align-items: center; justify-content: center; flex-direction: row; gap: 8px; }
 
 @keyframes bdg-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes bdg-iris { from { clip-path: circle(0% at 50% 40%); } to { clip-path: circle(150% at 50% 40%); } }
 @keyframes bd-pulse { 50% { scale: 1.08; } }
 @keyframes bd-bounce { 50% { translate: 0 3px; } }
 @keyframes bd-rise { from { opacity: 0; translate: 0 10px; scale: .96; } to { opacity: 1; translate: 0 0; scale: 1; } }
@@ -687,7 +700,7 @@ select {
 @media (max-width: 420px) {
   .bdg-top { left: 10px; right: 10px; }
   .bdg-top .bd-mini { height: 36px; min-width: 36px; }
-  .bd-voice, .bdg-close, .bd-place, .bd-back { width: 36px; padding: 0; }
+  .bd-voice, .bdg-close, .bd-back { width: 36px; padding: 0; }
   .bd-back-txt { display: none; }
   .bd-route { gap: 6px; padding: 10px 9px; }
   .bd-route::before { left: 12px; right: 12px; }
