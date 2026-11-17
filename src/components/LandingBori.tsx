@@ -55,7 +55,7 @@ export default function LandingBori() {
       </div>
       <div className="borisec-stage" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)}>
         <div className="borisec-screen">
-          <img className="borisec-mallow" src="/buddy/bori.png" alt="" width={420} height={420} />
+          <img className="borisec-mallow" src="/mallow/mallow.webp" alt="" width={420} height={420} />
           <div className="borisec-talk">
             <div className="borisec-bubble" aria-live="polite">
               <b>{t("buddy.name")}</b>

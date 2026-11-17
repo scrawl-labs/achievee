@@ -16,7 +16,7 @@ export default function LandingFab() {
       <span className={`bori-fab-hint${hint ? " on" : ""}`} aria-hidden="true">{t("buddy.tryCta")}</span>
       <a className="bori-fab-btn" href="/mallow" aria-label={t("buddy.tryCta")} title={t("buddy.tryCta")}
         onMouseEnter={() => setHint(true)} onMouseLeave={() => setHint(false)} onFocus={() => setHint(true)} onBlur={() => setHint(false)}>
-        <img src="/buddy/bori.png" alt="" width={64} height={64} />
+        <img src="/mallow/mallow.webp" alt="" width={64} height={64} />
       </a>
     </div>
   );

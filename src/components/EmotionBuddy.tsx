@@ -8,8 +8,7 @@ import type { Key } from "@/lib/i18n";
 import { useI18n } from "./I18n";
 
 type Ans = { lean?: Lean; focus?: Focus | "skip"; energy?: Energy | "skip"; intensity?: Intensity | "skip" };
-import type { Face } from "@/lib/buddy3d/character";
-import type { MapId } from "./BuddyScene";
+import type { Face } from "./MallowPhoto";
 type Emote = "note" | "drop" | "q" | "spark" | null;
 
 const OPTS: [string, Key][][] = [
@@ -20,39 +19,22 @@ const OPTS: [string, Key][][] = [
 ];
 const PAGE = 6;
 const SOUND_KEY = "achievee:buddyVoice";
-const MAP_KEY = "achievee:buddyMap";
-const MAPS: MapId[] = ["forest", "subway", "rain", "beach"];
-const LOADING: Record<MapId, Key> = { forest: "buddy.loadForest", subway: "buddy.loadSubway", rain: "buddy.loadRain", beach: "buddy.loadBeach" };
+const MallowPhoto = dynamic(() => import("./MallowPhoto"), { ssr: false });
 
-/** Once a way in to Mallow is on screen, fetch the 3D code and build Mallow's body in idle time, so opening is quick. */
+/** Once a way in to Mallow is on screen, fetch the meadow picture in idle time, so opening is quick. */
 export function usePrefetchBori() {
   useEffect(() => {
-    const run = () => { void import("./BuddyScene").then((m) => m.warmUp()).catch(() => { /* it will load on open instead */ }); };
+    const run = () => {
+      const view = window.innerWidth / window.innerHeight < 0.9 ? "tall" : "wide";
+      for (const p of ["base", "idle"]) { const i = new Image(); i.src = `/mallow/meadow/${view}-${p}.webp`; }
+      void import("./MallowPhoto");
+    };
     const w = window as Window & { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
     if (w.requestIdleCallback) { const id = w.requestIdleCallback(run, { timeout: 5000 }); return () => w.cancelIdleCallback?.(id); }
     const id = window.setTimeout(run, 2500);
     return () => window.clearTimeout(id);
   }, []);
 }
-const LINES: Record<MapId, { hi: Key; result: Key; name: Key }> = {
-  forest: { hi: "buddy.hi", result: "buddy.result", name: "buddy.mapForest" },
-  subway: { hi: "buddy.hiSubway", result: "buddy.resultSubway", name: "buddy.mapSubway" },
-  rain: { hi: "buddy.hiRain", result: "buddy.resultRain", name: "buddy.mapRain" },
-  beach: { hi: "buddy.hiBeach", result: "buddy.resultBeach", name: "buddy.mapBeach" },
-};
-/** Little line icons for the place button. */
-const PLACE_ICON: Record<MapId, JSX.Element> = {
-  forest: <><path d="M12 3l5 8h-3l4 6H6l4-6H7z" /><path d="M12 17v4" /></>,
-  subway: <><rect x="5" y="3" width="14" height="14" rx="4" /><path d="M5 11h14M8.5 14.5h.01M15.5 14.5h.01M8 21l2-4M16 21l-2-4" /></>,
-  rain: <><path d="M4 11a8 8 0 0 1 16 0z" /><path d="M12 11v7a2 2 0 0 0 4 0" /></>,
-  beach: <><path d="M3 15c2 0 2-1.5 4.5-1.5S10 15 12 15s2-1.5 4.5-1.5S19 15 21 15" /><path d="M3 19c2 0 2-1.5 4.5-1.5S10 19 12 19s2-1.5 4.5-1.5S19 19 21 19" /><circle cx="16" cy="7" r="3" /></>,
-};
-/** The place for today: the one picked last time on this device, otherwise it changes from day to day. */
-function startMap(): MapId {
-  try { const m = localStorage.getItem(MAP_KEY); if (m && (MAPS as string[]).includes(m)) return m as MapId; } catch { /* storage blocked */ }
-  return MAPS[Math.floor(Date.now() / 86_400_000) % MAPS.length];
-}
-const BuddyScene = dynamic(() => import("./BuddyScene"), { ssr: false });
 
 /* ---------- a tiny markup for dialogue: ^name^ is green, *keyword* is orange ---------- */
 type Seg = { s: string; c?: "n" | "k" };
@@ -137,7 +119,7 @@ export default function EmotionBuddy({ value, onChange, onBrowse }: { value: str
   return (
     <>
       <button type="button" className="bd bd-launch" onClick={() => setPlaying(true)}>
-        <span className="bd-launch-art"><img src="/buddy/bori.png" alt="" width={96} height={96} /></span>
+        <span className="bd-launch-art"><img src="/mallow/mallow.webp" alt="" width={96} height={96} /></span>
         <span className="bd-launch-txt"><b>{t("buddy.start")}</b><small>{t("buddy.startSub")}</small></span>
         <span className="bd-launch-go" aria-hidden="true">▶</span>
       </button>
@@ -159,7 +141,7 @@ export type SaveTo = { signedIn: boolean; run: (ids: string[], note: string) => 
 type Phase = "chat" | "write" | "ask" | "declined";
 
 /**
- * Full-screen: Mallow after work, in one of a few places, asks the four "help me find it" questions in a game-style
+ * Full-screen: Mallow in a meadow at dawn asks the four "help me find it" questions in a game-style
  * speech box, then offers words that might fit. Same questions and ranking as before; only the way they are asked changed.
  */
 export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value: string[]; onChange: (v: string[]) => void; onClose: () => void; onBrowse?: () => void; save?: SaveTo }) {
@@ -170,11 +152,9 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
   const [ans, setAns] = useState<Ans>({});
   const [pages, setPages] = useState(1);
   const [picked, setPicked] = useState<string | null>(null);
-  const [beat, setBeat] = useState(0); // bumps on every new line so Mallow hops and the emote replays
+  const [beat, setBeat] = useState(0); // bumps on every new line so the emote replays
   const [voice, setVoice] = useState(false);
-  const [no3d, setNo3d] = useState(false);
-  const [ready, setReady] = useState(false); // the 3D scene has drawn its first frame
-  const [map, setMap] = useState<MapId>("forest");
+  const [ready, setReady] = useState(false); // the meadow picture has loaded
   const [saved, setSaved] = useState<SaveResult | null>(save?.initial ?? null);
   const [saving, setSaving] = useState(false);
   const [phase, setPhase] = useState<Phase>("chat");
@@ -215,12 +195,6 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
     const id = window.setTimeout(() => (save.after ? save.after() : window.location.assign("/?open=diary")), 3200); // Mallow says thanks, then the diary opens
     return () => window.clearTimeout(id);
   }, [save, saved]);
-  useEffect(() => { setMap(startMap()); }, []);
-  const nextMap = () => {
-    const m = MAPS[(MAPS.indexOf(map) + 1) % MAPS.length];
-    setMap(m); setReady(false);
-    try { localStorage.setItem(MAP_KEY, m); } catch { /* storage blocked */ }
-  };
   useEffect(() => { try { setVoice(localStorage.getItem(SOUND_KEY) === "1"); } catch { /* storage blocked */ } }, []);
 
   // take over the screen: lock page scroll, go full screen where the browser allows it, Esc closes
@@ -266,12 +240,12 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
   const line =
     savedLine !== null ? savedLine
     : phaseLine !== null ? phaseLine
-    : step === 1 ? t(LINES[map].hi, { name })
+    : step === 1 ? t("buddy.hi", { name })
     : step === 2 ? `${t(reaction)} ${t("buddy.q2")}`
     : step === 3 ? t("buddy.q3")
     : step === 4 ? t("buddy.q4")
     : pickedWord ? (full ? t("buddy.full") : t("buddy.picked", { word: pickedWord[lang][0] }))
-    : t(LINES[map].result);
+    : t("buddy.result");
   const face: Face =
     phase === "write" ? "think" : phase === "ask" || phase === "declined" ? "happy"
     : saved === "error" ? "sad"
@@ -280,7 +254,8 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
     : step === 2 ? (ans.lean === "pos" ? "happy" : ans.lean === "neg" ? "sad" : "think")
     : step === 5 ? "happy" : "idle";
 
-  const live = ready || no3d; // Mallow starts talking once the scene is there
+  const live = ready; // Mallow starts talking once the meadow is there
+  const onReady = useCallback(() => setReady(true), []);
   const segs = useMemo(() => parse(live ? line : ""), [line, live]);
   const plain = useMemo(() => segs.map((s) => s.s).join(""), [segs]);
   const { shown, done, finish } = useTypewriter(plain, voice);
@@ -330,13 +305,11 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
 
   return (
     <div className="bdg bd" ref={root} role="dialog" aria-modal="true" aria-label={t("buddy.start")} tabIndex={-1}>
-      {no3d
-        ? <div className="bdg-flat"><img src="/buddy/bori.png" alt="" /></div>
-        : <BuddyScene key={map} map={map} face={face} talking={!done} beat={beat} onFail={() => setNo3d(true)} onReady={() => setReady(true)} />}
+      <MallowPhoto face={face} talking={!done && live} beat={beat} onReady={onReady} />
       <div className={`bdg-loading${live ? " out" : ""}`} aria-hidden={live} role="status">
-        <img src="/buddy/bori.png" alt="" width={120} height={120} />
+        <img src="/mallow/mallow.webp" alt="" width={120} height={120} />
         <b>{t("buddy.loading")}<span className="bdg-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span></b>
-        <small>{t(LOADING[map])}</small>
+        <small>{t("buddy.loadMeadow")}</small>
       </div>
       <div className="bdg-vignette" aria-hidden="true" />
 
@@ -353,13 +326,6 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
             <button type="button" aria-pressed={locale === "en"} className={locale === "en" ? "on" : ""} onClick={() => setLocale("en")} lang="en">EN</button>
           </span>
           {step > 1 && saved === null && phase === "chat" && <button type="button" className="bd-mini bd-back" onClick={back} aria-label={t("emo.back")}>‹<span className="bd-back-txt"> {t("emo.back")}</span></button>}
-          {!no3d && (
-            <button type="button" className="bd-mini bd-place" onClick={nextMap} title={t("buddy.place")} aria-label={`${t("buddy.place")}: ${t(LINES[map].name)}`}>
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                {PLACE_ICON[map]}
-              </svg>
-            </button>
-          )}
           <button type="button" className={`bd-mini bd-voice${voice ? " on" : ""}`} aria-pressed={voice} onClick={toggleVoice} title={t("buddy.voice")} aria-label={t("buddy.voice")}>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" stroke="none" />
