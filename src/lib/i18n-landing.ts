@@ -55,7 +55,7 @@ const ko: Record<K, string> = {
   "land.m.search": "검색 · Ctrl K", "land.m.review": "주간 회고", "land.m.goals": "하루·주간 목표",
   "land.m.lang": "5개 언어", "land.m.pwa": "폰에 설치",
   "land.m.dark": "다크·라이트 모드", "land.m.delete": "언제든 데이터 삭제",
-  "land.trust.title": "기록을 안전하게 모시고 있습니다",
+  "land.trust.title": "기록을 안전하게 저장해요",
   "land.t1.t": "Google은 선택, 읽기 전용", "land.t1.d": "Google을 연결하면 일정과 할 일을 읽기만 해요. 만들거나 고치거나 지우지 않아요.",
   "land.t2.t": "저장 안 함", "land.t2.d": "Google Calendar와 Google Tasks는 앱을 열 때만 가져오고, 저장하지 않아요.",
   "land.t3.t": "암호화", "land.t3.d": "일기, 메모, 일정 제목, 할 일, 목표, 신체 수치는 암호화해서 보관해요.",
