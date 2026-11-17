@@ -9,8 +9,8 @@ export type MallowFace = (typeof MALLOW_FACES)[number];
 type ViewMeta = { w: number; h: number; face: [number, number, number, number]; head: [number, number]; jar: [number, number] };
 
 export const MALLOW_VIEWS: Record<MallowView, ViewMeta> = {
-  wide: { w: 1920, h: 1080, face: [714, 180, 1185, 480], head: [1092, 192], jar: [924, 522] },
-  tall: { w: 1080, h: 1920, face: [348, 474, 717, 720], head: [639, 495], jar: [519, 741] },
+  wide: { w: 1920, h: 1080, face: [713, 181, 1184, 479], head: [1093, 193], jar: [924, 522] },
+  tall: { w: 1080, h: 1920, face: [348, 475, 716, 719], head: [638, 494], jar: [519, 740] },
 };
 
 export const mallowSrc = (view: MallowView, part: MallowFace | "base") => `/mallow/meadow/${view}-${part}.webp`;

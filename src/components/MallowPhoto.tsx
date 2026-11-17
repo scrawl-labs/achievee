@@ -88,7 +88,11 @@ export default function MallowPhoto({ face, talking, beat, onReady }: Props) {
               style={{ ...pct(fx0, fy0), width: `${((fx1 - fx0) / v.w) * 100}%`, height: `${((fy1 - fy0) / v.h) * 100}%` }} />
           ))}
           <div className="mp-feelings" style={pct(v.jar[0], v.jar[1])}>
-            {FEELING_COLOURS.map((c, i) => <i key={i} style={{ background: c, color: c, animationDelay: `${i * 1.15}s`, ["--dx" as string]: `${(i % 3 - 1) * 26 + 8}px` }} />)}
+            {FEELING_COLOURS.map((c, i) => {
+              // out to the sides as they rise, so they never cross Mallow's face
+              const side = i % 2 ? 1 : -1;
+              return <i key={i} style={{ background: c, color: c, animationDelay: `${i * 1.15}s`, ["--dx" as string]: `${side * (0.55 + (i % 3) * 0.12) * ph * 0.3}px`, ["--dy" as string]: `${-(0.22 + (i % 3) * 0.05) * ph}px` }} />;
+            })}
           </div>
           {EMOTE[face] && (
             <svg key={`${face}-${beat}`} className="mp-emote" viewBox="0 0 24 24" style={{ ...pct(v.head[0], v.head[1]), width: ph * 0.07, height: ph * 0.07 }}>{EMOTE[face]}</svg>

@@ -519,8 +519,9 @@ select {
 @keyframes mp-breathe { 50% { scale: 1.012; } }
 @keyframes mp-pop { from { scale: 0; opacity: 0; } to { scale: 1; opacity: 1; } }
 @keyframes mp-float { 50% { translate: -10% -100%; } }
-@keyframes mp-drift { 0% { opacity: 0; transform: translate(0, 0) scale(.6); } 12% { opacity: .95; } 70% { opacity: .55; }
-  100% { opacity: 0; transform: translate(var(--dx), -260px) scale(1.1); } }
+@keyframes mp-drift { 0% { opacity: 0; transform: translate(0, 0) scale(.6); } 12% { opacity: .95; }
+  38% { transform: translate(calc(var(--dx) * .9), calc(var(--dy) * .06)) scale(.85); } 75% { opacity: .55; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.1); } }
 @media (prefers-reduced-motion: reduce) { .mp-pic, .mp-emote, .mp-feelings i { animation: none; } }
 /* while the scene gets ready: Mallow bouncing, "Looking for Mallow…" */
 .bdg-loading { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;

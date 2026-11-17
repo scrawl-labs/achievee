@@ -106,9 +106,7 @@ html:lang(ja) .land, html:lang(zh-Hant) .land { word-break: normal; line-break: 
 .borisec-copy small { display: block; margin-top: var(--s3); font-size: 14px; color: var(--fg-2); }
 .borisec-stage { display: flex; flex-direction: column; gap: var(--s3); }
 .borisec-screen { position: relative; aspect-ratio: 16 / 11; border-radius: 28px; overflow: hidden; background: var(--green); box-shadow: var(--shadow); }
-/* the first place is server-rendered with .on, so a still shows before any script runs */
 .borisec-screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; }
-/* without script every still is there, the current one on top; once the slideshow runs the others fade out */
 .borisec-bubble { z-index: 2; position: absolute; left: 4%; right: 4%; bottom: 5%; padding: var(--s5) var(--s5) var(--s4); border-radius: 26px 30px 28px 32px / 24px 26px 30px 28px;
   background: var(--bubble); color: var(--bubble-ink); box-shadow: 0 14px 30px -12px var(--land-bubble-shadow); }
 .borisec-bubble b { position: absolute; top: -14px; left: 20px; padding: var(--s1) var(--s3); border-radius: 999px; rotate: -4deg; background: var(--badge); color: var(--badge-ink); font-size: 14px; }
@@ -180,4 +178,5 @@ html:lang(ja) .land, html:lang(zh-Hant) .land { word-break: normal; line-break: 
 }
 @media (prefers-reduced-motion: reduce) {
   .borisec-caret { animation: none; }
-  .gbtn, .try-bori, .borisec-cta, .ld-tabs button, }
+  .gbtn, .try-bori, .borisec-cta, .ld-tabs button { transition: none; }
+}
