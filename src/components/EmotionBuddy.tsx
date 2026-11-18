@@ -19,6 +19,7 @@ const OPTS: [string, Key][][] = [
 ];
 const PAGE = 6;
 const SOUND_KEY = "achievee:buddyVoice";
+const BEAD_COLOURS = ["amber", "coral", "mint", "lilac", "sky"];
 const MallowPhoto = dynamic(() => import("./MallowPhoto"), { ssr: false });
 
 /** Once a way in to Mallow is on screen, fetch the meadow picture in idle time, so opening is quick. */
@@ -197,8 +198,13 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
   }, [save, saved]);
   useEffect(() => { try { setVoice(localStorage.getItem(SOUND_KEY) === "1"); } catch { /* storage blocked */ } }, []);
 
-  // take over the screen: lock page scroll, go full screen where the browser allows it, Esc closes
+  // take over the screen: lock page scroll, go full screen where the browser allows it, Esc closes.
+  // Runs once: callers pass a new onClose on every render, and re-running would leave and re-enter full screen,
+  // which looked like the user leaving it and closed the game.
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
   useEffect(() => {
+    const onClose = () => closeRef.current();
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const el = root.current;
@@ -214,7 +220,7 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
       document.removeEventListener("fullscreenchange", onFs);
       if (document.fullscreenElement) document.exitFullscreen().catch(() => { /* already gone */ });
     };
-  }, [onClose]);
+  }, []);
 
   const raw = session?.user?.name?.trim() ?? "";
   const name = raw ? (/\s/.test(raw) && !/[぀-ヿ㐀-鿿가-힯]/.test(raw) ? raw.split(/\s+/)[0] : raw) : t("buddy.friend");
@@ -318,7 +324,11 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
         </button>
         <span className="bd-route" aria-label={`${Math.min(step, total)} / ${total}`}>
-          {Array.from({ length: total + 1 }, (_, i) => <i key={i} className={i < routeAt - 1 ? "on" : i === routeAt - 1 ? "now" : ""} />)}
+          {Array.from({ length: total + 1 }, (_, i) => {
+            // glass beads on a thread: each answered step lights one with a feeling's colour, the current one glows
+            const state = i < routeAt - 1 ? "on" : i === routeAt - 1 ? "now" : "";
+            return <img key={i} className={state} src={`/mallow/ui/orb-${state ? BEAD_COLOURS[i % BEAD_COLOURS.length] : "off"}.webp`} alt="" width={48} height={48} draggable={false} />;
+          })}
         </span>
         <span className="bdg-right">
           <span className="bd-lang" role="group" aria-label={t("account.language")}>
