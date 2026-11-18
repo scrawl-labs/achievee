@@ -1194,3 +1194,52 @@ a, button, input, select, textarea, label, summary, [role="button"], [role="tab"
 a.bori-fab-btn { display: block; }
 .land .bori-fab-hint { box-shadow: var(--land-shadow); }
 @media (max-width: 860px) { .bori-fab.landing { bottom: calc(18px + env(safe-area-inset-bottom)); } }
+
+/* ---------- Mallow's screen: clay and glass, lit like the meadow ----------
+   Surfaces look like soft clay (a puffy cream with light from the upper left and a fine paper grain); the progress is
+   glass beads on a thread (rendered in Blender); the name tag is a cork tab like the jar's lid. Text stays HTML. */
+.bd {
+  --clay-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .32 0 0 0 0 .18 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --clay: var(--clay-grain), linear-gradient(170deg, #fffbf3 0%, #fbf1e1 55%, #f3e3cc 100%);
+  --clay-warm: var(--clay-grain), linear-gradient(170deg, #fff6df, #ffe8bd 60%, #f9d79c);
+  --clay-shadow: inset 0 2px 1px rgba(255, 255, 255, .95), inset 0 -5px 12px rgba(176, 128, 70, .2), inset 3px 0 6px rgba(255, 255, 255, .4),
+    0 22px 34px -16px rgba(72, 44, 14, .55), 0 4px 10px -3px rgba(72, 44, 14, .22);
+  --bd-ink: #5b4630; --bd-key: #e47a12; --bd-name: #4f9a63;
+}
+.bd-box, .bd-choice, .bd-mini, .bd-lang, .bd-card, .bd-note, .bd-scroll { background: var(--clay); box-shadow: var(--clay-shadow); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.bd-mini:hover, .bd-scroll:hover { background: var(--clay-warm); }
+.bd-box { padding-top: 34px; }
+.bd-next { left: auto; right: 30px; margin-left: 0; }
+/* name tag: a cork tab, the name pressed into it */
+.bd-tag { top: -26px; min-width: 120px; height: 48px; padding: 0 26px; display: grid; place-items: center; border-radius: 0; box-shadow: none;
+  background: url("/mallow/ui/cork.webp") center / 100% 100% no-repeat; filter: drop-shadow(0 6px 6px rgba(72, 44, 14, .35));
+  color: #4b2c12; font-size: 16px; font-weight: 850; letter-spacing: .02em; text-shadow: 0 1px 0 rgba(255, 235, 200, .55), 0 -1px 0 rgba(60, 30, 5, .35); }
+/* language switch: the chosen side is a little orange jelly */
+.bd-lang button.on { color: #fff; background: linear-gradient(170deg, #ffb35c, #ef8b2c); box-shadow: inset 0 2px 1px rgba(255, 255, 255, .55), inset 0 -3px 6px rgba(150, 70, 0, .3), 0 4px 8px -2px rgba(150, 80, 10, .45); }
+/* progress: glass beads on a thread */
+.bd-route { gap: 10px; padding: 7px 16px; align-items: center; background: rgba(255, 250, 240, .38); backdrop-filter: blur(10px) saturate(1.2); -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), 0 10px 24px -14px rgba(60, 40, 10, .5); }
+.bd-route::before { left: 26px; right: 26px; height: 2px; margin-top: -1px; background: rgba(140, 100, 60, .35); }
+.bd-route img { position: relative; width: 30px; height: 30px; transition: width .35s cubic-bezier(.3, 1.6, .5, 1), height .35s cubic-bezier(.3, 1.6, .5, 1); }
+.bd-route img.on { filter: drop-shadow(0 0 5px rgba(255, 255, 255, .6)); }
+.bd-route img.now { width: 40px; height: 40px; filter: drop-shadow(0 0 9px rgba(255, 170, 60, .85)); animation: bd-bead 2.4s ease-in-out infinite; }
+@keyframes bd-bead { 50% { filter: drop-shadow(0 0 14px rgba(255, 170, 60, .95)); } }
+/* replies: on hover (or while pressed) a small glowing bead grows in at the front instead of a triangle */
+.bd-choice::before { width: 0; height: 24px; border: 0; background: url("/mallow/ui/orb-amber.webp") center / contain no-repeat; filter: drop-shadow(0 0 5px rgba(255, 170, 60, .9));
+  transition: width .2s ease, opacity .2s ease; }
+.bd-choice:focus-visible::before, .bd-choice:active:not(:disabled)::before { width: 24px; }
+@media (hover: hover) { .bd-choice:hover:not(:disabled)::before { width: 24px; } }
+.bd-choice:focus-visible, .bd-choice:active:not(:disabled) { background: var(--clay-warm); }
+@media (hover: hover) { .bd-choice:hover:not(:disabled) { background: var(--clay-warm); } }
+/* the main reply ("save it", "that's the one"): a green jelly */
+.bd-choice-main, .bd-choice-main:hover:not(:disabled), .bd-choice-main:focus-visible, .bd-choice-main:active:not(:disabled) { color: #fff;
+  background: var(--clay-grain), linear-gradient(170deg, #79c48a, #4f9a63 70%); box-shadow: inset 0 2px 1px rgba(255, 255, 255, .5), inset 0 -4px 8px rgba(20, 70, 30, .3), 0 18px 28px -14px rgba(30, 70, 40, .6); }
+.bd-choice-main::before { background-image: url("/mallow/ui/orb-mint.webp"); filter: drop-shadow(0 0 5px rgba(255, 255, 255, .8)); }
+/* word cards: clay; the chosen one is lit green at the edge */
+.bd-card { border-color: transparent; }
+.bd-card.on { border-color: #79c48a; background: var(--clay-grain), linear-gradient(170deg, #f7fff6, #e5f5e3); }
+.bd-card:hover:not(:disabled) { border-color: #f6c77c; }
+.bd-note:focus { box-shadow: 0 0 0 3px rgba(242, 154, 58, .45), var(--clay-shadow); }
+@media (max-width: 420px) { .bd-route { gap: 6px; padding: 6px 10px; } .bd-route img { width: 24px; height: 24px; } .bd-route img.now { width: 32px; height: 32px; } }
+@media (prefers-reduced-motion: reduce) { .bd-route img.now { animation: none; } }
+
