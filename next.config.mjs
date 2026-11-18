@@ -2,7 +2,11 @@
 export default {
   async redirects() {
     // the character used to be called Bori: old links still land on the new page
-    return [{ source: "/bori", destination: "/mallow", permanent: true }];
+    return [
+      { source: "/bori", destination: "/mallow", permanent: true },
+      // pages still open on code from before the rename look for the old picture
+      { source: "/buddy/bori.png", destination: "/mallow/mallow.webp", permanent: false },
+    ];
   },
   async headers() {
     return [
