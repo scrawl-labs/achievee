@@ -637,10 +637,11 @@ select {
 .bd-card:hover:not(:disabled) { border-color: #f3c46b; transform: translateY(-3px); }
 .bd-card:disabled { opacity: .5; cursor: default; }
 .bd-card.on { border-color: var(--bd-name); }
-.bd-card-h { display: flex; align-items: baseline; gap: 6px; }
-.bd-card-h b { font-size: 17px; font-weight: 800; color: #4f3d27; }
-.bd-card-h small { font-size: 12px; color: #a08a6b; }
-.bd-card-h i { margin-left: auto; align-self: center; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; flex: none;
+/* the word stays on one line; the family drops below it when there is no room, never splitting the word */
+.bd-card-h { position: relative; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 6px; row-gap: 1px; padding-right: 30px; }
+.bd-card-h b { font-size: 17px; font-weight: 800; color: #4f3d27; word-break: keep-all; }
+.bd-card-h small { font-size: 12px; color: #a08a6b; white-space: nowrap; }
+.bd-card-h i { position: absolute; top: 0; right: 0; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; flex: none;
   font-style: normal; font-size: 13px; font-weight: 900; background: #f1e5c8; color: #a08a6b; }
 .bd-card.on .bd-card-h i { background: var(--bd-name); color: #fff; }
 .bd-card-d { color: #86704f; font-size: 13px; line-height: 1.5; }
