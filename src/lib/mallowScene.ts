@@ -1,7 +1,7 @@
 /**
- * Mallow's meadow, rendered ahead of time in Blender Cycles: one full picture per view, and the face area alone
- * for each expression (same camera), which drops exactly onto the picture. Positions are pixels in the full picture.
- * Generated from the renders' metadata; re-render to change.
+ * Mallow's places, rendered ahead of time in Blender Cycles: one full picture per view, and the face area alone
+ * for each expression (same camera), which drops exactly onto the picture. Mallow and the camera stand in the same
+ * spot in every place, so the positions (pixels in the full picture) are shared. Re-render to change.
  */
 export type MallowView = "wide" | "tall";
 export const MALLOW_FACES = ["idle", "blink", "talk", "happy", "joy", "sad", "think"] as const;
@@ -13,4 +13,7 @@ export const MALLOW_VIEWS: Record<MallowView, ViewMeta> = {
   tall: { w: 1080, h: 1920, face: [348, 475, 716, 719], head: [638, 494], jar: [519, 740] },
 };
 
-export const mallowSrc = (view: MallowView, part: MallowFace | "base") => `/mallow/meadow/${view}-${part}.webp`;
+export const MALLOW_PLACES = ["meadow", "forest", "subway", "rain", "beach"] as const;
+export type MallowPlace = (typeof MALLOW_PLACES)[number];
+
+export const mallowSrc = (place: MallowPlace, view: MallowView, part: MallowFace | "base") => `/mallow/${place}/${view}-${part}.webp`;

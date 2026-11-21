@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { MALLOW_FACES, MALLOW_VIEWS, type MallowFace, type MallowView, mallowSrc } from "@/lib/mallowScene";
+import { MALLOW_FACES, MALLOW_VIEWS, type MallowFace, type MallowPlace, type MallowView, mallowSrc } from "@/lib/mallowScene";
 
 export type Face = "idle" | "happy" | "sad" | "think" | "joy";
-type Props = { face: Face; talking: boolean; beat: number; onReady?: () => void };
+type Props = { place: MallowPlace; face: Face; talking: boolean; beat: number; onReady?: () => void };
 
 /** Which picture fits the screen: the tall one on phones held upright, the wide one elsewhere. */
 function useView(el: React.RefObject<HTMLDivElement>) {
@@ -55,7 +55,7 @@ const FEELING_COLOURS = ["#ffc46b", "#ff9e8a", "#8fe3c0", "#c3a6ff", "#8fc8ff", 
  * Mallow in the meadow at dawn: a picture rendered ahead of time (path traced), with the face area swapped for each
  * expression, an emote popping up on each new line, and little feelings drifting up out of the jar. No 3D on the device.
  */
-export default function MallowPhoto({ face, talking, beat, onReady }: Props) {
+export default function MallowPhoto({ place, face, talking, beat, onReady }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const { box, view } = useView(host);
   const v = MALLOW_VIEWS[view];
@@ -70,21 +70,22 @@ export default function MallowPhoto({ face, talking, beat, onReady }: Props) {
   // ready once the picture and every face for this view have loaded, so nothing pops in afterwards
   const readyFor = useRef<string | null>(null);
   useEffect(() => {
-    if (!box.w || readyFor.current === view) return;
+    const key = `${place}/${view}`;
+    if (!box.w || readyFor.current === key) return;
     let live = true;
-    const srcs = [mallowSrc(view, "base"), ...MALLOW_FACES.map((f) => mallowSrc(view, f))];
+    const srcs = [mallowSrc(place, view, "base"), ...MALLOW_FACES.map((f) => mallowSrc(place, view, f))];
     Promise.all(srcs.map((s) => { const i = new Image(); i.src = s; return i.decode().catch(() => undefined); }))
-      .then(() => { if (live) { readyFor.current = view; onReady?.(); } });
+      .then(() => { if (live) { readyFor.current = key; onReady?.(); } });
     return () => { live = false; };
-  }, [box.w, view, onReady]);
+  }, [box.w, view, place, onReady]);
 
   return (
     <div ref={host} className="mp" aria-hidden="true">
       {scale > 0 && (
         <div className="mp-pic" style={{ width: pw, height: ph, left: (box.w - pw) / 2, top: (box.h - ph) / 2 }}>
-          <img className="mp-base" src={mallowSrc(view, "base")} alt="" draggable={false} />
+          <img className="mp-base" src={mallowSrc(place, view, "base")} alt="" draggable={false} />
           {MALLOW_FACES.map((f) => (
-            <img key={f} className={`mp-face${f === frame ? " on" : ""}`} src={mallowSrc(view, f)} alt="" draggable={false}
+            <img key={f} className={`mp-face${f === frame ? " on" : ""}`} src={mallowSrc(place, view, f)} alt="" draggable={false}
               style={{ ...pct(fx0, fy0), width: `${((fx1 - fx0) / v.w) * 100}%`, height: `${((fy1 - fy0) / v.h) * 100}%` }} />
           ))}
           <div className="mp-feelings" style={pct(v.jar[0], v.jar[1])}>
@@ -94,6 +95,7 @@ export default function MallowPhoto({ face, talking, beat, onReady }: Props) {
               return <i key={i} style={{ background: c, color: c, animationDelay: `${i * 1.15}s`, ["--dx" as string]: `${side * (0.55 + (i % 3) * 0.12) * ph * 0.3}px`, ["--dy" as string]: `${-(0.22 + (i % 3) * 0.05) * ph}px` }} />;
             })}
           </div>
+          {place === "rain" && <div className="mp-rain" />}
           {EMOTE[face] && (
             <svg key={`${face}-${beat}`} className="mp-emote" viewBox="0 0 24 24" style={{ ...pct(v.head[0], v.head[1]), width: ph * 0.07, height: ph * 0.07 }}>{EMOTE[face]}</svg>
           )}
