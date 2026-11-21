@@ -1,6 +1,7 @@
 "use client";
 import type { DayEvent } from "@/lib/types";
 import { addDays, addMonths, dow, monthStart } from "@/lib/dates";
+import { eventSource } from "@/lib/calendarSources";
 import { useEvents } from "./useEvents";
 import { useTasksRange } from "./useTasksRange";
 import TaskChip from "./TaskChip";
@@ -18,8 +19,8 @@ export default function AgendaView({ date, onPickDay }: { date: string; onPickDa
   const days = [...new Set([...Object.keys(evBy), ...Object.keys(tasks)])].filter((d) => d >= first && d < next).sort();
   const event = (e: DayEvent) => (
     <li key={e.id}>
-      <a href={e.link} target="_blank" rel="noreferrer">
-        <i style={{ background: e.color }} />
+      <a href={e.link} target="_blank" rel="noreferrer" className={eventSource(e) === "native" ? "own" : "gcal"}>
+        <i style={eventSource(e) === "native" ? undefined : { background: e.color }} />
         <time>{e.allDay ? t("common.allDay") : `${hhmm(e.startMin)} - ${hhmm(e.endMin)}`}</time>
         <b>{e.title || t("common.untitled")}</b>
         <small>{e.calendar}</small>

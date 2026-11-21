@@ -8,6 +8,7 @@ import type { DayEvent } from "@/lib/types";
 import { resolveGoogleAccess } from "@/lib/googleToken";
 import { bad, privateCache, unauthorized } from "@/lib/api";
 import { safeTz } from "@/lib/tz";
+import { hiddenCalendarsOf } from "@/lib/hiddenCalendars";
 
 export const dynamic = "force-dynamic";
 const noStore = { "Cache-Control": "private, no-store" }; // a revoked/none answer must not be replayed after the user reconnects
@@ -28,11 +29,12 @@ export async function GET(req: Request) {
   const u = await getUser();
   if (!u) return unauthorized();
   const own = ownEvents(u.id, from, to); // runs alongside the Google calls; never rejects
+  const hidden = hiddenCalendarsOf(u.id, "events"); // never rejects either
   try {
     const access = await resolveGoogleAccess(u);
     // The body is a bare array, so the revoked/none flag travels as a header instead of an extra field.
     if (access.status !== "ok") return NextResponse.json((await own).events, { headers: { ...noStore, "X-Google-Status": access.status } });
-    const google = await fetchRange(from, to, access.accessToken, safeTz(p.get("tz")));
+    const google = await fetchRange(from, to, access.accessToken, safeTz(p.get("tz")), await hidden);
     const { events, ok } = await own;
     // An answer built without the own events is incomplete: never let the browser cache it.
     return NextResponse.json(mergeEvents(google, events), { headers: ok ? privateCache : noStore });

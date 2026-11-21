@@ -1,6 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 import { cleanOverrides, type StartOverrides } from "./period";
 import { decrypt, encrypt, EncryptionConfigError } from "./crypto";
+import { parseHiddenCalendars } from "./calendarSources";
 
 // Diary + expenses live in Postgres (Neon via Vercel Marketplace; sets DATABASE_URL). Rows are keyed by the Google account id.
 let _sql: ReturnType<typeof neon> | undefined;
@@ -33,6 +34,7 @@ async function sql() {
     s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS start_overrides TEXT NOT NULL DEFAULT ''`,
     s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS water_goal INTEGER NOT NULL DEFAULT 2000`,
     s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS protein_goal INTEGER NOT NULL DEFAULT 100`,
+    s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS hidden_calendars TEXT NOT NULL DEFAULT ''`,
     s`CREATE TABLE IF NOT EXISTS intake ("user" TEXT NOT NULL, date TEXT NOT NULL, kind TEXT NOT NULL, amount INTEGER NOT NULL DEFAULT 0, PRIMARY KEY ("user", date, kind))`,
     s`CREATE TABLE IF NOT EXISTS workout (
       id SERIAL PRIMARY KEY, "user" TEXT NOT NULL, date TEXT NOT NULL, kind TEXT NOT NULL, minutes INTEGER NOT NULL, memo TEXT NOT NULL DEFAULT '')`,
@@ -346,6 +348,17 @@ export const settings = {
     const s = await sql();
     await s`INSERT INTO settings ("user", start_overrides) VALUES (${user}, ${JSON.stringify(kept)})
       ON CONFLICT ("user") DO UPDATE SET start_overrides = EXCLUDED.start_overrides`;
+  },
+  /** Google calendar ids the person hid in Achievee. Stored encrypted (ids are often e-mail addresses). */
+  async hiddenCalendars(user: string): Promise<string[]> {
+    const s = await sql();
+    const rows = (await s`SELECT hidden_calendars FROM settings WHERE "user"=${user}`) as { hidden_calendars: string }[];
+    try { return parseHiddenCalendars(JSON.parse(decrypt(rows[0]?.hidden_calendars ?? "") || "[]")) ?? []; } catch { return []; }
+  },
+  async setHiddenCalendars(user: string, ids: readonly string[]) {
+    const s = await sql();
+    await s`INSERT INTO settings ("user", hidden_calendars) VALUES (${user}, ${encrypt(JSON.stringify(ids))})
+      ON CONFLICT ("user") DO UPDATE SET hidden_calendars = EXCLUDED.hidden_calendars`;
   },
   async setMonthStartDay(user: string, day: number) {
     const s = await sql();

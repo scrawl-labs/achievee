@@ -7,7 +7,7 @@ const { getUser, resolveGoogleAccess, fetchMonth, monthCounts, nativeMonth } = v
 vi.mock("@/lib/auth", () => ({ getUser }));
 vi.mock("@/lib/googleToken", async (orig) => ({ ...(await orig<typeof import("@/lib/googleToken")>()), resolveGoogleAccess }));
 vi.mock("@/lib/google", async (orig) => ({ ...(await orig<typeof import("@/lib/google")>()), fetchMonth }));
-vi.mock("@/lib/db", () => ({ todos: { monthCounts }, nativeEvents: { month: nativeMonth } }));
+vi.mock("@/lib/db", () => ({ todos: { monthCounts }, nativeEvents: { month: nativeMonth }, settings: { hiddenCalendars: async () => [] } }));
 
 import { GET } from "@/app/api/month/route";
 

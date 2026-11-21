@@ -7,7 +7,7 @@ const { getUser, resolveGoogleAccess, fetchRange, range } = vi.hoisted(() => ({
 vi.mock("@/lib/auth", () => ({ getUser }));
 vi.mock("@/lib/googleToken", async (orig) => ({ ...(await orig<typeof import("@/lib/googleToken")>()), resolveGoogleAccess }));
 vi.mock("@/lib/google", async (orig) => ({ ...(await orig<typeof import("@/lib/google")>()), fetchRange }));
-vi.mock("@/lib/db", () => ({ nativeEvents: { range } }));
+vi.mock("@/lib/db", () => ({ nativeEvents: { range }, settings: { hiddenCalendars: async () => [] } }));
 
 import { GET } from "@/app/api/events/route";
 

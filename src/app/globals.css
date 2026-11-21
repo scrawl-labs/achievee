@@ -253,7 +253,7 @@ button.mcell:hover { background: var(--surface-2); } .mcell.sel { background: co
   .tl { height: calc(100dvh - 340px); }
   .mcell { min-height: 76px; padding: 3px; } .mev { font-size: 10.5px; padding: 0 3px; } .mev time { display: none; } .more { font-size: 10.5px; padding: 0 3px; }
   .agenda section { grid-template-columns: 1fr; gap: var(--s2); }
-  .agenda li a { grid-template-columns: 10px 1fr; } .agenda li time { grid-column: 2; } .agenda li small { display: none; }
+  .agenda li a { grid-template-columns: 10px 1fr; } .agenda li time, .agenda li b { grid-column: 2; } .agenda li small { display: none; }
 }
 
 /* login, language select, mobile footer */
@@ -986,6 +986,63 @@ button.ev.native.moving { opacity: .35; cursor: grabbing; }
 .ev-resize { position: absolute; left: 0; right: 0; bottom: 0; height: 8px; cursor: ns-resize; }
 .ev-resize::after { content: ""; position: absolute; left: 50%; bottom: 2px; width: 18px; height: 3px; margin-left: -9px; border-radius: 2px; background: currentColor; opacity: 0; transition: opacity .12s; }
 button.ev.native:hover .ev-resize::after { opacity: .45; }
+
+/* own events vs Google events: own plans are solid accent, Google ones a light tint with an outline, in every view */
+.ev.own { background: var(--accent); color: var(--accent-fg); border-left-color: color-mix(in oklab, var(--accent) 55%, #000); }
+.ev.own span, .mev.own time { color: color-mix(in oklab, var(--accent-fg) 80%, transparent); }
+.ev.gcal { background: color-mix(in oklab, var(--ev) 12%, var(--surface)); color: var(--fg-2); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--ev) 35%, var(--line)); }
+.ev.gcal b { font-weight: 500; } .ev.gcal span { color: var(--fg-3); }
+.chipday.gcal { background: color-mix(in oklab, var(--ev) 16%, var(--surface)); color: var(--fg-2); font-weight: 500; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--ev) 35%, var(--line)); }
+.mev.own { background: var(--accent); color: var(--accent-fg); border-left-color: color-mix(in oklab, var(--accent) 55%, #000); font-weight: 600; }
+.mev.gcal { background: color-mix(in oklab, var(--ev) 10%, var(--surface)); color: var(--fg-2); }
+.mev.gcal.all { background: color-mix(in oklab, var(--ev) 20%, var(--surface)); font-weight: 500; }
+.agenda li a.own { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.agenda li a.own time, .agenda li a.own small { color: color-mix(in oklab, var(--accent-fg) 80%, transparent); }
+.agenda li a.own i { background: var(--accent-fg); }
+.agenda li a.gcal { background: none; color: var(--fg-2); } .agenda li a.gcal b { font-weight: 500; }
+.evlegend { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s2) var(--s4); margin-bottom: var(--s3); font-size: 12.5px; color: var(--fg-2); }
+.evlegend > span { display: inline-flex; align-items: center; gap: 6px; }
+.evlegend i { width: 14px; height: 10px; border-radius: 3px; }
+.evlegend .own i { background: var(--accent); }
+.evlegend .gcal i { background: color-mix(in oklab, var(--fg-3) 14%, var(--surface)); box-shadow: inset 0 0 0 1px var(--fg-3); }
+.linkish { color: var(--fg-2); font-size: 12.5px; text-decoration: underline; text-underline-offset: 3px; } .linkish:hover { color: var(--fg); }
+
+/* "Upcoming" on the Log tab: beside the month above the day panel on wide screens, first thing on narrow ones */
+.workspace > .upcoming { grid-column: 2; grid-row: 1; }
+.workspace > .cal { grid-column: 1; grid-row: 1 / span 2; }
+.workspace > .detail { grid-column: 2; grid-row: 2; }
+.upcoming { border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); padding: var(--s4); display: flex; flex-direction: column; gap: var(--s2); }
+.up-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); }
+.up-head h4 { font-size: 14px; font-weight: 700; } .up-head small { margin-left: 4px; font-size: 12px; }
+.btn.up-add { height: 28px; padding: 0 var(--s2); gap: 4px; font-size: 13px; color: var(--accent); }
+.upcoming ul { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.up-row { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: var(--s3); align-items: center; padding: 6px var(--s3) 6px 6px; border-radius: var(--r-m); border: 1px solid transparent; transition: filter .15s, border-color .15s; }
+.up-row .dday { grid-row: 1 / span 2; min-width: 46px; padding: 4px 6px; border-radius: 7px; text-align: center; font-size: 12px; font-weight: 700; white-space: nowrap; background: var(--surface-2); color: var(--fg-2); }
+.up-row b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.up-row time { font-size: 12px; color: var(--fg-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.up-row.own { background: var(--accent); color: var(--accent-fg); }
+.up-row.own:hover { filter: brightness(1.08); }
+.up-row.own time { color: color-mix(in oklab, var(--accent-fg) 80%, transparent); }
+.up-row.own .dday { background: color-mix(in oklab, var(--accent-fg) 22%, transparent); color: var(--accent-fg); }
+.up-row.own .dday.now, .up-row.own .dday.soon { background: var(--accent-fg); color: var(--accent); }
+.up-row.gcal { border-color: var(--line); border-left: 3px solid var(--ev); }
+.up-row.gcal:hover { border-color: var(--fg-3); border-left-color: var(--ev); }
+.up-row.gcal b { font-weight: 500; color: var(--fg-2); }
+.up-row.gcal .dday.now { color: var(--accent); }
+.up-more { align-self: flex-start; padding: 2px 0; font-size: 12.5px; color: var(--fg-2); text-decoration: underline; text-underline-offset: 3px; } .up-more:hover { color: var(--fg); }
+.up-empty p { color: var(--fg-2); } .up-empty small { display: block; margin-top: 2px; font-size: 12.5px; line-height: 1.5; }
+@media (max-width: 1100px) { .workspace > .upcoming, .workspace > .cal, .workspace > .detail { grid-column: auto; grid-row: auto; } }
+
+/* Google calendars to show (under the connected Google card) */
+.gcals { border-top: 1px solid var(--line); padding-top: var(--s3); }
+.gcals-toggle { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); width: 100%; font-size: 13px; font-weight: 600; }
+.gcals-toggle svg { transition: transform .15s; } .gcals-toggle[aria-expanded="true"] svg { transform: rotate(90deg); }
+.gcals-toggle .grow { flex: 1; }
+.gcals-list { list-style: none; padding: 0; display: flex; flex-direction: column; }
+.gcals-list label { display: flex; align-items: center; gap: var(--s2); padding: 6px 0; font-size: 13.5px; cursor: pointer; min-width: 0; }
+.gcals-list input[type="checkbox"] { flex: none; width: 16px; height: 16px; padding: 0; accent-color: var(--accent); cursor: pointer; }
+.gcals-list i { flex: none; width: 10px; height: 10px; border-radius: 99px; background: var(--ev); }
+.gcals-list span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* phone tab bar with a "More" sheet (the bar itself is switched on in the 860px block above) */
 .tabbar .moretab { position: relative; flex: 1; display: flex; }

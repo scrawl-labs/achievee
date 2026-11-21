@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { googleCardModel, returnMessageKey, type GoogleReturn, type GoogleStatus } from "@/lib/googleStatus";
 import { useI18n } from "./I18n";
 import Icon from "./Icon";
+import GoogleCalendarPicker from "./GoogleCalendarPicker";
 import { disconnectGoogle, startGoogleConnect } from "./useGoogleStatus";
 
 /** The Google card on the Integrations screen: connect / connected + disconnect (one inline confirm) / reconnect. */
@@ -38,6 +39,7 @@ export default function GoogleConnectCard({ status, notice }: { status: GoogleSt
           <button className={m.action ? "btn ghost" : "btn danger"} aria-label={t("gc.disconnectAria")} aria-expanded={confirming} onClick={() => setConfirming(true)}>{t("int.disconnect")}</button>
         )}
       </div>
+      {m.state === "connected" && !confirming && <GoogleCalendarPicker />}
       {confirming && (
         <div className="intstate" role="group" aria-label={t("gc.disconnectAria")} onKeyDown={(e) => { if (e.key === "Escape") setConfirming(false); }}>
           <p>{t("gc.confirm")}</p>

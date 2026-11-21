@@ -44,6 +44,9 @@ export const ZH = {
   "cmd.recent": "主要搜尋最近的紀錄。", "cmd.t.goal": "目標", "cmd.t.weekGoal": "每週目標", "cmd.t.diary": "日記", "cmd.t.expense": "支出", "cmd.t.income": "收入", "cmd.t.saving": "儲蓄", "cmd.t.workout": "運動",
   "todo.placeholder": "要做什麼？", "todo.toggle": "完成：{text}", "todo.edit": "編輯待辦：{text}", "todo.limit": "這一天的待辦已達上限。", "task.google": "Google 待辦事項，唯讀", "task.add": "新增待辦", "task.new": "新待辦", "task.count": "{total} 項中已完成 {done} 項", "task.doneSr": "已完成", "task.less": "收合", "cmd.addTodo": "新增今日待辦：{text}", "cmd.addTodoFail": "無法新增待辦，請再試一次。", "cmd.t.todo": "待辦",
   "gc.sec": "Google", "gc.perm": "需要行程與待辦事項的唯讀權限。", "gc.connect": "連結 Google Calendar", "gc.reconnect": "重新連結", "gc.revoked": "連線已中斷", "gc.disconnectAria": "解除 Google Calendar 連結", "gc.confirm": "要解除 Google 連結嗎？你的行程與待辦事項將不再顯示於此。", "gc.disconnectFail": "無法解除連結，請再試一次。", "gc.retConnected": "已連結 Google Calendar。", "gc.retError": "無法連結 Google，請再試一次。", "gc.retPartial": "部分權限未被允許，請重新連結。", "gc.linkRevoked": "Google 連線已中斷 · 重新連結",
+  "up.title": "接下來的行程", "up.sub": "未來兩週", "up.today": "今天", "up.tomorrow": "明天", "up.dday": "{n} 天後", "up.add": "新增行程", "up.empty": "未來兩週還沒有安排行程。", "up.emptyHint": "已經預約了什麼嗎？像是高爾夫球局。先記下來，就會顯示在這裡，不怕錯過。", "up.google": "Google 行程 {n} 項", "up.seeAll": "查看全部", "up.open": "在日曆中開啟 {day}",
+  "g.own": "我的行程", "g.google": "Google", "g.pickCals": "選擇日曆",
+  "gc.cals": "要顯示的日曆", "gc.calsCount": "已顯示 {n} / {total} 個", "gc.calsHint": "取消勾選的日曆在 Achievee 中都不會顯示。這裡只會列出在 Google Calendar 中已勾選的日曆。", "gc.calsLoadFail": "無法載入你的日曆。", "gc.calsSaveFail": "無法儲存，請再試一次。", "gc.calsNone": "沒有可選擇的日曆。",
 } as const;
 
 export const ZH_LAND = {

@@ -1,4 +1,5 @@
 import type { DayData, DayEvent } from "./types";
+import { shownCalendars, type GoogleCalendar } from "./calendarSources";
 import { fetchAllPages } from "./paginate";
 import { dayStart } from "./tz";
 
@@ -53,11 +54,11 @@ const hhmm = (min: number) => `${String(Math.floor(min / 60)).padStart(2, "0")}:
  *    Events come from fetchRange so the calendar badges always match the day/week/month views.
  *  - Completion comes from Google Tasks (due date → day; falls back to completion date).
  */
-export async function fetchMonth(ym: string, token: string, tz: string): Promise<Record<string, DayData>> {
+export async function fetchMonth(ym: string, token: string, tz: string, hidden: readonly string[] = []): Promise<Record<string, DayData>> {
   const { first, last, next } = range(ym);
   const days = emptyMonthDays(ym);
 
-  const [tasks, events] = await Promise.all([fetchTasks(first, last, token), fetchRange(first, next, token, tz)]);
+  const [tasks, events] = await Promise.all([fetchTasks(first, last, token), fetchRange(first, next, token, tz, hidden)]);
 
   for (const t of tasks) {
     const day = days[(t.due ?? t.completed ?? "").slice(0, 10)];
@@ -88,20 +89,30 @@ export function isActiveEvent(e: EventStatusFields): boolean {
   return e.status !== "cancelled" && !e.attendees?.some((a) => a.self && a.responseStatus === "declined");
 }
 
+type CalendarRow = { id: string; summary: string; summaryOverride?: string; backgroundColor?: string; selected?: boolean };
+
+/** The calendars checked in Google Calendar's sidebar. calendarList only sends `selected` when it is true (absent = unchecked), so require === true. */
+async function selectedCalendars(token: string): Promise<CalendarRow[]> {
+  const cals = await g<{ items?: CalendarRow[] }>("https://www.googleapis.com/calendar/v3/users/me/calendarList?maxResults=250", token);
+  return (cals.items ?? []).filter((c) => c.selected === true);
+}
+
+/** What the "calendars to show" setting lists: the calendars fetchRange reads from, before the person's own hiding. */
+export async function fetchCalendars(token: string): Promise<GoogleCalendar[]> {
+  return (await selectedCalendars(token)).map((c) => ({ id: c.id, name: c.summaryOverride ?? c.summary, color: c.backgroundColor ?? "#8fb8ff" }));
+}
+
 /**
  * Events of the calendars checked in Google Calendar's sidebar between `from` and `to` (exclusive), split into one segment per day
- * and positioned in minutes from 00:00 (KST) so views can lay them out directly.
+ * and positioned in minutes from 00:00 (KST) so views can lay them out directly. Calendars in `hidden` (hidden in Achievee) are not read at all.
  */
-export async function fetchRange(from: string, to: string, token: string, tz: string): Promise<DayEvent[]> {
+export async function fetchRange(from: string, to: string, token: string, tz: string, hidden: readonly string[] = []): Promise<DayEvent[]> {
   const kst = (d: string) => dayStart(d, tz);
   const rangeStart = kst(from), rangeEnd = kst(to);
   const days: string[] = [];
   for (let d = from; d < to && days.length < 62; d = new Date(Date.parse(`${d}T00:00:00Z`) + 864e5).toISOString().slice(0, 10)) days.push(d);
-  const cals = await g<{ items?: { id: string; summary: string; summaryOverride?: string; backgroundColor?: string; selected?: boolean }[] }>(
-    "https://www.googleapis.com/calendar/v3/users/me/calendarList?maxResults=250", token);
   const out: DayEvent[] = [];
-  // calendarList only sends `selected` when it is true (absent = unchecked), so require === true
-  await Promise.all((cals.items ?? []).filter((c) => c.selected === true).map(async (c) => {
+  await Promise.all(shownCalendars(await selectedCalendars(token), hidden).map(async (c) => {
     const q = new URLSearchParams({
       singleEvents: "true", orderBy: "startTime", maxResults: "2500",
       timeMin: new Date(rangeStart).toISOString(), timeMax: new Date(rangeEnd).toISOString(),

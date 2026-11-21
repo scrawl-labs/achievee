@@ -117,6 +117,11 @@ function Main() {
     setTab(next);
     if (date) setSel(date);
   };
+  // the Log tab's "Upcoming" strip: a row opens its day, "see all" the list
+  const openSchedule = (date: string, mode: GMode) => {
+    setGmode(mode);
+    go("google", date);
+  };
 
   const deleteData = async () => {
     if (!confirm(t("account.deleteConfirm"))) return;
@@ -155,10 +160,10 @@ function Main() {
         </header>
         <div className="pagebody">
         {error && <p className="error">{t("common.loadFail")}</p>}
-        {tab === "calendar" && <CalendarView ym={ym} month={month} stats={stats} sel={sel} setSel={setSel} onDiary={() => setTab("diary")} />}
+        {tab === "calendar" && <CalendarView ym={ym} month={month} stats={stats} sel={sel} setSel={setSel} onDiary={() => setTab("diary")} onSchedule={openSchedule} />}
         {tab === "stats" && <StatsView stats={stats} month={month} sel={sel} startDay={startDay} goal={workoutGoal} />}
         {tab === "diary" && <DiaryView ym={ym} sel={sel} setSel={setSel} />}
-        {tab === "google" && <ScheduleView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} />}
+        {tab === "google" && <ScheduleView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} onCalendars={() => setTab("integrations")} />}
         {tab === "integrations" && <IntegrationsView googleReturn={gret.result} />}
         {tab === "settings" && <SettingsView user={session?.user} currency={currency} onCurrency={changeCurrency} startDay={startDay} onStartDay={changeStartDay} workoutGoal={workoutGoal} onWorkoutGoal={changeGoal} intakeGoals={intakeGoals} onIntakeGoal={changeIntakeGoal} onOpen={setTab} onSignOut={() => signOut()} onDelete={deleteData} />}
         {tab === "workout" && <WorkoutView sel={sel} setSel={setSel} goal={workoutGoal} onGoal={changeGoal} intakeGoals={intakeGoals} onIntakeGoal={changeIntakeGoal} />}

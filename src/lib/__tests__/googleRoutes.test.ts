@@ -7,7 +7,7 @@ const { getUser, resolveGoogleAccess, revokeGoogleGrant, fetchMonth, fetchRange,
 vi.mock("@/lib/auth", () => ({ getUser }));
 vi.mock("@/lib/googleToken", async (orig) => ({ ...(await orig<typeof import("@/lib/googleToken")>()), resolveGoogleAccess, revokeGoogleGrant }));
 vi.mock("@/lib/google", async (orig) => ({ ...(await orig<typeof import("@/lib/google")>()), fetchMonth, fetchRange }));
-vi.mock("@/lib/db", () => ({ integrations: { list, get, save: vi.fn(), remove: vi.fn() }, identity: { ensure: vi.fn() }, todos: { monthCounts: vi.fn(async () => []) }, deleteUserData }));
+vi.mock("@/lib/db", () => ({ integrations: { list, get, save: vi.fn(), remove: vi.fn() }, identity: { ensure: vi.fn() }, todos: { monthCounts: vi.fn(async () => []) }, settings: { hiddenCalendars: vi.fn(async () => ["holidays"]) }, deleteUserData }));
 
 import { GET as month } from "@/app/api/month/route";
 import { GET as events } from "@/app/api/events/route";
@@ -28,10 +28,10 @@ describe("month / events with the DB token", () => {
   it("uses the resolved access token", async () => {
     resolveGoogleAccess.mockResolvedValue({ status: "ok", accessToken: "db-token" });
     const res = await month(new Request("http://x/api/month?ym=2026-10"));
-    expect(fetchMonth).toHaveBeenCalledWith("2026-10", "db-token", expect.any(String));
+    expect(fetchMonth).toHaveBeenCalledWith("2026-10", "db-token", expect.any(String), ["holidays"]); // hidden calendars are passed on
     expect(await res.json()).not.toHaveProperty("google");
     await events(new Request("http://x/api/events?from=2026-10-01&to=2026-10-08"));
-    expect(fetchRange).toHaveBeenCalledWith("2026-10-01", "2026-10-08", "db-token", expect.any(String));
+    expect(fetchRange).toHaveBeenCalledWith("2026-10-01", "2026-10-08", "db-token", expect.any(String), ["holidays"]);
   });
 
   it("revoked: normal 200 without calling Google, flag added, days skeleton kept", async () => {

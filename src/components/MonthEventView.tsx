@@ -2,6 +2,7 @@
 import type { DayEvent } from "@/lib/types";
 import { addDays, addMonths, dow, monthStart } from "@/lib/dates";
 import { allocateMonthItems } from "@/lib/monthSlots";
+import { eventSource } from "@/lib/calendarSources";
 import { useEvents } from "./useEvents";
 import { useTasksRange } from "./useTasksRange";
 import { hhmm } from "./TimeGrid";
@@ -43,7 +44,7 @@ export default function MonthEventView({ date, onPickDay }: { date: string; onPi
                   {it.tk.done && <span className="sr-only">{t("task.doneSr")}</span>}
                 </span>
               ) : (
-                <span key={it.e.id} className={`mev${it.e.allDay ? " all" : ""}`} style={{ ["--ev" as string]: it.e.color }}>
+                <span key={it.e.id} className={`mev ${eventSource(it.e) === "native" ? "own" : "gcal"}${it.e.allDay ? " all" : ""}`} style={{ ["--ev" as string]: it.e.color }}>
                   {!it.e.allDay && <time>{hhmm(it.e.startMin)}</time>}{it.e.title || t("common.untitled")}
                 </span>
               ))}
