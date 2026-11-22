@@ -62,6 +62,13 @@ function Table({ head, rows }: { head: string[]; rows: React.ReactNode[][] }) {
   );
 }
 
+/** A rule as code: the pattern to avoid next to the one to use. */
+const CodeRule = ({ bad, good }: { bad: string; good: string }) => (
+  <div className="dd-coderule">
+    <div className="bad"><b>지양</b><pre><code>{bad}</code></pre></div>
+    <div className="good"><b>권장</b><pre><code>{good}</code></pre></div>
+  </div>
+);
 const Pill = ({ children }: { children: React.ReactNode }) => <span className="dd-pill">{children}</span>;
 const DoDont = ({ dos, donts }: { dos: string[]; donts: string[] }) => (
   <div className="dd-dodont">
@@ -218,17 +225,59 @@ function pageBlocks(slug: string, theme: Theme): Block[] {
         [<Link key="p" href="/design/principles">원칙</Link>, "화면 설계의 기본 규칙"],
         [<Link key="c" href="/design/color">색</Link>, "색상 토큰과 대비 기준"],
         [<Link key="k" href="/design/components">전체 컴포넌트</Link>, "컴포넌트별 예시, 코드, 속성"],
-        [<Link key="v" href="/design/voice">말투</Link>, "버튼, 안내, 오류 문구 기준"],
+        [<Link key="v" href="/design/ux-writing">UX writing</Link>, "버튼, 안내, 오류 문구 기준"],
       ]} /> },
     ];
     case "principles": return [
-      { id: "one-box", title: "중첩은 한 겹까지", desc: "관련된 콘텐츠는 Surface 하나에 담음. Surface 안에는 입력 영역, 날짜 선택처럼 구분이 필요한 요소만 surface-sunk 면으로 한 겹 둠. 그 안에 또 다른 컨테이너를 두지 않음.", demo: <div className="dd-compare"><div className="bad"><div className="dd-nest"><div><div><span>2026년 11월 22일</span></div></div></div><small>세 겹 중첩</small></div><div className="good"><div className="ds-card dd-mini"><div className="dd-sunk-date">11월 22일 일요일</div><div className="dd-sunk-area" /></div><small>Surface + 면 한 겹</small></div></div> },
-      { id: "shadow", title: "테두리 대신 그림자와 배경색으로 구분함", desc: "Surface는 shadow-surface로 배경과 구분하고, 내부 요소는 surface-sunk 배경색으로 구분함. 영역을 나누기 위해 1px 테두리를 사용하지 않음.", demo: <div className="dd-compare"><div className="bad"><div className="dd-bordered">버튼</div><small>테두리로 구분</small></div><div className="good"><div className="ds-card dd-mini"><span className="ds-chip">surface-sunk</span></div><small>그림자와 배경색으로 구분</small></div></div> },
-      { id: "paper", title: "입력 영역은 테두리 없는 면으로 표시함", desc: "일기처럼 긴 글을 쓰는 영역은 Paper, 한 줄 값은 Field를 사용함. 둘 다 테두리 없이 surface-sunk 면으로 입력 영역을 표시하고, 포커스 시 accent 링을 표시함.", demo: <PaperDemo /> },
-      { id: "hero", title: "화면마다 강조 요소는 하나", desc: "한 화면에서 display 스타일은 날짜나 핵심 숫자 하나에만 사용함. 나머지 정보는 body와 caption으로 표시함.", demo: <div className="ds-card dd-w"><span className="ds-lbl">이번 달 지출</span><b className="t-d2">₩83,550</b><span className="t-caption">필요 ₩43,200 · 불필요 ₩40,350</span></div> },
-      { id: "one-color", title: "강조 색상은 accent 하나", desc: "주요 버튼, 선택 상태, 링크에는 accent만 사용함. petal 팔레트는 그래픽과 배경에만 사용하고 텍스트에는 사용하지 않음.", demo: <div className="ds-row-wrap"><button type="button" className="ds-btn primary">저장</button><span className="dd-dot" style={{ background: "var(--peach)" }} /><span className="dd-dot" style={{ background: "var(--mint)" }} /><span className="dd-dot" style={{ background: "var(--lilac)" }} /></div> },
+      { id: "intro", title: "적용 방법", body: <p>각 규칙은 코드로 확인할 수 있는 조건으로 씀. 리뷰 시 아래 지양 패턴이 보이면 권장 패턴으로 바꿈.</p> },
+      { id: "nesting", title: "중첩은 한 겹까지", desc: "Surface 안에는 surface-sunk 면 한 겹만 허용. 면 안에 다시 면이나 테두리 박스를 두지 않음.", body: <CodeRule bad={`<section class="ac-surface">
+  <div class="box">              <!-- 2겹 -->
+    <div class="box">            <!-- 3겹 -->
+      <input class="bordered" />
+    </div>
+  </div>
+</section>`} good={`<section class="ac-surface">
+  <div class="ac-date-pick">11월 22일</div>
+  <textarea class="ac-paper"></textarea>
+</section>`} /> },
+      { id: "border", title: "border로 영역을 나누지 않음", desc: "Surface는 그림자, 내부 요소는 배경색으로 구분. 목록 행 사이 구분선만 예외.", body: <CodeRule bad={`.card {
+  border: 1px solid var(--line);
+}
+.chip {
+  border: 1px solid var(--line);
+}`} good={`.ac-surface {
+  box-shadow: var(--shadow-surface);
+}
+.ac-chip {
+  background: var(--surface-sunk);
+}`} /> },
+      { id: "input", title: "입력 영역은 면 + 포커스 링", desc: "Paper, Field, 날짜 선택은 테두리 없는 surface-sunk 면. 포커스는 accent 2px 링으로 표시.", body: <CodeRule bad={`input {
+  background: var(--bg);
+  border: 1px solid var(--line);
+}
+input:focus {
+  border-color: var(--accent);
+}`} good={`.ac-field {
+  background: var(--surface-sunk);
+  border: 0;
+}
+.ac-field:focus {
+  box-shadow: 0 0 0 2px var(--accent);
+}`} /> },
+      { id: "display", title: "display 스타일은 화면당 하나", desc: "display-1, display-2는 날짜나 핵심 숫자 하나에만 사용. 나머지는 title 이하.", body: <CodeRule bad={`<h2 class="display-1">11월 22일</h2>
+<b class="display-2">₩83,550</b>
+<b class="display-2">6회</b>`} good={`<h2 class="display-1">11월 22일</h2>
+<span class="body">₩83,550</span>
+<span class="caption">운동 6회</span>`} /> },
+      { id: "accent", title: "primary와 accent는 하나", desc: "primary 버튼은 Surface당 하나. petal-* 색상은 텍스트에 사용하지 않음.", body: <CodeRule bad={`<button class="ac-btn primary">저장</button>
+<button class="ac-btn primary">취소</button>
+
+.label { color: var(--petal-mint); }`} good={`<button class="ac-btn primary">저장</button>
+<button class="ac-btn ghost">취소</button>
+
+.label { color: var(--good); }`} /> },
     ];
-    case "voice": return [
+    case "ux-writing": return [
       { id: "tone", title: "기본 어조", body: <p>UI 문구는 해요체로 씀. 한 문장에는 한 가지 내용만 담고, 느낌표와 이모지는 사용하지 않음. 마스코트 멜로의 대사만 반말을 사용함.</p> },
       { id: "buttons", title: "버튼", desc: "버튼 레이블에는 실행될 동작을 씀.", body: <Table head={["권장", "지양"]} rows={[["저장", "확인"], ["삭제", "OK"], ["단어 고르기", "선택하기"], ["연결 해제", "해제 진행"]]} /> },
       { id: "messages", title: "안내와 오류", body: <Table head={["상황", "권장", "지양"]} rows={[["지우기 전", "이 기록을 지울까요?", "정말 삭제하시겠습니까?"], ["빈 화면", "오늘 하루는 어땠어?", "내용을 입력해주세요."], ["불러오기 실패", "불러오지 못했어요. 다시 시도해 주세요.", "오류가 발생했습니다!"], ["저장 완료", "저장됨", "저장이 완료되었습니다."]]} /> },

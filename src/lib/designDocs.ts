@@ -4,7 +4,7 @@ export type DocPage = { slug: string; title: string; group: "시작하기" | "�
 export const DOC_PAGES: DocPage[] = [
   { slug: "intro", title: "소개", group: "시작하기", summary: "Achievee 디자인 시스템의 구성과 사용 방법을 설명함." },
   { slug: "principles", title: "원칙", group: "시작하기", summary: "화면을 설계할 때 따르는 기본 규칙." },
-  { slug: "voice", title: "말투", group: "시작하기", summary: "버튼, 안내, 오류 문구의 작성 기준." },
+  { slug: "ux-writing", title: "UX writing", group: "시작하기", summary: "버튼, 안내, 오류 문구의 작성 기준." },
   { slug: "color", title: "색", group: "파운데이션", summary: "색상 토큰과 사용 기준." },
   { slug: "typography", title: "글자", group: "파운데이션", summary: "서체와 텍스트 스타일." },
   { slug: "shape", title: "간격 · 모서리 · 그림자", group: "파운데이션", summary: "간격, 모서리 반경, 그림자 토큰." },
