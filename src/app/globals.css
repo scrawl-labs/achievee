@@ -1450,10 +1450,10 @@ input::placeholder, textarea::placeholder { color: var(--fg-3); }
 .tag, .seg, .lang, .emo-panel, .emodict-fam dl > div, .intcard, .inttile, .body-tiles button, .sm-strip .chip { border: 0; }
 .tag, .lang, .inttile, .body-tiles button, .sm-strip .chip, .emodict-fam dl > div { background-color: var(--surface-2); }
 .seg { background-color: var(--surface-2); }
-.emo-panel { background-color: var(--surface-2); }
+.emo-panel { background: none; padding: 0; } /* the panel itself adds no layer: its card and chips are the one sunk layer */
 .emo-desc { border: 0; background: transparent; padding-left: 0; padding-right: 0; }
 .emo-chip { border: 0; background: var(--surface-2); }
-.emo-panel .emo-chip { background: var(--surface); }
+.emo-panel .bd-launch { background: var(--surface-2); box-shadow: none; }
 .emo-chip.on { background: color-mix(in oklab, var(--accent) 14%, var(--surface)); color: color-mix(in oklab, var(--accent) 80%, var(--fg)); }
 .emo-chip.focus:not(.on) { box-shadow: inset 0 0 0 1.5px var(--fg-3); }
 .ex-chips button { border: 0; background: var(--surface-2); }
