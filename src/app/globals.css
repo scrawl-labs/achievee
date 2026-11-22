@@ -48,6 +48,7 @@ small { font-size: 13px; font-weight: 500; color: var(--fg-3); }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
 .btn.primary:hover { filter: brightness(1.08); }
 .btn:disabled { opacity: .4; cursor: default; filter: none; }
+.btn.primary:disabled { opacity: 1; background: var(--surface-2); border-color: var(--line); color: var(--fg-3); } /* clearly off, not a faded blue */
 .btn.icon { width: 36px; padding: 0; }
 .btn.ghost { background: none; border-color: transparent; color: var(--fg-3); } .btn.ghost:hover { color: var(--fg); background: var(--surface-2); }
 input, select, textarea { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-s); padding: 0 var(--s3); height: 40px; }
@@ -337,7 +338,7 @@ select {
 .list .panel.entry { margin: var(--s2) 0; }
 
 /* income + pay-cycle setting */
-.num.inc { color: var(--c3); }
+.num.inc { color: color-mix(in oklab, var(--c3) 55%, var(--fg)); } /* mint in dark, a readable green in light */
 .period { margin-top: var(--s5); padding-top: var(--s4); border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: var(--s2); }
 .period label { font-size: 13px; font-weight: 600; color: var(--fg-2); }
 .period small { line-height: 1.5; }
@@ -482,8 +483,12 @@ select {
   box-shadow: 0 6px 16px -8px rgb(0 0 0 / .35); opacity: 0; translate: 6px 4px; transition: opacity .25s, translate .25s; }
 .bori-fab-hint.on { opacity: 1; translate: 0 0; }
 @keyframes bori-bob { 50% { translate: 0 -4px; } }
-body:has(textarea:focus, input:focus) .bori-fab { opacity: 0; visibility: hidden; transition: opacity .15s, visibility 0s .15s; }
-@media (max-width: 860px) { .bori-fab-hint { display: none; } }
+@media (min-width: 861px) { body:has(textarea:focus, input:focus) .bori-fab { opacity: 0; visibility: hidden; transition: opacity .15s, visibility 0s .15s; } }
+/* phones: Mallow is not floating over the diary but sits in the page, between the editor and the list, with its line */
+@media (max-width: 860px) {
+  .bori-fab { position: static; justify-content: flex-end; pointer-events: auto; }
+  .bori-fab-hint { opacity: 1; translate: 0 0; cursor: pointer; pointer-events: auto; }
+}
 @media (max-width: 860px) { .bori-fab { right: 14px; bottom: calc(64px + 14px + env(safe-area-inset-bottom)); } .bori-fab-btn { width: 56px; height: 56px; } }
 @media (prefers-reduced-motion: reduce) { .bori-fab-btn { animation: none; } }
 
@@ -1247,6 +1252,7 @@ a, button, input, select, textarea, label, summary, [role="button"], [role="tab"
 .set-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .set-who { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .set-who b, .set-who small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.set-who small:last-child { white-space: normal; line-height: 1.45; }
 .set-row { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); min-height: 44px; }
 .set-row > div { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .set-row > b { font-weight: 600; }
@@ -1384,3 +1390,14 @@ details.period[open] summary { margin-bottom: var(--s2); }
 .cf-ok:hover { background: var(--sun); filter: brightness(1.07); }
 @keyframes cf-in { from { opacity: 0; } }
 @keyframes cf-pop { from { opacity: 0; transform: scale(.96) translateY(6px); } }
+
+/* Home on phones: one-line upcoming rows and smaller numbers, so the month stays near the top */
+@media (max-width: 860px) {
+  .up-row { grid-template-columns: auto minmax(0, 1fr) auto; padding: 5px 10px 5px 5px; }
+  .up-row .dday { grid-row: auto; min-width: 40px; }
+  .up-row time { text-align: right; }
+  .summary dd { font-size: 16px; }
+  .summary > div { padding: 10px var(--s3); }
+}
+/* the diary mark sits under the day number, not in the cell's corner */
+.cell.has-diary::after { position: static; order: 3; flex: none; margin-top: -2px; }

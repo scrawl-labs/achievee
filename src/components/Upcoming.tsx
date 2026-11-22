@@ -1,9 +1,9 @@
 "use client";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { addDays } from "@/lib/dates";
 import { todayStr } from "@/lib/clientTime";
 import { eventSource } from "@/lib/calendarSources";
-import { ddayLabel, selectUpcoming, UPCOMING_DAYS } from "@/lib/upcoming";
+import { ddayLabel, selectUpcoming, UPCOMING_DAYS, UPCOMING_MAX } from "@/lib/upcoming";
 import { useEvents } from "./useEvents";
 import { hhmm, nowMinutes } from "./TimeGrid";
 import { useI18n } from "./I18n";
@@ -13,11 +13,24 @@ import Icon from "./Icon";
  * The next two weeks at the top of the Log tab, so a plan booked for next week shows up while writing today's to-dos.
  * A row opens that day in the Calendar tab; `onOpen(date, "AGENDA")` is the "see all" list.
  */
+/** Phones list fewer rows, so the month is still near the top of the Home tab. */
+function useRowCap() {
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const q = window.matchMedia("(max-width: 860px)");
+    const read = () => setNarrow(q.matches);
+    read(); q.addEventListener("change", read);
+    return () => q.removeEventListener("change", read);
+  }, []);
+  return narrow ? 3 : UPCOMING_MAX;
+}
+
 export default function Upcoming({ onOpen }: { onOpen: (date: string, mode: "DAY" | "AGENDA") => void }) {
   const { t, fmt } = useI18n();
   const today = todayStr();
   const { events, error } = useEvents(today, addDays(today, UPCOMING_DAYS));
-  const up = useMemo(() => (events ? selectUpcoming(events, today, nowMinutes(new Date())) : null), [events, today]);
+  const cap = useRowCap();
+  const up = useMemo(() => (events ? selectUpcoming(events, today, nowMinutes(new Date()), UPCOMING_DAYS, cap) : null), [events, today, cap]);
   const rest = up ? [up.more > 0 && t("g.more", { n: up.more }), up.google > 0 && t("up.google", { n: up.google })].filter(Boolean).join(" · ") : "";
 
   return (

@@ -40,7 +40,7 @@ export default function BoriFab({ beforeOpen, onSaved }: { beforeOpen?: () => Pr
   return (
     <>
       <div className={`bori-fab${open ? " hidden" : ""}`}>
-        <span className={`bori-fab-hint${hint ? " on" : ""}`} aria-hidden="true">{t("buddy.fabHint")}</span>
+        <span className={`bori-fab-hint${hint ? " on" : ""}`} aria-hidden="true" onClick={start}>{t("buddy.fabHint")}</span>
         <button type="button" className="bori-fab-btn" onClick={start} disabled={busy} aria-label={t("buddy.start")} title={t("buddy.start")}
           onMouseEnter={() => setHint(true)} onMouseLeave={() => setHint(false)}>
           <img src="/mallow/mallow.webp" alt="" width={64} height={64} />

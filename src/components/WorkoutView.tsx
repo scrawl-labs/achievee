@@ -83,7 +83,7 @@ export default function WorkoutView({ sel, setSel, goal, onGoal, intakeGoals, on
       {mode === "log" && (
         <>
       <Summary items={[
-        [t("wo.thisWeek"), `${w.sessions} / ${goal}`], [t("wo.weekTime"), dur(w.minutes)],
+        [t("wo.weekGoal", { n: goal }), w.sessions >= goal ? `${t("wo.times", { n: w.sessions })} ✓` : t("wo.times", { n: w.sessions })], [t("wo.weekTime"), dur(w.minutes)],
         [t("wo.month"), t("wo.times", { n: m.sessions })], [t("wo.monthTime"), dur(m.minutes)],
       ]} />
       <div className="two wide-left">
