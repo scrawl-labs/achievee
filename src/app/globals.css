@@ -1008,6 +1008,8 @@ button.ev.native:hover .ev-resize::after { opacity: .45; }
 .linkish { color: var(--fg-2); font-size: 12.5px; text-decoration: underline; text-underline-offset: 3px; } .linkish:hover { color: var(--fg); }
 
 /* "Upcoming" on the Log tab: beside the month above the day panel on wide screens, first thing on narrow ones */
+/* the tall month spans both rows: give its extra height to the lower row, so "Upcoming" sits snug above the day panel */
+.workspace:has(> .upcoming) { grid-template-rows: auto 1fr; }
 .workspace > .upcoming { grid-column: 2; grid-row: 1; }
 .workspace > .cal { grid-column: 1; grid-row: 1 / span 2; }
 .workspace > .detail { grid-column: 2; grid-row: 2; }
@@ -1031,7 +1033,7 @@ button.ev.native:hover .ev-resize::after { opacity: .45; }
 .up-row.gcal .dday.now { color: var(--accent); }
 .up-more { align-self: flex-start; padding: 2px 0; font-size: 12.5px; color: var(--fg-2); text-decoration: underline; text-underline-offset: 3px; } .up-more:hover { color: var(--fg); }
 .up-empty p { color: var(--fg-2); } .up-empty small { display: block; margin-top: 2px; font-size: 12.5px; line-height: 1.5; }
-@media (max-width: 1100px) { .workspace > .upcoming, .workspace > .cal, .workspace > .detail { grid-column: auto; grid-row: auto; } }
+@media (max-width: 1100px) { .workspace:has(> .upcoming) { grid-template-rows: none; } .workspace > .upcoming, .workspace > .cal, .workspace > .detail { grid-column: auto; grid-row: auto; } }
 
 /* Google calendars to show (under the connected Google card) */
 .gcals { border-top: 1px solid var(--line); padding-top: var(--s3); }
