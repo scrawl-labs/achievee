@@ -20,12 +20,17 @@ import { addMonths } from "@/lib/dates";
 import type { WorkoutRow } from "@/lib/workout";
 import { type IntakeRow, dayTotal, liters } from "@/lib/intake";
 import type { Key } from "@/lib/i18n";
+import Upcoming from "./Upcoming";
+import type { GMode } from "./ScheduleView";
 
 const MON_FIRST = [1, 2, 3, 4, 5, 6, 0];
 
-type Props = { ym: string; month: MonthData | null; stats: Stats | null; sel: string; setSel: (d: string) => void; onDiary: () => void };
+type Props = {
+  ym: string; month: MonthData | null; stats: Stats | null; sel: string; setSel: (d: string) => void; onDiary: () => void;
+  onSchedule: (date: string, mode: GMode) => void; // opens the Calendar tab on that day
+};
 
-export default function CalendarView({ ym, month, stats, sel, setSel, onDiary }: Props) {
+export default function CalendarView({ ym, month, stats, sel, setSel, onDiary, onSchedule }: Props) {
   const { t, fmt, locale } = useI18n();
   const [y, m] = ym.split("-").map(Number);
   const lead = (new Date(Date.UTC(y, m - 1, 1)).getUTCDay() + 6) % 7;
@@ -56,6 +61,7 @@ export default function CalendarView({ ym, month, stats, sel, setSel, onDiary }:
         [t("cal.streak"), stats ? t("cal.days", { n: stats.streak }) : "-"],
       ]} />
       <div className="workspace">
+        <Upcoming onOpen={onSchedule} />
         <div className="cal">
           <div className="cal-head">{MON_FIRST.map((d, i) => <span key={d} className={i === 5 ? "sat" : i === 6 ? "sun" : ""}>{fmt.weekdayShort(d)}</span>)}</div>
           <div className="cal-grid">

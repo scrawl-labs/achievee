@@ -12,8 +12,9 @@ export const GMODES: readonly (readonly [string, Key])[] = [["DAY", "g.day"], ["
 export type GMode = "DAY" | "WEEK" | "MONTH" | "AGENDA";
 
 /** Our calendar: day / week / month / agenda views. Events arrive through useEvents -> mergeEvents (today: Google only, drawn from its API since the embed has no day view). */
-export default function ScheduleView({ sel, setSel, mode, setMode }: {
+export default function ScheduleView({ sel, setSel, mode, setMode, onCalendars }: {
   sel: string; setSel: (d: string) => void; mode: GMode; setMode: (m: GMode) => void;
+  onCalendars?: () => void; // where the Google calendars to show are chosen
 }) {
   const { t } = useI18n();
   const { status } = useGoogleStatus();
@@ -32,6 +33,14 @@ export default function ScheduleView({ sel, setSel, mode, setMode }: {
         </a>
       </div>
       {linkKey && <button type="button" className="glink" onClick={startGoogleConnect}>{t(linkKey)}</button>}
+      {/* own events are drawn solid, Google ones light: the key, and (connected) where to hide Google calendars */}
+      <div className="evlegend">
+        <span className="own"><i />{t("g.own")}</span>
+        {status === "connected" && <>
+          <span className="gcal"><i />{t("g.google")}</span>
+          {onCalendars && <button type="button" className="linkish" onClick={onCalendars}>{t("g.pickCals")}</button>}
+        </>}
+      </div>
       {mode === "DAY" && <DayView date={sel} />}
       {mode === "WEEK" && <WeekView date={sel} onPickDay={pick} />}
       {mode === "MONTH" && <MonthEventView date={sel} onPickDay={pick} />}

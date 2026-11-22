@@ -7,6 +7,7 @@ import { mergeNativeIntoMonth, type NativeEventRow } from "@/lib/nativeEvents";
 import { mergeTodoCounts, type TodoCountRow } from "@/lib/todos";
 import { bad, privateCache, unauthorized } from "@/lib/api";
 import { safeTz } from "@/lib/tz";
+import { hiddenCalendarsOf } from "@/lib/hiddenCalendars";
 import type { MonthData } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -39,13 +40,14 @@ export async function GET(req: Request) {
   if (!u) return unauthorized();
   const own = ownTodoCounts(u.id, ym); // started now so it runs alongside the Google calls; never rejects
   const ownEv = ownEventRows(u.id, ym);
+  const hidden = hiddenCalendarsOf(u.id, "month"); // never rejects
   try {
     const access = await resolveGoogleAccess(u);
     if (access.status !== "ok") {
       const days = mergeNativeIntoMonth(mergeTodoCounts(emptyMonthDays(ym), (await own).counts), (await ownEv).rows);
       return NextResponse.json({ ym, days, google: access.status } satisfies MonthData, { headers: noStore });
     }
-    const google = await fetchMonth(ym, access.accessToken, safeTz(p.get("tz")));
+    const google = await fetchMonth(ym, access.accessToken, safeTz(p.get("tz")), await hidden);
     const { counts, ok } = await own;
     const ev = await ownEv;
     // An answer built without the own todos or events is incomplete: never let the browser cache it.

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchMonth, fetchRange, isActiveEvent } from "@/lib/google";
+import { fetchCalendars, fetchMonth, fetchRange, isActiveEvent } from "@/lib/google";
 import { calendarEvents, calendarList, emptyTasks, stubGoogle } from "./mockGoogle";
 
 const TZ = "Asia/Seoul";
@@ -49,6 +49,30 @@ describe("fetchRange filtering", () => {
     stubCalendar();
     const out = await fetchRange("2026-03-01", "2026-04-01", "tok", TZ);
     expect(out.map((e) => e.title)).toEqual(["Standup", "Team sync"]);
+  });
+
+  it("skips calendars hidden in Achievee without even asking Google for their events", async () => {
+    const calls = stubCalendar();
+    const out = await fetchRange("2026-03-01", "2026-04-01", "tok", TZ, ["team@x.com"]);
+    expect(out.map((e) => e.title)).toEqual(["Standup"]);
+    expect(calls.some((u) => u.includes(encodeURIComponent("team@x.com")))).toBe(false);
+  });
+
+  it("fetchMonth passes the hidden calendars on (badges match the views)", async () => {
+    stubCalendar();
+    const month = await fetchMonth("2026-03", "tok", TZ, ["team@x.com"]);
+    expect(month["2026-03-06"].events).toBe(0);
+    expect(month["2026-03-05"].events).toBe(1);
+  });
+});
+
+describe("fetchCalendars", () => {
+  it("lists only the calendars checked in Google Calendar, with the name the person gave them", async () => {
+    stubGoogle([calendarList([...cals.slice(0, 1), { id: "team@x.com", summary: "Team", summaryOverride: "Work", backgroundColor: "#123456", selected: true }, ...cals.slice(2)])]);
+    expect(await fetchCalendars("tok")).toEqual([
+      { id: "primary", name: "Me", color: "#8fb8ff" },
+      { id: "team@x.com", name: "Work", color: "#123456" },
+    ]);
   });
 });
 

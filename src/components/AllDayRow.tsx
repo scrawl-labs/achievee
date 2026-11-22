@@ -2,6 +2,7 @@
 import { useState } from "react";
 import type { DayEvent } from "@/lib/types";
 import type { TaskEntry } from "@/lib/taskList";
+import { eventSource } from "@/lib/calendarSources";
 import { useI18n } from "./I18n";
 import EventComposer from "./EventComposer";
 import Icon from "./Icon";
@@ -35,7 +36,7 @@ export default function AllDayRow({ days, byDay, tasks, cols, badge, onToggle, o
           return (
             <div key={d} className="adcol">
               {byDay[d].filter((e) => e.allDay).map((e) => (
-                <a key={e.id} className="chipday" href={e.link} target="_blank" rel="noreferrer" style={{ ["--ev" as string]: e.color }}>{e.title || t("common.untitled")}</a>
+                <a key={e.id} className={`chipday ${eventSource(e) === "native" ? "own" : "gcal"}`} href={e.link} target="_blank" rel="noreferrer" style={{ ["--ev" as string]: e.color }}>{e.title || t("common.untitled")}</a>
               ))}
               {shown.map((tk) => <TaskChip key={tk.key} task={tk} badge={badge} onToggle={onToggle} drag={drag} />)}
               {hidden > 0 && <button type="button" className="more tk-more" aria-expanded={false} onClick={() => setOpen(true)}>{t("g.more", { n: hidden })}</button>}

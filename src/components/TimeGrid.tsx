@@ -4,6 +4,7 @@ import type { DayEvent } from "@/lib/types";
 import { dow } from "@/lib/dates";
 import { browserTz, todayStr } from "@/lib/clientTime";
 import { nativeIdOf, type NativeEventCreate } from "@/lib/nativeEvents";
+import { eventSource } from "@/lib/calendarSources";
 import { cellOfY, columnAt, moveRange, resizeEnd, selectionRange, slotAtPoint } from "@/lib/slotSelect";
 import type { TaskEntry } from "@/lib/taskList";
 import { useI18n } from "./I18n";
@@ -233,7 +234,7 @@ export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TA
                     );
                     return own !== null ? (
                       <div key={e.id} className="evwrap">
-                        <button type="button" className={`ev native${gesture?.id === own && gesture.moved ? " moving" : ""}`} title={title} style={style}
+                        <button type="button" className={`ev native own${gesture?.id === own && gesture.moved ? " moving" : ""}`} title={title} style={style}
                           onPointerDown={(ev) => beginGesture(ev, own, e, "move")} onPointerMove={moveGesture} onPointerUp={endGesture} onPointerCancel={() => setGesture(null)}
                           onClick={(ev) => { if (ev.detail === 0) { setPick(null); setEditing(editing === own ? null : own); } }}>
                           {body}
@@ -248,7 +249,7 @@ export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TA
                         )}
                       </div>
                     ) : (
-                      <a key={e.id} className="ev" href={e.link} target="_blank" rel="noreferrer" title={title} style={style}>{body}</a>
+                      <a key={e.id} className={`ev ${eventSource(e) === "native" ? "own" : "gcal"}`} href={e.link} target="_blank" rel="noreferrer" title={title} style={style}>{body}</a>
                     );
                   })}
                   {live && live.date === d && (

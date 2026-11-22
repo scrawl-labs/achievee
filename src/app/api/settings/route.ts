@@ -4,6 +4,7 @@ import { settings } from "@/lib/db";
 import { bad, unauthorized } from "@/lib/api";
 import { GOAL_RANGE } from "@/lib/intake";
 import { isCurrency } from "@/lib/i18n";
+import { parseHiddenCalendars } from "@/lib/calendarSources";
 
 export const dynamic = "force-dynamic";
 
@@ -15,8 +16,15 @@ export async function GET() {
 
 /** monthStartDay 1..28: the day a budget month begins (e.g. 25 for a pay day on the 25th). */
 export async function PUT(req: Request) {
-  const { monthStartDay, workoutGoal, waterGoal, proteinGoal, startOverride, currency } = await req.json();
+  const { monthStartDay, workoutGoal, waterGoal, proteinGoal, startOverride, currency, hiddenCalendars } = await req.json();
   const u = await getUser();
+  if (hiddenCalendars !== undefined) { // Google calendar ids not to show in Achievee (the whole list, not a change)
+    const ids = parseHiddenCalendars(hiddenCalendars);
+    if (!ids) return bad("bad input");
+    if (!u) return unauthorized();
+    await settings.setHiddenCalendars(u.id, ids);
+    return NextResponse.json({ ok: true });
+  }
   if (currency !== undefined) { // the money symbol shown everywhere; amounts are never converted
     if (!isCurrency(currency)) return bad("bad input");
     if (!u) return unauthorized();

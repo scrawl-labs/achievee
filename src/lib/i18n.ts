@@ -63,6 +63,9 @@ const en = {
   "cmd.recent": "Searching mostly recent entries.", "cmd.t.goal": "Goal", "cmd.t.weekGoal": "Weekly goal", "cmd.t.diary": "Diary", "cmd.t.expense": "Spending", "cmd.t.income": "Income", "cmd.t.saving": "Savings", "cmd.t.workout": "Exercise",
   "todo.placeholder": "What needs doing?", "todo.toggle": "Done: {text}", "todo.edit": "Edit to-do: {text}", "todo.limit": "This day already has the maximum number of to-dos.", "task.google": "Google task, read-only", "task.add": "Add to-do", "task.new": "New to-do", "task.count": "{done} of {total} done", "task.doneSr": "Completed", "task.less": "Show less", "cmd.addTodo": "Add today's to-do: {text}", "cmd.addTodoFail": "Couldn't add the to-do. Try again.", "cmd.t.todo": "To-do",
   "gc.sec": "Google", "gc.perm": "Needs read-only access to your events and tasks.", "gc.connect": "Connect Google Calendar", "gc.reconnect": "Reconnect", "gc.revoked": "Connection lost", "gc.disconnectAria": "Disconnect Google Calendar", "gc.confirm": "Disconnect Google? Your events and tasks will no longer show up here.", "gc.disconnectFail": "Couldn't disconnect. Please try again.", "gc.retConnected": "Google Calendar is connected.", "gc.retError": "Couldn't connect Google. Please try again.", "gc.retPartial": "Some permissions weren't allowed. Please reconnect.", "gc.linkRevoked": "Google connection lost · Reconnect",
+  "up.title": "Upcoming", "up.sub": "Next 2 weeks", "up.today": "Today", "up.tomorrow": "Tomorrow", "up.dday": "in {n}d", "up.add": "Add event", "up.empty": "Nothing planned for the next two weeks.", "up.emptyHint": "Booked something ahead, like a round of golf? Add it and it will show up here so you don't miss it.", "up.google": "{n} from Google", "up.seeAll": "See all", "up.open": "Open {day} in Calendar",
+  "g.own": "My events", "g.google": "Google", "g.pickCals": "Choose calendars",
+  "gc.cals": "Calendars to show", "gc.calsCount": "{n} of {total} shown", "gc.calsHint": "Unchecked calendars are hidden everywhere in Achievee. Only calendars checked in Google Calendar appear here.", "gc.calsLoadFail": "Couldn't load your calendars.", "gc.calsSaveFail": "Couldn't save. Please try again.", "gc.calsNone": "No calendars to choose from.",
 } as const;
 
 type BaseKey = keyof typeof en;
@@ -114,6 +117,9 @@ const ko: BaseDict = {
   "cmd.recent": "최근 기록 위주로 검색해요.", "cmd.t.goal": "목표", "cmd.t.weekGoal": "주간 목표", "cmd.t.diary": "일기", "cmd.t.expense": "지출", "cmd.t.income": "수입", "cmd.t.saving": "저축", "cmd.t.workout": "운동",
   "todo.placeholder": "할 일을 적어 주세요", "todo.toggle": "완료: {text}", "todo.edit": "투두 수정: {text}", "todo.limit": "이 날에는 투두를 더 추가할 수 없어요.", "task.google": "Google 태스크, 읽기 전용", "task.add": "투두 추가", "task.new": "새 투두", "task.count": "{total}개 중 {done}개 완료", "task.doneSr": "완료됨", "task.less": "접기", "cmd.addTodo": "오늘 투두 추가: {text}", "cmd.addTodoFail": "투두를 추가하지 못했어요. 다시 시도해 주세요.", "cmd.t.todo": "투두",
   "gc.sec": "Google", "gc.perm": "일정과 할 일 읽기 전용 권한이 필요해요.", "gc.connect": "Google 캘린더 연결", "gc.reconnect": "다시 연결", "gc.revoked": "연결이 끊겼어요", "gc.disconnectAria": "Google 캘린더 연결 해제", "gc.confirm": "Google 연결을 해제할까요? 일정과 할 일이 더 이상 여기에 보이지 않아요.", "gc.disconnectFail": "연결을 해제하지 못했어요. 다시 시도해 주세요.", "gc.retConnected": "Google 캘린더가 연결됐어요.", "gc.retError": "Google에 연결하지 못했어요. 다시 시도해 주세요.", "gc.retPartial": "일부 권한이 허용되지 않았어요. 다시 연결해 주세요.", "gc.linkRevoked": "Google 연결이 끊겼어요 · 다시 연결",
+  "up.title": "다가오는 일정", "up.sub": "앞으로 2주", "up.today": "오늘", "up.tomorrow": "내일", "up.dday": "D-{n}", "up.add": "일정 추가", "up.empty": "앞으로 2주 동안은 잡힌 일정이 없어요.", "up.emptyHint": "골프 예약처럼 미리 잡아 둔 약속이 있다면 적어 두세요. 놓치지 않게 여기에 보여 드릴게요.", "up.google": "Google 일정 {n}개", "up.seeAll": "전체 보기", "up.open": "캘린더에서 {day} 보기",
+  "g.own": "내 일정", "g.google": "Google", "g.pickCals": "캘린더 선택",
+  "gc.cals": "표시할 캘린더", "gc.calsCount": "{total}개 중 {n}개 표시 중", "gc.calsHint": "체크를 끈 캘린더는 Achievee 어디에서도 보이지 않아요. Google 캘린더에서 켜 둔 캘린더만 여기에 나와요.", "gc.calsLoadFail": "캘린더 목록을 불러오지 못했어요.", "gc.calsSaveFail": "저장하지 못했어요. 다시 시도해 주세요.", "gc.calsNone": "고를 수 있는 캘린더가 없어요.",
 };
 
 const ja: BaseDict = {
@@ -160,6 +166,9 @@ const ja: BaseDict = {
   "cmd.recent": "最近の記録を中心に検索します。", "cmd.t.goal": "目標", "cmd.t.weekGoal": "週間目標", "cmd.t.diary": "日記", "cmd.t.expense": "支出", "cmd.t.income": "収入", "cmd.t.saving": "貯蓄", "cmd.t.workout": "運動",
   "todo.placeholder": "やることを入力", "todo.toggle": "完了: {text}", "todo.edit": "ToDoを編集: {text}", "todo.limit": "この日にはこれ以上ToDoを追加できません。", "task.google": "Google タスク（読み取り専用）", "task.add": "ToDoを追加", "task.new": "新しいToDo", "task.count": "{total}件中{done}件完了", "task.doneSr": "完了", "task.less": "閉じる", "cmd.addTodo": "今日のToDoを追加: {text}", "cmd.addTodoFail": "ToDoを追加できませんでした。もう一度お試しください。", "cmd.t.todo": "ToDo",
   "gc.sec": "Google", "gc.perm": "予定とタスクの読み取り専用の権限が必要です。", "gc.connect": "Google カレンダーを接続", "gc.reconnect": "再接続", "gc.revoked": "接続が切れました", "gc.disconnectAria": "Google カレンダーの接続を解除", "gc.confirm": "Google の接続を解除しますか？予定とタスクはここに表示されなくなります。", "gc.disconnectFail": "接続を解除できませんでした。もう一度お試しください。", "gc.retConnected": "Google カレンダーを接続しました。", "gc.retError": "Google に接続できませんでした。もう一度お試しください。", "gc.retPartial": "一部の権限が許可されませんでした。もう一度接続してください。", "gc.linkRevoked": "Google との接続が切れました · 再接続",
+  "up.title": "これからの予定", "up.sub": "今後2週間", "up.today": "今日", "up.tomorrow": "明日", "up.dday": "{n}日後", "up.add": "予定を追加", "up.empty": "今後2週間の予定はまだありません。", "up.emptyHint": "ゴルフの予約など、先に決まっている予定があれば追加しておきましょう。見逃さないようにここに表示します。", "up.google": "Google の予定 {n}件", "up.seeAll": "すべて表示", "up.open": "カレンダーで{day}を開く",
+  "g.own": "自分の予定", "g.google": "Google", "g.pickCals": "カレンダーを選択",
+  "gc.cals": "表示するカレンダー", "gc.calsCount": "{total}件中 {n}件を表示", "gc.calsHint": "チェックを外したカレンダーは Achievee のどこにも表示されません。Google カレンダーで表示中のカレンダーだけがここに並びます。", "gc.calsLoadFail": "カレンダーを読み込めませんでした。", "gc.calsSaveFail": "保存できませんでした。もう一度お試しください。", "gc.calsNone": "選べるカレンダーがありません。",
 };
 
 const es: BaseDict = {
@@ -206,6 +215,9 @@ const es: BaseDict = {
   "cmd.recent": "Se buscan sobre todo los registros recientes.", "cmd.t.goal": "Objetivo", "cmd.t.weekGoal": "Objetivo semanal", "cmd.t.diary": "Diario", "cmd.t.expense": "Gasto", "cmd.t.income": "Ingreso", "cmd.t.saving": "Ahorro", "cmd.t.workout": "Ejercicio",
   "todo.placeholder": "¿Qué hay que hacer?", "todo.toggle": "Hecho: {text}", "todo.edit": "Editar tarea: {text}", "todo.limit": "Este día ya tiene el máximo de tareas.", "task.google": "Tarea de Google, solo lectura", "task.add": "Añadir tarea", "task.new": "Nueva tarea", "task.count": "{done} de {total} hechas", "task.doneSr": "Completada", "task.less": "Ver menos", "cmd.addTodo": "Añadir tarea de hoy: {text}", "cmd.addTodoFail": "No se pudo añadir la tarea. Inténtalo de nuevo.", "cmd.t.todo": "Tarea",
   "gc.sec": "Google", "gc.perm": "Necesita acceso de solo lectura a tus eventos y tareas.", "gc.connect": "Conectar Google Calendar", "gc.reconnect": "Volver a conectar", "gc.revoked": "Conexión perdida", "gc.disconnectAria": "Desconectar Google Calendar", "gc.confirm": "¿Desconectar Google? Tus eventos y tareas dejarán de aparecer aquí.", "gc.disconnectFail": "No se pudo desconectar. Inténtalo de nuevo.", "gc.retConnected": "Google Calendar está conectado.", "gc.retError": "No se pudo conectar Google. Inténtalo de nuevo.", "gc.retPartial": "No se permitieron algunos permisos. Vuelve a conectar.", "gc.linkRevoked": "Conexión con Google perdida · Volver a conectar",
+  "up.title": "Próximos eventos", "up.sub": "Próximas 2 semanas", "up.today": "Hoy", "up.tomorrow": "Mañana", "up.dday": "en {n} d", "up.add": "Añadir evento", "up.empty": "No tienes nada planeado en las próximas dos semanas.", "up.emptyHint": "¿Ya reservaste algo, como una partida de golf? Añádelo y aparecerá aquí para que no se te pase.", "up.google": "{n} de Google", "up.seeAll": "Ver todo", "up.open": "Abrir {day} en el calendario",
+  "g.own": "Mis eventos", "g.google": "Google", "g.pickCals": "Elegir calendarios",
+  "gc.cals": "Calendarios visibles", "gc.calsCount": "{n} de {total} visibles", "gc.calsHint": "Los calendarios sin marcar se ocultan en todo Achievee. Aquí solo aparecen los calendarios marcados en Google Calendar.", "gc.calsLoadFail": "No se pudieron cargar tus calendarios.", "gc.calsSaveFail": "No se pudo guardar. Inténtalo de nuevo.", "gc.calsNone": "No hay calendarios para elegir.",
 };
 
 export const DICT: Record<Locale, Dict> = {
@@ -237,6 +249,7 @@ export function makeFormat(locale: Locale, currency: Currency = defaultCurrency(
     date: utc({ year: "numeric", month: "long", day: "numeric" }),
     full: utc({ weekday: "long", month: "long", day: "numeric" }),
     weekdayShort: utc({ weekday: "short" }),
+    shortDay: utc({ weekday: "short", month: "numeric", day: "numeric" }),
     weekdayLong: utc({ weekday: "long" }),
     money: new Intl.NumberFormat(l, { style: "currency", currency, maximumFractionDigits: 0 }),
   };
@@ -247,6 +260,7 @@ export function makeFormat(locale: Locale, currency: Currency = defaultCurrency(
     monthDay: (iso: string) => f.monthDay.format(at(iso)),
     date: (iso: string) => f.date.format(at(iso)),
     full: (iso: string) => f.full.format(at(iso)),
+    shortDay: (iso: string) => f.shortDay.format(at(iso)), // "Sun, 11/29", "11. 29. (일)"
     weekdayShort: (dow: number) => f.weekdayShort.format(sunday + dow * 864e5),
     weekdayLong: (dow: number) => f.weekdayLong.format(sunday + dow * 864e5),
     money: (n: number) => f.money.format(n),
