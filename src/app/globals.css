@@ -1356,7 +1356,7 @@ a.bori-fab-btn { display: block; }
 .ex-row + .ex-row, .ex-card > * + * { border-top: 1px solid var(--line); }
 .ex-row.waste { border-left-color: var(--sun); }
 .ex-main { flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--s3); padding: 10px var(--s4) 10px 11px; background: none; border: 0; text-align: left; color: var(--fg); }
-.ex-ic { width: 38px; height: 38px; flex: none; color: var(--fg-2); }
+.ex-ic { width: 20px; height: 20px; flex: none; color: var(--fg-2); margin: 0 4px 0 2px; }
 .ex-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .ex-tx b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ex-tx small { color: var(--fg-3); font-size: 12px; display: flex; gap: 6px; }
