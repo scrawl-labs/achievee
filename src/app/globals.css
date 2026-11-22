@@ -1401,3 +1401,19 @@ details.period[open] summary { margin-bottom: var(--s2); }
 }
 /* the diary mark sits under the day number, not in the cell's corner */
 .cell.has-diary::after { position: static; order: 3; flex: none; margin-top: -2px; }
+
+/* Diary editor, design system rule C: one surface, inside it one borderless sunk layer, an accent ring on focus */
+.diary-editor { border: 0; border-radius: 18px; box-shadow: 0 1px 2px rgb(0 0 0 / .05), 0 10px 28px -14px rgb(0 0 0 / .18); gap: var(--s4); }
+.diary-editor .dp-btn { background: var(--surface-2); border: 0; border-radius: 12px; height: 44px; padding: 0 14px; font-weight: 600; }
+.diary-editor .dp-btn:hover, .diary-editor .dp-btn[aria-expanded="true"] { box-shadow: 0 0 0 2px var(--accent); }
+.diary-editor .emo-head h3 { font-size: 13px; font-weight: 600; color: var(--fg-2); }
+.diary-editor .emo-head small { display: none; }
+.diary-editor .emo-sel .emo-chip.on { border: 0; height: 34px; padding: 0 14px; background: color-mix(in oklab, var(--accent) 14%, var(--surface)); color: color-mix(in oklab, var(--accent) 80%, var(--fg)); }
+.diary-editor .emo-sel > .btn { height: 34px; padding: 0 14px; border-radius: 999px; background: none; border: 0; box-shadow: inset 0 0 0 1.5px var(--line); color: var(--fg-3); font-size: 14px; font-weight: 600; }
+.diary-editor .emo-sel > .btn:hover { color: var(--fg); background: var(--surface-2); }
+.diary-editor textarea { background: var(--surface-2); border: 0; border-radius: 14px; padding: 14px 16px; min-height: 240px; font-size: 17px; line-height: 1.75; letter-spacing: -0.01em; resize: none; outline: 0; transition: box-shadow .15s; }
+.diary-editor textarea:focus { box-shadow: 0 0 0 2px var(--accent); }
+.diary-editor textarea::placeholder { color: var(--fg-3); }
+.diary-foot { display: flex; justify-content: space-between; align-items: center; min-height: 24px; font-size: 12px; color: var(--fg-3); }
+.diary-foot .saved { display: inline-flex; align-items: center; gap: 6px; }
+.diary-foot .saved::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: color-mix(in oklab, var(--c3) 55%, var(--fg)); }
