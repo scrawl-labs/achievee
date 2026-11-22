@@ -19,6 +19,7 @@ import { DEFAULT_GOALS, type IntakeKind } from "@/lib/intake";
 import ScheduleView, { type GMode } from "./ScheduleView";
 import CommandBar from "./CommandBar";
 import Icon from "./Icon";
+import { askConfirm, ConfirmHost } from "./Confirm";
 import Logo from "./Logo";
 import { useI18n } from "./I18n";
 import { type Currency, isCurrency } from "@/lib/i18n";
@@ -124,7 +125,7 @@ function Main() {
   };
 
   const deleteData = async () => {
-    if (!confirm(t("account.deleteConfirm"))) return;
+    if (!(await askConfirm({ title: t("account.deleteConfirm") }))) return;
     const r = await fetch("/api/account", { method: "DELETE" });
     if (r.ok) signOut();
   };
@@ -145,6 +146,7 @@ function Main() {
         </div>
       <MobileTabBar tab={tab} setTab={setTab} />
       </aside>
+      <ConfirmHost />
 
       <main className="page">
         <header className="pagehead">

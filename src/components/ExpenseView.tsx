@@ -8,13 +8,15 @@ import Summary from "./Summary";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 import DatePicker from "./DatePicker";
+import { askConfirm } from "./Confirm";
 
 type Row = { id: number; date: string; category: string; memo: string; amount: number; need: number };
 type Inc = { id: number; date: string; memo: string; amount: number };
 type Sav = { id: number; date: string; kind: "saving" | "invest"; memo: string; amount: number };
 type Filter = "all" | "waste" | Category;
 const BARS = ["var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)", "var(--c5)", "var(--c6)", "var(--fg-3)"]; // one per CATEGORIES entry
-const ICON: Record<Category, string> = { food: "🍚", cafe: "☕", transport: "🚇", shopping: "🛍️", culture: "🎬", fixed: "🏠", other: "🧾" };
+/** Clay icons rendered in Blender (public/ui/cat-*.webp), in the same style as Mallow. */
+const catIcon = (c: Category) => `/ui/cat-${c}.webp`;
 const DAYS = Array.from({ length: 28 }, (_, i) => i + 1);
 const send = (url: string, method: string, body?: unknown) =>
   fetch(url, { method, headers: { "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
@@ -52,7 +54,9 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
     setMemo(""); setAmount(""); setOpen(false); reload();
   };
   const toggle = async (r: Row) => { await send("/api/expenses", "PATCH", { id: r.id, need: !r.need }); reload(); };
-  const del = async (id: number) => { await send(`/api/expenses?id=${id}`, "DELETE"); reload(); };
+  // every delete asks first: one stray tap used to lose a record for good
+  const sure = (date: string, label: string, amount: number) => askConfirm({ title: t("confirm.delete"), detail: `${fmt.monthDay(date)} · ${label} · ${fmt.money(amount)}` });
+  const del = async (r: Row) => { if (!(await sure(r.date, r.memo || catName(r.category), r.amount))) return; await send(`/api/expenses?id=${r.id}`, "DELETE"); setOpenRow(null); reload(); };
   const startEdit = (r: Row) => {
     setEditId(r.id);
     setDraft({ date: r.date, category: categoryOf(r.category), need: !!r.need, amount: String(r.amount), memo: r.memo });
@@ -85,7 +89,7 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
     await send("/api/income", "PATCH", { id: iEditId, date: iDraft.date, memo: iDraft.memo, amount: n });
     setIEditId(null); reloadInc();
   };
-  const delInc = async (id: number) => { await send(`/api/income?id=${id}`, "DELETE"); reloadInc(); };
+  const delInc = async (r: Inc) => { if (!(await sure(r.date, r.memo || t("inc.income"), r.amount))) return; await send(`/api/income?id=${r.id}`, "DELETE"); reloadInc(); };
 
   // --- savings & investing (money set aside, not spending)
   const [sOpen, setSOpen] = useState(false);
@@ -109,7 +113,7 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
     await send("/api/savings", "PATCH", { id: sEditId, date: sDraft.date, kind: sDraft.kind, memo: sDraft.memo, amount: n });
     setSEditId(null); reloadSav();
   };
-  const delSav = async (id: number) => { await send(`/api/savings?id=${id}`, "DELETE"); reloadSav(); };
+  const delSav = async (r: Sav) => { if (!(await sure(r.date, r.memo || kindName(r.kind), r.amount))) return; await send(`/api/savings?id=${r.id}`, "DELETE"); reloadSav(); };
 
   // --- numbers
   const sum = (rs: { amount: number }[]) => rs.reduce((s, r) => s + r.amount, 0);
@@ -200,14 +204,14 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
                       return (
                         <div className={`ex-row${r.need ? "" : " waste"}${openRow === r.id ? " open" : ""}`} key={r.id}>
                           <button type="button" className="ex-main" aria-expanded={openRow === r.id} onClick={() => setOpenRow(openRow === r.id ? null : r.id)}>
-                            <span className="ex-ic" style={{ ["--bar" as string]: BARS[CATEGORIES.indexOf(c)] }} aria-hidden="true">{ICON[c]}</span>
+                            <img className="ex-ic" src={catIcon(c)} alt="" width={40} height={40} draggable={false} />
                             <span className="ex-tx"><b>{r.memo || catName(c)}</b><small>{r.memo && catName(c)}{!r.need && <em>{t("exp.waste")}</em>}</small></span>
                             <b className="num">{fmt.money(r.amount)}</b>
                           </button>
                           <span className="ex-acts">
                             <button type="button" className="btn ghost" onClick={() => toggle(r)}>{r.need ? t("exp.toWaste") : t("exp.toNeed")}</button>
                             <button type="button" className="btn icon ghost" onClick={() => startEdit(r)} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
-                            <button type="button" className="btn icon ghost" onClick={() => del(r.id)} aria-label={t("common.delete")} title={t("common.delete")}><Icon name="close" size={16} /></button>
+                            <button type="button" className="btn icon ghost" onClick={() => del(r)} aria-label={t("common.delete")} title={t("common.delete")}><Icon name="close" size={16} /></button>
                           </span>
                         </div>
                       );
@@ -253,7 +257,7 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
                     <b className="num inc">{fmt.money(r.amount)}</b>
                     <span className="acts">
                       <button className="btn icon ghost" onClick={() => { setIEditId(r.id); setIDraft({ date: r.date, amount: String(r.amount), memo: r.memo }); }} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
-                      <button className="btn icon ghost" onClick={() => delInc(r.id)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button>
+                      <button className="btn icon ghost" onClick={() => delInc(r)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button>
                     </span>
                   </div>
                 </div>
@@ -304,7 +308,7 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
                     <b className="num sav">{fmt.money(r.amount)}</b>
                     <span className="acts">
                       <button className="btn icon ghost" onClick={() => { setSEditId(r.id); setSDraft({ date: r.date, kind: r.kind, amount: String(r.amount), memo: r.memo }); }} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
-                      <button className="btn icon ghost" onClick={() => delSav(r.id)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button>
+                      <button className="btn icon ghost" onClick={() => delSav(r)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button>
                     </span>
                   </div>
                 </div>

@@ -7,6 +7,7 @@ import { todayStr } from "@/lib/clientTime";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 import Icon from "./Icon";
+import { askConfirm } from "./Confirm";
 import Summary from "./Summary";
 import DatePicker from "./DatePicker";
 import BodyLog from "./BodyLog";
@@ -57,7 +58,10 @@ export default function WorkoutView({ sel, setSel, goal, onGoal, intakeGoals, on
     await send("/api/workouts", "PATCH", { id: editId, date: draft.date, kind: draft.kind, minutes: n, memo: draft.memo });
     setEditId(null); reload();
   };
-  const del = async (id: number) => { await send(`/api/workouts?id=${id}`, "DELETE"); reload(); };
+  const del = async (r: WorkoutRow) => {
+    if (!(await askConfirm({ title: t("confirm.delete"), detail: `${fmt.monthDay(r.date)} · ${t(`wo.k.${r.kind}` as Key)} · ${t("foc.min", { m: r.minutes })}` }))) return;
+    await send(`/api/workouts?id=${r.id}`, "DELETE"); reload();
+  };
   const kindSelect = (value: WorkoutKind, onChange: (k: WorkoutKind) => void) => (
     <select value={value} onChange={(e) => onChange(e.target.value as WorkoutKind)} aria-label={t("wo.kind")}>
       {WORKOUT_KINDS.map((k) => <option key={k} value={k}>{t(kindKey(k))}</option>)}
@@ -125,7 +129,7 @@ export default function WorkoutView({ sel, setSel, goal, onGoal, intakeGoals, on
                     <b className="num">{dur(r.minutes)}</b>
                     <span className="acts">
                       <button className="btn icon ghost" onClick={() => { setEditId(r.id); setDraft({ date: r.date, kind: r.kind, minutes: String(r.minutes), memo: r.memo }); }} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
-                      <button className="btn icon ghost" onClick={() => del(r.id)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button>
+                      <button className="btn icon ghost" onClick={() => del(r)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button>
                     </span>
                   </div>
                 </div>

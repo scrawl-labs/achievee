@@ -5,6 +5,7 @@ import type { Key } from "@/lib/i18n";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 import Icon from "./Icon";
+import { askConfirm } from "./Confirm";
 import DatePicker from "./DatePicker";
 
 const send = (url: string, method: string, body?: unknown) =>
@@ -61,7 +62,7 @@ export default function BodyLog({ sel, setSel }: { sel: string; setSel: (d: stri
     const r = await send("/api/body", "PATCH", { id: editId, ...payload(draft) });
     if (r.ok) { setEditId(null); reload(); }
   };
-  const del = async (id: number) => { await send(`/api/body?id=${id}`, "DELETE"); reload(); };
+  const del = async (id: number, date: string) => { if (!(await askConfirm({ title: t("confirm.delete"), detail: fmt.monthDay(date) }))) return; await send(`/api/body?id=${id}`, "DELETE"); reload(); };
   const fields = (v: Form, set: (v: Form) => void) => METRICS.map((m) => (
     <input key={m} placeholder={`${t(label(m))} (${UNIT[m]})`} inputMode="decimal" value={v[m]} onChange={(e) => set({ ...v, [m]: e.target.value })} aria-label={t(label(m))} />
   ));
@@ -116,7 +117,7 @@ export default function BodyLog({ sel, setSel }: { sel: string; setSel: (d: stri
             <div className="eside solo">
               <span className="acts">
                 <button className="btn icon ghost" onClick={() => { setEditId(r.id); setDraft({ date: r.date, weight: r.weight !== undefined ? show(r.weight) : "", fat: r.fat !== undefined ? show(r.fat) : "", muscle: r.muscle !== undefined ? show(r.muscle) : "" }); }} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
-                <button className="btn icon ghost" onClick={() => del(r.id)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button>
+                <button className="btn icon ghost" onClick={() => del(r.id, r.date)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button>
               </span>
             </div>
           </div>
