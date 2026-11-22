@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { CATEGORIES, type Category, type Key, categoryOf } from "@/lib/i18n";
+import { dow } from "@/lib/dates";
 import { periodOf, periodStart, type StartOverrides } from "@/lib/period";
 import Icon from "./Icon";
 import Summary from "./Summary";
@@ -11,17 +12,17 @@ import DatePicker from "./DatePicker";
 type Row = { id: number; date: string; category: string; memo: string; amount: number; need: number };
 type Inc = { id: number; date: string; memo: string; amount: number };
 type Sav = { id: number; date: string; kind: "saving" | "invest"; memo: string; amount: number };
-type Filter = "all" | "need" | "waste";
+type Filter = "all" | "waste" | Category;
 const BARS = ["var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)", "var(--c5)", "var(--c6)", "var(--fg-3)"]; // one per CATEGORIES entry
-const FILTERS: [Filter, Key][] = [["all", "exp.all"], ["need", "exp.need"], ["waste", "exp.waste"]];
+const ICON: Record<Category, string> = { food: "🍚", cafe: "☕", transport: "🚇", shopping: "🛍️", culture: "🎬", fixed: "🏠", other: "🧾" };
 const DAYS = Array.from({ length: 28 }, (_, i) => i + 1);
 const send = (url: string, method: string, body?: unknown) =>
   fetch(url, { method, headers: { "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
 const digits = (s: string) => Number(s.replace(/[^\d]/g, ""));
 
 /** Spending + income for one "month" that starts on `startDay` (e.g. the 25th when the salary arrives on the 25th). */
-export default function ExpenseView({ sel, setSel, startDay, overrides, onStartDay, onOverride }: {
-  sel: string; setSel: (d: string) => void; startDay: number; overrides: StartOverrides; onStartDay: (d: number) => void;
+export default function ExpenseView({ sel, setSel, startDay, overrides, onOverride }: {
+  sel: string; setSel: (d: string) => void; startDay: number; overrides: StartOverrides;
   onOverride: (month: string, day: number | null) => void;
 }) {
   const { t, fmt } = useI18n();
@@ -39,6 +40,7 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onStartD
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
   const [editId, setEditId] = useState<number | null>(null);
+  const [openRow, setOpenRow] = useState<number | null>(null); // the row whose actions are showing (tap on touch screens)
   const [draft, setDraft] = useState({ date: "", category: CATEGORIES[0] as Category, need: true, amount: "", memo: "" });
   const catName = (c: string) => t(`cat.${categoryOf(c)}` as Key);
 
@@ -114,9 +116,17 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onStartD
   const total = sum(rows), needSum = sum(rows.filter((r) => r.need)), wasteSum = total - needSum;
   const incomeTotal = sum(incRows), savedTotal = sum(savRows);
   const left = incomeTotal - total - savedTotal; // income minus spending minus what was set aside
-  const shown = rows.filter((r) => filter === "all" || (filter === "need" ? r.need : !r.need));
+  const shown = rows.filter((r) => filter === "all" || (filter === "waste" ? !r.need : categoryOf(r.category) === filter));
   const shownTotal = sum(shown);
   const byCat = CATEGORIES.map((c) => ({ c, v: sum(shown.filter((r) => categoryOf(r.category) === c)) })).filter((x) => x.v).sort((a, b) => b.v - a.v);
+  const usedCats = CATEGORIES.map((c) => ({ c, v: sum(rows.filter((r) => categoryOf(r.category) === c)) })).filter((x) => x.v).sort((a, b) => b.v - a.v).map((x) => x.c);
+  const chips: [Filter, string][] = [["all", t("exp.all")], ...(wasteSum > 0 ? [["waste", t("exp.wasteOnly")] as [Filter, string]] : []), ...usedCats.map((c) => [c, catName(c)] as [Filter, string])];
+  // the list by day, newest first, each day with its total
+  const days: { date: string; rows: Row[] }[] = [];
+  for (const r of [...shown].sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id)) {
+    const last = days[days.length - 1];
+    if (last?.date === r.date) last.rows.push(r); else days.push({ date: r.date, rows: [r] });
+  }
 
   return (
     <>
@@ -147,47 +157,61 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onStartD
           </section>
 
           <section>
-            <div className="sechead">
-              <h3>{t("exp.history")}</h3>
-              <div className="tabs-t" role="tablist" aria-label={t("exp.filter")}>
-                {FILTERS.map(([k, label]) => (
-                  <button key={k} role="tab" aria-selected={filter === k} className={filter === k ? "on" : ""} onClick={() => setFilter(k)}>
-                    {t(label)}<em>{k === "all" ? rows.length : rows.filter((r) => (k === "need" ? r.need : !r.need)).length}</em>
-                  </button>
+            <div className="sechead"><h3>{t("exp.history")}</h3></div>
+            {total > 0 && (
+              <div className="ex-sum">
+                <small>{t("exp.periodSpent")}</small>
+                <b className="num">{fmt.money(total)}</b>
+                <div className="split" aria-hidden="true"><i style={{ width: `${(needSum / total) * 100}%` }} /><i style={{ width: `${(wasteSum / total) * 100}%` }} /></div>
+                <div className="ex-leg"><span>{t("exp.need")} {fmt.money(needSum)}</span><span>{t("exp.waste")} {fmt.money(wasteSum)} · {Math.round((wasteSum / total) * 100)}%</span></div>
+              </div>
+            )}
+            {rows.length > 0 && (
+              <div className="ex-chips" role="tablist" aria-label={t("exp.filter")}>
+                {chips.map(([k, label]) => (
+                  <button key={k} type="button" role="tab" aria-selected={filter === k} className={filter === k ? "on" : ""} onClick={() => setFilter(k)}>{label}</button>
                 ))}
               </div>
-            </div>
-            <div className="list">
-              {shown.map((r) => editId === r.id ? (
-                <form className="panel entry" key={r.id} onSubmit={saveEdit}>
-                  <DatePicker value={draft.date} onChange={(d) => setDraft({ ...draft, date: d })} />
-                  <select value={draft.category} onChange={(e) => setDraft({ ...draft, category: e.target.value as Category })} aria-label={t("exp.category")}>
-                    {CATEGORIES.map((c) => <option key={c} value={c}>{catName(c)}</option>)}
-                  </select>
-                  <select value={draft.need ? "need" : "waste"} onChange={(e) => setDraft({ ...draft, need: e.target.value === "need" })} aria-label={t("exp.needOrNot")}>
-                    <option value="need">{t("exp.needOpt")}</option>
-                    <option value="waste">{t("exp.wasteOpt")}</option>
-                  </select>
-                  <input placeholder={t("exp.amount")} inputMode="numeric" value={draft.amount} onChange={(e) => setDraft({ ...draft, amount: e.target.value })} autoFocus />
-                  <input className="wide" placeholder={t("exp.memo")} value={draft.memo} onChange={(e) => setDraft({ ...draft, memo: e.target.value })} />
-                  <div className="edit-actions">
-                    <button type="button" className="btn" onClick={() => setEditId(null)}>{t("common.cancel")}</button>
-                    <button className="btn primary">{t("common.save")}</button>
-                  </div>
-                </form>
-              ) : (
-                <div className="item static erow" key={r.id}>
-                  <button className={`chip ${r.need ? "need" : "waste"}`} onClick={() => toggle(r)} title={t("exp.toggle")}>{r.need ? t("exp.need") : t("exp.waste")}</button>
-                  <div className="emain">
-                    <span className="etop"><b>{fmt.monthDay(r.date)}</b><span className="ecat">{catName(r.category)}</span></span>
-                    {r.memo && <span className="ememo">{r.memo}</span>}
-                  </div>
-                  <div className="eside">
-                    <b className="num">{fmt.money(r.amount)}</b>
-                    <span className="acts">
-                      <button className="btn icon ghost" onClick={() => startEdit(r)} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
-                      <button className="btn icon ghost" onClick={() => del(r.id)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button>
-                    </span>
+            )}
+            <div className="ex-days">
+              {days.map((d) => (
+                <div key={d.date}>
+                  <div className="ex-day"><span>{fmt.monthDay(d.date)} ({fmt.weekdayShort(dow(d.date))})</span><span className="num">−{fmt.money(sum(d.rows))}</span></div>
+                  <div className="ex-card">
+                    {d.rows.map((r) => editId === r.id ? (
+                      <form className="panel entry" key={r.id} onSubmit={saveEdit}>
+                        <DatePicker value={draft.date} onChange={(dd) => setDraft({ ...draft, date: dd })} />
+                        <select value={draft.category} onChange={(e) => setDraft({ ...draft, category: e.target.value as Category })} aria-label={t("exp.category")}>
+                          {CATEGORIES.map((c) => <option key={c} value={c}>{catName(c)}</option>)}
+                        </select>
+                        <select value={draft.need ? "need" : "waste"} onChange={(e) => setDraft({ ...draft, need: e.target.value === "need" })} aria-label={t("exp.needOrNot")}>
+                          <option value="need">{t("exp.needOpt")}</option>
+                          <option value="waste">{t("exp.wasteOpt")}</option>
+                        </select>
+                        <input placeholder={t("exp.amount")} inputMode="numeric" value={draft.amount} onChange={(e) => setDraft({ ...draft, amount: e.target.value })} autoFocus />
+                        <input className="wide" placeholder={t("exp.memo")} value={draft.memo} onChange={(e) => setDraft({ ...draft, memo: e.target.value })} />
+                        <div className="edit-actions">
+                          <button type="button" className="btn" onClick={() => setEditId(null)}>{t("common.cancel")}</button>
+                          <button className="btn primary">{t("common.save")}</button>
+                        </div>
+                      </form>
+                    ) : (() => {
+                      const c = categoryOf(r.category);
+                      return (
+                        <div className={`ex-row${r.need ? "" : " waste"}${openRow === r.id ? " open" : ""}`} key={r.id}>
+                          <button type="button" className="ex-main" aria-expanded={openRow === r.id} onClick={() => setOpenRow(openRow === r.id ? null : r.id)}>
+                            <span className="ex-ic" style={{ ["--bar" as string]: BARS[CATEGORIES.indexOf(c)] }} aria-hidden="true">{ICON[c]}</span>
+                            <span className="ex-tx"><b>{r.memo || catName(c)}</b><small>{r.memo && catName(c)}{!r.need && <em>{t("exp.waste")}</em>}</small></span>
+                            <b className="num">{fmt.money(r.amount)}</b>
+                          </button>
+                          <span className="ex-acts">
+                            <button type="button" className="btn ghost" onClick={() => toggle(r)}>{r.need ? t("exp.toWaste") : t("exp.toNeed")}</button>
+                            <button type="button" className="btn icon ghost" onClick={() => startEdit(r)} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
+                            <button type="button" className="btn icon ghost" onClick={() => del(r.id)} aria-label={t("common.delete")} title={t("common.delete")}><Icon name="close" size={16} /></button>
+                          </span>
+                        </div>
+                      );
+                    })())}
                   </div>
                 </div>
               ))}
@@ -290,19 +314,12 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onStartD
         </div>
 
         <section className="panel">
-          <h3>{filter === "all" ? t("exp.category") : filter === "need" ? t("exp.needOpt") : t("exp.wasteOpt")} {fmt.money(shownTotal)}</h3>
-          {filter === "all" && total > 0 && <div className="split" aria-hidden="true"><i style={{ width: `${(needSum / total) * 100}%` }} /><i style={{ width: `${(wasteSum / total) * 100}%` }} /></div>}
-          {filter === "all" && total > 0 && <small>{t("exp.wasteShare", { p: Math.round((wasteSum / total) * 100) })}</small>}
+          <h3>{t("exp.category")} {fmt.money(shownTotal)}</h3>
           {byCat.map(({ c, v }) => (
             <div className="hbar" key={c}><span>{catName(c)}</span><div><i style={{ width: `${(v / shownTotal) * 100}%`, ["--bar" as string]: BARS[CATEGORIES.indexOf(c)] }} /></div><em>{fmt.money(v)}</em></div>
           ))}
-          <div className="period">
-            <label htmlFor="startday">{t("inc.startDay")}</label>
-            <select id="startday" value={startDay} onChange={(e) => onStartDay(Number(e.target.value))}>
-              {DAYS.map((d) => <option key={d} value={d}>{t("inc.day", { n: d })}</option>)}
-            </select>
-            <small>{t("inc.startHint")}</small>
-            <b className="period-sub">{t("inc.payTitle")}</b>
+          <details className="period">
+            <summary>{t("inc.periodEdit")}</summary>
             {[from, to].map((edge) => {
               const month = edge.slice(0, 7), day = Number(edge.slice(8)), custom = overrides[month] !== undefined;
               return (
@@ -316,7 +333,7 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onStartD
               );
             })}
             <small>{t("inc.payHint")}</small>
-          </div>
+          </details>
         </section>
       </div>
     </>

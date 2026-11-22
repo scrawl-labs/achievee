@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import type { MonthData, Stats } from "@/lib/types";
 import { todayStr } from "@/lib/clientTime";
 import { dow } from "@/lib/dates";
@@ -27,10 +26,11 @@ const MON_FIRST = [1, 2, 3, 4, 5, 6, 0];
 
 type Props = {
   ym: string; month: MonthData | null; stats: Stats | null; sel: string; setSel: (d: string) => void; onDiary: () => void;
-  onSchedule: (date: string, mode: GMode) => void; // opens the Calendar tab on that day
+  onSchedule: (date: string, mode: GMode) => void; // opens the Schedule tab on that day
+  onOpen: (tab: "workout" | "expense") => void;     // a summary tile opens its tab
 };
 
-export default function CalendarView({ ym, month, stats, sel, setSel, onDiary, onSchedule }: Props) {
+export default function CalendarView({ ym, month, stats, sel, setSel, onDiary, onSchedule, onOpen }: Props) {
   const { t, fmt, locale } = useI18n();
   const [y, m] = ym.split("-").map(Number);
   const lead = (new Date(Date.UTC(y, m - 1, 1)).getUTCDay() + 6) % 7;
@@ -49,8 +49,9 @@ export default function CalendarView({ ym, month, stats, sel, setSel, onDiary, o
   const dayWater = dayTotal(intakes, sel, "water"), dayProtein = dayTotal(intakes, sel, "protein");
   const entry = diary.find((d) => d.date === sel);
   const note = entry?.body;
+  const emotions = entry?.emotions ?? [];
   const diaryDays = new Set(diary.map((d) => d.date));
-  const [openNote, setOpenNote] = useState<string | null>(null); // the day whose diary is shown in full
+  const woMin = dayWos.reduce((a, w) => a + w.minutes, 0);
   const daySpent = spent.filter((s) => s.date === sel).reduce((a, s) => a + s.amount, 0);
 
   return (
@@ -85,9 +86,8 @@ export default function CalendarView({ ym, month, stats, sel, setSel, onDiary, o
 
         <aside className="detail">
           <h2>{fmt.monthDay(sel)} <small>{fmt.weekdayLong(dow(sel))}</small></h2>
-          <GoalList key={`day${sel}`} scope="day" periodStart={sel} label={sel === today ? t("goal.today") : t("goal.dayOf")} />
+          <TodoList key={`todo${sel}`} date={sel} google={day?.tasks ?? []} label={sel === today ? t("todo.today") : t("todo.dayOf")} />
           <GoalList key={`week${periodStartOf("week", sel)}`} scope="week" periodStart={periodStartOf("week", sel)} label={t("goal.week")} />
-          <TodoList key={`todo${sel}`} date={sel} google={day?.tasks ?? []} />
           {day && day.eventList.length > 0 && (
             <ul className="events">
               {day.eventList.map((e, i) => <li key={i}><time>{e.time ?? t("common.allDay")}</time>{e.title || t("common.untitled")}</li>)}
@@ -99,22 +99,21 @@ export default function CalendarView({ ym, month, stats, sel, setSel, onDiary, o
               <WorkList items={work.items} />
             </section>
           )}
-          {dayWos.length > 0 && (
-            <section className="workday">
-              <h4>{t("nav.workout")}</h4>
-              <ul>{dayWos.map((w) => <li key={w.id} className="wo"><span className="kind k-edited">{t(`wo.k.${w.kind}` as Key)}</span><span>{t("foc.min", { m: w.minutes })}{w.memo && ` · ${w.memo}`}</span></li>)}</ul>
-            </section>
-          )}
-          {(dayWater > 0 || dayProtein > 0) && <div className="spent"><span>{t("in.title")}</span><b>{t("in.dayLine", { water: liters(dayWater), protein: `${dayProtein}g` })}</b></div>}
-          {daySpent > 0 && <div className="spent"><span>{t("cal.spent")}</span><b>{fmt.money(daySpent)}</b></div>}
-          <section className="dayDiary">
-            <div className="row between">
-              <h4>{t("nav.diary")}</h4>
-              <button type="button" className="btn" onClick={onDiary}>{note || entry?.emotions?.length ? t("common.edit") : t("cal.writeDiary")}</button>
-            </div>
-            {entry?.emotions && entry.emotions.length > 0 && <span className="emo-tags">{entry.emotions.map((id) => <i key={id}>{wordText(id, emoLang(locale))}</i>)}</span>}
-            {note && <button type="button" className={`note${openNote === sel ? " open" : ""}`} aria-expanded={openNote === sel} onClick={() => setOpenNote(openNote === sel ? null : sel)}>{note}</button>}
-          </section>
+          {/* the rest of the day at a glance; each tile opens where it is logged */}
+          <div className="dp-tiles">
+            <button type="button" onClick={() => onOpen("workout")}>
+              <small>{t("nav.workout")}</small>
+              <b>{dayWos.length ? `${dayWos.length > 1 ? t("wo.times", { n: dayWos.length }) : t(`wo.k.${dayWos[0].kind}` as Key)} ${t("foc.min", { m: woMin })}` : "–"}</b>
+            </button>
+            <button type="button" onClick={() => onOpen("expense")}><small>{t("cal.spent")}</small><b>{daySpent > 0 ? fmt.money(daySpent) : "–"}</b></button>
+            <button type="button" onClick={() => onOpen("workout")}><small>{t("in.water")}</small><b>{dayWater > 0 ? liters(dayWater) : "–"}</b></button>
+            <button type="button" onClick={() => onOpen("workout")}><small>{t("in.protein")}</small><b>{dayProtein > 0 ? `${dayProtein}g` : "–"}</b></button>
+          </div>
+          <button type="button" className="dp-diary" onClick={onDiary}>
+            <span className="dp-h"><h4>{t("nav.diary")}</h4><small>{note || emotions.length ? t("common.edit") : t("cal.writeDiary")} ›</small></span>
+            {emotions.length > 0 && <span className="emo-tags">{emotions.map((id) => <i key={id}>{wordText(id, emoLang(locale))}</i>)}</span>}
+            {note && <span className="dp-note">{note}</span>}
+          </button>
         </aside>
       </div>
     </>

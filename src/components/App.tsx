@@ -162,14 +162,14 @@ function Main() {
         </header>
         <div className="pagebody">
         {error && <p className="error">{t("common.loadFail")}</p>}
-        {tab === "calendar" && <CalendarView ym={ym} month={month} stats={stats} sel={sel} setSel={setSel} onDiary={() => setTab("diary")} onSchedule={openSchedule} />}
+        {tab === "calendar" && <CalendarView ym={ym} month={month} stats={stats} sel={sel} setSel={setSel} onDiary={() => setTab("diary")} onSchedule={openSchedule} onOpen={setTab} />}
         {tab === "stats" && <StatsView stats={stats} month={month} sel={sel} startDay={startDay} goal={workoutGoal} />}
         {tab === "diary" && <DiaryView ym={ym} sel={sel} setSel={setSel} />}
         {tab === "google" && <ScheduleView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} onCalendars={() => setTab("integrations")} />}
         {tab === "integrations" && <IntegrationsView googleReturn={gret.result} />}
         {tab === "settings" && <SettingsView user={session?.user} currency={currency} onCurrency={changeCurrency} startDay={startDay} onStartDay={changeStartDay} workoutGoal={workoutGoal} onWorkoutGoal={changeGoal} intakeGoals={intakeGoals} onIntakeGoal={changeIntakeGoal} onOpen={setTab} onSignOut={() => signOut()} onDelete={deleteData} />}
         {tab === "workout" && <WorkoutView sel={sel} setSel={setSel} goal={workoutGoal} onGoal={changeGoal} intakeGoals={intakeGoals} onIntakeGoal={changeIntakeGoal} />}
-        {tab === "expense" && <ExpenseView sel={sel} setSel={setSel} startDay={startDay} overrides={overrides} onStartDay={changeStartDay} onOverride={changeOverride} />}
+        {tab === "expense" && <ExpenseView sel={sel} setSel={setSel} startDay={startDay} overrides={overrides} onOverride={changeOverride} />}
         </div>
       </main>
     </div>

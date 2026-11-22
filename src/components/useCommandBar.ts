@@ -99,7 +99,6 @@ export function useCommandBar(go: (tab: Tab, date?: string) => void) {
     return [
       ...(date ? [{ id: `date:${date}`, icon: "calendar" as IconName, label: t("cmd.goDate", { date: day(date) }), action: { type: "date", date } as Action }] : []),
       ...(goal ? [
-        { id: "goal:day", icon: "plus" as IconName, label: t("cmd.addDay", { text: goal }), action: { type: "goal", scope: "day", text: goal } as Action },
         { id: "goal:week", icon: "plus" as IconName, label: t("cmd.addWeek", { text: goal }), action: { type: "goal", scope: "week", text: goal } as Action },
       ] : []),
       ...(todo ? [{ id: "todo:day", icon: "plus" as IconName, label: t("cmd.addTodo", { text: todo }), action: { type: "todo", text: todo } as Action }] : []),
