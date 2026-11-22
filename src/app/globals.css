@@ -509,6 +509,13 @@ select {
 .mp-face { position: absolute; display: block; opacity: 0; user-select: none;
   -webkit-mask-image: radial-gradient(closest-side, #000 72%, transparent); mask-image: radial-gradient(closest-side, #000 72%, transparent); }
 .mp-face.on { opacity: 1; }
+/* rain falling over the picture at the bus stop: two layers of soft streaks at different speeds */
+.mp-rain, .mp-rain::after { position: absolute; inset: -20% 0 0; pointer-events: none;
+  background-image: repeating-linear-gradient(100deg, transparent 0 18px, rgba(220, 232, 255, .22) 18px 19px, transparent 19px 47px),
+    repeating-linear-gradient(100deg, transparent 0 31px, rgba(220, 232, 255, .14) 31px 32px, transparent 32px 83px);
+  background-size: 100% 140px, 100% 230px; animation: mp-rain .55s linear infinite; mix-blend-mode: screen; }
+.mp-rain::after { content: ""; inset: 0; background-size: 100% 90px, 100% 170px; opacity: .6; animation-duration: .9s; }
+@keyframes mp-rain { to { background-position: -24px 140px, -40px 230px; } }
 .mp-emote { position: absolute; translate: -10% -90%; filter: drop-shadow(0 2px 3px rgb(60 40 10 / .25)); animation: mp-pop .5s cubic-bezier(.3, 1.8, .5, 1) both, mp-float 2.4s ease-in-out .5s infinite; }
 /* little feelings drifting up out of the jar */
 .mp-feelings { position: absolute; width: 0; height: 0; }
@@ -520,7 +527,7 @@ select {
 @keyframes mp-drift { 0% { opacity: 0; transform: translate(0, 0) scale(.6); } 12% { opacity: .95; }
   38% { transform: translate(calc(var(--dx) * .9), calc(var(--dy) * .06)) scale(.85); } 75% { opacity: .55; }
   100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.1); } }
-@media (prefers-reduced-motion: reduce) { .mp-pic, .mp-emote, .mp-feelings i { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .mp-pic, .mp-emote, .mp-feelings i, .mp-rain, .mp-rain::after { animation: none; } }
 /* while the scene gets ready: Mallow bouncing, "Looking for Mallow…" */
 .bdg-loading { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
   background: radial-gradient(120% 90% at 50% 35%, #fffaf0, #f1e7d6 70%); color: #6f5a3c; transition: opacity .5s ease, visibility .5s; }
@@ -541,7 +548,7 @@ select {
   background: color-mix(in oklab, var(--bd-box) 88%, transparent); color: var(--bd-ink); font-size: 14px; font-weight: 800;
   box-shadow: 0 2px 0 rgba(120, 90, 50, .18), 0 6px 14px -6px rgba(60, 40, 10, .3); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
 .bd-mini:hover { background: var(--bd-box); }
-.bd-voice, .bdg-close { padding: 0; width: 40px; }
+.bd-voice, .bdg-close, .bd-place { padding: 0; width: 40px; }
 .bd-mini { white-space: nowrap; flex: none; }
 /* Korean / English switch */
 .bd-lang { display: inline-flex; flex: none; padding: 3px; margin: 0; height: 40px; border-radius: 999px; align-items: center;
@@ -700,7 +707,7 @@ select {
 @media (max-width: 420px) {
   .bdg-top { left: 10px; right: 10px; }
   .bdg-top .bd-mini { height: 36px; min-width: 36px; }
-  .bd-voice, .bdg-close, .bd-back { width: 36px; padding: 0; }
+  .bd-voice, .bdg-close, .bd-back, .bd-place { width: 36px; padding: 0; }
   .bd-back-txt { display: none; }
   .bd-route { gap: 6px; padding: 10px 9px; }
   .bd-route::before { left: 12px; right: 12px; }
