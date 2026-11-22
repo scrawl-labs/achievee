@@ -181,9 +181,9 @@ const THUMB: Record<string, React.ReactNode> = {
 function pageBlocks(slug: string, theme: Theme): Block[] {
   switch (slug) {
     case "intro": return [
-      { id: "what", title: "개요", body: <><p>Achievee는 할 일, 일정, 지출, 운동, 감정 기록을 한곳에서 관리하는 앱입니다. 이 문서는 Achievee 화면에 쓰이는 디자인 토큰, 컴포넌트, UI 문구 기준을 정리합니다.</p><p>새 화면을 만들거나 기존 화면을 고칠 때 이 문서의 토큰과 컴포넌트를 사용합니다.</p></> },
-      { id: "why", title: "배경", body: <p>기존 화면은 카드 안에 회색 입력 영역과 테두리 입력칸이 중첩되어 있어 정보 구조에 비해 시각적 요소가 많았습니다. 이 시스템은 컨테이너 중첩을 줄이고, 긴 글 입력 영역을 단순화하고, 브랜드 로고의 색상을 보조 팔레트로 정리하는 데 초점을 둡니다.</p> },
-      { id: "look", title: "예시", desc: "일기 화면에 시스템을 적용한 예시입니다.", demo: (
+      { id: "what", title: "개요", body: <><p>Achievee는 할 일, 일정, 지출, 운동, 감정 기록을 한곳에서 관리하는 앱. 이 문서는 Achievee 화면에 쓰이는 디자인 토큰, 컴포넌트, UI 문구 기준을 정리함.</p><p>새 화면을 만들거나 기존 화면을 고칠 때 이 문서의 토큰과 컴포넌트를 사용함.</p></> },
+      { id: "why", title: "배경", body: <p>기존 화면은 카드 안에 회색 입력 영역과 테두리 입력칸이 중첩되어 있어 정보 구조에 비해 시각적 요소가 많았음. 이 시스템은 컨테이너 중첩을 줄이고, 긴 글 입력 영역을 단순화하고, 브랜드 로고의 색상을 보조 팔레트로 정리하는 데 초점을 둠.</p> },
+      { id: "look", title: "예시", desc: "일기 화면에 시스템을 적용한 예시.", demo: (
         <div className="dd-hero-demo">
           <div className="ds-card dd-w">
             <div className="ds-date"><b>11월 22일</b><span>일요일</span></div>
@@ -203,20 +203,20 @@ function pageBlocks(slug: string, theme: Theme): Block[] {
       ]} /> },
     ];
     case "principles": return [
-      { id: "one-box", title: "컨테이너를 중첩하지 않습니다", desc: "관련된 콘텐츠는 Surface 하나에 담습니다. Surface 안에서는 다른 컨테이너를 만들지 않고, 간격이나 구분선(line)으로 영역을 나눕니다.", demo: <div className="dd-compare"><div className="bad"><div className="dd-nest"><div><div><span>2026년 11월 22일</span></div></div></div><small>중첩된 컨테이너</small></div><div className="good"><div className="ds-card dd-mini"><div className="ds-date"><b>11월 22일</b><span>일요일</span></div><i className="dd-line" /><i className="dd-line s" /></div><small>Surface 하나 + 간격</small></div></div> },
-      { id: "shadow", title: "테두리 대신 그림자와 배경색으로 구분합니다", desc: "Surface는 shadow-surface로 배경과 구분하고, 내부 요소는 surface-sunk 배경색으로 구분합니다. 영역을 나누기 위해 1px 테두리를 사용하지 않습니다.", demo: <div className="dd-compare"><div className="bad"><div className="dd-bordered">버튼</div><small>테두리로 구분</small></div><div className="good"><div className="ds-card dd-mini"><span className="ds-chip">surface-sunk</span></div><small>그림자와 배경색으로 구분</small></div></div> },
-      { id: "paper", title: "긴 글 입력은 테두리 없이 표시합니다", desc: "일기처럼 긴 글을 쓰는 영역은 Paper를 사용합니다. 테두리와 배경 없이 17px 글자, 30px 줄 간격으로 표시합니다. 한 줄 입력은 Field를 사용합니다.", demo: <PaperDemo /> },
-      { id: "hero", title: "화면마다 강조 요소는 하나입니다", desc: "한 화면에서 display 스타일은 날짜나 핵심 숫자 하나에만 사용합니다. 나머지 정보는 body와 caption으로 표시합니다.", demo: <div className="ds-card dd-w"><span className="ds-lbl">이번 달 지출</span><b className="t-d2">₩83,550</b><span className="t-caption">필요 ₩43,200 · 불필요 ₩40,350</span></div> },
-      { id: "one-color", title: "강조 색상은 accent 하나입니다", desc: "주요 버튼, 선택 상태, 링크에는 accent만 사용합니다. petal 팔레트는 그래픽과 배경에만 사용하고 텍스트에는 사용하지 않습니다.", demo: <div className="ds-row-wrap"><button type="button" className="ds-btn primary">저장</button><span className="dd-dot" style={{ background: "var(--peach)" }} /><span className="dd-dot" style={{ background: "var(--mint)" }} /><span className="dd-dot" style={{ background: "var(--lilac)" }} /></div> },
+      { id: "one-box", title: "컨테이너를 중첩하지 않음", desc: "관련된 콘텐츠는 Surface 하나에 담음. Surface 안에서는 다른 컨테이너를 만들지 않고, 간격이나 구분선(line)으로 영역을 나눔.", demo: <div className="dd-compare"><div className="bad"><div className="dd-nest"><div><div><span>2026년 11월 22일</span></div></div></div><small>중첩된 컨테이너</small></div><div className="good"><div className="ds-card dd-mini"><div className="ds-date"><b>11월 22일</b><span>일요일</span></div><i className="dd-line" /><i className="dd-line s" /></div><small>Surface 하나 + 간격</small></div></div> },
+      { id: "shadow", title: "테두리 대신 그림자와 배경색으로 구분함", desc: "Surface는 shadow-surface로 배경과 구분하고, 내부 요소는 surface-sunk 배경색으로 구분함. 영역을 나누기 위해 1px 테두리를 사용하지 않음.", demo: <div className="dd-compare"><div className="bad"><div className="dd-bordered">버튼</div><small>테두리로 구분</small></div><div className="good"><div className="ds-card dd-mini"><span className="ds-chip">surface-sunk</span></div><small>그림자와 배경색으로 구분</small></div></div> },
+      { id: "paper", title: "긴 글 입력은 테두리 없이 표시함", desc: "일기처럼 긴 글을 쓰는 영역은 Paper를 사용함. 테두리와 배경 없이 17px 글자, 30px 줄 간격으로 표시함. 한 줄 입력은 Field를 사용함.", demo: <PaperDemo /> },
+      { id: "hero", title: "화면마다 강조 요소는 하나", desc: "한 화면에서 display 스타일은 날짜나 핵심 숫자 하나에만 사용함. 나머지 정보는 body와 caption으로 표시함.", demo: <div className="ds-card dd-w"><span className="ds-lbl">이번 달 지출</span><b className="t-d2">₩83,550</b><span className="t-caption">필요 ₩43,200 · 불필요 ₩40,350</span></div> },
+      { id: "one-color", title: "강조 색상은 accent 하나", desc: "주요 버튼, 선택 상태, 링크에는 accent만 사용함. petal 팔레트는 그래픽과 배경에만 사용하고 텍스트에는 사용하지 않음.", demo: <div className="ds-row-wrap"><button type="button" className="ds-btn primary">저장</button><span className="dd-dot" style={{ background: "var(--peach)" }} /><span className="dd-dot" style={{ background: "var(--mint)" }} /><span className="dd-dot" style={{ background: "var(--lilac)" }} /></div> },
     ];
     case "voice": return [
-      { id: "tone", title: "기본 어조", body: <p>UI 문구는 해요체로 씁니다. 한 문장에는 한 가지 내용만 담고, 느낌표와 이모지는 사용하지 않습니다. 마스코트 멜로의 대사만 반말을 사용합니다.</p> },
-      { id: "buttons", title: "버튼", desc: "버튼 레이블에는 실행될 동작을 씁니다.", body: <Table head={["권장", "지양"]} rows={[["저장", "확인"], ["삭제", "OK"], ["단어 고르기", "선택하기"], ["연결 해제", "해제 진행"]]} /> },
+      { id: "tone", title: "기본 어조", body: <p>UI 문구는 해요체로 씀. 한 문장에는 한 가지 내용만 담고, 느낌표와 이모지는 사용하지 않음. 마스코트 멜로의 대사만 반말을 사용함.</p> },
+      { id: "buttons", title: "버튼", desc: "버튼 레이블에는 실행될 동작을 씀.", body: <Table head={["권장", "지양"]} rows={[["저장", "확인"], ["삭제", "OK"], ["단어 고르기", "선택하기"], ["연결 해제", "해제 진행"]]} /> },
       { id: "messages", title: "안내와 오류", body: <Table head={["상황", "권장", "지양"]} rows={[["지우기 전", "이 기록을 지울까요?", "정말 삭제하시겠습니까?"], ["빈 화면", "오늘 하루는 어땠어?", "내용을 입력해주세요."], ["불러오기 실패", "불러오지 못했어요. 다시 시도해 주세요.", "오류가 발생했습니다!"], ["저장 완료", "저장됨", "저장이 완료되었습니다."]]} /> },
-      { id: "mallow", title: "멜로 대사", body: <p>멜로의 대사는 반말로 짧게 씁니다. 예: &quot;오늘 마음 어땠어?&quot;, &quot;멜로랑 같이 써볼래?&quot;</p> },
+      { id: "mallow", title: "멜로 대사", body: <p>멜로의 대사는 반말로 짧게 씀. 예: &quot;오늘 마음 어땠어?&quot;, &quot;멜로랑 같이 써볼래?&quot;</p> },
     ];
     case "color": return [
-      { id: "petals", title: "꽃잎 팔레트", desc: "브랜드 로고에서 가져온 보조 색상입니다. 그래픽, DayFlower, 비율 막대 등 면에만 사용하고 텍스트에는 사용하지 않습니다.", body: <div className="ds-petals">{PETALS.map((p) => <div key={p.name} style={{ background: p.hex }}><b>{p.name}</b><span>{p.use}</span><code>{p.hex}</code></div>)}</div> },
+      { id: "petals", title: "꽃잎 팔레트", desc: "브랜드 로고에서 가져온 보조 색상. 그래픽, DayFlower, 비율 막대 등 면에만 사용하고 텍스트에는 사용하지 않음.", body: <div className="ds-petals">{PETALS.map((p) => <div key={p.name} style={{ background: p.hex }}><b>{p.name}</b><span>{p.use}</span><code>{p.hex}</code></div>)}</div> },
       ...COLORS.map((g): Block => ({ id: g.id, title: g.group, body: (
         <Table head={["토큰", "라이트", "다크", "쓰는 곳"]} rows={g.items.map((c) => [
           <code key="n">{c.name}</code>,
@@ -225,12 +225,12 @@ function pageBlocks(slug: string, theme: Theme): Block[] {
           c.use,
         ])} />
       ) })),
-      { id: "contrast", title: "대비", body: <p>모든 텍스트 색상은 배경 대비 4.5:1 이상입니다(WCAG 2.1 AA). 상태는 색상만으로 표현하지 않고 &quot;불필요&quot;, &quot;저장됨&quot; 같은 텍스트를 함께 표시합니다. 현재 {theme === "light" ? "라이트" : "다크"} 테마 값이 표시됩니다.</p> },
+      { id: "contrast", title: "대비", body: <p>모든 텍스트 색상은 배경 대비 4.5:1 이상(WCAG 2.1 AA). 상태는 색상만으로 표현하지 않고 &quot;불필요&quot;, &quot;저장됨&quot; 같은 텍스트를 함께 표시함. 현재 {theme === "light" ? "라이트" : "다크"} 테마 값이 표시됨.</p> },
     ];
     case "typography": return [
       { id: "families", title: "서체", body: <Rows rows={[[<b key="a">Pretendard</b>, "본문, 버튼, 숫자 등 모든 UI 텍스트"], [<b key="b" className="t-d2">둥근미소</b>, "날짜, 핵심 숫자 (display 스타일)"]]} /> },
-      { id: "scale", title: "크기 단계", desc: "아래 일곱 가지 스타일만 사용합니다.", body: <div className="dd-type">{TYPE.map((s) => <div key={s.name}><span className="meta"><code>{s.name}</code><small>{s.spec}</small></span><span className={s.cls}>{s.sample}</span></div>)}</div> },
-      { id: "numbers", title: "숫자", body: <p>금액, 개수처럼 세로로 정렬되는 숫자에는 <code>tabular-nums</code>를 적용합니다.</p> },
+      { id: "scale", title: "크기 단계", desc: "아래 일곱 가지 스타일만 사용함.", body: <div className="dd-type">{TYPE.map((s) => <div key={s.name}><span className="meta"><code>{s.name}</code><small>{s.spec}</small></span><span className={s.cls}>{s.sample}</span></div>)}</div> },
+      { id: "numbers", title: "숫자", body: <p>금액, 개수처럼 세로로 정렬되는 숫자에는 <code>tabular-nums</code>를 적용함.</p> },
     ];
     case "shape": return [
       { id: "spacing", title: "간격", body: <div className="dd-space">{[4, 8, 12, 16, 24, 32, 48].map((s, i) => <div key={s}><code>space-{i + 1}</code><i style={{ width: s * 4 }} /><small>{s}px</small></div>)}</div> },
@@ -238,54 +238,54 @@ function pageBlocks(slug: string, theme: Theme): Block[] {
       { id: "shadow", title: "그림자", demo: <div className="ds-shadows"><div className="sh1">shadow-surface<small>Surface 기본</small></div><div className="sh2">shadow-float<small>Dialog, 플로팅 버튼</small></div></div> },
     ];
     case "icons": return [
-      { id: "rules", title: "규칙", body: <p>모든 아이콘은 24px 격자, 선 굵기 1.75, 둥근 선 끝으로 제작합니다. 기본 색상은 <code>ink-2</code>, 선택 상태는 <code>ink</code>입니다. 이모지와 외부 아이콘 세트는 사용하지 않습니다.</p> },
+      { id: "rules", title: "규칙", body: <p>모든 아이콘은 24px 격자, 선 굵기 1.75, 둥근 선 끝으로 제작함. 기본 색상은 <code>ink-2</code>, 선택 상태는 <code>ink</code>. 이모지와 외부 아이콘 세트는 사용하지 않음.</p> },
       { id: "app", title: "앱 아이콘", body: <div className="dd-icons">{NAV_ICONS.map((n) => <div key={n}><Icon name={n} size={24} /><small>{n}</small></div>)}</div> },
       { id: "category", title: "지출 분류", body: <div className="dd-icons">{CATEGORIES.map((c) => <div key={c}><CategoryGlyph c={c} /><small>{CAT_NAME[c]}</small></div>)}</div> },
     ];
     case "components": return [];
     case "button": return [
       { id: "overview", title: "기본", demo: <button type="button" className="ds-btn primary">저장</button>, code: `<button class="ac-btn primary">저장</button>` },
-      { id: "variant", title: "Variant", level: 3, desc: "Button의 역할에 따라 스타일을 지정합니다. primary는 Surface당 하나만 사용합니다.", demo: <div className="dd-variants">{[["primary", "저장"], ["soft", "단어 고르기"], ["ghost", "취소"], ["quiet", "연결 해제"], ["danger", "삭제"]].map(([v, l]) => <div key={v}><small>{v}</small><button type="button" className={`ds-btn ${v === "soft" ? "" : v}`}>{l}</button></div>)}</div>, code: `<button class="ac-btn primary">저장</button>\n<button class="ac-btn">단어 고르기</button>\n<button class="ac-btn ghost">취소</button>\n<button class="ac-btn quiet">연결 해제</button>\n<button class="ac-btn danger">삭제</button>` },
-      { id: "size", title: "Size", level: 3, desc: "Button의 높이를 지정합니다. md는 40px, sm은 32px입니다.", demo: <div className="ds-row-wrap"><button type="button" className="ds-btn">＋ 할 일</button><button type="button" className="ds-btn sm">＋ 할 일</button></div>, code: `<button class="ac-btn">＋ 할 일</button>\n<button class="ac-btn sm">＋ 할 일</button>` },
-      { id: "disabled", title: "Disabled", level: 3, desc: "비활성 상태에서는 variant와 관계없이 회색으로 표시됩니다.", demo: <button type="button" className="ds-btn primary" disabled>저장</button>, code: `<button class="ac-btn primary" disabled>저장</button>` },
-      { id: "usage", title: "사용 규칙", body: <DoDont dos={["레이블에 실행될 동작을 씁니다 (저장, 삭제)", "자주 쓰지 않는 동작(연결 해제)에는 quiet를 사용합니다", "긴 글 작성 화면은 버튼 대신 자동 저장을 사용합니다"]} donts={["한 Surface에 primary를 두 개 이상 두지 않습니다", "확인, OK 같은 모호한 레이블", "Dialog 밖에서 danger 사용"]} /> },
+      { id: "variant", title: "Variant", level: 3, desc: "Button의 역할에 따라 스타일을 지정함. primary는 Surface당 하나만 사용함.", demo: <div className="dd-variants">{[["primary", "저장"], ["soft", "단어 고르기"], ["ghost", "취소"], ["quiet", "연결 해제"], ["danger", "삭제"]].map(([v, l]) => <div key={v}><small>{v}</small><button type="button" className={`ds-btn ${v === "soft" ? "" : v}`}>{l}</button></div>)}</div>, code: `<button class="ac-btn primary">저장</button>\n<button class="ac-btn">단어 고르기</button>\n<button class="ac-btn ghost">취소</button>\n<button class="ac-btn quiet">연결 해제</button>\n<button class="ac-btn danger">삭제</button>` },
+      { id: "size", title: "Size", level: 3, desc: "Button의 높이를 지정함. md는 40px, sm은 32px.", demo: <div className="ds-row-wrap"><button type="button" className="ds-btn">＋ 할 일</button><button type="button" className="ds-btn sm">＋ 할 일</button></div>, code: `<button class="ac-btn">＋ 할 일</button>\n<button class="ac-btn sm">＋ 할 일</button>` },
+      { id: "disabled", title: "Disabled", level: 3, desc: "비활성 상태에서는 variant와 관계없이 회색으로 표시됨.", demo: <button type="button" className="ds-btn primary" disabled>저장</button>, code: `<button class="ac-btn primary" disabled>저장</button>` },
+      { id: "usage", title: "사용 규칙", body: <DoDont dos={["레이블에 실행될 동작을 씀 (저장, 삭제)", "자주 쓰지 않는 동작(연결 해제)에는 quiet를 사용함", "긴 글 작성 화면은 버튼 대신 자동 저장을 사용함"]} donts={["한 Surface에 primary를 두 개 이상 두지 않음", "확인, OK 같은 모호한 레이블", "Dialog 밖에서 danger 사용"]} /> },
       { id: "props", title: "Props", body: <Table head={["속성", "기본값", "값"]} rows={[["variant", <Pill key="a">soft</Pill>, <span key="b" className="dd-pills"><Pill>primary</Pill><Pill>soft</Pill><Pill>ghost</Pill><Pill>quiet</Pill><Pill>danger</Pill></span>], ["size", <Pill key="c">md</Pill>, <span key="d" className="dd-pills"><Pill>md · 40</Pill><Pill>sm · 32</Pill></span>], ["disabled", <Pill key="e">false</Pill>, "boolean"]]} /> },
     ];
     case "chip": return [
-      { id: "overview", title: "선택 항목", desc: "선택된 Chip은 accent-soft 배경에 accent-ink 텍스트로 표시됩니다. × 를 누르면 선택이 해제됩니다.", demo: <ChipDemo />, code: `<button class="ac-chip on">뿌듯하다 <span class="x">×</span></button>\n<button class="ac-chip add">＋ 단어</button>` },
-      { id: "filter", title: "필터", level: 3, desc: "목록 상단에서 단일 선택 필터로 사용합니다. 모바일에서는 가로로 스크롤됩니다.", demo: <FilterDemo />, code: `<button class="ac-chip on">전체</button>\n<button class="ac-chip">불필요만</button>` },
-      { id: "usage", title: "사용 규칙", body: <DoDont dos={["한두 단어의 짧은 레이블을 사용합니다", "선택된 항목에만 on 상태를 적용합니다"]} donts={["Chip 안에 아이콘이나 이모지 사용", "문장 형태의 레이블"]} /> },
-      { id: "props", title: "Props", body: <Table head={["속성", "기본값", "값"]} rows={[["state", <Pill key="a">off</Pill>, <span key="b" className="dd-pills"><Pill>off</Pill><Pill>on</Pill><Pill>add</Pill></span>], ["onRemove", "–", "× 버튼을 표시하고 클릭 시 호출됩니다"]]} /> },
+      { id: "overview", title: "선택 항목", desc: "선택된 Chip은 accent-soft 배경에 accent-ink 텍스트로 표시됨. × 를 누르면 선택이 해제됨.", demo: <ChipDemo />, code: `<button class="ac-chip on">뿌듯하다 <span class="x">×</span></button>\n<button class="ac-chip add">＋ 단어</button>` },
+      { id: "filter", title: "필터", level: 3, desc: "목록 상단에서 단일 선택 필터로 사용함. 모바일에서는 가로로 스크롤됨.", demo: <FilterDemo />, code: `<button class="ac-chip on">전체</button>\n<button class="ac-chip">불필요만</button>` },
+      { id: "usage", title: "사용 규칙", body: <DoDont dos={["한두 단어의 짧은 레이블을 사용함", "선택된 항목에만 on 상태를 적용함"]} donts={["Chip 안에 아이콘이나 이모지 사용", "문장 형태의 레이블"]} /> },
+      { id: "props", title: "Props", body: <Table head={["속성", "기본값", "값"]} rows={[["state", <Pill key="a">off</Pill>, <span key="b" className="dd-pills"><Pill>off</Pill><Pill>on</Pill><Pill>add</Pill></span>], ["onRemove", "–", "× 버튼을 표시하고 클릭 시 호출됨"]]} /> },
     ];
     case "paper": return [
-      { id: "overview", title: "기본", desc: "테두리, 배경, 크기 조절 핸들 없이 17px 글자와 30px 줄 간격으로 표시됩니다.", demo: <PaperDemo />, code: `<label class="ac-label" for="diary">일기</label>\n<textarea id="diary" class="ac-paper" placeholder="오늘 하루는 어땠어?"></textarea>\n<div class="ac-paper-foot"><span class="ac-caption">38자</span><span class="ac-caption ac-saved">저장됨</span></div>` },
-      { id: "empty", title: "빈 상태", level: 3, desc: "내용이 없을 때는 placeholder로 질문 한 줄을 표시합니다.", demo: <PaperDemo empty />, code: `<textarea class="ac-paper" placeholder="오늘 하루는 어땠어?"></textarea>` },
-      { id: "usage", title: "사용 규칙", body: <DoDont dos={["입력 중 자동 저장하고 하단에 저장 상태를 표시합니다", "placeholder는 질문 형태로 씁니다"]} donts={["Paper 하단에 저장 버튼 배치", "Paper를 별도 배경 컨테이너로 감싸기"]} /> },
+      { id: "overview", title: "기본", desc: "테두리, 배경, 크기 조절 핸들 없이 17px 글자와 30px 줄 간격으로 표시됨.", demo: <PaperDemo />, code: `<label class="ac-label" for="diary">일기</label>\n<textarea id="diary" class="ac-paper" placeholder="오늘 하루는 어땠어?"></textarea>\n<div class="ac-paper-foot"><span class="ac-caption">38자</span><span class="ac-caption ac-saved">저장됨</span></div>` },
+      { id: "empty", title: "빈 상태", level: 3, desc: "내용이 없을 때는 placeholder로 질문 한 줄을 표시함.", demo: <PaperDemo empty />, code: `<textarea class="ac-paper" placeholder="오늘 하루는 어땠어?"></textarea>` },
+      { id: "usage", title: "사용 규칙", body: <DoDont dos={["입력 중 자동 저장하고 하단에 저장 상태를 표시함", "placeholder는 질문 형태로 씀"]} donts={["Paper 하단에 저장 버튼 배치", "Paper를 별도 배경 컨테이너로 감싸기"]} /> },
     ];
     case "field": return [
-      { id: "overview", title: "기본", desc: "하단 구분선만 표시되며, 포커스 시 구분선이 accent 색상으로 바뀝니다.", demo: <div className="ds-card dd-w dd-fields"><label className="ds-lbl" htmlFor="dd-f1">금액</label><input id="dd-f1" className="ds-field" defaultValue="12,000" inputMode="numeric" /><label className="ds-lbl" htmlFor="dd-f2">메모</label><input id="dd-f2" className="ds-field" placeholder="무엇에 썼어요?" /></div>, code: `<label class="ac-label" for="amount">금액</label>\n<input id="amount" class="ac-field" inputmode="numeric">` },
-      { id: "usage", title: "사용 규칙", body: <DoDont dos={["레이블은 입력 필드 위에 label 스타일로 표시합니다", "숫자 입력에는 inputmode=numeric을 지정합니다"]} donts={["배경색과 테두리를 함께 사용한 입력 필드"]} /> },
+      { id: "overview", title: "기본", desc: "하단 구분선만 표시되며, 포커스 시 구분선이 accent 색상으로 바뀜.", demo: <div className="ds-card dd-w dd-fields"><label className="ds-lbl" htmlFor="dd-f1">금액</label><input id="dd-f1" className="ds-field" defaultValue="12,000" inputMode="numeric" /><label className="ds-lbl" htmlFor="dd-f2">메모</label><input id="dd-f2" className="ds-field" placeholder="무엇에 썼어요?" /></div>, code: `<label class="ac-label" for="amount">금액</label>\n<input id="amount" class="ac-field" inputmode="numeric">` },
+      { id: "usage", title: "사용 규칙", body: <DoDont dos={["레이블은 입력 필드 위에 label 스타일로 표시함", "숫자 입력에는 inputmode=numeric을 지정함"]} donts={["배경색과 테두리를 함께 사용한 입력 필드"]} /> },
     ];
     case "surface": return [
-      { id: "overview", title: "기본", desc: "surface 배경, shadow-surface 그림자, radius-surface 모서리를 사용합니다.", demo: <div className="ds-card dd-w"><div className="ds-date"><b>11월 22일</b><span>일요일</span></div><p className="ds-lbl">오늘 할 일</p><span className="t-body">은행 서류 제출</span><span className="t-body">택배 반품</span></div>, code: `<section class="ac-surface">\n  <div class="ac-date"><b>11월 22일</b><span>일요일</span></div>\n  …\n</section>` },
-      { id: "usage", title: "사용 규칙", body: <DoDont dos={["화면당 Surface는 두세 개 이내로 사용합니다", "내부 영역은 간격이나 구분선으로 나눕니다"]} donts={["Surface 안에 Surface 중첩", "border로 영역 구분"]} /> },
+      { id: "overview", title: "기본", desc: "surface 배경, shadow-surface 그림자, radius-surface 모서리를 사용함.", demo: <div className="ds-card dd-w"><div className="ds-date"><b>11월 22일</b><span>일요일</span></div><p className="ds-lbl">오늘 할 일</p><span className="t-body">은행 서류 제출</span><span className="t-body">택배 반품</span></div>, code: `<section class="ac-surface">\n  <div class="ac-date"><b>11월 22일</b><span>일요일</span></div>\n  …\n</section>` },
+      { id: "usage", title: "사용 규칙", body: <DoDont dos={["화면당 Surface는 두세 개 이내로 사용함", "내부 영역은 간격이나 구분선으로 나눔"]} donts={["Surface 안에 Surface 중첩", "border로 영역 구분"]} /> },
     ];
     case "list-row": return [
-      { id: "overview", title: "기본", desc: "날짜 헤더와 일별 합계 아래에 기록을 한 줄씩 표시합니다. 수정·삭제 버튼은 hover 또는 탭 시 나타납니다.", demo: <DialogDemo />, code: `<div class="ac-day"><span>11월 22일 (일)</span><span>−₩12,000</span></div>\n<div class="ac-list">\n  <button class="ac-row">…<span class="t"><b>점심</b><small>식비 <em>불필요</em></small></span><span class="n">₩12,000</span></button>\n</div>` },
-      { id: "usage", title: "사용 규칙", body: <DoDont dos={["메모를 제목으로, 분류를 보조 텍스트로 표시합니다", "불필요 지출은 텍스트로도 표시합니다"]} donts={["기록마다 별도 카드 사용", "수정·삭제 버튼 상시 노출"]} /> },
+      { id: "overview", title: "기본", desc: "날짜 헤더와 일별 합계 아래에 기록을 한 줄씩 표시함. 수정·삭제 버튼은 hover 또는 탭 시 나타남.", demo: <DialogDemo />, code: `<div class="ac-day"><span>11월 22일 (일)</span><span>−₩12,000</span></div>\n<div class="ac-list">\n  <button class="ac-row">…<span class="t"><b>점심</b><small>식비 <em>불필요</em></small></span><span class="n">₩12,000</span></button>\n</div>` },
+      { id: "usage", title: "사용 규칙", body: <DoDont dos={["메모를 제목으로, 분류를 보조 텍스트로 표시함", "불필요 지출은 텍스트로도 표시함"]} donts={["기록마다 별도 카드 사용", "수정·삭제 버튼 상시 노출"]} /> },
     ];
     case "day-flower": return [
-      { id: "overview", title: "단계", desc: "완료 비율에 따라 다섯 단계로 표시하며, 가운데 숫자는 완료한 개수입니다.", demo: <div className="ds-flowers">{[[0, "안 함"], [1, "조금"], [2, "반쯤"], [3, "거의"], [4, "다 함"]].map(([l, t]) => <div key={l}><Flower level={l as number} n={l as number} /><small>{t}</small></div>)}</div>, code: `<svg class="ac-flower l3" viewBox="0 0 44 44">…<text>3</text></svg>` },
-      { id: "usage", title: "사용 규칙", body: <DoDont dos={["계획이 없는 날은 숫자 없이 l0으로 표시합니다", "선택된 날이 l4일 때만 축하 효과를 표시합니다"]} donts={["숫자 외의 텍스트나 아이콘 표시"]} /> },
+      { id: "overview", title: "단계", desc: "완료 비율에 따라 다섯 단계로 표시하며, 가운데 숫자는 완료한 개수.", demo: <div className="ds-flowers">{[[0, "안 함"], [1, "조금"], [2, "반쯤"], [3, "거의"], [4, "다 함"]].map(([l, t]) => <div key={l}><Flower level={l as number} n={l as number} /><small>{t}</small></div>)}</div>, code: `<svg class="ac-flower l3" viewBox="0 0 44 44">…<text>3</text></svg>` },
+      { id: "usage", title: "사용 규칙", body: <DoDont dos={["계획이 없는 날은 숫자 없이 l0으로 표시함", "선택된 날이 l4일 때만 축하 효과를 표시함"]} donts={["숫자 외의 텍스트나 아이콘 표시"]} /> },
     ];
     case "tabs": return [
-      { id: "overview", title: "기본", desc: "선택된 탭은 ink 색상, 굵은 글자, 2px 하단 선으로 표시됩니다.", demo: <TabsDemo />, code: `<div class="ac-tabs" role="tablist">\n  <button class="ac-tab on" role="tab" aria-selected="true">일기</button>\n  <button class="ac-tab" role="tab">주간 회고</button>\n</div>` },
-      { id: "usage", title: "사용 규칙", body: <DoDont dos={["탭은 2~5개, 짧은 레이블로 구성합니다"]} donts={["앱 전체 내비게이션 용도로 사용"]} /> },
+      { id: "overview", title: "기본", desc: "선택된 탭은 ink 색상, 굵은 글자, 2px 하단 선으로 표시됨.", demo: <TabsDemo />, code: `<div class="ac-tabs" role="tablist">\n  <button class="ac-tab on" role="tab" aria-selected="true">일기</button>\n  <button class="ac-tab" role="tab">주간 회고</button>\n</div>` },
+      { id: "usage", title: "사용 규칙", body: <DoDont dos={["탭은 2~5개, 짧은 레이블로 구성함"]} donts={["앱 전체 내비게이션 용도로 사용"]} /> },
     ];
     case "dialog": return [
-      { id: "overview", title: "기본", desc: "삭제될 항목의 정보를 표시하고 사용자 확인을 받습니다.", demo: <StaticDialog />, code: `<div class="ac-dialog" role="alertdialog">\n  <h3>이 기록을 지울까요?</h3>\n  <p>11월 22일 · 점심 · ₩12,000</p>\n  <span class="ac-caption">지우면 되돌릴 수 없어요.</span>\n  <div class="acts"><button class="ac-btn">취소</button><button class="ac-btn danger">삭제</button></div>\n</div>` },
-      { id: "try", title: "동작 예시", level: 3, desc: "삭제 버튼을 누르면 Dialog가 열립니다. 취소, Esc, 바깥 영역 클릭 시 삭제되지 않습니다.", demo: <DialogDemo /> },
-      { id: "usage", title: "사용 규칙", body: <DoDont dos={["저장된 기록을 삭제할 때 사용합니다", "열릴 때 취소 버튼에 포커스를 둡니다"]} donts={["할 일처럼 가벼운 항목 삭제에 사용", "확인 / 취소 같은 모호한 레이블"]} /> },
+      { id: "overview", title: "기본", desc: "삭제될 항목의 정보를 표시하고 사용자 확인을 받음.", demo: <StaticDialog />, code: `<div class="ac-dialog" role="alertdialog">\n  <h3>이 기록을 지울까요?</h3>\n  <p>11월 22일 · 점심 · ₩12,000</p>\n  <span class="ac-caption">지우면 되돌릴 수 없어요.</span>\n  <div class="acts"><button class="ac-btn">취소</button><button class="ac-btn danger">삭제</button></div>\n</div>` },
+      { id: "try", title: "동작 예시", level: 3, desc: "삭제 버튼을 누르면 Dialog가 열림. 취소, Esc, 바깥 영역 클릭 시 삭제되지 않음.", demo: <DialogDemo /> },
+      { id: "usage", title: "사용 규칙", body: <DoDont dos={["저장된 기록을 삭제할 때 사용함", "열릴 때 취소 버튼에 포커스를 둠"]} donts={["할 일처럼 가벼운 항목 삭제에 사용", "확인 / 취소 같은 모호한 레이블"]} /> },
     ];
     default: return [];
   }
