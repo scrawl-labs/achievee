@@ -16,6 +16,7 @@ import "./design.css";
  */
 
 type Theme = "light" | "dark";
+let shownTheme: Theme | null = null; // the theme on screen, kept across page changes
 type Block = { id: string; title: string; level?: 2 | 3; desc?: string; demo?: React.ReactNode; code?: string; body?: React.ReactNode; align?: "center" | "start" };
 const GROUPS = ["시작하기", "파운데이션", "컴포넌트"] as const;
 
@@ -294,12 +295,15 @@ function pageBlocks(slug: string, theme: Theme): Block[] {
 /* ---------- page ---------- */
 
 export default function DesignDocs({ slug }: { slug: string }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  // moving between pages remounts this component: start from the theme already chosen, so the page never flashes light first
+  const [theme, setTheme] = useState<Theme>(() => shownTheme ?? "light");
   useEffect(() => {
-    try { const s = localStorage.getItem("achievee:dsTheme"); if (s === "light" || s === "dark") { setTheme(s); return; } } catch { /* no storage */ }
-    if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+    if (shownTheme) return;
+    let t: Theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    try { const s = localStorage.getItem("achievee:dsTheme"); if (s === "light" || s === "dark") t = s; } catch { /* no storage */ }
+    shownTheme = t; setTheme(t);
   }, []);
-  const pick = (t: Theme) => { setTheme(t); try { localStorage.setItem("achievee:dsTheme", t); } catch { /* no storage */ } };
+  const pick = (t: Theme) => { shownTheme = t; setTheme(t); try { localStorage.setItem("achievee:dsTheme", t); } catch { /* no storage */ } };
   const [menu, setMenu] = useState(false);
   useEffect(() => { setMenu(false); window.scrollTo(0, 0); }, [slug]);
 
