@@ -9,14 +9,13 @@ import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 import DatePicker from "./DatePicker";
 import { askConfirm } from "./Confirm";
+import CategoryGlyph from "./CategoryGlyph";
 
 type Row = { id: number; date: string; category: string; memo: string; amount: number; need: number };
 type Inc = { id: number; date: string; memo: string; amount: number };
 type Sav = { id: number; date: string; kind: "saving" | "invest"; memo: string; amount: number };
 type Filter = "all" | "waste" | Category;
 const BARS = ["var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)", "var(--c5)", "var(--c6)", "var(--fg-3)"]; // one per CATEGORIES entry
-/** Clay icons rendered in Blender (public/ui/cat-*.webp), in the same style as Mallow. */
-const catIcon = (c: Category) => `/ui/cat-${c}.webp`;
 const DAYS = Array.from({ length: 28 }, (_, i) => i + 1);
 const send = (url: string, method: string, body?: unknown) =>
   fetch(url, { method, headers: { "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
@@ -204,7 +203,7 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
                       return (
                         <div className={`ex-row${r.need ? "" : " waste"}${openRow === r.id ? " open" : ""}`} key={r.id}>
                           <button type="button" className="ex-main" aria-expanded={openRow === r.id} onClick={() => setOpenRow(openRow === r.id ? null : r.id)}>
-                            <img className="ex-ic" src={catIcon(c)} alt="" width={40} height={40} draggable={false} />
+                            <CategoryGlyph c={c} />
                             <span className="ex-tx"><b>{r.memo || catName(c)}</b><small>{r.memo && catName(c)}{!r.need && <em>{t("exp.waste")}</em>}</small></span>
                             <b className="num">{fmt.money(r.amount)}</b>
                           </button>
