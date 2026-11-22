@@ -6,16 +6,16 @@ import { TODO_TEXT_MAX } from "./todosUi";
 /** Pure logic behind the command bar (⌘K): parsing, filtering, navigation targets. No React, no I/O. */
 
 export type Tab = "calendar" | "stats" | "diary" | "expense" | "workout" | "google" | "integrations" | "settings";
-export type TabIcon = "calendar" | "chart" | "book" | "wallet" | "activity" | "external" | "plug" | "user";
+export type TabIcon = "home" | "calendar" | "chart" | "book" | "wallet" | "activity" | "external" | "plug" | "user";
 
 /** Single source for the sidebar and the command list. */
 export const TABS: readonly { key: Tab; label: Key; icon: TabIcon }[] = [
-  { key: "calendar", label: "nav.calendar", icon: "calendar" },
+  { key: "calendar", label: "nav.calendar", icon: "home" },
   { key: "stats", label: "nav.stats", icon: "chart" },
   { key: "diary", label: "nav.diary", icon: "book" },
   { key: "expense", label: "nav.expense", icon: "wallet" },
   { key: "workout", label: "nav.workout", icon: "activity" },
-  { key: "google", label: "nav.google", icon: "external" },
+  { key: "google", label: "nav.google", icon: "calendar" },
   { key: "integrations", label: "nav.integrations", icon: "plug" },
   { key: "settings", label: "nav.settings", icon: "user" },
 ];

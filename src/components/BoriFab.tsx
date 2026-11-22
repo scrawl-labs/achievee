@@ -19,8 +19,10 @@ export default function BoriFab({ beforeOpen, onSaved }: { beforeOpen?: () => Pr
   const [hint, setHint] = useState(false);
   usePrefetchBori();
 
-  // a little "how was your heart today?" bubble now and then
+  // a little "how was your heart today?" bubble, once a day, so it does not sit on the diary every visit
   useEffect(() => {
+    const key = "achievee:mallowHint", today = todayStr();
+    try { if (localStorage.getItem(key) === today) return; localStorage.setItem(key, today); } catch { /* no storage: show it */ }
     const show = window.setTimeout(() => setHint(true), 1500);
     const hide = window.setTimeout(() => setHint(false), 7500);
     return () => { window.clearTimeout(show); window.clearTimeout(hide); };

@@ -57,7 +57,7 @@ export default function IntegrationsView({ googleReturn = null }: { googleReturn
               : <small className="muted">{t(desc)}</small>}
           </div>
           {c
-            ? <button className="btn danger" onClick={() => disconnect(provider)}>{t("int.disconnect")}</button>
+            ? <button className="btn quiet" onClick={() => disconnect(provider)}>{t("int.disconnect")}</button>
             : <button className="btn" aria-expanded={open === provider} onClick={() => setOpen(open === provider ? null : provider)}>{t("int.connect")}</button>}
         </div>
         {c && work && (

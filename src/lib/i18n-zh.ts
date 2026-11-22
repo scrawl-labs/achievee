@@ -1,6 +1,6 @@
 // Traditional Chinese (zh-TW). Product names stay in English: Google Calendar / Google Tasks.
 export const ZH = {
-  "nav.calendar": "記錄", "nav.stats": "統計", "nav.diary": "日記", "nav.expense": "支出", "nav.google": "日曆",
+  "nav.calendar": "首頁", "nav.stats": "統計", "nav.diary": "日記", "nav.expense": "支出", "nav.google": "行程",
   "login.tagline": "今天，究竟是什麼心情？",
   "login.cta": "使用 Google 繼續",
   "legal.privacy": "隱私權政策", "legal.terms": "服務條款", "account.delete": "刪除我的資料",

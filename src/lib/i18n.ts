@@ -20,7 +20,7 @@ export function fromAcceptLanguage(h: string | null): Locale {
 }
 
 const en = {
-  "nav.calendar": "Log", "nav.stats": "Stats", "nav.diary": "Diary", "nav.expense": "Spending", "nav.google": "Calendar",
+  "nav.calendar": "Home", "nav.stats": "Stats", "nav.diary": "Diary", "nav.expense": "Spending", "nav.google": "Schedule",
   "login.tagline": "What exactly did you feel today?",
   "login.cta": "Continue with Google",
   "legal.privacy": "Privacy Policy", "legal.terms": "Terms of Service", "account.delete": "Delete my data", "account.deleteConfirm": "Permanently delete your diary and spending data and sign out? This can't be undone.",
@@ -74,7 +74,7 @@ type BaseDict = Record<BaseKey, string>;
 type Dict = Record<Key, string>;
 
 const ko: BaseDict = {
-  "nav.calendar": "기록", "nav.stats": "통계", "nav.diary": "일기", "nav.expense": "지출", "nav.google": "캘린더",
+  "nav.calendar": "홈", "nav.stats": "통계", "nav.diary": "일기", "nav.expense": "지출", "nav.google": "일정",
   "login.tagline": "오늘 정확히 어떤 마음이었나요?",
   "login.cta": "Google로 계속하기",
   "legal.privacy": "개인정보처리방침", "legal.terms": "이용약관", "account.delete": "내 데이터 삭제", "account.deleteConfirm": "일기와 지출 데이터를 모두 영구 삭제하고 로그아웃할까요? 되돌릴 수 없어요.",
@@ -123,7 +123,7 @@ const ko: BaseDict = {
 };
 
 const ja: BaseDict = {
-  "nav.calendar": "記録", "nav.stats": "統計", "nav.diary": "日記", "nav.expense": "支出", "nav.google": "カレンダー",
+  "nav.calendar": "ホーム", "nav.stats": "統計", "nav.diary": "日記", "nav.expense": "支出", "nav.google": "予定",
   "login.tagline": "今日、正確にどんな気持ちでしたか？",
   "login.cta": "Google で続ける",
   "legal.privacy": "プライバシーポリシー", "legal.terms": "利用規約", "account.delete": "データを削除", "account.deleteConfirm": "日記と支出のデータをすべて完全に削除してログアウトしますか？ 元に戻せません。",
@@ -172,7 +172,7 @@ const ja: BaseDict = {
 };
 
 const es: BaseDict = {
-  "nav.calendar": "Registro", "nav.stats": "Estadísticas", "nav.diary": "Diario", "nav.expense": "Gastos", "nav.google": "Calendario",
+  "nav.calendar": "Inicio", "nav.stats": "Estadísticas", "nav.diary": "Diario", "nav.expense": "Gastos", "nav.google": "Agenda",
   "login.tagline": "Hoy, ¿qué sentiste exactamente?",
   "login.cta": "Continuar con Google",
   "legal.privacy": "Política de privacidad", "legal.terms": "Términos del servicio", "account.delete": "Eliminar mis datos", "account.deleteConfirm": "¿Eliminar de forma permanente tu diario y tus gastos y cerrar sesión? No se puede deshacer.",

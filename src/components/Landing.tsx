@@ -23,9 +23,9 @@ const MONTH: [number, number][] = [
   [3, 3], [4, 5], [4, 6], [3, 4], [4, 5], [2, 3], [0, 0],
   [4, 5], [3, 4], [4, 6], [4, 5], [2, 3], [1, 1], [0, 0],
 ];
-const NAV: { icon: "calendar" | "chart" | "book" | "wallet" | "external"; k: Key }[] = [
-  { icon: "calendar", k: "nav.calendar" }, { icon: "chart", k: "nav.stats" }, { icon: "book", k: "nav.diary" },
-  { icon: "wallet", k: "nav.expense" }, { icon: "external", k: "nav.google" },
+const NAV: { icon: "home" | "calendar" | "chart" | "book" | "wallet"; k: Key }[] = [
+  { icon: "home", k: "nav.calendar" }, { icon: "chart", k: "nav.stats" }, { icon: "book", k: "nav.diary" },
+  { icon: "wallet", k: "nav.expense" }, { icon: "calendar", k: "nav.google" },
 ];
 const INTEGRATIONS: { name: string; icon: React.ReactNode; d: Key }[] = [
   { name: "GitHub", icon: <GithubMark size={24} />, d: "land.i.gh" },

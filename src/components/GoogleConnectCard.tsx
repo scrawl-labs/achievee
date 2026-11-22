@@ -36,7 +36,7 @@ export default function GoogleConnectCard({ status, notice }: { status: GoogleSt
         </div>
         {m.action && <button className="btn primary" onClick={startGoogleConnect}>{t(m.action === "connect" ? "gc.connect" : "gc.reconnect")}</button>}
         {m.canDisconnect && !confirming && (
-          <button className={m.action ? "btn ghost" : "btn danger"} aria-label={t("gc.disconnectAria")} aria-expanded={confirming} onClick={() => setConfirming(true)}>{t("int.disconnect")}</button>
+          <button className={m.action ? "btn ghost" : "btn quiet"} aria-label={t("gc.disconnectAria")} aria-expanded={confirming} onClick={() => setConfirming(true)}>{t("int.disconnect")}</button>
         )}
       </div>
       {m.state === "connected" && !confirming && <GoogleCalendarPicker />}

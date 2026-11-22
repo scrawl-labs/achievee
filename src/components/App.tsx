@@ -151,11 +151,13 @@ function Main() {
           <h1>{title}</h1>
           <div className="row gap-2">
             <CommandBar go={go} />
-            {tab !== "integrations" && tab !== "settings" && <>
-              <button className="btn" onClick={() => setSel(todayStr())}>{t("common.today")}</button>
-              <button className="btn icon" onClick={() => shift(-1)} aria-label={t("common.prev")}><Icon name="left" /></button>
-              <button className="btn icon" onClick={() => shift(1)} aria-label={t("common.next")}><Icon name="right" /></button>
-            </>}
+            {tab !== "integrations" && tab !== "settings" && (
+              <div className="datenav" role="group">
+                <button className="btn icon" onClick={() => shift(-1)} aria-label={t("common.prev")}><Icon name="left" /></button>
+                <button className="btn" onClick={() => setSel(todayStr())}>{t("common.today")}</button>
+                <button className="btn icon" onClick={() => shift(1)} aria-label={t("common.next")}><Icon name="right" /></button>
+              </div>
+            )}
           </div>
         </header>
         <div className="pagebody">
