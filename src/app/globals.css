@@ -1417,3 +1417,49 @@ details.period[open] summary { margin-bottom: var(--s2); }
 .diary-foot { display: flex; justify-content: space-between; align-items: center; min-height: 24px; font-size: 12px; color: var(--fg-3); }
 .diary-foot .saved { display: inline-flex; align-items: center; gap: 6px; }
 .diary-foot .saved::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: color-mix(in oklab, var(--c3) 55%, var(--fg)); }
+
+/* ===== Design system, rule C, app-wide =====
+   Surfaces are lifted by a shadow, not drawn with a border. Inside a surface, inputs, pickers, chips and tiles are one
+   borderless sunk layer (--surface-2); nothing nests deeper. Inputs show an accent ring on focus. */
+:root { --shadow-surface: 0 1px 2px rgb(26 25 23 / .05), 0 10px 28px -14px rgb(26 25 23 / .16); --shadow-float: 0 2px 6px rgb(26 25 23 / .08), 0 24px 48px -16px rgb(26 25 23 / .28); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --shadow-surface: 0 1px 0 rgb(255 255 255 / .04), 0 12px 32px -14px rgb(0 0 0 / .7); --shadow-float: 0 2px 6px rgb(0 0 0 / .5), 0 24px 48px -16px rgb(0 0 0 / .8); } }
+:root[data-theme="dark"] { --shadow-surface: 0 1px 0 rgb(255 255 255 / .04), 0 12px 32px -14px rgb(0 0 0 / .7); --shadow-float: 0 2px 6px rgb(0 0 0 / .5), 0 24px 48px -16px rgb(0 0 0 / .8); }
+
+/* surfaces */
+.summary, .cal, .detail, .panel, .tlbox, .mgrid, .upcoming, .intslot, .ex-sum, .ex-card, .emodict-src, .nudge, .bd-launch, .item {
+  border: 0; box-shadow: var(--shadow-surface);
+}
+.cf, .cmd, .dp-pop, .composer, .more-sheet { border: 0; box-shadow: var(--shadow-float); }
+.list .panel.entry, .ex-card > .panel.entry { box-shadow: none; }
+
+/* one sunk layer inside a surface */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea {
+  background-color: var(--surface-2); border: 0; border-radius: 12px; height: 44px; padding: 0 14px; outline: 0; transition: box-shadow .15s;
+}
+textarea { height: auto; padding: 12px 14px; line-height: 1.7; resize: vertical; }
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus, select:focus, textarea:focus { box-shadow: 0 0 0 2px var(--accent); }
+input::placeholder, textarea::placeholder { color: var(--fg-3); }
+.dp-btn { background: var(--surface-2); border: 0; border-radius: 12px; height: 44px; padding: 0 14px; }
+.dp-btn:hover, .dp-btn[aria-expanded="true"] { border: 0; box-shadow: 0 0 0 2px var(--accent); }
+.btn { border: 0; }
+.btn.danger { border: 0; background: color-mix(in oklab, var(--sun) 10%, var(--surface-2)); }
+.btn.primary:disabled { border: 0; }
+.datenav { border: 0; background: var(--surface-2); }
+.datenav .btn { background: transparent; }
+.datenav .btn + .btn { border-left: 0; box-shadow: inset 1px 0 0 var(--line); }
+.tag, .seg, .lang, .emo-panel, .emodict-fam dl > div, .intcard, .inttile, .body-tiles button, .sm-strip .chip { border: 0; }
+.tag, .lang, .inttile, .body-tiles button, .sm-strip .chip, .emodict-fam dl > div { background-color: var(--surface-2); }
+.seg { background-color: var(--surface-2); }
+.emo-panel { background-color: var(--surface-2); }
+.emo-desc { border: 0; background: transparent; padding-left: 0; padding-right: 0; }
+.emo-chip { border: 0; background: var(--surface-2); }
+.emo-panel .emo-chip { background: var(--surface); }
+.emo-chip.on { background: color-mix(in oklab, var(--accent) 14%, var(--surface)); color: color-mix(in oklab, var(--accent) 80%, var(--fg)); }
+.emo-chip.focus:not(.on) { box-shadow: inset 0 0 0 1.5px var(--fg-3); }
+.ex-chips button { border: 0; background: var(--surface-2); }
+.ex-chips button.on { background: var(--fg); }
+.agenda li a { border: 0; }
+.bori-fab-btn { border: 0; }
+.agenda li a { box-shadow: var(--shadow-surface); }
+.agenda li a:hover { box-shadow: var(--shadow-surface), inset 0 0 0 1.5px var(--fg-3); }
+select { padding-right: 36px; }

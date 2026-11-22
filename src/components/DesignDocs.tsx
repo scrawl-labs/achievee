@@ -70,6 +70,24 @@ const DoDont = ({ dos, donts }: { dos: string[]; donts: string[] }) => (
   </div>
 );
 
+function Cover() {
+  // the system's cover: its colours as blocks, the logo's flower cut out of the pink slab, the name in the wordmark face
+  const petals = [0, 60, 120, 180, 240, 300].map((a) => [640 + 30 * Math.sin((a * Math.PI) / 180), 144 - 30 * Math.cos((a * Math.PI) / 180)]);
+  return (
+    <div className="dd-cover" aria-hidden="true">
+      <svg viewBox="540 0 420 288" preserveAspectRatio="xMinYMid slice">
+        <rect className="c-petal" x="560" y="-24" width="160" height="336" rx="18" />
+        {petals.map(([x, y], i) => <circle key={i} className="c-cut" cx={x} cy={y} r="23" />)}<circle className="c-cut" cx="640" cy="144" r="30" />
+        <rect className="c-accent" x="736" y="40" width="144" height="136" rx="18" />
+        <rect className="c-ink" x="896" y="-18" width="80" height="138" rx="18" />
+        <rect className="c-butter" x="736" y="192" width="144" height="48" rx="24" />
+        <circle className="c-mint" cx="912" cy="216" r="40" />
+      </svg>
+      <div className="dd-cover-name"><b>Achievee</b><span>할 일, 일정, 지출, 감정 기록 앱의 디자인 시스템.</span></div>
+    </div>
+  );
+}
+
 /* ---------- live demos ---------- */
 
 function ChipDemo() {
@@ -333,6 +351,7 @@ export default function DesignDocs({ slug }: { slug: string }) {
         </aside>
 
         <main className="dd-main">
+          {slug === "intro" && <Cover />}
           <h1>{page.title}</h1>
           <p className="dd-lead">{page.summary}</p>
           {slug === "components" ? (
