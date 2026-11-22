@@ -75,7 +75,7 @@ export default function CalendarView({ ym, month, stats, sel, setSel, onDiary, o
                 <button key={i} className={`cell${date === sel ? " sel" : ""}${diaryDays.has(date) ? " has-diary" : ""}`} onClick={() => setSel(date)}>
                   <span className={`dnum${col === 5 ? " sat" : col === 6 ? " sun" : ""}${date === today ? " today" : ""}`}>{d}</span>
                   <span className="stamp">
-                    {v && v.total > 0 && <Blob level={level(v.done, v.total)} label={v.done || ""} />}
+                    {v && v.total > 0 && <Blob level={level(v.done, v.total)} label={v.done} />}
                     {date === sel && v && level(v.done, v.total) === 4 && <Confetti key={sel} />}
                   </span>
                 </button>
