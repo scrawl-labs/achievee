@@ -55,8 +55,10 @@ const SAME = (a: Pick, b: Pick) => a.date === b.date && a.start === b.start && a
  * With `onCreate`, dragging over empty time (or clicking it, for an hour) makes an own event; own events open a small editor,
  * Google events stay read-only links. Tasks in the strip can be dragged onto a time slot to make an event from their title, and `onAddTask` adds a to-do from the strip. Own events can also be dragged to another time or day and stretched from their bottom edge (`onMove`).
  */
-export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TASKS, onToggleTask, badge = false, onCreate, onRename, onRemove, newKind = "plan", onMove, onAddTask }: {
+export default function TimeGrid({ days, events, error, onPickDay, header, tasks = NO_TASKS, onToggleTask, badge = false, onCreate, onRename, onRemove, newKind = "plan", onMove, onAddTask }: {
   days: string[]; events: DayEvent[] | null; error?: boolean; onPickDay?: (d: string) => void;
+  /** Drawn at the top of the box, above everything (the day view's week strip). */
+  header?: React.ReactNode;
   tasks?: Record<string, TaskEntry[]>; onToggleTask?: (id: number, done: boolean) => void; badge?: boolean;
   onCreate?: (e: NativeEventCreate) => Promise<boolean>; onRename?: (id: number, title: string, kind?: EventKind, sameTitle?: boolean) => Promise<boolean>;
   /** Kind of a new own event made by clicking or dragging an empty slot (dropping a to-do always makes a plan). */
@@ -200,6 +202,7 @@ export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TA
 
   return (
     <div className="tlbox">
+      {header}
       <div className="tlscroll"><div className={multi ? "tlw multi" : "tlw"}>
         {multi && (
           <div className="tl-head">

@@ -36,7 +36,7 @@ export default function ScheduleView({ sel, setSel, mode, setMode, onCalendars, 
         </div>
       </div>
       {linkKey && <button type="button" className="glink" onClick={startGoogleConnect}>{t(linkKey)}</button>}
-      {mode === "DAY" && <DayView date={sel} newKind={newKind} />}
+      {mode === "DAY" && <DayView date={sel} newKind={newKind} onPickDay={setSel} />}
       {mode === "WEEK" && <WeekView date={sel} onPickDay={pick} newKind={newKind} />}
       {mode === "MONTH" && <MonthEventView date={sel} onPickDay={pick} />}
       {mode === "AGENDA" && <AgendaView date={sel} onPickDay={pick} />}
