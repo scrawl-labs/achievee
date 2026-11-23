@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CATEGORIES, type Category, type Key, categoryOf } from "@/lib/i18n";
 import { dow } from "@/lib/dates";
 import { periodOf, periodStart, type StartOverrides } from "@/lib/period";
@@ -11,6 +11,8 @@ import DatePicker from "./DatePicker";
 import { askConfirm } from "./Confirm";
 import { Button, Chip, ChipRow, DayHeader, Field, IconButton, List, ListRow, Select, Surface } from "@achievee/ui";
 import CategoryGlyph from "./CategoryGlyph";
+import BudgetCard, { useBudget } from "./BudgetCard";
+import { todayStr } from "@/lib/clientTime";
 
 type Row = { id: number; date: string; category: string; memo: string; amount: number; need: number };
 type Inc = { id: number; date: string; memo: string; amount: number };
@@ -33,6 +35,10 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
   const { data: incData, reload: reloadInc } = useApi<Inc[]>(`/api/income?from=${from}&to=${to}`);
   const { data: savData, reload: reloadSav } = useApi<Sav[]>(`/api/savings?from=${from}&to=${to}`);
   const rows = data ?? [], incRows = incData ?? [], savRows = savData ?? [];
+  // spending goals (fixed costs left out); an expense that pushes one to 80% or past it says so right away
+  const budget = useBudget(sel, { from, to }, rows);
+  const [alert, setAlert] = useState<ReturnType<typeof budget.check>>(null);
+  useEffect(() => { if (!alert) return; const id = window.setTimeout(() => setAlert(null), 9000); return () => window.clearTimeout(id); }, [alert]);
 
   // --- expenses
   const [category, setCategory] = useState<Category>(CATEGORIES[0]);
@@ -50,8 +56,10 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
     e.preventDefault();
     const n = digits(amount);
     if (!Number.isInteger(n) || n <= 0) return;
-    await send("/api/expenses", "POST", { date: sel, category, memo, amount: n, need });
-    setMemo(""); setAmount(""); setOpen(false); reload();
+    const hit = budget.check({ date: sel, category, amount: n });
+    const r = await send("/api/expenses", "POST", { date: sel, category, memo, amount: n, need });
+    if (r.ok) setAlert(hit);
+    setMemo(""); setAmount(""); setOpen(false); reload(); budget.reload();
   };
   const toggle = async (r: Row) => { await send("/api/expenses", "PATCH", { id: r.id, need: !r.need }); reload(); };
   // every delete asks first: one stray tap used to lose a record for good
@@ -140,6 +148,15 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
       ]} />
       <div className="two wide-left">
         <div className="stack-l">
+          <BudgetCard b={budget} today={todayStr()} nextPeriod={periodOf(todayStr(), startDay, overrides).to} />
+          {alert && (
+            <div className={`budget-alert ${alert.level}`} role="status">
+              <span>{alert.level === "over"
+                ? t(alert.scope === "week" ? "bud.alertOverW" : "bud.alertOverM", { m: fmt.money(-alert.line.left) })
+                : t(alert.scope === "week" ? "bud.alertNearW" : "bud.alertNearM", { p: Math.round((alert.line.spent / alert.line.limit) * 100), m: fmt.money(alert.line.left) })}</span>
+              <IconButton size="sm" label={t("common.close")} icon={<Icon name="close" size={14} />} onClick={() => setAlert(null)} />
+            </div>
+          )}
           <section>
             <div className={`sechead${open ? "" : " flush"}`}>
               <h3>{t("exp.new")}</h3>

@@ -1,5 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 import { cleanOverrides, type StartOverrides } from "./period";
+import { NO_BUDGET, type Budget } from "./budget";
 import { decrypt, encrypt, EncryptionConfigError } from "./crypto";
 import { parseHiddenCalendars } from "./calendarSources";
 
@@ -35,6 +36,9 @@ async function sql() {
     s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS water_goal INTEGER NOT NULL DEFAULT 2000`,
     s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS protein_goal INTEGER NOT NULL DEFAULT 100`,
     s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS hidden_calendars TEXT NOT NULL DEFAULT ''`,
+    s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS budget_month INTEGER NOT NULL DEFAULT 0`,
+    s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS budget_week INTEGER NOT NULL DEFAULT 0`,
+    s`ALTER TABLE settings ADD COLUMN IF NOT EXISTS budget_from TEXT NOT NULL DEFAULT ''`,
     s`CREATE TABLE IF NOT EXISTS intake ("user" TEXT NOT NULL, date TEXT NOT NULL, kind TEXT NOT NULL, amount INTEGER NOT NULL DEFAULT 0, PRIMARY KEY ("user", date, kind))`,
     s`CREATE TABLE IF NOT EXISTS workout (
       id SERIAL PRIMARY KEY, "user" TEXT NOT NULL, date TEXT NOT NULL, kind TEXT NOT NULL, minutes INTEGER NOT NULL, memo TEXT NOT NULL DEFAULT '')`,
@@ -309,6 +313,17 @@ export const settings = {
   async setProteinGoal(user: string, g: number) {
     const s = await sql();
     await s`INSERT INTO settings ("user", protein_goal) VALUES (${user}, ${g}) ON CONFLICT ("user") DO UPDATE SET protein_goal = EXCLUDED.protein_goal`;
+  },
+  /** Spending goals for the pay month and the week (0 = none), and the first day they count ("" = always). */
+  async budget(user: string): Promise<Budget> {
+    const s = await sql();
+    const rows = (await s`SELECT budget_month, budget_week, budget_from FROM settings WHERE "user"=${user}`) as { budget_month: number; budget_week: number; budget_from: string }[];
+    return rows[0] ? { month: rows[0].budget_month, week: rows[0].budget_week, from: rows[0].budget_from } : NO_BUDGET;
+  },
+  async setBudget(user: string, b: Budget) {
+    const s = await sql();
+    await s`INSERT INTO settings ("user", budget_month, budget_week, budget_from) VALUES (${user}, ${b.month}, ${b.week}, ${b.from})
+      ON CONFLICT ("user") DO UPDATE SET budget_month = EXCLUDED.budget_month, budget_week = EXCLUDED.budget_week, budget_from = EXCLUDED.budget_from`;
   },
   async workoutGoal(user: string): Promise<number> {
     const s = await sql();

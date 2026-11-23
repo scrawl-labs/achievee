@@ -5,19 +5,27 @@ import { bad, unauthorized } from "@/lib/api";
 import { GOAL_RANGE } from "@/lib/intake";
 import { isCurrency } from "@/lib/i18n";
 import { parseHiddenCalendars } from "@/lib/calendarSources";
+import { parseBudget } from "@/lib/budget";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   const u = await getUser();
   if (!u) return unauthorized();
-  return NextResponse.json({ monthStartDay: await settings.monthStartDay(u.id), startOverrides: await settings.startOverrides(u.id), currency: await settings.currency(u.id), workoutGoal: await settings.workoutGoal(u.id), intakeGoals: await settings.intakeGoals(u.id) });
+  return NextResponse.json({ monthStartDay: await settings.monthStartDay(u.id), startOverrides: await settings.startOverrides(u.id), currency: await settings.currency(u.id), workoutGoal: await settings.workoutGoal(u.id), intakeGoals: await settings.intakeGoals(u.id), budget: await settings.budget(u.id) });
 }
 
 /** monthStartDay 1..28: the day a budget month begins (e.g. 25 for a pay day on the 25th). */
 export async function PUT(req: Request) {
-  const { monthStartDay, workoutGoal, waterGoal, proteinGoal, startOverride, currency, hiddenCalendars } = await req.json();
+  const { monthStartDay, workoutGoal, waterGoal, proteinGoal, startOverride, currency, hiddenCalendars, budget } = await req.json();
   const u = await getUser();
+  if (budget !== undefined) { // spending goals: { month, week, from } (amounts 0 = no goal; fixed costs never count toward them)
+    const b = parseBudget(budget);
+    if (!b) return bad("bad input");
+    if (!u) return unauthorized();
+    await settings.setBudget(u.id, b);
+    return NextResponse.json({ ok: true });
+  }
   if (hiddenCalendars !== undefined) { // Google calendar ids not to show in Achievee (the whole list, not a change)
     const ids = parseHiddenCalendars(hiddenCalendars);
     if (!ids) return bad("bad input");
