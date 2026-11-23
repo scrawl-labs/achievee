@@ -127,7 +127,7 @@ export default function DiaryView(props: Props) {
           <Button variant="primary" onClick={() => { props.setSel(today); setMode("week"); }}>{t("wk.write")}</Button>
         </div>
       )}
-      {mode === "day" ? <DayDiary {...props} /> : mode === "week" ? <WeeklyReview sel={props.sel} setSel={props.setSel} /> : mode === "stats" ? <EmotionStats /> : <EmotionDictionary />}
+      {mode === "day" ? <DayDiary {...props} /> : mode === "week" ? <WeeklyReview sel={props.sel} setSel={props.setSel} /> : mode === "stats" ? <EmotionStats ym={props.ym} /> : <EmotionDictionary />}
     </>
   );
 }

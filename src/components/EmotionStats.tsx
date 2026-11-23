@@ -17,7 +17,7 @@ const monIdx = (date: string) => (dow(date) + 6) % 7; // Monday = 0
 const MON_FIRST = [1, 2, 3, 4, 5, 6, 0];
 
 /** "My emotions": which words you reach for, when, and with what mood — computed from your own diary entries. */
-export default function EmotionStats() {
+export default function EmotionStats({ ym }: { ym?: string }) {
   const { t, fmt, locale } = useI18n();
   const lang = emoLang(locale);
   const { data } = useApi<Day[]>("/api/emotions?days=1");
@@ -53,7 +53,10 @@ export default function EmotionStats() {
   if (!data) return null;
 
   const me = portrait(data);
-  const mon = monthSummary(data, todayStr().slice(0, 7));
+  // the month picked with the date controls (this month by default)
+  const thisMonth = todayStr().slice(0, 7), month = ym ?? thisMonth;
+  const mon = monthSummary(data, month);
+  const monthTitle = month === thisMonth ? t("emo.mTitle") : t("emo.mTitleOf", { m: fmt.monthYear(month) });
   const delta = mon.prevPleasant === null ? null : mon.portrait.pleasant - mon.prevPleasant;
   const pct = (x: number) => Math.round(x * 100);
   const saveCard = async () => {
@@ -61,7 +64,7 @@ export default function EmotionStats() {
     try { await Promise.all([document.fonts.load('700 48px "Dunggeun"'), document.fonts.load('700 48px "AchieveeMark"')]); } catch { /* the card falls back to system fonts */ }
     const canvas = document.createElement("canvas");
     drawMonthCard(canvas, {
-      brand: "Achievee", month: fmt.monthYear(mon.month), heading: t("emo.mTitle"),
+      brand: "Achievee", month: fmt.monthYear(mon.month), heading: monthTitle,
       familyLabel: t("emo.cardFamily"), family: familyById(p.topFamily ?? "")?.[lang] ?? "",
       wordsLabel: t("emo.cardWords"), words: p.topWords.map((id) => wordText(id, lang)),
       lean: { pleasant: p.pleasant, unpleasant: p.unpleasant, between: p.between },
@@ -86,7 +89,7 @@ export default function EmotionStats() {
 
       {mon.days >= MIN_PORTRAIT_DAYS && mon.portrait.topFamily && (
         <section className="panel emome">
-          <h3>{t("emo.mTitle")}</h3>
+          <h3>{monthTitle}</h3>
           <ul className="peaks">
             <li>{t("emo.pFamily", { f: familyById(mon.portrait.topFamily)?.[lang] ?? "" })}</li>
             <li>{t("emo.pWords", { w: mon.portrait.topWords.map((id) => wordText(id, lang)).join(", ") })}</li>
