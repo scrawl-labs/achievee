@@ -1517,3 +1517,11 @@ input::placeholder, textarea::placeholder { color: var(--fg-3); }
   .tlw.multi .tk-add { opacity: 0; transition: opacity .12s; }
   .tlw.multi .adcol:hover .tk-add, .tlw.multi .tk-add:focus-visible, .tlw.multi .tk-add[aria-expanded="true"] { opacity: 1; }
 }
+/* the bands still need their edges: the weekday header, the to-do / all-day strip and the grid each end in a line (like a phone calendar) */
+.tl-head, .tl-allday, .daystrip, .daylabel { border-bottom: 1px solid var(--grid-line); }
+.daystrip + .daylabel { border-top: 0; }
+.tl-allday { padding-bottom: 0; }
+.mgrid .cal-head { border-bottom: 0; }
+/* short events (half an hour): one line of title, no time */
+.ev { container-type: size; }
+@container (max-height: 44px) { .ev b { -webkit-line-clamp: 1; } .ev span { display: none; } }
