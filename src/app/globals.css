@@ -1525,3 +1525,7 @@ input::placeholder, textarea::placeholder { color: var(--fg-3); }
 /* short events (half an hour): one line of title, no time */
 .ev { container-type: size; }
 @container (max-height: 44px) { .ev b { -webkit-line-clamp: 1; } .ev span { display: none; } }
+/* with a mouse there is no sideways swipe: the day's to-do chips wrap onto more lines instead of scrolling out of reach */
+@media (hover: hover) and (pointer: fine) {
+  .tl-allday .cols > .adcol.chips { flex-wrap: wrap; overflow: visible; }
+}
