@@ -12,7 +12,7 @@ import AllDayRow from "./AllDayRow";
 import EventComposer from "./EventComposer";
 import type { TaskDrag } from "./TaskChip";
 
-const H = 56; // px per hour
+const H = 60; // px per hour
 export const hhmm = (m: number) => `${String(Math.floor(m / 60) % 24).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 
 /** Column-pack overlapping events: each overlapping cluster shares one column count. */
@@ -106,8 +106,13 @@ export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TA
     const key = days.join();
     if (!events || !scroller.current || scrolledFor.current === key) return;
     scrolledFor.current = key;
-    const first = events.filter((e) => !e.allDay).reduce((m, e) => Math.min(m, e.startMin), 8 * 60);
-    scroller.current.scrollTop = Math.max(0, ((nowMin >= 0 ? nowMin : first) / 60) * H - 120);
+    // open at the day's first event so nothing earlier hides above; with today on screen, keep "now" in view too
+    // (an hour before it), unless the first event is too far back for both to fit
+    const timed = events.filter((e) => !e.allDay && days.includes(e.date));
+    const first = timed.length ? Math.min(...timed.map((e) => e.startMin)) : 8 * 60;
+    const fits = (scroller.current.clientHeight / H) * 60 - 90;
+    const at = nowMin < 0 ? first : nowMin - first <= fits ? Math.min(first, nowMin - 60) : nowMin - 60;
+    scroller.current.scrollTop = Math.max(0, (at / 60) * H - 16);
   }, [events, days.join()]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const yOf = (ev: React.PointerEvent<HTMLDivElement>) => ev.clientY - ev.currentTarget.getBoundingClientRect().top;

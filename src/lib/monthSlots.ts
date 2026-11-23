@@ -1,13 +1,14 @@
 import type { TaskEntry } from "./taskList";
 
-export type MonthItem<E> = { k: "e"; e: E } | { k: "t"; tk: TaskEntry };
-
 /**
- * Fills the `max` chip slots of one month cell: events first (in the order given), then tasks (unfinished before finished)
- * in whatever slots are left. Everything that does not fit is only counted in `hidden` ("+N more").
+ * One month cell: up to `max` events (in the order given), how many more did not fit, and the day's to-dos as a tally.
+ * To-dos are not listed one by one: daily ones (a Google task list, a habit) would fill every cell with the same lines.
  */
-export function allocateMonthItems<E>(events: readonly E[], tasks: readonly TaskEntry[], max: number): { items: MonthItem<E>[]; hidden: number } {
-  const ordered = [...tasks.filter((t) => !t.done), ...tasks.filter((t) => t.done)];
-  const all: MonthItem<E>[] = [...events.map((e): MonthItem<E> => ({ k: "e", e })), ...ordered.map((tk): MonthItem<E> => ({ k: "t", tk }))];
-  return { items: all.slice(0, max), hidden: Math.max(0, all.length - max) };
+export function monthCell<E>(events: readonly E[], tasks: readonly TaskEntry[], max: number): { events: E[]; hidden: number; done: number; total: number } {
+  return {
+    events: events.slice(0, max),
+    hidden: Math.max(0, events.length - max),
+    done: tasks.filter((t) => t.done).length,
+    total: tasks.length,
+  };
 }

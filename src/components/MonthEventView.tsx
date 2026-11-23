@@ -1,7 +1,7 @@
 "use client";
 import type { DayEvent } from "@/lib/types";
 import { addDays, addMonths, dow, monthStart } from "@/lib/dates";
-import { allocateMonthItems } from "@/lib/monthSlots";
+import { monthCell } from "@/lib/monthSlots";
 import { eventSource } from "@/lib/calendarSources";
 import { useEvents } from "./useEvents";
 import { useTasksRange } from "./useTasksRange";
@@ -32,23 +32,17 @@ export default function MonthEventView({ date, onPickDay }: { date: string; onPi
         {cells.map((d, i) => {
           if (!d) return <div key={i} className="mcell empty" />;
           const list = (by[d] ?? []).sort(order);
-          // events take the chip slots first, tasks fill what is left (the cell is a button, so task chips only display: toggle in day/week/agenda)
-          const { items, hidden } = allocateMonthItems(list, tasks[d] ?? [], MAX);
+          const c = monthCell(list, tasks[d] ?? [], MAX);
           return (
             <button key={d} className={`mcell${d === date ? " sel" : ""}`} onClick={() => onPickDay(d)}>
               <span className={`dnum${dow(d) === 6 ? " sat" : dow(d) === 0 ? " sun" : ""}${d === today ? " today" : ""}`}>{Number(d.slice(8))}</span>
-              {items.map((it) => it.k === "t" ? (
-                <span key={it.tk.key} className={`mev tk${it.tk.done ? " done" : ""}`}>
-                  <span className="check" aria-hidden="true" /><span className="tk-title">{it.tk.text || t("common.untitled")}</span>
-                  {it.tk.source === "google" && <span className="sr-only">{t("task.google")}</span>}
-                  {it.tk.done && <span className="sr-only">{t("task.doneSr")}</span>}
-                </span>
-              ) : (
-                <span key={it.e.id} className={`mev ${eventSource(it.e) === "native" ? "own" : "gcal"}${it.e.kind === "plan" ? " plan" : ""}${it.e.allDay ? " all" : ""}`} style={{ ["--ev" as string]: it.e.color }}>
-                  {!it.e.allDay && <time>{hhmm(it.e.startMin)}</time>}{it.e.title || t("common.untitled")}
+              {c.events.map((e) => (
+                <span key={e.id} className={`mev ${eventSource(e) === "native" ? "own" : "gcal"}${e.kind === "plan" ? " plan" : ""}${e.allDay ? " all" : ""}`} style={{ ["--ev" as string]: e.color }}>
+                  {!e.allDay && <time>{hhmm(e.startMin)}</time>}{e.title || t("common.untitled")}
                 </span>
               ))}
-              {hidden > 0 && <span className="more">{t("g.more", { n: hidden })}</span>}
+              {c.hidden > 0 && <span className="more">{t("g.more", { n: c.hidden })}</span>}
+              {c.total > 0 && <span className={`mtasks${c.done === c.total ? " all" : ""}`}><span className="check" aria-hidden="true" />{t("g.tasksTally", { d: c.done, n: c.total })}</span>}
             </button>
           );
         })}

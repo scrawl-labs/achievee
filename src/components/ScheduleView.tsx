@@ -1,6 +1,6 @@
 "use client";
 import type { EventKind } from "@/lib/nativeEvents";
-import { ButtonLink, Tabs } from "@achievee/ui";
+import { Button, ButtonLink, Tabs } from "@achievee/ui";
 import GCalLogo from "./GCalLogo";
 import DayView from "./DayView";
 import WeekView from "./WeekView";
@@ -25,21 +25,17 @@ export default function ScheduleView({ sel, setSel, mode, setMode, onCalendars, 
   const pick = (d: string) => { setSel(d); setMode("DAY"); };
   return (
     <>
-      <div className="sechead">
+      {/* one row: the views on the left, the Google actions on the right (on phones the Google link is just its logo) */}
+      <div className="sechead sched-bar">
         <Tabs value={mode} onChange={setMode} items={GMODES.map(([k, label]) => ({ value: k as GMode, label: t(label) }))} />
-        <ButtonLink className="gcal" href="https://calendar.google.com/calendar/u/0/r" target="_blank" rel="noreferrer">
-          <GCalLogo size={18} />{t("g.open")}
-        </ButtonLink>
+        <div className="sched-actions">
+          {status === "connected" && onCalendars && <Button variant="ghost" size="sm" onClick={onCalendars}>{t("g.pickCals")}</Button>}
+          <ButtonLink variant="ghost" size="sm" className="gcal" href="https://calendar.google.com/calendar/u/0/r" target="_blank" rel="noreferrer" aria-label={t("g.open")} title={t("g.open")}>
+            <GCalLogo size={16} /><span className="gcal-label">{t("g.open")}</span>
+          </ButtonLink>
+        </div>
       </div>
       {linkKey && <button type="button" className="glink" onClick={startGoogleConnect}>{t(linkKey)}</button>}
-      {/* own events are drawn solid, Google ones light: the key, and (connected) where to hide Google calendars */}
-      <div className="evlegend">
-        <span className="own"><i />{t("g.own")}</span>
-        {status === "connected" && <>
-          <span className="gcal"><i />{t("g.google")}</span>
-          {onCalendars && <button type="button" className="linkish" onClick={onCalendars}>{t("g.pickCals")}</button>}
-        </>}
-      </div>
       {mode === "DAY" && <DayView date={sel} newKind={newKind} />}
       {mode === "WEEK" && <WeekView date={sel} onPickDay={pick} newKind={newKind} />}
       {mode === "MONTH" && <MonthEventView date={sel} onPickDay={pick} />}
