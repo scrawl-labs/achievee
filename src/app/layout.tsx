@@ -15,9 +15,10 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const saved = cookies().get("locale")?.value;
-  const locale = isLocale(saved) ? saved : fromAcceptLanguage(headers().get("accept-language"));
-  const savedCurrency = cookies().get("currency")?.value;
+  const jar = await cookies(), hdrs = await headers();
+  const saved = jar.get("locale")?.value;
+  const locale = isLocale(saved) ? saved : fromAcceptLanguage(hdrs.get("accept-language"));
+  const savedCurrency = jar.get("currency")?.value;
   const session = await getSession();
   return (
     <html lang={HTML_LANG[locale]} suppressHydrationWarning>

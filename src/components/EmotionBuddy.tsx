@@ -30,7 +30,7 @@ const LINES: Record<MallowPlace, { hi: Key; result: Key; name: Key; load: Key }>
   beach: { hi: "buddy.hiBeach", result: "buddy.resultBeach", name: "buddy.mapBeach", load: "buddy.loadBeach" },
 };
 /** Little line icons for the place button. */
-const PLACE_ICON: Record<MallowPlace, JSX.Element> = {
+const PLACE_ICON: Record<MallowPlace, React.JSX.Element> = {
   meadow: <><path d="M3 19c3-5 6-5 9 0 3-5 6-5 9 0" /><path d="M7 15V9M12 14V6M17 15V10" /><circle cx="18" cy="5" r="2" /></>,
   forest: <><path d="M12 3l5 8h-3l4 6H6l4-6H7z" /><path d="M12 17v4" /></>,
   subway: <><rect x="5" y="3" width="14" height="14" rx="4" /><path d="M5 11h14M8.5 14.5h.01M15.5 14.5h.01M8 21l2-4M16 21l-2-4" /></>,

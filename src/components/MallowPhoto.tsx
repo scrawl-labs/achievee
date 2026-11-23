@@ -6,7 +6,7 @@ export type Face = "idle" | "happy" | "sad" | "think" | "joy";
 type Props = { place: MallowPlace; face: Face; talking: boolean; beat: number; onReady?: () => void };
 
 /** Which picture fits the screen: the tall one on phones held upright, the wide one elsewhere. */
-function useView(el: React.RefObject<HTMLDivElement>) {
+function useView(el: React.RefObject<HTMLDivElement | null>) {
   const [box, setBox] = useState({ w: 0, h: 0 });
   useLayoutEffect(() => {
     const node = el.current;
@@ -43,7 +43,7 @@ function useFaceFrame(face: Face, talking: boolean): MallowFace {
   return face; // sad, think: their own face, holding still
 }
 
-const EMOTE: Partial<Record<Face, JSX.Element>> = {
+const EMOTE: Partial<Record<Face, React.JSX.Element>> = {
   happy: <path d="M9 18a3 3 0 1 1-2-2.8V5l10-2v11a3 3 0 1 1-2-2.8V6.6l-6 1.2z" fill="#f49a3d" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />,
   sad: <path d="M12 3c3.2 4.4 5 7.2 5 9.6a5 5 0 0 1-10 0C7 10.2 8.8 7.4 12 3z" fill="#8cc8f4" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />,
   think: <text x="12" y="18" textAnchor="middle" fontSize="18" fontWeight="900" fill="#f49a3d" stroke="#fff" strokeWidth="1.6" paintOrder="stroke">?</text>,

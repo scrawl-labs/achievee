@@ -13,7 +13,7 @@ type Props = {
   /** Save even when the text equals `initial` (used to retry a failed add with its preserved draft). */
   allowUnchanged?: boolean;
   /** After Enter/Esc, keyboard focus goes back here (not on blur: that would steal focus from wherever the user clicked). */
-  returnFocus?: React.RefObject<HTMLElement>;
+  returnFocus?: React.RefObject<HTMLElement | null>;
   onSubmit: (text: string) => void;
   onCancel: () => void;
 };

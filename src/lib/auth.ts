@@ -80,10 +80,11 @@ export const authOptions: NextAuthOptions = {
  * login-only session (nothing to call Google with: callers treat that as "not connected").
  */
 export async function getUser() {
+  const [hdrs, jar] = await Promise.all([headers(), cookies()]);
   const token = await getToken({
     req: {
-      headers: Object.fromEntries(headers()),
-      cookies: Object.fromEntries(cookies().getAll().map((c) => [c.name, c.value])),
+      headers: Object.fromEntries(hdrs),
+      cookies: Object.fromEntries(jar.getAll().map((c) => [c.name, c.value])),
     } as any,
   });
   if (!token?.sub) return null;

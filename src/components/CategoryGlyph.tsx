@@ -1,7 +1,7 @@
 import type { Category } from "@/lib/i18n";
 
 /** Spending category glyphs, drawn in the same line style as the sidebar icons (24px grid, 1.75 stroke, round ends). */
-const GLYPH: Record<Category, JSX.Element> = {
+const GLYPH: Record<Category, React.JSX.Element> = {
   food: <><path d="M3.5 11h17" /><path d="M4.5 11a7.5 7 0 0 0 15 0" /><path d="M9 20h6" /><path d="M13.5 3.5l-2 5M18 4.5l-3.5 4" /></>,
   cafe: <><path d="M5 9h11v5.5A4.5 4.5 0 0 1 11.5 19h-2A4.5 4.5 0 0 1 5 14.5z" /><path d="M16 10.5h1.5a2.5 2.5 0 0 1 0 5H16" /><path d="M8.5 3.5v2.5M12.5 3.5v2.5" /></>,
   transport: <><rect x="5.5" y="3.5" width="13" height="14" rx="3.5" /><path d="M5.5 10.5h13" /><path d="M9 14h.01M15 14h.01" /><path d="M8.5 17.5l-2 3M15.5 17.5l2 3" /></>,
