@@ -119,6 +119,10 @@ function TabsDemo() {
   const [t, setT] = useState<"diary" | "week" | "mine" | "dict">("diary");
   return <Tabs label="일기 보기" value={t} onChange={setT} items={[{ value: "diary", label: "일기" }, { value: "week", label: "주간 회고" }, { value: "mine", label: "내 감정" }, { value: "dict", label: "감정 사전" }]} />;
 }
+function SegTabsDemo() {
+  const [t, setT] = useState<"day" | "week" | "month" | "list">("day");
+  return <Tabs variant="segment" label="일정 보기" value={t} onChange={setT} items={[{ value: "day", label: "일" }, { value: "week", label: "주" }, { value: "month", label: "월" }, { value: "list", label: "목록" }]} />;
+}
 function PillTabsDemo() {
   const [t, setT] = useState<"todo" | "words" | "money">("todo");
   return <Tabs variant="pill" label="기능 보기" value={t} onChange={setT} items={[{ value: "todo", label: "할 일" }, { value: "words", label: "감정 단어" }, { value: "money", label: "지출" }]} />;
@@ -385,10 +389,11 @@ function pageBlocks(slug: string, theme: Theme): Block[] {
     ];
     case "tabs": return [
       { id: "overview", title: "기본", desc: "선택된 탭은 ink 색상, 굵은 글자, 2px 하단 선으로 표시됨.", demo: <TabsDemo />, code: IMPORT("Tabs") + `<Tabs\n  value={view}\n  onChange={setView}\n  items={[{ value: "diary", label: "일기" }, { value: "week", label: "주간 회고" }]}\n/>` },
+      { id: "segment", title: "Segment", level: 3, desc: "같은 데이터를 다르게 보여주는 전환(일, 주, 월, 목록)에는 variant=\"segment\"를 사용함. 회색 바 안에서 선택된 칸만 흰색으로 올라옴.", demo: <SegTabsDemo />, code: `<Tabs variant="segment" value={mode} onChange={setMode} items={modes} />` },
       { id: "pill", title: "Pill", level: 3, desc: "랜딩 페이지처럼 큰 선택지 몇 개를 고를 때는 variant=\"pill\"을 사용함.", demo: <PillTabsDemo />, code: `<Tabs variant="pill" idPrefix="feat" value={scene} onChange={setScene} items={scenes} />` },
       { id: "keyboard", title: "키보드", level: 3, body: <p>좌우 화살표와 Home, End로 탭 사이를 이동하고, 이동하면 바로 선택됨. Tab 키 순서에는 선택된 탭만 들어감. idPrefix를 주면 각 탭이 <code>{"<prefix>-panel-<value>"}</code> 패널을 가리킴.</p> },
       { id: "usage", title: "사용 규칙", body: <DoDont dos={["탭은 2~5개, 짧은 레이블로 구성함"]} donts={["앱 전체 내비게이션 용도로 사용"]} /> },
-      { id: "props", title: "Props", body: <Props rows={[["items", "–", "{ value, label }[]"], ["value", "–", "선택된 value"], ["onChange", "–", "(value) => void"], ["variant", "line", <Pills key="v" v={["line", "pill"]} />], ["idPrefix", "–", "string · 패널 연결용 id"]]} /> },
+      { id: "props", title: "Props", body: <Props rows={[["items", "–", "{ value, label }[]"], ["value", "–", "선택된 value"], ["onChange", "–", "(value) => void"], ["variant", "line", <Pills key="v" v={["line", "segment", "pill"]} />], ["idPrefix", "–", "string · 패널 연결용 id"]]} /> },
     ];
     case "dialog": return [
       { id: "overview", title: "기본", desc: "삭제될 항목의 정보를 표시하고 사용자 확인을 받음. X를 누르면 열림. 취소, Esc, 바깥 영역 클릭 시 삭제되지 않음.", demo: <RowsDemo withDialog />, code: IMPORT("ConfirmDialog") + `{asking && (\n  <ConfirmDialog\n    title="이 기록을 지울까요?"\n    detail="11월 22일 · 점심 · ₩12,000"\n    note="지우면 되돌릴 수 없어요."\n    cancelLabel="취소"\n    confirmLabel="삭제"\n    onCancel={() => setAsking(false)}\n    onConfirm={remove}\n  />\n)}` },

@@ -18,7 +18,7 @@ import IntegrationsView from "./IntegrationsView";
 import SettingsView from "./SettingsView";
 import WorkoutView from "./WorkoutView";
 import { DEFAULT_GOALS, type IntakeKind } from "@/lib/intake";
-import ScheduleView, { type GMode } from "./ScheduleView";
+import ScheduleView, { ScheduleBar, type GMode } from "./ScheduleView";
 import CommandBar from "./CommandBar";
 import Icon from "./Icon";
 import { askConfirm, ConfirmHost } from "./Confirm";
@@ -103,16 +103,13 @@ function Main() {
     setSel(next === todayStr().slice(0, 7) ? todayStr() : `${next}-01`);
   };
   const stats = useMemo(() => (month?.ym === ym ? computeStats(Object.values(month.days), todayStr()) : null), [month, ym]);
-  const wk = mondayOf(sel), we = addDays(wk, 6);
   const per = periodOf(sel, startDay, overrides);
   // a range wraps only at its dash, never inside "10월 24일"
   const range = (from: string, to: string) => <><span className="nb">{fmt.monthDay(from)}</span> – <span className="nb">{fmt.monthDay(to)}</span></>;
   const title = tab === "integrations" ? t("nav.integrations")
     : tab === "settings" ? t("nav.settings")
     : tab === "expense" && (startDay > 1 || Object.keys(overrides).length > 0) ? range(per.from, addDays(per.to, -1))
-    : tab === "google" && gmode === "DAY" ? fmt.full(sel)
-    : tab === "google" && gmode === "WEEK" ? range(wk, we)
-    : fmt.monthYear(ym);
+    : fmt.monthYear(ym); // the schedule too: its day and week views show the date inside the grid
 
   useEffect(() => { if (tab !== "integrations") gret.dismiss(); }, [tab, gret.dismiss]); // the message is shown once, then it is gone
 
@@ -153,9 +150,10 @@ function Main() {
       </aside>
       <ConfirmHost />
 
-      <main className="page">
-        <header className="pagehead">
+      <main className={`page${tab === "google" ? " sched-page" : ""}`}>
+        <header className={`pagehead${tab === "google" ? " sched-head" : ""}`}>
           <h1>{title}</h1>
+          {tab === "google" && <ScheduleBar mode={gmode} setMode={setGmode} onCalendars={() => setTab("integrations")} />}
           <div className="row gap-2">
             <CommandBar go={go} />
             {tab !== "integrations" && tab !== "settings" && (
@@ -172,7 +170,7 @@ function Main() {
         {tab === "calendar" && <CalendarView ym={ym} month={month} stats={stats} sel={sel} setSel={setSel} onDiary={() => setTab("diary")} onSchedule={openSchedule} onOpen={setTab} />}
         {tab === "stats" && <StatsView stats={stats} month={month} sel={sel} startDay={startDay} goal={workoutGoal} />}
         {tab === "diary" && <DiaryView ym={ym} sel={sel} setSel={setSel} />}
-        {tab === "google" && <ScheduleView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} onCalendars={() => setTab("integrations")} newKind={newKind} />}
+        {tab === "google" && <ScheduleView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} newKind={newKind} />}
         {tab === "integrations" && <IntegrationsView googleReturn={gret.result} />}
         {tab === "settings" && <SettingsView user={session?.user} currency={currency} onCurrency={changeCurrency} startDay={startDay} onStartDay={changeStartDay} workoutGoal={workoutGoal} onWorkoutGoal={changeGoal} intakeGoals={intakeGoals} onIntakeGoal={changeIntakeGoal} onOpen={setTab} onSignOut={() => signOut()} onDelete={deleteData} />}
         {tab === "workout" && <WorkoutView sel={sel} setSel={setSel} goal={workoutGoal} onGoal={changeGoal} intakeGoals={intakeGoals} onIntakeGoal={changeIntakeGoal} />}

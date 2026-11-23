@@ -16,10 +16,12 @@ const NO_TASKS: TaskEntry[] = [];
  * The all-day strip of the time grid: all-day events, then the day's tasks (no time of their own). One toggle expands every column.
  * With `onAdd` each day gets a "+" that opens a small box for a new own to-do; with `drag` the tasks can be dragged onto the grid.
  */
-export default function AllDayRow({ days, byDay, tasks, cols, badge, onToggle, onAdd, drag, fmtDay }: {
+export default function AllDayRow({ days, byDay, tasks, cols, badge, onToggle, onAdd, drag, fmtDay, chips = false }: {
   days: string[]; byDay: Record<string, DayEvent[]>; tasks: Record<string, TaskEntry[]>; cols: React.CSSProperties;
   badge: boolean; onToggle?: (id: number, done: boolean) => void;
   onAdd?: (date: string, text: string) => Promise<boolean>; drag?: TaskDrag; fmtDay?: (date: string) => string;
+  /** One day only: every to-do as a chip in one sideways-scrolling row (no "+N more"). */
+  chips?: boolean;
 }) {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
@@ -31,10 +33,10 @@ export default function AllDayRow({ days, byDay, tasks, cols, badge, onToggle, o
       <div className="cols" style={cols}>
         {days.map((d, i) => {
           const ts = tasks[d] ?? NO_TASKS;
-          const shown = open ? ts : ts.slice(0, TASK_CAP);
+          const shown = open || chips ? ts : ts.slice(0, TASK_CAP);
           const hidden = ts.length - shown.length;
           return (
-            <div key={d} className="adcol">
+            <div key={d} className={`adcol${chips ? " chips" : ""}`}>
               {byDay[d].filter((e) => e.allDay).map((e) => (
                 <a key={e.id} className={`chipday ${eventSource(e) === "native" ? "own" : "gcal"}`} href={e.link} target="_blank" rel="noreferrer" style={{ ["--ev" as string]: e.color }}>{e.title || t("common.untitled")}</a>
               ))}

@@ -88,7 +88,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
 button.cell:hover { background: var(--surface-2); }
 .cell.sel { background: color-mix(in oklab, var(--accent) 16%, var(--surface)); }
 .dnum { font-size: 13px; font-weight: 600; min-width: 24px; height: 24px; line-height: 24px; text-align: center; border-radius: 99px; order: 2; }
-.dnum.today { background: var(--fg); color: var(--bg); font-weight: 700; }
+.dnum.today { background: var(--accent); color: var(--accent-fg); font-weight: 700; }
 .stamp { order: 1; position: relative; display: block; width: 52px; height: 52px; }
 .blob { width: 100%; height: 100%; overflow: visible; transition: transform .35s cubic-bezier(.34, 1.56, .64, 1); }
 .blob .body { fill: var(--c0); }
@@ -198,7 +198,6 @@ button.item:hover, button.item.on { border-color: var(--accent); }
 .btn.add svg { transition: transform .25s cubic-bezier(.34, 1.56, .64, 1); } .btn.add.open svg { transform: rotate(45deg); }
 .sechead.flush { margin-bottom: calc(var(--s3) * -1); }
 .ac-btn.gcal { gap: var(--s2); }
-.sched-bar { flex-wrap: wrap; }
 .sched-actions { display: flex; align-items: center; gap: 2px; margin-left: auto; }
 @media (max-width: 860px) { .sched-actions .gcal-label { display: none; } .sched-actions .gcal { width: 32px; padding: 0; } }
 .mtasks { display: flex; align-items: center; gap: 5px; margin-top: auto; padding: 2px 4px 0; font-size: 11.5px; font-weight: 600; color: var(--fg-3); white-space: nowrap; }
@@ -1394,3 +1393,56 @@ input::placeholder, textarea::placeholder { color: var(--fg-3); }
 .agenda li a.own.plan time, .agenda li a.own.plan small { color: var(--fg-2); }
 .agenda li a.own.plan i { background: transparent; box-shadow: inset 0 0 0 2px var(--accent); }
 .composer-kind .ac-chip { height: 28px; padding: 0 10px; font-size: 12.5px; }
+
+/* Schedule tab, calendar-app style: a white page, the toolbar in the header, the grid running to the edges and filling the height */
+.tl-main { display: flex; min-height: 0; }
+.tl-main > .tlscroll { flex: 1; min-width: 0; }
+.page.sched-page { background: var(--surface); max-width: none; height: 100dvh; min-height: 0; padding-left: 0; padding-right: 0; padding-bottom: 0; }
+.sched-page .pagehead, .sched-page .glink, .sched-page .agenda, .sched-page .pagebody > .error { margin-left: var(--s6); margin-right: var(--s6); }
+.sched-page .pagebody { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; padding-bottom: 0; }
+.sched-head { flex-wrap: wrap; justify-content: flex-start; margin-bottom: var(--s4); }
+.sched-head > .row { margin-left: auto; }
+.sched-head .sched-bar { display: flex; align-items: center; gap: var(--s3); flex: 1; min-width: 0; margin: 0 0 0 var(--s3); }
+.sched-page .tlbox, .sched-page .mgrid { border: 0; border-top: 1px solid var(--grid-line); border-radius: 0; box-shadow: none; }
+.sched-page .tlbox { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.sched-page .tl-main { flex: 1; }
+.sched-page .tlscroll { display: flex; flex-direction: column; min-height: 0; }
+.sched-page .tlw { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.sched-page .tl { flex: 1; height: auto; min-height: 0; }
+.sched-page .mgrid { flex: none; }
+.daylabel { font-size: 15px; font-weight: 800; padding: var(--s3) var(--s4) var(--s3) 60px; border-bottom: 1px solid var(--grid-line); }
+.daystrip + .daylabel { text-align: center; padding-left: var(--s4); }
+/* one day on phones: the to-dos as one sideways row of chips */
+.tl-allday:has(.adcol.chips) .gut { display: none; }
+.tl-allday .cols > .adcol.chips { flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: var(--s2) var(--s4); }
+.adcol.chips::-webkit-scrollbar { display: none; }
+.adcol.chips .tkc { width: auto; flex: none; border-radius: 99px; padding: 6px 12px; font-size: 13px; }
+.adcol.chips .tk-add, .adcol.chips .chipday { flex: none; }
+/* wide day view: a small month and the to-do list beside the grid */
+.tl-aside { width: 300px; flex: none; border-left: 1px solid var(--grid-line); padding: var(--s4) var(--s5); overflow-y: auto; display: flex; flex-direction: column; gap: var(--s6); }
+.mini-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); margin-bottom: var(--s2); }
+.mini-head b { font-size: 14px; font-weight: 800; } .mini-head small { font-size: 13px; font-weight: 600; color: var(--fg-3); } .mini-head span { display: inline-flex; }
+.mini-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); row-gap: 2px; text-align: center; }
+.mini-grid small { font-size: 11.5px; font-weight: 600; color: var(--fg-3); padding-bottom: 4px; }
+.mini-grid button { position: relative; width: 32px; height: 32px; margin: 0 auto; border-radius: 99px; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.mini-grid button:hover { background: var(--surface-2); }
+.mini-grid button.out { color: var(--fg-3); opacity: .55; }
+.mini-grid button.today { color: var(--accent); }
+.mini-grid button.on { background: var(--fg); color: var(--bg); }
+.mini-grid button.on.today { background: var(--accent); color: var(--accent-fg); }
+.mini-grid button.busy::after { content: ""; position: absolute; left: 50%; bottom: 3px; width: 4px; height: 4px; margin-left: -2px; border-radius: 9px; background: currentColor; opacity: .55; }
+.daytasks-list { display: flex; flex-direction: column; gap: 4px; }
+.daytasks .tkc { font-size: 13.5px; padding: 8px 10px; border-radius: 8px; }
+.daytasks-add { position: relative; margin-top: var(--s2); }
+@media (max-width: 860px) {
+  .page.sched-page { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
+  .sched-head .sched-bar { order: 3; flex-basis: 100%; margin: var(--s2) 0 0; }
+  .sched-head .sched-bar .ac-tabs--segment { flex: 1; }
+  .sched-page .pagehead, .sched-page .glink, .sched-page .agenda, .sched-page .pagebody > .error { margin-left: var(--s4); margin-right: var(--s4); }
+  .sched-page .tl-hint { display: none; }
+  .daylabel { font-size: 14px; padding: var(--s2) var(--s4); }
+  .daystrip { padding: 6px var(--s1) var(--s2); }
+  .daystrip b { width: 34px; height: 34px; line-height: 34px; font-size: 16px; }
+  .sched-head { margin-bottom: var(--s3); }
+  .sched-head .ac-tabs--segment .ac-tab { padding: 5px 8px; }
+}

@@ -55,10 +55,14 @@ const SAME = (a: Pick, b: Pick) => a.date === b.date && a.start === b.start && a
  * With `onCreate`, dragging over empty time (or clicking it, for an hour) makes an own event; own events open a small editor,
  * Google events stay read-only links. Tasks in the strip can be dragged onto a time slot to make an event from their title, and `onAddTask` adds a to-do from the strip. Own events can also be dragged to another time or day and stretched from their bottom edge (`onMove`).
  */
-export default function TimeGrid({ days, events, error, onPickDay, header, tasks = NO_TASKS, onToggleTask, badge = false, onCreate, onRename, onRemove, newKind = "plan", onMove, onAddTask }: {
+export default function TimeGrid({ days, events, error, onPickDay, header, aside, taskRow = "stack", tasks = NO_TASKS, onToggleTask, badge = false, onCreate, onRename, onRemove, newKind = "plan", onMove, onAddTask }: {
   days: string[]; events: DayEvent[] | null; error?: boolean; onPickDay?: (d: string) => void;
   /** Drawn at the top of the box, above everything (the day view's week strip). */
   header?: React.ReactNode;
+  /** A panel right of the grid (the wide day view's month and to-dos); it gets the drag handle so its to-dos can be dropped on the grid. */
+  aside?: (drag: TaskDrag | undefined) => React.ReactNode;
+  /** Where the day's to-dos go: stacked in the all-day strip, as one scrolling row of chips (phones), or not here at all (they are in `aside`). */
+  taskRow?: "stack" | "chips" | "none";
   tasks?: Record<string, TaskEntry[]>; onToggleTask?: (id: number, done: boolean) => void; badge?: boolean;
   onCreate?: (e: NativeEventCreate) => Promise<boolean>; onRename?: (id: number, title: string, kind?: EventKind, sameTitle?: boolean) => Promise<boolean>;
   /** Kind of a new own event made by clicking or dragging an empty slot (dropping a to-do always makes a plan). */
@@ -203,6 +207,7 @@ export default function TimeGrid({ days, events, error, onPickDay, header, tasks
   return (
     <div className="tlbox">
       {header}
+      <div className="tl-main">
       <div className="tlscroll"><div className={multi ? "tlw multi" : "tlw"}>
         {multi && (
           <div className="tl-head">
@@ -217,7 +222,9 @@ export default function TimeGrid({ days, events, error, onPickDay, header, tasks
             </div>
           </div>
         )}
-        {(anyAllDay || onAddTask) && <AllDayRow days={days} byDay={byDay} tasks={tasks} cols={cols} badge={badge} onToggle={onToggleTask} onAdd={onAddTask} fmtDay={fmt.monthDay} drag={onCreate ? taskDragApi : undefined} />}
+        {taskRow === "none"
+          ? days.some((d) => byDay[d].some((e) => e.allDay)) && <AllDayRow days={days} byDay={byDay} tasks={NO_TASKS} cols={cols} badge={badge} fmtDay={fmt.monthDay} />
+          : (anyAllDay || onAddTask) && <AllDayRow days={days} byDay={byDay} tasks={tasks} cols={cols} badge={badge} onToggle={onToggleTask} onAdd={onAddTask} fmtDay={fmt.monthDay} drag={onCreate ? taskDragApi : undefined} chips={taskRow === "chips"} />}
         {error && <p className="error" style={{ padding: 16 }}>{t("common.loadFail")}</p>}
         <div className="tl" ref={scroller}>
           <div className="tl-in" style={{ height: 24 * H }}>
@@ -279,6 +286,8 @@ export default function TimeGrid({ days, events, error, onPickDay, header, tasks
           </div>
         </div>
       </div></div>
+      {aside && <div className="tl-aside">{aside(onCreate ? taskDragApi : undefined)}</div>}
+      </div>
       {onCreate && <small className="muted tl-hint">{t("ev.hint")}{(anyAllDay || onAddTask) && ` ${t("td.hint")}`}</small>}
       {taskDrag && <div className="task-ghost" style={{ left: taskDrag.x + 12, top: taskDrag.y + 12 }}>{taskDrag.text}</div>}
     </div>

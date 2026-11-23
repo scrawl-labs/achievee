@@ -13,10 +13,26 @@ import { startGoogleConnect, useGoogleStatus } from "./useGoogleStatus";
 export const GMODES: readonly (readonly [string, Key])[] = [["DAY", "g.day"], ["WEEK", "g.week"], ["MONTH", "g.month"], ["AGENDA", "g.agenda"]];
 export type GMode = "DAY" | "WEEK" | "MONTH" | "AGENDA";
 
-/** Our calendar: day / week / month / agenda views. Events arrive through useEvents -> mergeEvents (today: Google only, drawn from its API since the embed has no day view). */
-export default function ScheduleView({ sel, setSel, mode, setMode, onCalendars, newKind }: {
+/** The schedule toolbar, drawn in the page header: day / week / month / list on the left, the Google actions on the right (just the logo on phones). */
+export function ScheduleBar({ mode, setMode, onCalendars }: { mode: GMode; setMode: (m: GMode) => void; onCalendars?: () => void }) {
+  const { t } = useI18n();
+  const { status } = useGoogleStatus();
+  return (
+    <div className="sched-bar">
+      <Tabs variant="segment" label={t("nav.google")} value={mode} onChange={setMode} items={GMODES.map(([k, label]) => ({ value: k as GMode, label: t(label) }))} />
+      <div className="sched-actions">
+        {status === "connected" && onCalendars && <Button variant="ghost" size="sm" onClick={onCalendars}>{t("g.pickCals")}</Button>}
+        <ButtonLink variant="ghost" size="sm" className="gcal" href="https://calendar.google.com/calendar/u/0/r" target="_blank" rel="noreferrer" aria-label={t("g.open")} title={t("g.open")}>
+          <GCalLogo size={16} /><span className="gcal-label">{t("g.open")}</span>
+        </ButtonLink>
+      </div>
+    </div>
+  );
+}
+
+/** Our calendar: day / week / month / agenda views (the toolbar is ScheduleBar, in the page header). */
+export default function ScheduleView({ sel, setSel, mode, setMode, newKind }: {
   sel: string; setSel: (d: string) => void; mode: GMode; setMode: (m: GMode) => void;
-  onCalendars?: () => void; // where the Google calendars to show are chosen
   newKind?: EventKind; // the kind a new own event starts as (appointment when opened from Upcoming's "add")
 }) {
   const { t } = useI18n();
@@ -25,16 +41,6 @@ export default function ScheduleView({ sel, setSel, mode, setMode, onCalendars, 
   const pick = (d: string) => { setSel(d); setMode("DAY"); };
   return (
     <>
-      {/* one row: the views on the left, the Google actions on the right (on phones the Google link is just its logo) */}
-      <div className="sechead sched-bar">
-        <Tabs value={mode} onChange={setMode} items={GMODES.map(([k, label]) => ({ value: k as GMode, label: t(label) }))} />
-        <div className="sched-actions">
-          {status === "connected" && onCalendars && <Button variant="ghost" size="sm" onClick={onCalendars}>{t("g.pickCals")}</Button>}
-          <ButtonLink variant="ghost" size="sm" className="gcal" href="https://calendar.google.com/calendar/u/0/r" target="_blank" rel="noreferrer" aria-label={t("g.open")} title={t("g.open")}>
-            <GCalLogo size={16} /><span className="gcal-label">{t("g.open")}</span>
-          </ButtonLink>
-        </div>
-      </div>
       {linkKey && <button type="button" className="glink" onClick={startGoogleConnect}>{t(linkKey)}</button>}
       {mode === "DAY" && <DayView date={sel} newKind={newKind} onPickDay={setSel} />}
       {mode === "WEEK" && <WeekView date={sel} onPickDay={pick} newKind={newKind} />}

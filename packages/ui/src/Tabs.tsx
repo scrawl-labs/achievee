@@ -13,8 +13,9 @@ export function Tabs<T extends string>({ items, value, onChange, label, idPrefix
   onChange: (v: T) => void;
   label?: string;
   idPrefix?: string;
-  /** line (default): text with an underline, inside the app. pill: rounded buttons, for a few big choices (landing page). */
-  variant?: "line" | "pill";
+  /** line (default): text with an underline, inside the app. pill: rounded buttons, for a few big choices (landing page).
+   * segment: one sunk bar with the chosen part raised, for switching how the same data is drawn (day / week / month). */
+  variant?: "line" | "pill" | "segment";
   className?: string;
 }) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -24,7 +25,7 @@ export function Tabs<T extends string>({ items, value, onChange, label, idPrefix
     refs.current[n]?.focus();
   };
   return (
-    <div className={cx("ac-tabs", variant === "pill" && "ac-tabs--pill", className)} role="tablist" aria-label={label}>
+    <div className={cx("ac-tabs", variant !== "line" && `ac-tabs--${variant}`, className)} role="tablist" aria-label={label}>
       {items.map((it, i) => (
         <button key={it.value} ref={(el) => { refs.current[i] = el; }} type="button" role="tab" aria-selected={it.value === value} tabIndex={it.value === value ? 0 : -1}
           id={idPrefix ? `${idPrefix}-tab-${it.value}` : undefined} aria-controls={idPrefix ? `${idPrefix}-panel-${it.value}` : undefined}
