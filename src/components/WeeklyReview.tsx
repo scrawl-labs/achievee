@@ -1,5 +1,5 @@
 "use client";
-import { Button, IconButton, Paper } from "@achievee/ui";
+import { Button, EntryCard, IconButton, Paper, Tag, TagRow } from "@achievee/ui";
 import { useEffect, useMemo, useState } from "react";
 import type { MonthData } from "@/lib/types";
 import { addDays, mondayOf } from "@/lib/dates";
@@ -119,7 +119,7 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
       <section className="wk-emo">
         <h3>{t("emo.weekTitle")}</h3>
         {weekWords.length === 0 ? <small className="muted">{t("emo.none")}</small> : (
-          <div className="emo-tags big">{weekWords.map(([id, n]) => <i key={id}>{wordText(id, lang)}{n > 1 && <em>×{n}</em>}</i>)}</div>
+          <TagRow>{weekWords.map(([id, n]) => <Tag key={id} size="lg" count={n > 1 ? n : undefined}>{wordText(id, lang)}</Tag>)}</TagRow>
         )}
         <small className="muted">{t("emo.newWords", { n: newWords })} · {t("emo.vocab", { n: usage?.length ?? 0 })}</small>
       </section>
@@ -155,18 +155,12 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
             const isOpen = openWeeks.has(r.week);
             const answers: [string, string][] = [[t("wk.good"), r.good], [t("wk.hard"), r.hard], [t("wk.plan"), r.plan], [t("wk.note"), r.note]];
             return (
-              <div key={r.week} className={`item entry${r.week === week ? " on" : ""}${isOpen ? " open" : ""}`}>
-                <button type="button" className="entry-head" aria-expanded={isOpen} onClick={() => toggleWeek(r.week)}>
-                  <span className="row between"><b>{fmt.monthDay(r.week)} – {fmt.monthDay(addDays(r.week, 6))}</b><Icon name="right" size={16} /></span>
-                  {!isOpen && <p>{r.good || r.hard || r.plan || r.note}</p>}
-                </button>
-                {isOpen && (
-                  <div className="entry-body">
-                    {answers.filter(([, v]) => v).map(([label, v]) => <div key={label}><small>{label}</small><p>{v}</p></div>)}
-                    <div className="row end"><Button type="button" onClick={() => { setSel(r.week); window.scrollTo({ top: 0, behavior: "smooth" }); }}>{t("common.edit")}</Button></div>
-                  </div>
-                )}
-              </div>
+              <EntryCard key={r.week} open={isOpen} onToggle={() => toggleWeek(r.week)} current={r.week === week}
+                title={`${fmt.monthDay(r.week)} – ${fmt.monthDay(addDays(r.week, 6))}`}
+                preview={!isOpen && (r.good || r.hard || r.plan || r.note)}>
+                {answers.filter(([, v]) => v).map(([label, v]) => <div key={label} className="wk-answer"><small>{label}</small><p>{v}</p></div>)}
+                <div className="row end"><Button type="button" onClick={() => { setSel(r.week); window.scrollTo({ top: 0, behavior: "smooth" }); }}>{t("common.edit")}</Button></div>
+              </EntryCard>
             );
           })}
         </section>

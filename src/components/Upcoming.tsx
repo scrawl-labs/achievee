@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@achievee/ui";
+import { Button, EventRow } from "@achievee/ui";
 import { useEffect, useMemo, useState } from "react";
 import { addDays } from "@/lib/dates";
 import { todayStr } from "@/lib/clientTime";
@@ -54,12 +54,11 @@ export default function Upcoming({ onOpen }: { onOpen: (date: string, mode: "DAY
             const own = eventSource(e) === "native";
             return (
               <li key={e.id}>
-                <button type="button" className={`up-row${own ? " own" : " gcal"}`} style={own ? undefined : { ["--ev" as string]: e.color }}
-                  aria-label={`${e.title || t("common.untitled")} · ${t("up.open", { day: fmt.shortDay(e.date) })}`} onClick={() => onOpen(e.date, "DAY")}>
-                  <span className={`dday${d.key === "up.today" ? " now" : d.key === "up.tomorrow" ? " soon" : ""}`}>{t(d.key, { n: d.n ?? 0 })}</span>
-                  <b>{e.title || t("common.untitled")}</b>
-                  <time>{fmt.shortDay(e.date)} · {e.allDay ? t("common.allDay") : hhmm(e.startMin)}</time>
-                </button>
+                <EventRow tone={own ? "own" : "external"} color={own ? undefined : e.color}
+                  aria-label={`${e.title || t("common.untitled")} · ${t("up.open", { day: fmt.shortDay(e.date) })}`} onClick={() => onOpen(e.date, "DAY")}
+                  badge={t(d.key, { n: d.n ?? 0 })} badgeTone={d.key === "up.today" ? "now" : d.key === "up.tomorrow" ? "soon" : undefined}
+                  title={e.title || t("common.untitled")}
+                  meta={<time>{fmt.shortDay(e.date)} · {e.allDay ? t("common.allDay") : hhmm(e.startMin)}</time>} />
               </li>
             );
           })}

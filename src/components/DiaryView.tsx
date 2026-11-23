@@ -3,14 +3,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Key } from "@/lib/i18n";
 import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
-import Icon from "./Icon";
 import DatePicker from "./DatePicker";
 import WeeklyReview from "./WeeklyReview";
 import EmotionPicker from "./EmotionPicker";
 import EmotionDictionary from "./EmotionDictionary";
 import EmotionStats from "./EmotionStats";
 import BoriFab from "./BoriFab";
-import { Button, Paper, SaveStatus, Tabs } from "@achievee/ui";
+import { Button, EntryCard, Paper, SaveStatus, Tabs, Tag, TagRow } from "@achievee/ui";
 import { emoLang, wordText } from "@/lib/emotions";
 import { dow, mondayOf } from "@/lib/dates";
 import { todayStr } from "@/lib/clientTime";
@@ -96,14 +95,12 @@ function DayDiary({ ym, sel, setSel }: Props) {
         {rows.map((r) => {
           const isOpen = open.has(r.date);
           return (
-            <div key={r.date} className={`item entry${r.date === sel ? " on" : ""}${isOpen ? " open" : ""}`}>
-              <button type="button" className="entry-head" aria-expanded={isOpen} onClick={() => toggle(r.date)}>
-                <span className="row between"><b>{fmt.monthDay(r.date)}</b><span className="row gap-2">{r.mood && <Dots n={r.mood} />}<Icon name="right" size={16} /></span></span>
-                {r.emotions && r.emotions.length > 0 && <span className="emo-tags">{r.emotions.map((id) => <i key={id}>{wordText(id, lang)}</i>)}</span>}
-                <p>{r.body}</p>
-              </button>
-              {isOpen && <div className="row end"><Button type="button" onClick={() => { setSel(r.date); window.scrollTo({ top: 0, behavior: "smooth" }); }}>{t("common.edit")}</Button></div>}
-            </div>
+            <EntryCard key={r.date} open={isOpen} onToggle={() => toggle(r.date)} current={r.date === sel}
+              title={fmt.monthDay(r.date)} aside={r.mood && <Dots n={r.mood} />}
+              extra={r.emotions && r.emotions.length > 0 && <TagRow>{r.emotions.map((id) => <Tag key={id}>{wordText(id, lang)}</Tag>)}</TagRow>}
+              preview={r.body}>
+              <div className="row end"><Button type="button" onClick={() => { setSel(r.date); window.scrollTo({ top: 0, behavior: "smooth" }); }}>{t("common.edit")}</Button></div>
+            </EntryCard>
           );
         })}
       </section>

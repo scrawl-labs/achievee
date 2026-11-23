@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Button, ButtonLink, Checkbox, Chip, ChipRow, ConfirmDialog, DayFlower, DayHeader, Field, Label, List, ListRow, Paper, SaveStatus, Select, Surface, Tabs } from "@achievee/ui";
+import { Button, ButtonLink, Checkbox, Chip, ChipRow, ConfirmDialog, DayFlower, DayHeader, EntryCard, EventRow, Field, Label, List, ListRow, Paper, SaveStatus, Select, Surface, Tabs, Tag, TagRow } from "@achievee/ui";
 import { Mark } from "./Logo";
 import Wordmark from "./Wordmark";
 import Icon, { type IconName } from "./Icon";
@@ -119,6 +119,25 @@ function TabsDemo() {
   const [t, setT] = useState<"diary" | "week" | "mine" | "dict">("diary");
   return <Tabs label="일기 보기" value={t} onChange={setT} items={[{ value: "diary", label: "일기" }, { value: "week", label: "주간 회고" }, { value: "mine", label: "내 감정" }, { value: "dict", label: "감정 사전" }]} />;
 }
+function PillTabsDemo() {
+  const [t, setT] = useState<"todo" | "words" | "money">("todo");
+  return <Tabs variant="pill" label="기능 보기" value={t} onChange={setT} items={[{ value: "todo", label: "할 일" }, { value: "words", label: "감정 단어" }, { value: "money", label: "지출" }]} />;
+}
+function EntryDemo() {
+  const [open, setOpen] = useState<string | null>("1122");
+  const tg = (k: string) => setOpen(open === k ? null : k);
+  return (
+    <div className="dd-w dd-entries">
+      <EntryCard open={open === "1122"} onToggle={() => tg("1122")} current title="11월 22일" extra={<TagRow><Tag>뿌듯하다</Tag><Tag>홀가분하다</Tag></TagRow>}
+        preview="오늘은 회사에서 발표가 있었는데 생각보다 잘 끝났다. 저녁엔 친구랑 떡볶이를 먹고 오래 걸었다.">
+        <div className="dd-row" style={{ justifyContent: "flex-end" }}><Button>수정</Button></div>
+      </EntryCard>
+      <EntryCard open={open === "1121"} onToggle={() => tg("1121")} title="11월 21일" preview="비가 와서 하루 종일 집에 있었다. 밀린 책을 읽었다.">
+        <div className="dd-row" style={{ justifyContent: "flex-end" }}><Button>수정</Button></div>
+      </EntryCard>
+    </div>
+  );
+}
 function RowsDemo({ withDialog }: { withDialog?: boolean }) {
   const [openRow, setOpenRow] = useState<number | null>(null);
   const [ask, setAsk] = useState(false);
@@ -185,6 +204,9 @@ const THUMB: Record<string, React.ReactNode> = {
   checkbox: <div className="dd-thumb-checks"><span><Checkbox defaultChecked tabIndex={-1} aria-hidden="true" />은행 서류 제출</span><span><Checkbox tabIndex={-1} aria-hidden="true" />택배 반품</span></div>,
   surface: <div className="dd-thumb-surface"><b>11월 22일</b><i /><i /></div>,
   "list-row": <List className="dd-thumb-list"><ListRow icon={<CategoryGlyph c="cafe" />} title="아메리카노" meta="카페" amount="₩4,500" tabIndex={-1} /></List>,
+  "event-row": <div className="dd-thumb-events"><EventRow badge="D-2" title="할아버지 제사" meta="11. 25. (수) · 19:15" tabIndex={-1} /></div>,
+  "entry-card": <div className="dd-thumb-surface"><b>11월 22일</b><i /><i /></div>,
+  tag: <TagRow><Tag>뿌듯하다</Tag><Tag>홀가분하다</Tag><Tag count={2}>설렌다</Tag></TagRow>,
   "day-flower": <div className="dd-row dd-thumb-flowers">{([0, 1, 2, 3, 4] as const).map((l) => <DayFlower key={l} level={l} count={l} size={34} />)}</div>,
   tabs: <div className="ac-tabs"><span className="ac-tab ac-tab--on">일기</span><span className="ac-tab">주간 회고</span><span className="ac-tab">내 감정</span></div>,
   dialog: <div className="dd-thumb-dialog"><b>이 기록을 지울까요?</b><span><i /><i className="d" /></span></div>,
@@ -339,6 +361,23 @@ function pageBlocks(slug: string, theme: Theme): Block[] {
       { id: "usage", title: "사용 규칙", body: <DoDont dos={["메모를 제목으로, 분류를 보조 텍스트로 표시함", "불필요 지출은 flag 텍스트로도 표시함"]} donts={["기록마다 별도 카드 사용", "수정·삭제 버튼 상시 노출"]} /> },
       { id: "props", title: "Props", body: <Props rows={[["title", "–", "ReactNode"], ["meta", "–", "ReactNode · 분류"], ["flag", "–", "ReactNode · 빨간 선 + 텍스트"], ["amount", "–", "ReactNode"], ["tone", "default", <Pills key="t" v={["default", "good"]} />], ["actions", "–", "ReactNode · hover 또는 open 시 표시"], ["open", "false", "boolean"]]} /> },
     ];
+    case "event-row": return [
+      { id: "overview", title: "기본", desc: "앞으로 2주의 일정을 남은 날짜 배지, 제목, 날짜와 시간으로 표시함. 넓은 화면에서는 두 줄, 휴대폰에서는 한 줄.", demo: <div className="dd-w dd-events"><EventRow badge="오늘" badgeTone="now" title="치과 예약" meta="11. 23. (월) · 18:00" /><EventRow badge="D-2" title="할아버지 제사" meta="11. 25. (수) · 19:15" /><EventRow tone="external" color="#33b679" badge="D-3" title="주간 회의" meta="11. 26. (목) · 10:00" /></div>, code: IMPORT("EventRow") + `<EventRow badge="오늘" badgeTone="now" title="치과 예약" meta="11. 23. (월) · 18:00" onClick={open} />\n<EventRow tone="external" color={calendar.color} badge="D-3" title="주간 회의" meta="11. 26. (목) · 10:00" />` },
+      { id: "tone", title: "Tone", level: 3, desc: "own은 Achievee에서 만든 약속으로 accent 면을 채움. external은 Google 등 다른 캘린더의 일정으로, 그 캘린더 색의 왼쪽 선과 얇은 테두리로 표시함.", demo: <div className="dd-w dd-events"><EventRow badge="D-5" title="골프 라운딩" meta="11. 28. (토) · 07:00" /><EventRow tone="external" color="#4aa3ff" badge="D-5" title="1:1" meta="11. 28. (토) · 10:30" /></div>, code: `<EventRow tone="own" … />\n<EventRow tone="external" color="#4aa3ff" … />` },
+      { id: "usage", title: "사용 규칙", body: <DoDont dos={["오늘과 내일은 badgeTone으로 강조함", "계획 블록은 넣지 않고 약속만 표시함"]} donts={["한 목록에 다섯 개 넘게 표시", "배지에 아이콘이나 이모지 사용"]} /> },
+      { id: "props", title: "Props", body: <Props rows={[["badge", "–", "ReactNode · D-2, 오늘"], ["badgeTone", "–", <Pills key="b" v={["now", "soon"]} />], ["title", "–", "ReactNode"], ["meta", "–", "ReactNode · 날짜와 시간"], ["tone", "own", <Pills key="t" v={["own", "external"]} />], ["color", "–", "string · external의 왼쪽 선 색"]]} /> },
+    ];
+    case "entry-card": return [
+      { id: "overview", title: "기본", desc: "닫힌 상태에서는 제목과 두 줄 미리보기를 표시하고, 누르면 그 자리에서 펼쳐짐. 편집기에 열린 기록은 current로 accent 테두리를 표시함.", demo: <EntryDemo />, code: IMPORT("EntryCard, Tag, TagRow") + `<EntryCard\n  title="11월 22일"\n  extra={<TagRow><Tag>뿌듯하다</Tag></TagRow>}\n  preview={entry.body}\n  open={open}\n  onToggle={toggle}\n  current={entry.date === selected}\n>\n  <Button onClick={edit}>수정</Button>\n</EntryCard>` },
+      { id: "usage", title: "사용 규칙", body: <DoDont dos={["펼친 내용 아래에 수정 버튼 하나만 둠", "미리보기는 본문 앞부분을 그대로 씀"]} donts={["EntryCard 안에 또 다른 카드 중첩", "닫힌 상태에서 버튼 노출"]} /> },
+      { id: "props", title: "Props", body: <Props rows={[["title", "–", "ReactNode"], ["aside", "–", "ReactNode · 제목 오른쪽 (기분 점)"], ["extra", "–", "ReactNode · 제목 아래 (TagRow)"], ["preview", "–", "ReactNode · 닫히면 두 줄, 열리면 전체"], ["open", "–", "boolean"], ["onToggle", "–", "() => void"], ["current", "false", "boolean"]]} /> },
+    ];
+    case "tag": return [
+      { id: "overview", title: "기본", desc: "기록에 붙은 단어를 보여주기만 함. 누를 수 있는 선택지는 Chip을 사용함. count를 주면 ×n이 붙음.", demo: <div className="dd-row"><TagRow><Tag>뿌듯하다</Tag><Tag>홀가분하다</Tag><Tag count={3}>설렌다</Tag></TagRow></div>, code: IMPORT("Tag, TagRow") + `<TagRow>\n  <Tag>뿌듯하다</Tag>\n  <Tag count={3}>설렌다</Tag>\n</TagRow>` },
+      { id: "size", title: "Size", level: 3, desc: "lg는 주간 회고처럼 단어 자체가 주인공인 곳에 사용함.", demo: <div className="dd-row"><TagRow><Tag size="lg">뿌듯하다</Tag><Tag size="lg" count={2}>설렌다</Tag></TagRow></div>, code: `<Tag size="lg" count={2}>설렌다</Tag>` },
+      { id: "usage", title: "사용 규칙", body: <DoDont dos={["한두 단어로 씀"]} donts={["Tag에 onClick 지정 (Chip 사용)", "아이콘이나 이모지 추가"]} /> },
+      { id: "props", title: "Props", body: <Props rows={[["count", "–", "number · ×n 표시"], ["size", "md", <Pills key="s" v={["md", "lg"]} />]]} /> },
+    ];
     case "day-flower": return [
       { id: "overview", title: "단계", desc: "완료 비율에 따라 다섯 단계로 표시하며, 가운데 숫자는 완료한 개수.", demo: <div className="dd-flowers">{([[0, "안 함"], [1, "조금"], [2, "반쯤"], [3, "거의"], [4, "다 함"]] as const).map(([l, t]) => <div key={l}><DayFlower level={l} count={l} /><small>{t}</small></div>)}</div>, code: IMPORT("DayFlower") + `<DayFlower level={3} count={3} />` },
       { id: "usage", title: "사용 규칙", body: <DoDont dos={["계획이 없는 날은 count 없이 level 0", "선택된 날이 level 4일 때만 축하 효과를 표시함"]} donts={["숫자 외의 텍스트나 아이콘 표시"]} /> },
@@ -346,8 +385,10 @@ function pageBlocks(slug: string, theme: Theme): Block[] {
     ];
     case "tabs": return [
       { id: "overview", title: "기본", desc: "선택된 탭은 ink 색상, 굵은 글자, 2px 하단 선으로 표시됨.", demo: <TabsDemo />, code: IMPORT("Tabs") + `<Tabs\n  value={view}\n  onChange={setView}\n  items={[{ value: "diary", label: "일기" }, { value: "week", label: "주간 회고" }]}\n/>` },
+      { id: "pill", title: "Pill", level: 3, desc: "랜딩 페이지처럼 큰 선택지 몇 개를 고를 때는 variant=\"pill\"을 사용함.", demo: <PillTabsDemo />, code: `<Tabs variant="pill" idPrefix="feat" value={scene} onChange={setScene} items={scenes} />` },
+      { id: "keyboard", title: "키보드", level: 3, body: <p>좌우 화살표와 Home, End로 탭 사이를 이동하고, 이동하면 바로 선택됨. Tab 키 순서에는 선택된 탭만 들어감. idPrefix를 주면 각 탭이 <code>{"<prefix>-panel-<value>"}</code> 패널을 가리킴.</p> },
       { id: "usage", title: "사용 규칙", body: <DoDont dos={["탭은 2~5개, 짧은 레이블로 구성함"]} donts={["앱 전체 내비게이션 용도로 사용"]} /> },
-      { id: "props", title: "Props", body: <Props rows={[["items", "–", "{ value, label }[]"], ["value", "–", "선택된 value"], ["onChange", "–", "(value) => void"]]} /> },
+      { id: "props", title: "Props", body: <Props rows={[["items", "–", "{ value, label }[]"], ["value", "–", "선택된 value"], ["onChange", "–", "(value) => void"], ["variant", "line", <Pills key="v" v={["line", "pill"]} />], ["idPrefix", "–", "string · 패널 연결용 id"]]} /> },
     ];
     case "dialog": return [
       { id: "overview", title: "기본", desc: "삭제될 항목의 정보를 표시하고 사용자 확인을 받음. X를 누르면 열림. 취소, Esc, 바깥 영역 클릭 시 삭제되지 않음.", demo: <RowsDemo withDialog />, code: IMPORT("ConfirmDialog") + `{asking && (\n  <ConfirmDialog\n    title="이 기록을 지울까요?"\n    detail="11월 22일 · 점심 · ₩12,000"\n    note="지우면 되돌릴 수 없어요."\n    cancelLabel="취소"\n    confirmLabel="삭제"\n    onCancel={() => setAsking(false)}\n    onConfirm={remove}\n  />\n)}` },

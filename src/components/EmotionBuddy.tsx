@@ -1,4 +1,5 @@
 "use client";
+import { Paper } from "@achievee/ui";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
@@ -194,7 +195,9 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
   const checkScroll = useCallback(() => {
     const el = cardsRef.current;
     if (!el) return;
-    setCanScroll({ left: el.scrollLeft > 4, right: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 });
+    const left = el.scrollLeft > 4, right = el.scrollLeft + el.clientWidth < el.scrollWidth - 4;
+    // same answer, same object: the effect below runs after every render, so a new object each time would render forever
+    setCanScroll((c) => (c.left === left && c.right === right ? c : { left, right }));
   }, []);
   const scrollCards = (dir: number) => { const el = cardsRef.current; if (el) el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: "smooth" }); };
   useEffect(() => {
@@ -416,7 +419,7 @@ export function BuddyGame({ value, onChange, onClose, onBrowse, save }: { value:
           )}
           {phase === "write" && (
             <div className={`bd-write${done ? " on" : ""}`}>
-              <textarea className="bd-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={2000} rows={4} placeholder={t("buddy.notePh")} aria-label={t("buddy.notePh")} />
+              <Paper className="bd-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={2000} rows={4} placeholder={t("buddy.notePh")} aria-label={t("buddy.notePh")} />
               <div className="bd-choices bd-choices-row on">
                 <button type="button" className="bd-choice bd-choice-main" onClick={() => goPhase("ask")} disabled={!note.trim()}>{t("buddy.noteDone")}</button>
                 <button type="button" className="bd-choice" onClick={() => { setNote(""); goPhase("ask"); }}>{t("buddy.noteSkip")}</button>

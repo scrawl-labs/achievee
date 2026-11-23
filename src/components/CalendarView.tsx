@@ -1,4 +1,5 @@
 "use client";
+import { Tag, TagRow } from "@achievee/ui";
 import type { MonthData, Stats } from "@/lib/types";
 import { todayStr } from "@/lib/clientTime";
 import { dow } from "@/lib/dates";
@@ -111,7 +112,7 @@ export default function CalendarView({ ym, month, stats, sel, setSel, onDiary, o
           </div>
           <button type="button" className="dp-diary" onClick={onDiary}>
             <span className="dp-h"><h4>{t("nav.diary")}</h4><small>{note || emotions.length ? t("common.edit") : t("cal.writeDiary")} ›</small></span>
-            {emotions.length > 0 && <span className="emo-tags">{emotions.map((id) => <i key={id}>{wordText(id, emoLang(locale))}</i>)}</span>}
+            {emotions.length > 0 && <TagRow>{emotions.map((id) => <Tag key={id}>{wordText(id, emoLang(locale))}</Tag>)}</TagRow>}
             {note && <span className="dp-note">{note}</span>}
           </button>
         </aside>

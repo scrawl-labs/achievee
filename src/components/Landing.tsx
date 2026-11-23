@@ -1,6 +1,7 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
+import { Button, Tabs } from "@achievee/ui";
 import LandingBori from "./LandingBori";
 import LandingFab from "./LandingFab";
 import { GOOGLE_HL, type Key } from "@/lib/i18n";
@@ -172,16 +173,10 @@ const SCENES = [
 export default function Landing() {
   const { t, fmt, locale } = useI18n();
   const [scene, setScene] = useState(0);
-  const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const go = () => signIn("google", undefined, { hl: GOOGLE_HL[locale] });
   const gbtn = () => (
-    <button type="button" className="gbtn" onClick={go}><GoogleG size={18} />{t("login.cta")}</button>
+    <Button className="gbtn" onClick={go}><GoogleG size={18} />{t("login.cta")}</Button>
   );
-  const pick = (i: number, focus = false) => {
-    const n = (i + SCENES.length) % SCENES.length;
-    setScene(n);
-    if (focus) tabs.current[n]?.focus();
-  };
 
   // the page is light (cream), so the browser chrome around it must be too; the app's own dark/light colours come back when leaving
   useEffect(() => {
@@ -233,15 +228,8 @@ export default function Landing() {
       <LandingFab />
 
       <section id="features" className="ld-feats">
-        <div className="ld-tabs" role="tablist" aria-label={t("land.nav.f")}>
-          {SCENES.map((s, i) => (
-            <button key={s.k} ref={(el) => { tabs.current[i] = el; }} type="button" role="tab" id={`ld-tab-${s.k}`} aria-controls={`ld-panel-${s.k}`}
-              aria-selected={i === scene} tabIndex={i === scene ? 0 : -1} onClick={() => pick(i)}
-              onKeyDown={(e) => { if (e.key === "ArrowRight") pick(i + 1, true); if (e.key === "ArrowLeft") pick(i - 1, true); }}>
-              {t(`land.${s.k}.e` as Key)}
-            </button>
-          ))}
-        </div>
+        <Tabs variant="pill" idPrefix="ld" className="ld-tabs" label={t("land.nav.f")} value={SCENES[scene].k}
+          items={SCENES.map((s) => ({ value: s.k, label: t(`land.${s.k}.e` as Key) }))} onChange={(k) => setScene(SCENES.findIndex((s) => s.k === k))} />
         {SCENES.map((s, i) => (
           <article key={s.k} role="tabpanel" id={`ld-panel-${s.k}`} aria-labelledby={`ld-tab-${s.k}`} hidden={i !== scene} className="ld-scene">
             <div className="ld-scene-copy">

@@ -195,3 +195,6 @@
 .dd-thumb-checks { display: flex; flex-direction: column; gap: 10px; font-size: 14px; }
 .dd-thumb-checks span, .dd-checks label { display: flex; align-items: center; gap: 10px; }
 .dd-checks { gap: 12px; } .dd-checks label { font-size: 15px; cursor: pointer; }
+.dd-events, .dd-entries { display: flex; flex-direction: column; gap: 6px; }
+.dd-entries { gap: 10px; }
+.dd-thumb-events { width: 82%; }
