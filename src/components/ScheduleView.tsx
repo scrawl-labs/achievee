@@ -1,6 +1,6 @@
 "use client";
 import type { EventKind } from "@/lib/nativeEvents";
-import { Tabs } from "@achievee/ui";
+import { ButtonLink, Tabs } from "@achievee/ui";
 import GCalLogo from "./GCalLogo";
 import DayView from "./DayView";
 import WeekView from "./WeekView";
@@ -27,9 +27,9 @@ export default function ScheduleView({ sel, setSel, mode, setMode, onCalendars, 
     <>
       <div className="sechead">
         <Tabs value={mode} onChange={setMode} items={GMODES.map(([k, label]) => ({ value: k as GMode, label: t(label) }))} />
-        <a className="btn gcal" href="https://calendar.google.com/calendar/u/0/r" target="_blank" rel="noreferrer">
+        <ButtonLink className="gcal" href="https://calendar.google.com/calendar/u/0/r" target="_blank" rel="noreferrer">
           <GCalLogo size={18} />{t("g.open")}
-        </a>
+        </ButtonLink>
       </div>
       {linkKey && <button type="button" className="glink" onClick={startGoogleConnect}>{t(linkKey)}</button>}
       {/* own events are drawn solid, Google ones light: the key, and (connected) where to hide Google calendars */}

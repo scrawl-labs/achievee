@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@achievee/ui";
+import { Button, Field, Select } from "@achievee/ui";
 import { useState } from "react";
 import Link from "next/link";
 import { GOAL_RANGE, type IntakeKind } from "@/lib/intake";
@@ -22,7 +22,7 @@ function GoalInput({ value, range, unit, onSave, label }: { value: number; range
     else setDraft(String(value));
   };
   return (
-    <input className="set-num" type="number" inputMode="numeric" aria-label={`${label} (${unit})`} value={draft} min={range[0]} max={range[1]}
+    <Field className="set-num" type="number" inputMode="numeric" aria-label={`${label} (${unit})`} value={draft} min={range[0]} max={range[1]}
       onChange={(e) => setDraft(e.target.value)} onBlur={commit} onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }} />
   );
 }
@@ -64,29 +64,29 @@ export default function SettingsView({ user, currency, onCurrency, startDay, onS
 
       <section className="panel">
         <h3>{t("set.look")}</h3>
-        <div className="set-row"><b>{t("account.language")}</b><LanguageSelect /></div>
-        <div className="set-row"><b>{t("theme.label")}</b><ThemeSelect /></div>
+        <div className="set-row"><b>{t("account.language")}</b><LanguageSelect size="md" className="set-select" /></div>
+        <div className="set-row"><b>{t("theme.label")}</b><ThemeSelect size="md" className="set-select" /></div>
       </section>
 
       <section className="panel">
         <h3>{t("set.goals")}</h3>
         <div className="set-row">
           <div><b>{t("set.currency")}</b><small className="muted">{t("set.currencyNote")}</small></div>
-          <select className="lang" value={currency} aria-label={t("set.currency")} onChange={(e) => onCurrency(e.target.value as Currency)}>
+          <Select className="set-select" value={currency} aria-label={t("set.currency")} onChange={(e) => onCurrency(e.target.value as Currency)}>
             {CURRENCIES.map((c) => <option key={c} value={c}>{names.of(c) ?? c}</option>)}
-          </select>
+          </Select>
         </div>
         <div className="set-row">
           <div><b>{t("set.startDay")}</b><small className="muted">{t("set.startHint")}</small></div>
-          <select className="lang" value={startDay} aria-label={t("set.startDay")} onChange={(e) => onStartDay(Number(e.target.value))}>
+          <Select className="set-select" value={startDay} aria-label={t("set.startDay")} onChange={(e) => onStartDay(Number(e.target.value))}>
             {DAYS.map((d) => <option key={d} value={d}>{t("inc.day", { n: d })}</option>)}
-          </select>
+          </Select>
         </div>
         <div className="set-row">
           <b>{t("set.workoutGoal")}</b>
-          <select className="lang" value={workoutGoal} aria-label={t("set.workoutGoal")} onChange={(e) => onWorkoutGoal(Number(e.target.value))}>
+          <Select className="set-select" value={workoutGoal} aria-label={t("set.workoutGoal")} onChange={(e) => onWorkoutGoal(Number(e.target.value))}>
             {[1, 2, 3, 4, 5, 6, 7].map((n) => <option key={n} value={n}>{t("set.perWeek", { n })}</option>)}
-          </select>
+          </Select>
         </div>
         <div className="set-row">
           <b>{t("set.water")} <small className="muted">(ml)</small></b>

@@ -1,5 +1,5 @@
 "use client";
-import { Button, IconButton } from "@achievee/ui";
+import { Button, IconButton, Paper } from "@achievee/ui";
 import { useEffect, useMemo, useState } from "react";
 import type { MonthData } from "@/lib/types";
 import { addDays, mondayOf } from "@/lib/dates";
@@ -92,7 +92,7 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
   const range = `${fmt.monthDay(week)} – ${fmt.monthDay(addDays(week, 6))}`;
   const question = (k: keyof typeof f, label: string, rows: number) => (
     <label className="wk-q" key={k}><span>{label}</span>
-      <textarea rows={rows} value={f[k]} onChange={(e) => set(k, e.target.value)} />
+      <Paper className="wk-paper" rows={rows} value={f[k]} onChange={(e) => set(k, e.target.value)} />
     </label>
   );
 

@@ -1,4 +1,5 @@
 "use client";
+import { Field } from "@achievee/ui";
 import { useRef, useState } from "react";
 import { GOAL_TEXT_MAX } from "@/lib/goals";
 import { normalizeGoalText } from "@/lib/goalsUi";
@@ -29,7 +30,7 @@ export default function GoalInput({ initial = "", label, placeholder, saveOnBlur
     if (viaKey) requestAnimationFrame(() => returnFocus?.current?.focus());
   };
   return (
-    <input
+    <Field
       className="goal-input" autoFocus value={text} maxLength={GOAL_TEXT_MAX} aria-label={label} placeholder={placeholder}
       onChange={(e) => setText(e.target.value)}
       onKeyDown={(e) => {

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Button, Chip, ChipRow, ConfirmDialog, DayFlower, DayHeader, Field, Label, List, ListRow, Paper, SaveStatus, Surface, Tabs } from "@achievee/ui";
+import { Button, ButtonLink, Checkbox, Chip, ChipRow, ConfirmDialog, DayFlower, DayHeader, Field, Label, List, ListRow, Paper, SaveStatus, Select, Surface, Tabs } from "@achievee/ui";
 import { Mark } from "./Logo";
 import Wordmark from "./Wordmark";
 import Icon, { type IconName } from "./Icon";
@@ -181,6 +181,8 @@ const THUMB: Record<string, React.ReactNode> = {
   chip: <ChipRow><Chip selected tabIndex={-1}>뿌듯하다</Chip><Chip tabIndex={-1}>카페</Chip><Chip add tabIndex={-1}>＋ 단어</Chip></ChipRow>,
   paper: <div className="dd-thumb-paper"><span>오늘은 발표가 잘 끝났다.</span><i /><i /></div>,
   field: <div className="dd-thumb-field"><small>금액</small><span>12,000</span></div>,
+  select: <div className="dd-thumb-field"><small>분류</small><Select defaultValue="cafe" tabIndex={-1} aria-hidden="true"><option value="cafe">카페</option></Select></div>,
+  checkbox: <div className="dd-thumb-checks"><span><Checkbox defaultChecked tabIndex={-1} aria-hidden="true" />은행 서류 제출</span><span><Checkbox tabIndex={-1} aria-hidden="true" />택배 반품</span></div>,
   surface: <div className="dd-thumb-surface"><b>11월 22일</b><i /><i /></div>,
   "list-row": <List className="dd-thumb-list"><ListRow icon={<CategoryGlyph c="cafe" />} title="아메리카노" meta="카페" amount="₩4,500" tabIndex={-1} /></List>,
   "day-flower": <div className="dd-row dd-thumb-flowers">{([0, 1, 2, 3, 4] as const).map((l) => <DayFlower key={l} level={l} count={l} size={34} />)}</div>,
@@ -292,6 +294,9 @@ function pageBlocks(slug: string, theme: Theme): Block[] {
       { id: "variant", title: "Variant", level: 3, desc: "Button의 역할에 따라 스타일을 지정함. primary는 Surface당 하나만 사용함.", demo: <div className="dd-variants">{([["primary", "저장"], ["soft", "단어 고르기"], ["ghost", "취소"], ["quiet", "연결 해제"], ["danger", "삭제"]] as const).map(([v, l]) => <div key={v}><small>{v}</small><Button variant={v}>{l}</Button></div>)}</div>, code: `<Button variant="primary">저장</Button>\n<Button>단어 고르기</Button>\n<Button variant="ghost">취소</Button>\n<Button variant="quiet">연결 해제</Button>\n<Button variant="danger">삭제</Button>` },
       { id: "size", title: "Size", level: 3, desc: "Button의 높이를 지정함. md는 40px, sm은 32px.", demo: <div className="dd-row"><Button>＋ 할 일</Button><Button size="sm">＋ 할 일</Button></div>, code: `<Button>＋ 할 일</Button>\n<Button size="sm">＋ 할 일</Button>` },
       { id: "disabled", title: "Disabled", level: 3, desc: "비활성 상태에서는 variant와 관계없이 회색으로 표시됨.", demo: <Button variant="primary" disabled>저장</Button>, code: `<Button variant="primary" disabled>저장</Button>` },
+      { id: "link", title: "ButtonLink", level: 3, desc: "다른 사이트나 페이지로 이동할 때는 같은 모양의 ButtonLink(a 요소)를 사용함. variant, size는 Button과 같음.", demo: <ButtonLink href="https://calendar.google.com" target="_blank" rel="noreferrer">Google 캘린더 열기</ButtonLink>, code: IMPORT("ButtonLink") + `<ButtonLink href="https://calendar.google.com" target="_blank" rel="noreferrer">
+  Google 캘린더 열기
+</ButtonLink>` },
       { id: "usage", title: "사용 규칙", body: <DoDont dos={["레이블에 실행될 동작을 씀 (저장, 삭제)", "자주 쓰지 않는 동작(연결 해제)에는 quiet를 사용함", "긴 글 작성 화면은 버튼 대신 자동 저장을 사용함"]} donts={["한 Surface에 primary를 두 개 이상 두지 않음", "확인, OK 같은 모호한 레이블", "Dialog 밖에서 danger 사용"]} /> },
       { id: "props", title: "Props", body: <Props rows={[["variant", "soft", <Pills key="v" v={["primary", "soft", "ghost", "quiet", "danger"]} />], ["size", "md", <Pills key="s" v={["md · 40", "sm · 32"]} />], ["...button", "–", "disabled, onClick 등 button 속성"]]} /> },
     ];
@@ -311,6 +316,18 @@ function pageBlocks(slug: string, theme: Theme): Block[] {
       { id: "overview", title: "기본", desc: "테두리 없이 surface-sunk 면으로 표시되며, 포커스 시 accent 링이 표시됨.", demo: <Surface className="dd-w dd-fields"><Label htmlFor="dd-f1">금액</Label><Field id="dd-f1" defaultValue="12,000" inputMode="numeric" /><Label htmlFor="dd-f2">메모</Label><Field id="dd-f2" placeholder="무엇에 썼어요?" /></Surface>, code: IMPORT("Field, Label") + `<Label htmlFor="amount">금액</Label>\n<Field id="amount" inputMode="numeric" />` },
       { id: "usage", title: "사용 규칙", body: <DoDont dos={["레이블은 입력 필드 위에 Label로 표시함", "숫자 입력에는 inputMode=\"numeric\"을 지정함"]} donts={["배경색과 테두리를 함께 사용한 입력 필드", "면 안에 또 다른 면을 둔 입력 필드"]} /> },
       { id: "props", title: "Props", body: <Props rows={[["...input", "–", "value, onChange, placeholder, inputMode 등 input 속성"]]} /> },
+    ];
+    case "select": return [
+      { id: "overview", title: "기본", desc: "Field와 같은 surface-sunk 면에 오른쪽 화살표가 붙음. 포커스 시 accent 링이 표시됨.", demo: <Surface className="dd-w dd-fields"><Label htmlFor="dd-s1">분류</Label><Select id="dd-s1" defaultValue="cafe">{Object.entries(CAT_NAME).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</Select></Surface>, code: IMPORT("Label, Select") + `<Label htmlFor="category">분류</Label>\n<Select id="category" value={category} onChange={(e) => setCategory(e.target.value)}>\n  <option value="food">식비</option>\n  <option value="cafe">카페</option>\n</Select>` },
+      { id: "size", title: "Size", level: 3, desc: "md는 44px로 Field와 높이가 같음. sm은 28px로 하단의 언어, 테마 설정에만 사용함.", demo: <div className="dd-row"><Select defaultValue="ko" aria-label="언어 (md)" style={{ width: 160 }}><option value="ko">한국어</option></Select><Select size="sm" defaultValue="ko" aria-label="언어 (sm)"><option value="ko">한국어</option></Select></div>, code: `<Select>…</Select>\n<Select size="sm">…</Select>` },
+      { id: "usage", title: "사용 규칙", body: <DoDont dos={["선택지가 다섯 개 이상이거나 화면이 좁을 때 사용함", "선택지가 두세 개면 Chip이나 Tabs를 먼저 고려함"]} donts={["select 요소에 직접 스타일 지정", "선택 즉시 되돌릴 수 없는 작업 실행"]} /> },
+      { id: "props", title: "Props", body: <Props rows={[["size", "md", <Pills key="s" v={["md · 44", "sm · 28"]} />], ["...select", "–", "value, onChange, disabled 등 select 속성"]]} /> },
+    ];
+    case "checkbox": return [
+      { id: "overview", title: "기본", desc: "할 일과 목표의 완료 여부는 둥근 Checkbox로 표시함. 체크하면 accent 면에 체크 표시가 나타남.", demo: <Surface className="dd-w dd-checks"><label><Checkbox defaultChecked />은행 서류 제출</label><label><Checkbox />택배 반품</label></Surface>, code: IMPORT("Checkbox") + `<Checkbox checked={done} onChange={(e) => onToggle(e.target.checked)} aria-label="은행 서류 제출 완료" />` },
+      { id: "shape", title: "Shape", level: 3, desc: "목록에서 항목을 켜고 끌 때(표시할 캘린더)는 square를 사용함.", demo: <Surface className="dd-w dd-checks"><label><Checkbox shape="square" defaultChecked />내 캘린더</label><label><Checkbox shape="square" />공휴일</label></Surface>, code: `<label>\n  <Checkbox shape="square" checked={on} onChange={toggle} />내 캘린더\n</label>` },
+      { id: "usage", title: "사용 규칙", body: <DoDont dos={["텍스트와 함께 label로 감싸거나 aria-label을 지정함", "완료 표시는 round, 설정 켜기·끄기는 square"]} donts={["체크박스 하나만으로 저장 버튼 대신 사용", "브라우저 기본 체크박스 사용"]} /> },
+      { id: "props", title: "Props", body: <Props rows={[["shape", "round", <Pills key="s" v={["round · 20", "square · 18"]} />], ["...input", "–", "checked, onChange, disabled 등 input 속성"]]} /> },
     ];
     case "surface": return [
       { id: "overview", title: "기본", desc: "surface 배경, shadow-surface 그림자, radius-surface 모서리를 사용함.", demo: <Surface className="dd-w"><div className="dd-date"><b>11월 22일</b><span>일요일</span></div><Label>오늘 할 일</Label><span className="t-body">은행 서류 제출</span><span className="t-body">택배 반품</span></Surface>, code: IMPORT("Surface") + `<Surface>\n  …\n</Surface>` },

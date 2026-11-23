@@ -14,6 +14,8 @@ export const DOC_PAGES: DocPage[] = [
   { slug: "chip", title: "Chip", group: "컴포넌트", summary: "Chip은 감정 단어 선택이나 목록 필터처럼 짧은 항목을 고를 때 사용함.", tag: "Action" },
   { slug: "paper", title: "Paper", group: "컴포넌트", summary: "Paper는 일기처럼 긴 글을 작성하는 입력 영역.", tag: "Input" },
   { slug: "field", title: "Field", group: "컴포넌트", summary: "Field는 금액, 메모처럼 한 줄 값을 입력받음.", tag: "Input" },
+  { slug: "select", title: "Select", group: "컴포넌트", summary: "Select는 분류, 요일처럼 정해진 값 중 하나를 고를 때 사용함.", tag: "Input" },
+  { slug: "checkbox", title: "Checkbox", group: "컴포넌트", summary: "Checkbox는 할 일 완료나 캘린더 표시처럼 켜고 끄는 값을 표시함.", tag: "Input" },
   { slug: "surface", title: "Surface", group: "컴포넌트", summary: "Surface는 관련된 콘텐츠를 하나로 묶는 컨테이너.", tag: "Layout" },
   { slug: "list-row", title: "ListRow", group: "컴포넌트", summary: "ListRow는 지출 내역처럼 날짜별로 묶인 기록을 한 줄씩 표시함.", tag: "Data Display" },
   { slug: "day-flower", title: "DayFlower", group: "컴포넌트", summary: "DayFlower는 하루 계획의 달성 정도를 꽃 모양으로 표시함.", tag: "Data Display" },

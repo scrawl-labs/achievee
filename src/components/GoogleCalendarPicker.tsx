@@ -1,4 +1,5 @@
 "use client";
+import { Checkbox } from "@achievee/ui";
 import { useEffect, useState } from "react";
 import type { GoogleCalendar } from "@/lib/calendarSources";
 import { useI18n } from "./I18n";
@@ -52,7 +53,7 @@ export default function GoogleCalendarPicker() {
             {cals.map((c) => (
               <li key={c.id}>
                 <label style={{ ["--ev" as string]: c.color }}>
-                  <input type="checkbox" checked={!off.has(c.id)} disabled={busy} onChange={(e) => void toggle(c.id, e.target.checked)} />
+                  <Checkbox shape="square" checked={!off.has(c.id)} disabled={busy} onChange={(e) => void toggle(c.id, e.target.checked)} />
                   <i aria-hidden="true" /><span>{c.name}</span>
                 </label>
               </li>

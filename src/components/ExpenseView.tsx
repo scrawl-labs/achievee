@@ -9,7 +9,7 @@ import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 import DatePicker from "./DatePicker";
 import { askConfirm } from "./Confirm";
-import { Button, Chip, ChipRow, DayHeader, Field, IconButton, List, ListRow, Surface } from "@achievee/ui";
+import { Button, Chip, ChipRow, DayHeader, Field, IconButton, List, ListRow, Select, Surface } from "@achievee/ui";
 import CategoryGlyph from "./CategoryGlyph";
 
 type Row = { id: number; date: string; category: string; memo: string; amount: number; need: number };
@@ -148,11 +148,11 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
             {open && (
               <form className="panel entry" onSubmit={add}>
                 <DatePicker value={sel} onChange={setSel} />
-                <select value={category} onChange={(e) => setCategory(e.target.value as Category)} aria-label={t("exp.category")}>{CATEGORIES.map((c) => <option key={c} value={c}>{catName(c)}</option>)}</select>
-                <select value={need ? "need" : "waste"} onChange={(e) => setNeed(e.target.value === "need")} aria-label={t("exp.needOrNot")}>
+                <Select value={category} onChange={(e) => setCategory(e.target.value as Category)} aria-label={t("exp.category")}>{CATEGORIES.map((c) => <option key={c} value={c}>{catName(c)}</option>)}</Select>
+                <Select value={need ? "need" : "waste"} onChange={(e) => setNeed(e.target.value === "need")} aria-label={t("exp.needOrNot")}>
                   <option value="need">{t("exp.needOpt")}</option>
                   <option value="waste">{t("exp.wasteOpt")}</option>
-                </select>
+                </Select>
                 <Field placeholder={t("exp.amount")} inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} autoFocus />
                 <Field className="wide" placeholder={t("exp.memo")} value={memo} onChange={(e) => setMemo(e.target.value)} />
                 <Button type="submit" variant="primary">{t("common.add")}</Button>
@@ -183,13 +183,13 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
                     {d.rows.map((r) => editId === r.id ? (
                       <form className="panel entry" key={r.id} onSubmit={saveEdit}>
                         <DatePicker value={draft.date} onChange={(dd) => setDraft({ ...draft, date: dd })} />
-                        <select value={draft.category} onChange={(e) => setDraft({ ...draft, category: e.target.value as Category })} aria-label={t("exp.category")}>
+                        <Select value={draft.category} onChange={(e) => setDraft({ ...draft, category: e.target.value as Category })} aria-label={t("exp.category")}>
                           {CATEGORIES.map((c) => <option key={c} value={c}>{catName(c)}</option>)}
-                        </select>
-                        <select value={draft.need ? "need" : "waste"} onChange={(e) => setDraft({ ...draft, need: e.target.value === "need" })} aria-label={t("exp.needOrNot")}>
+                        </Select>
+                        <Select value={draft.need ? "need" : "waste"} onChange={(e) => setDraft({ ...draft, need: e.target.value === "need" })} aria-label={t("exp.needOrNot")}>
                           <option value="need">{t("exp.needOpt")}</option>
                           <option value="waste">{t("exp.wasteOpt")}</option>
-                        </select>
+                        </Select>
                         <Field placeholder={t("exp.amount")} inputMode="numeric" value={draft.amount} onChange={(e) => setDraft({ ...draft, amount: e.target.value })} autoFocus />
                         <Field className="wide" placeholder={t("exp.memo")} value={draft.memo} onChange={(e) => setDraft({ ...draft, memo: e.target.value })} />
                         <div className="edit-actions">
@@ -267,10 +267,10 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
             {sOpen && (
               <form className="panel entry" onSubmit={addSav}>
                 <DatePicker value={sel} onChange={setSel} />
-                <select value={sKind} onChange={(e) => setSKind(e.target.value as Sav["kind"])} aria-label={t("sav.kind")}>
+                <Select value={sKind} onChange={(e) => setSKind(e.target.value as Sav["kind"])} aria-label={t("sav.kind")}>
                   <option value="saving">{t("sav.saving")}</option>
                   <option value="invest">{t("sav.invest")}</option>
-                </select>
+                </Select>
                 <Field placeholder={t("exp.amount")} inputMode="numeric" value={sAmount} onChange={(e) => setSAmount(e.target.value)} autoFocus />
                 <Field className="wide" placeholder={t("exp.memo")} value={sMemo} onChange={(e) => setSMemo(e.target.value)} />
                 <Button type="submit" variant="primary">{t("common.add")}</Button>
@@ -281,10 +281,10 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
               {savRows.map((r) => sEditId === r.id ? (
                 <form className="panel entry" key={r.id} onSubmit={saveSav}>
                   <DatePicker value={sDraft.date} onChange={(d) => setSDraft({ ...sDraft, date: d })} />
-                  <select value={sDraft.kind} onChange={(e) => setSDraft({ ...sDraft, kind: e.target.value as Sav["kind"] })} aria-label={t("sav.kind")}>
+                  <Select value={sDraft.kind} onChange={(e) => setSDraft({ ...sDraft, kind: e.target.value as Sav["kind"] })} aria-label={t("sav.kind")}>
                     <option value="saving">{t("sav.saving")}</option>
                     <option value="invest">{t("sav.invest")}</option>
-                  </select>
+                  </Select>
                   <Field placeholder={t("exp.amount")} inputMode="numeric" value={sDraft.amount} onChange={(e) => setSDraft({ ...sDraft, amount: e.target.value })} autoFocus />
                   <Field className="wide" placeholder={t("exp.memo")} value={sDraft.memo} onChange={(e) => setSDraft({ ...sDraft, memo: e.target.value })} />
                   <div className="edit-actions">
@@ -323,9 +323,9 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
               return (
                 <div className="period-row" key={month}>
                   <label htmlFor={`pay-${month}`}>{t("inc.startOf", { m: fmt.monthYear(month) })}</label>
-                  <select id={`pay-${month}`} value={day} onChange={(e) => { const d = Number(e.target.value); onOverride(month, d === startDay ? null : d); }}>
+                  <Select id={`pay-${month}`} value={day} onChange={(e) => { const d = Number(e.target.value); onOverride(month, d === startDay ? null : d); }}>
                     {DAYS.map((d) => <option key={d} value={d}>{t("inc.day", { n: d })}</option>)}
-                  </select>
+                  </Select>
                   {custom && <Button variant="ghost" type="button" onClick={() => onOverride(month, null)}>{t("inc.payReset", { n: periodStart(month, startDay).slice(8) })}</Button>}
                 </div>
               );

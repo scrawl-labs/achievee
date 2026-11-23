@@ -197,7 +197,7 @@ button.item:hover, button.item.on { border-color: var(--accent); }
 .sechead { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); margin-bottom: var(--s3); }
 .btn.add svg { transition: transform .25s cubic-bezier(.34, 1.56, .64, 1); } .btn.add.open svg { transform: rotate(45deg); }
 .sechead.flush { margin-bottom: calc(var(--s3) * -1); }
-.btn.gcal { gap: var(--s2); }
+.ac-btn.gcal { gap: var(--s2); }
 
 /* Time grid (day / week) */
 .tlbox { border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); overflow: hidden; }
@@ -254,7 +254,7 @@ button.mcell:hover { background: var(--surface-2); } .mcell.sel { background: co
   .agenda li a { grid-template-columns: 10px 1fr; } .agenda li time, .agenda li b { grid-column: 2; } .agenda li small { display: none; }
 }
 
-/* login, language select, mobile footer */
+/* login, mobile footer */
 .login { min-height: 100dvh; display: flex; flex-direction: column; padding: var(--s5); }
 .login .appfoot { width: min(960px, 100%); margin: 0 auto; }
 .login-card { margin: auto; width: min(420px, 100%); display: flex; flex-direction: column; align-items: center; gap: var(--s5); text-align: center; }
@@ -262,7 +262,6 @@ button.mcell:hover { background: var(--surface-2); } .mcell.sel { background: co
 .login-tag { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; margin: 0; }
 .login-cta { height: 46px; gap: var(--s2); padding: 0 var(--s5); font-size: 15px; }
 .login-note { font-size: 13px; margin: 0; }
-.lang { height: 36px; padding: 0 var(--s3); border-radius: var(--r-s); background: var(--surface-2); border: 1px solid var(--line); color: var(--fg); font: inherit; }
 .account { flex-wrap: wrap; }
 .account .who { flex-basis: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -278,12 +277,9 @@ button.mcell:hover { background: var(--surface-2); } .mcell.sel { background: co
 .legal-links a, .legal-links button { color: var(--fg-3); background: none; border: 0; padding: 0; font: inherit; cursor: pointer; text-decoration: underline; }
 .legal-links a:hover, .legal-links button:hover { color: var(--fg); }
 
-/* language select: small, last item of the account area */
-.lang { height: 28px; padding: 0 var(--s2); font-size: 12px; color: var(--fg-2); }
 .legal-links { flex-wrap: wrap; }
 .login-card .legal-links { justify-content: center; }
 
-.lang { width: auto; background: var(--surface-2); }
 
 /* footer + page body (footer sticks to the bottom on short pages) */
 .page { display: flex; flex-direction: column; min-height: 100dvh; }
@@ -313,16 +309,6 @@ button.mcell:hover { background: var(--surface-2); } .mcell.sel { background: co
 .wordmark { display: inline-block; font-family: "AchieveeMark", "Dunggeun", var(--font), sans-serif; font-weight: 700; letter-spacing: 0; font-kerning: normal; white-space: nowrap; }
 @font-face { font-family: "Dunggeun"; src: url("/fonts/HakgyoansimDunggeunmiso-B.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
 
-/* selects: draw our own chevron so it sits 12px from the right edge, mirroring the 12px text inset on the left */
-select {
-  -webkit-appearance: none; appearance: none; padding-right: 40px; cursor: pointer;
-  background-repeat: no-repeat; background-position: right 12px center; background-size: 16px 16px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0a2aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-}
-@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235d5f68' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); } }
-:root[data-theme="light"] select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235d5f68' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); }
-.land select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235e5a57' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); }
-.lang { padding-right: 30px; background-position: right 9px center; background-size: 14px 14px; }
 
 /* inline expense editor */
 .edit-actions { grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); }
@@ -340,14 +326,6 @@ select {
 .acts .btn.icon { width: 30px; height: 30px; }
 .inc-list { margin-top: var(--s5); }
 
-/* language select: the older `.lang { background: … }` shorthand reset the chevron settings, so state them here explicitly */
-.lang {
-  background-color: var(--surface-2); background-repeat: no-repeat;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0a2aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-}
-@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .lang { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235d5f68' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); } }
-:root[data-theme="light"] .lang { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235d5f68' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); }
-.land .lang { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235e5a57' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); }
 
 /* weekly review */
 .nudge { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); margin-bottom: var(--s5); padding: var(--s4) var(--s5);
@@ -360,6 +338,7 @@ select {
 .wk-form { display: flex; flex-direction: column; gap: var(--s4); }
 .wk-q { display: flex; flex-direction: column; gap: var(--s2); }
 .wk-q span { font-size: 13px; font-weight: 600; color: var(--fg-2); }
+.wk-paper.ac-paper { min-height: 0; }
 @media (max-width: 860px) { .nudge { flex-direction: column; align-items: stretch; } }
 
 /* expense / income rows: memo on its own line, right-hand cells in fixed columns so nothing shifts with text length */
@@ -926,9 +905,7 @@ button.note.open { display: block; -webkit-line-clamp: unset; overflow: visible;
 .goals h4 { margin: 0; font-size: 13px; color: var(--fg-2); }
 .goals ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s1); }
 .goal { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); min-height: 32px; }
-.goal input[type="checkbox"] { flex: none; appearance: none; width: 18px; height: 18px; min-width: 18px; padding: 0; border-radius: 99px; border: 2px solid var(--line); background: var(--bg); cursor: pointer; }
-.goal input[type="checkbox"]:checked { background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='M5 9.5l2.8 2.8L13 6.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/100% no-repeat; border-color: var(--accent); }
-.goal input[type="checkbox"]:focus-visible, .goal-text:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.goal-text:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .goal-text { flex: 1; min-width: 0; text-align: left; background: none; border: 0; padding: 4px 0; cursor: text; overflow-wrap: anywhere; line-height: 1.4; }
 .goal.done .goal-text { color: var(--fg-3); text-decoration: line-through; }
 .goal .btn.icon { flex: none; width: 28px; height: 28px; }
@@ -960,7 +937,6 @@ button.note.open { display: block; -webkit-line-clamp: unset; overflow: visible;
    and as chips in the schedule views. .tk-src is deliberately not related to the calendar cells' count stamps (.stamp / .blob). */
 .tk-src { flex: none; font-size: 11px; font-weight: 700; line-height: 1.4; padding: 0 var(--s2); border-radius: 99px; border: 1px solid var(--line); background: var(--surface-2); color: var(--fg-2); white-space: nowrap; }
 /* strike the title only, not the pill */
-.goal input[type="checkbox"]:disabled { cursor: default; }
 .goal-text.ro { cursor: default; padding: 4px 0; }
 .goal .tk-src { margin-left: var(--s1); }
 .tkc { display: flex; align-items: center; gap: var(--s2); min-width: 0; width: 100%; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); font-size: 12px; font-weight: 600; line-height: 1.35; text-align: left; }
@@ -1056,7 +1032,6 @@ button.ev.native:hover .ev-resize::after { opacity: .45; }
 .gcals-toggle .grow { flex: 1; }
 .gcals-list { list-style: none; padding: 0; display: flex; flex-direction: column; }
 .gcals-list label { display: flex; align-items: center; gap: var(--s2); padding: 6px 0; font-size: 13.5px; cursor: pointer; min-width: 0; }
-.gcals-list input[type="checkbox"] { flex: none; width: 16px; height: 16px; padding: 0; accent-color: var(--accent); cursor: pointer; }
 .gcals-list i { flex: none; width: 10px; height: 10px; border-radius: 99px; background: var(--ev); }
 .gcals-list span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -1253,7 +1228,7 @@ a, button, input, select, textarea, label, summary, [role="button"], [role="tab"
 .set-links a { color: var(--fg-2); }
 .set-danger { padding-top: var(--s3); border-top: 1px solid var(--line); }
 .settings, .settings .panel { min-width: 0; max-width: 100%; }
-.set-row select.lang { width: 132px; flex: none; }
+.set-row .set-select { width: 132px; flex: none; }
 .set-row > .btn { flex: none; }
 .set-stack { flex-direction: column; align-items: flex-start; gap: var(--s3); }
 .set-stack > small { line-height: 1.5; }
@@ -1262,10 +1237,10 @@ a, button, input, select, textarea, label, summary, [role="button"], [role="tab"
 .settings .panel { gap: var(--s2); }
 .settings .panel h3 { margin-bottom: var(--s1); }
 .set-row { min-height: 48px; }
-.set-row select.lang, .set-row input.set-num { width: 132px; flex: none; text-align: right; }
+.set-row .set-select, .set-row .set-num { width: 132px; flex: none; text-align: right; }
 .set-me { gap: var(--s3); }
-.set-row select.lang, .set-row input.set-num { height: 40px; }
-.set-row select.lang { text-align: left; text-align-last: left; font-size: 14px; color: var(--fg); }
+.set-row .set-select, .set-row .set-num { height: 40px; }
+.set-row .set-select { text-align: left; text-align-last: left; font-size: 14px; color: var(--fg); }
 a.bori-fab-btn { display: block; }
 .land .bori-fab-hint { box-shadow: var(--land-shadow); }
 @media (max-width: 860px) { .bori-fab.landing { bottom: calc(18px + env(safe-area-inset-bottom)); } }
@@ -1393,8 +1368,8 @@ input::placeholder, textarea::placeholder { color: var(--fg-3); }
 .datenav { border: 0; background: var(--surface-2); }
 .datenav .btn { background: transparent; }
 .datenav .btn + .btn { border-left: 0; box-shadow: inset 1px 0 0 var(--line); }
-.tag, .seg, .lang, .emo-panel, .emodict-fam dl > div, .intcard, .inttile, .body-tiles button, .sm-strip .chip { border: 0; }
-.tag, .lang, .inttile, .body-tiles button, .sm-strip .chip, .emodict-fam dl > div { background-color: var(--surface-2); }
+.tag, .seg, .emo-panel, .emodict-fam dl > div, .intcard, .inttile, .body-tiles button, .sm-strip .chip { border: 0; }
+.tag, .inttile, .body-tiles button, .sm-strip .chip, .emodict-fam dl > div { background-color: var(--surface-2); }
 .seg { background-color: var(--surface-2); }
 .emo-panel { background: none; padding: 0; } /* the panel itself adds no layer: its card and chips are the one sunk layer */
 .emo-desc { border: 0; background: transparent; padding-left: 0; padding-right: 0; }
@@ -1406,7 +1381,6 @@ input::placeholder, textarea::placeholder { color: var(--fg-3); }
 .bori-fab-btn { border: 0; }
 .agenda li a { box-shadow: var(--shadow-surface); }
 .agenda li a:hover { box-shadow: var(--shadow-surface), inset 0 0 0 1.5px var(--fg-3); }
-select { padding-right: 36px; }
 
 .ex-ic { width: 20px; height: 20px; flex: none; color: inherit; }
 .ex-sum { gap: 0; }

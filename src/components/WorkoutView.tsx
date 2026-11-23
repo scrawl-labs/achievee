@@ -8,7 +8,7 @@ import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 import Icon from "./Icon";
 import { askConfirm } from "./Confirm";
-import { Button, Field, IconButton, List, ListRow, Tabs } from "@achievee/ui";
+import { Button, Field, IconButton, List, ListRow, Select, Tabs } from "@achievee/ui";
 import Summary from "./Summary";
 import DatePicker from "./DatePicker";
 import BodyLog from "./BodyLog";
@@ -65,9 +65,9 @@ export default function WorkoutView({ sel, setSel, goal, onGoal, intakeGoals, on
     await send(`/api/workouts?id=${r.id}`, "DELETE"); reload();
   };
   const kindSelect = (value: WorkoutKind, onChange: (k: WorkoutKind) => void) => (
-    <select value={value} onChange={(e) => onChange(e.target.value as WorkoutKind)} aria-label={t("wo.kind")}>
+    <Select value={value} onChange={(e) => onChange(e.target.value as WorkoutKind)} aria-label={t("wo.kind")}>
       {WORKOUT_KINDS.map((k) => <option key={k} value={k}>{t(kindKey(k))}</option>)}
-    </select>
+    </Select>
   );
 
   return (
@@ -142,9 +142,9 @@ export default function WorkoutView({ sel, setSel, goal, onGoal, intakeGoals, on
           </div>
           <div className="period">
             <label htmlFor="wogoal">{t("wo.goal")}</label>
-            <select id="wogoal" value={goal} onChange={(e) => onGoal(Number(e.target.value))}>
+            <Select id="wogoal" value={goal} onChange={(e) => onGoal(Number(e.target.value))}>
               {[1, 2, 3, 4, 5, 6, 7].map((n) => <option key={n} value={n}>{t("wo.perWeek", { n })}</option>)}
-            </select>
+            </Select>
             <small>{w.sessions >= goal ? t("wo.goalMet") : t("wo.goalLeft", { n: goal - w.sessions })}</small>
           </div>
         </section>

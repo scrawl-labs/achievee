@@ -1,5 +1,5 @@
 "use client";
-import { Button, Field, IconButton } from "@achievee/ui";
+import { Button, Field, IconButton, Select } from "@achievee/ui";
 import { useState } from "react";
 import { INTAKE_KINDS, type IntakeKind, type IntakeRow, dayTotal, daysMet, liters } from "@/lib/intake";
 import type { Key } from "@/lib/i18n";
@@ -74,9 +74,9 @@ export default function IntakeLog({ sel, goals, onGoal }: { sel: string; goals: 
               </form>
               <div className="period">
                 <label htmlFor={`goal-${k}`}>{t("in.goal")}</label>
-                <select id={`goal-${k}`} value={goal} onChange={(e) => onGoal(k, Number(e.target.value))}>
+                <Select id={`goal-${k}`} value={goal} onChange={(e) => onGoal(k, Number(e.target.value))}>
                   {options.map((n) => <option key={n} value={n}>{fmtAmount(k, n)}</option>)}
-                </select>
+                </Select>
               </div>
             </div>
           );

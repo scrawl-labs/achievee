@@ -1,5 +1,5 @@
 "use client";
-import { IconButton } from "@achievee/ui";
+import { Checkbox, IconButton } from "@achievee/ui";
 import { useRef, useState } from "react";
 import type { Key } from "@/lib/i18n";
 import { useI18n } from "./I18n";
@@ -21,7 +21,7 @@ export default function GoalItem({ goal, toggleKey = "goal.toggle", editKey = "g
   const textBtn = useRef<HTMLButtonElement>(null);
   return (
     <li className={`goal${goal.done ? " done" : ""}`}>
-      <input type="checkbox" checked={goal.done} onChange={(e) => onToggle(e.target.checked)} aria-label={t(toggleKey, { text: goal.text })} />
+      <Checkbox checked={goal.done} onChange={(e) => onToggle(e.target.checked)} aria-label={t(toggleKey, { text: goal.text })} />
       {editing ? (
         <GoalInput initial={goal.text} label={t(editKey, { text: goal.text })} saveOnBlur returnFocus={textBtn} onSubmit={(v) => { setEditing(false); onText(v); }} onCancel={() => setEditing(false)} />
       ) : (
