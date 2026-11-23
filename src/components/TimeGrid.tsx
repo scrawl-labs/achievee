@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { DayEvent } from "@/lib/types";
 import { dow } from "@/lib/dates";
 import { browserTz, todayStr } from "@/lib/clientTime";
-import { nativeIdOf, type NativeEventCreate } from "@/lib/nativeEvents";
+import { nativeIdOf, type EventKind, type NativeEventCreate } from "@/lib/nativeEvents";
 import { eventSource } from "@/lib/calendarSources";
 import { cellOfY, columnAt, moveRange, resizeEnd, selectionRange, slotAtPoint } from "@/lib/slotSelect";
 import type { TaskEntry } from "@/lib/taskList";
@@ -55,10 +55,12 @@ const SAME = (a: Pick, b: Pick) => a.date === b.date && a.start === b.start && a
  * With `onCreate`, dragging over empty time (or clicking it, for an hour) makes an own event; own events open a small editor,
  * Google events stay read-only links. Tasks in the strip can be dragged onto a time slot to make an event from their title, and `onAddTask` adds a to-do from the strip. Own events can also be dragged to another time or day and stretched from their bottom edge (`onMove`).
  */
-export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TASKS, onToggleTask, badge = false, onCreate, onRename, onRemove, onMove, onAddTask }: {
+export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TASKS, onToggleTask, badge = false, onCreate, onRename, onRemove, newKind = "plan", onMove, onAddTask }: {
   days: string[]; events: DayEvent[] | null; error?: boolean; onPickDay?: (d: string) => void;
   tasks?: Record<string, TaskEntry[]>; onToggleTask?: (id: number, done: boolean) => void; badge?: boolean;
-  onCreate?: (e: NativeEventCreate) => Promise<boolean>; onRename?: (id: number, title: string) => Promise<boolean>; onRemove?: (id: number) => Promise<boolean>;
+  onCreate?: (e: NativeEventCreate) => Promise<boolean>; onRename?: (id: number, title: string, kind?: EventKind) => Promise<boolean>;
+  /** Kind of a new own event made by clicking or dragging an empty slot (dropping a to-do always makes a plan). */
+  newKind?: EventKind; onRemove?: (id: number) => Promise<boolean>;
   onMove?: (id: number, to: { date: string; startMin: number; endMin: number }) => Promise<boolean>;
   onAddTask?: (date: string, text: string) => Promise<boolean>;
 }) {
@@ -181,7 +183,7 @@ export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TA
       document.body.style.userSelect = "";
       setTaskDrag(null);
       if (moved) { justDragged.current = true; setTimeout(() => { justDragged.current = false; }, 0); } // the click that ends a drag must not toggle the task
-      if (create && moved && slot) void onCreate({ date: slot.date, startMin: slot.start, endMin: slot.end, title: text });
+      if (create && moved && slot) void onCreate({ date: slot.date, startMin: slot.start, endMin: slot.end, title: text, kind: "plan" });
     };
     const up = () => finish(true), cancel = () => finish(false);
     window.addEventListener("pointermove", move); window.addEventListener("pointerup", up); window.addEventListener("pointercancel", cancel);
@@ -234,7 +236,7 @@ export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TA
                     );
                     return own !== null ? (
                       <div key={e.id} className="evwrap">
-                        <button type="button" className={`ev native own${gesture?.id === own && gesture.moved ? " moving" : ""}`} title={title} style={style}
+                        <button type="button" className={`ev native own${e.kind === "plan" ? " plan" : ""}${gesture?.id === own && gesture.moved ? " moving" : ""}`} title={title} style={style}
                           onPointerDown={(ev) => beginGesture(ev, own, e, "move")} onPointerMove={moveGesture} onPointerUp={endGesture} onPointerCancel={() => setGesture(null)}
                           onClick={(ev) => { if (ev.detail === 0) { setPick(null); setEditing(editing === own ? null : own); } }}>
                           {body}
@@ -242,9 +244,9 @@ export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TA
                             onPointerDown={(ev) => beginGesture(ev, own, e, "resize")} onPointerMove={moveGesture} onPointerUp={endGesture} onPointerCancel={() => setGesture(null)} />}
                         </button>
                         {editing === own && (
-                          <EventComposer initial={e.title} when={`${fmt.monthDay(e.date)} ${hhmm(e.startMin)} - ${hhmm(e.endMin)}`} align={side(i)} top={(e.startMin / 60) * H}
+                          <EventComposer initial={e.title} kind={e.kind ?? "appointment"} when={`${fmt.monthDay(e.date)} ${hhmm(e.startMin)} - ${hhmm(e.endMin)}`} align={side(i)} top={(e.startMin / 60) * H}
                             onCancel={() => setEditing(null)}
-                            onSave={async (title) => { const ok = (await onRename?.(own, title)) ?? false; if (ok) setEditing(null); return ok; }}
+                            onSave={async (title, kind) => { const ok = (await onRename?.(own, title, kind)) ?? false; if (ok) setEditing(null); return ok; }}
                             onDelete={onRemove ? async () => { const ok = await onRemove(own); if (ok) setEditing(null); return ok; } : undefined} />
                         )}
                       </div>
@@ -258,9 +260,9 @@ export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TA
                     </div>
                   )}
                   {pick && pick.date === d && !drag && (
-                    <EventComposer when={when(pick)} align={side(i)} top={(pick.start / 60) * H}
+                    <EventComposer when={when(pick)} kind={newKind} align={side(i)} top={(pick.start / 60) * H}
                       onCancel={() => setPick(null)}
-                      onSave={async (title) => { const ok = (await onCreate?.({ date: pick.date, startMin: pick.start, endMin: pick.end, title })) ?? false; if (ok) setPick(null); return ok; }} />
+                      onSave={async (title, kind) => { const ok = (await onCreate?.({ date: pick.date, startMin: pick.start, endMin: pick.end, title, kind: kind ?? newKind })) ?? false; if (ok) setPick(null); return ok; }} />
                   )}
                   {d === today && nowMin >= 0 && <div className="nowline" style={{ top: (nowMin / 60) * H }} />}
                 </div>

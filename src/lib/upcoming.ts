@@ -39,6 +39,7 @@ export function selectUpcoming(events: readonly DayEvent[], today: string, nowMi
   const seen = new Set<string>();
   const items = [...events]
     .filter((e) => e.date >= today && e.date < end)
+    .filter((e) => e.kind !== "plan") // a block you set aside for yourself is not something booked: it stays in the calendar only
     .sort((a, b) => a.date.localeCompare(b.date) || Number(b.allDay) - Number(a.allDay) || a.startMin - b.startMin || b.endMin - a.endMin)
     .filter((e) => {
       const k = eventKey(e);

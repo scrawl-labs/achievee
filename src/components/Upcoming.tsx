@@ -26,7 +26,7 @@ function useRowCap() {
   return narrow ? 3 : UPCOMING_MAX;
 }
 
-export default function Upcoming({ onOpen }: { onOpen: (date: string, mode: "DAY" | "AGENDA") => void }) {
+export default function Upcoming({ onOpen }: { onOpen: (date: string, mode: "DAY" | "AGENDA", kind?: "appointment") => void }) {
   const { t, fmt } = useI18n();
   const today = todayStr();
   const { events, error } = useEvents(today, addDays(today, UPCOMING_DAYS));
@@ -38,7 +38,7 @@ export default function Upcoming({ onOpen }: { onOpen: (date: string, mode: "DAY
     <section className="upcoming" aria-labelledby="up-title">
       <div className="up-head">
         <h4 id="up-title">{t("up.title")} <small>{t("up.sub")}</small></h4>
-        <Button variant="ghost" className="up-add" type="button" onClick={() => onOpen(today, "DAY")}><Icon name="plus" size={14} />{t("up.add")}</Button>
+        <Button variant="ghost" className="up-add" type="button" onClick={() => onOpen(today, "DAY", "appointment")}><Icon name="plus" size={14} />{t("up.add")}</Button>
       </div>
       {error && <p className="error">{t("common.loadFail")}</p>}
       {up && up.rows.length === 0 && !rest && (

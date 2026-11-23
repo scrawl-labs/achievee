@@ -3,9 +3,12 @@ import { fail, isGoalId, isRecord, parseText, type Parsed } from "./goals";
 import type { DayData, DayEvent } from "./types";
 
 /** Own calendar events: created in Achievee, stored here, shown mixed with the Google ones. Pure helpers, no React, no I/O. */
-export type NativeEventRow = { id: number; date: string; startMin: number; endMin: number; title: string };
-export type NativeEventCreate = { date: string; startMin: number; endMin: number; title: string };
-export type NativeEventPatch = { id: number; title?: string; date?: string; startMin?: number; endMin?: number };
+/** appointment: something booked (shown in Upcoming). plan: a block you set aside for yourself (shown only in the calendar). */
+export type EventKind = "appointment" | "plan";
+export const isEventKind = (v: unknown): v is EventKind => v === "appointment" || v === "plan";
+export type NativeEventRow = { id: number; date: string; startMin: number; endMin: number; title: string; kind: EventKind };
+export type NativeEventCreate = { date: string; startMin: number; endMin: number; title: string; kind: EventKind };
+export type NativeEventPatch = { id: number; title?: string; date?: string; startMin?: number; endMin?: number; kind?: EventKind };
 
 export const NATIVE_CALENDAR = "Achievee";
 export const NATIVE_COLOR = "#7c8cff";
@@ -23,8 +26,10 @@ export function parseNativeCreate(b: unknown): Parsed<NativeEventCreate> {
   if (!isRecord(b)) return fail("bad input");
   if (!isYmd(b.date)) return fail("bad date");
   if (!validSpan(b.startMin, b.endMin)) return fail("bad time");
+  if (b.kind !== undefined && !isEventKind(b.kind)) return fail("bad kind");
+  const kind: EventKind = isEventKind(b.kind) ? b.kind : "appointment"; // a client that sends no kind made appointments before
   const title = parseText(b.title);
-  return title.ok ? { ok: true, value: { date: b.date, startMin: b.startMin, endMin: b.endMin as number, title: title.value } } : title;
+  return title.ok ? { ok: true, value: { date: b.date, startMin: b.startMin, endMin: b.endMin as number, title: title.value, kind } } : title;
 }
 
 export function parseNativePatch(b: unknown): Parsed<NativeEventPatch> {
@@ -38,6 +43,10 @@ export function parseNativePatch(b: unknown): Parsed<NativeEventPatch> {
   if (b.date !== undefined) {
     if (!isYmd(b.date)) return fail("bad date");
     value = { ...value, date: b.date };
+  }
+  if (b.kind !== undefined) {
+    if (!isEventKind(b.kind)) return fail("bad kind");
+    value = { ...value, kind: b.kind };
   }
   if (b.startMin !== undefined || b.endMin !== undefined) { // a time change always carries both ends
     if (!validSpan(b.startMin, b.endMin)) return fail("bad time");
@@ -54,7 +63,7 @@ export function parseNativeId(raw: string | null): Parsed<number> {
 /** The shape every calendar view already draws. The id keeps own events apart from Google ids. */
 export const toDayEvent = (r: NativeEventRow): DayEvent => ({
   id: `n${r.id}`, date: r.date, title: r.title, calendar: NATIVE_CALENDAR, color: NATIVE_COLOR,
-  allDay: false, startMin: r.startMin, endMin: r.endMin, source: "native",
+  allDay: false, startMin: r.startMin, endMin: r.endMin, source: "native", kind: r.kind,
 });
 
 /** "n12" -> 12; anything else (a Google id) -> null. */

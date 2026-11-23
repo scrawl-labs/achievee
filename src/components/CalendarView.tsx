@@ -26,7 +26,7 @@ const MON_FIRST = [1, 2, 3, 4, 5, 6, 0];
 
 type Props = {
   ym: string; month: MonthData | null; stats: Stats | null; sel: string; setSel: (d: string) => void; onDiary: () => void;
-  onSchedule: (date: string, mode: GMode) => void; // opens the Schedule tab on that day
+  onSchedule: (date: string, mode: GMode, kind?: "appointment") => void; // opens the Schedule tab on that day
   onOpen: (tab: "workout" | "expense") => void;     // a summary tile opens its tab
 };
 

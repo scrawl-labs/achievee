@@ -59,6 +59,8 @@ async function sql() {
       id SERIAL PRIMARY KEY, "user" TEXT NOT NULL, date TEXT NOT NULL, start_min INTEGER NOT NULL, end_min INTEGER NOT NULL,
       title TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`,
     s`CREATE INDEX IF NOT EXISTS native_event_user_date ON native_event ("user", date)`,
+    // an appointment (shown in Upcoming) or a plan block (a time slot you set yourself); rows from before are appointments
+    s`ALTER TABLE native_event ADD COLUMN IF NOT EXISTS kind TEXT NOT NULL DEFAULT 'appointment'`,
     s`CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, created_at TIMESTAMPTZ NOT NULL DEFAULT now())`,
     s`CREATE TABLE IF NOT EXISTS accounts (
       provider TEXT NOT NULL, provider_account_id TEXT NOT NULL, user_id TEXT NOT NULL, PRIMARY KEY (provider, provider_account_id))`,
@@ -536,33 +538,33 @@ export const todos = {
   },
 };
 
-type NativeDb = { id: number; date: string; start_min: number; end_min: number; title: string };
-const toNative = (r: NativeDb): NativeEventRow => ({ id: r.id, date: r.date, startMin: r.start_min, endMin: r.end_min, title: decrypt(r.title) });
+type NativeDb = { id: number; date: string; start_min: number; end_min: number; title: string; kind: string };
+const toNative = (r: NativeDb): NativeEventRow => ({ id: r.id, date: r.date, startMin: r.start_min, endMin: r.end_min, title: decrypt(r.title), kind: r.kind === "plan" ? "plan" : "appointment" });
 
 /** Own calendar events (created in Achievee, shown beside the Google ones). The title is encrypted at rest. */
 export const nativeEvents = {
   /** [from, to): `to` exclusive, like /api/events. */
   async range(user: string, from: string, to: string): Promise<NativeEventRow[]> {
     const s = await sql();
-    const rows = (await s`SELECT id, date, start_min, end_min, title FROM native_event
+    const rows = (await s`SELECT id, date, start_min, end_min, title, kind FROM native_event
       WHERE "user"=${user} AND date >= ${from} AND date < ${to} ORDER BY date, start_min, id`) as NativeDb[];
     return rows.map(toNative);
   },
   /** One month, for the day panel's event count and list. */
   async month(user: string, ym: string): Promise<NativeEventRow[]> {
     const s = await sql(), [a, b] = bounds(ym);
-    const rows = (await s`SELECT id, date, start_min, end_min, title FROM native_event
+    const rows = (await s`SELECT id, date, start_min, end_min, title, kind FROM native_event
       WHERE "user"=${user} AND date BETWEEN ${a} AND ${b} ORDER BY date, start_min, id`) as NativeDb[];
     return rows.map(toNative);
   },
   /** Returns null when the per-day hard limit is already reached (a loose abuse guard, like todos). */
   async add(user: string, e: NativeEventCreate): Promise<NativeEventRow | null> {
     const s = await sql();
-    const rows = (await s`INSERT INTO native_event ("user", date, start_min, end_min, title)
-      SELECT ${user}::text, ${e.date}::text, ${e.startMin}::int, ${e.endMin}::int, ${encrypt(e.title)}::text
+    const rows = (await s`INSERT INTO native_event ("user", date, start_min, end_min, title, kind)
+      SELECT ${user}::text, ${e.date}::text, ${e.startMin}::int, ${e.endMin}::int, ${encrypt(e.title)}::text, ${e.kind}::text
       FROM native_event WHERE "user"=${user} AND date=${e.date}
       HAVING COUNT(*) < ${NATIVE_EVENT_HARD_LIMIT}::int
-      RETURNING id, date, start_min, end_min, title`) as NativeDb[];
+      RETURNING id, date, start_min, end_min, title, kind`) as NativeDb[];
     return rows[0] ? toNative(rows[0]) : null;
   },
   /** Partial update; null when there is no such event for this user. */
@@ -570,9 +572,10 @@ export const nativeEvents = {
     const s = await sql();
     const title = p.title === undefined ? null : encrypt(p.title);
     const rows = (await s`UPDATE native_event SET title=COALESCE(${title}::text, title), date=COALESCE(${p.date ?? null}::text, date),
-      start_min=COALESCE(${p.startMin ?? null}::int, start_min), end_min=COALESCE(${p.endMin ?? null}::int, end_min)
+      start_min=COALESCE(${p.startMin ?? null}::int, start_min), end_min=COALESCE(${p.endMin ?? null}::int, end_min),
+      kind=COALESCE(${p.kind ?? null}::text, kind)
       WHERE id=${p.id} AND "user"=${user}
-      RETURNING id, date, start_min, end_min, title`) as NativeDb[];
+      RETURNING id, date, start_min, end_min, title, kind`) as NativeDb[];
     return rows[0] ? toNative(rows[0]) : null;
   },
   async remove(user: string, id: number): Promise<boolean> {

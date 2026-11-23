@@ -1,4 +1,5 @@
 "use client";
+import type { EventKind } from "@/lib/nativeEvents";
 import { Tabs } from "@achievee/ui";
 import GCalLogo from "./GCalLogo";
 import DayView from "./DayView";
@@ -13,9 +14,10 @@ export const GMODES: readonly (readonly [string, Key])[] = [["DAY", "g.day"], ["
 export type GMode = "DAY" | "WEEK" | "MONTH" | "AGENDA";
 
 /** Our calendar: day / week / month / agenda views. Events arrive through useEvents -> mergeEvents (today: Google only, drawn from its API since the embed has no day view). */
-export default function ScheduleView({ sel, setSel, mode, setMode, onCalendars }: {
+export default function ScheduleView({ sel, setSel, mode, setMode, onCalendars, newKind }: {
   sel: string; setSel: (d: string) => void; mode: GMode; setMode: (m: GMode) => void;
   onCalendars?: () => void; // where the Google calendars to show are chosen
+  newKind?: EventKind; // the kind a new own event starts as (appointment when opened from Upcoming's "add")
 }) {
   const { t } = useI18n();
   const { status } = useGoogleStatus();
@@ -38,8 +40,8 @@ export default function ScheduleView({ sel, setSel, mode, setMode, onCalendars }
           {onCalendars && <button type="button" className="linkish" onClick={onCalendars}>{t("g.pickCals")}</button>}
         </>}
       </div>
-      {mode === "DAY" && <DayView date={sel} />}
-      {mode === "WEEK" && <WeekView date={sel} onPickDay={pick} />}
+      {mode === "DAY" && <DayView date={sel} newKind={newKind} />}
+      {mode === "WEEK" && <WeekView date={sel} onPickDay={pick} newKind={newKind} />}
       {mode === "MONTH" && <MonthEventView date={sel} onPickDay={pick} />}
       {mode === "AGENDA" && <AgendaView date={sel} onPickDay={pick} />}
     </>

@@ -22,14 +22,15 @@ import { NATIVE_EVENT_HARD_LIMIT } from "@/lib/nativeEvents";
 
 const last = () => calls[calls.length - 1];
 const encrypted = (p: unknown) => typeof p === "string" && p.startsWith("enc:v1:");
-const dbRow = (title: string, over: Record<string, unknown> = {}) => ({ id: 1, date: "2026-10-14", start_min: 600, end_min: 660, title: encrypt(title), ...over });
+const dbRow = (title: string, over: Record<string, unknown> = {}) => ({ id: 1, date: "2026-10-14", start_min: 600, end_min: 660, title: encrypt(title), kind: "plan", ...over });
 beforeEach(() => { calls.length = 0; queue.v = []; });
 
 describe("nativeEvents db layer", () => {
   it("add stores the title encrypted, returns it decrypted, and applies the per-day limit in the same statement", async () => {
     queue.v = [[dbRow("plain title")]];
-    const row = await nativeEvents.add("me", { date: "2026-10-14", startMin: 600, endMin: 660, title: "plain title" });
-    expect(row).toEqual({ id: 1, date: "2026-10-14", startMin: 600, endMin: 660, title: "plain title" });
+    const row = await nativeEvents.add("me", { date: "2026-10-14", startMin: 600, endMin: 660, title: "plain title", kind: "plan" });
+    expect(row).toEqual({ id: 1, date: "2026-10-14", startMin: 600, endMin: 660, title: "plain title", kind: "plan" });
+    expect(last().params).toContain("plan");
     const c = last();
     expect(c.text).toContain("INSERT INTO native_event");
     expect(c.text).toContain("HAVING COUNT(*) <");
@@ -41,7 +42,7 @@ describe("nativeEvents db layer", () => {
 
   it("add returns null when the limit blocks the insert", async () => {
     queue.v = [[]];
-    expect(await nativeEvents.add("me", { date: "2026-10-14", startMin: 600, endMin: 660, title: "x" })).toBeNull();
+    expect(await nativeEvents.add("me", { date: "2026-10-14", startMin: 600, endMin: 660, title: "x", kind: "appointment" })).toBeNull();
   });
 
   it("range is [from, to) for one user, ordered, and decrypts titles", async () => {

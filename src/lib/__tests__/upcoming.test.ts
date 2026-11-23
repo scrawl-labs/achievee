@@ -32,6 +32,12 @@ describe("eventKey", () => {
 });
 
 describe("selectUpcoming", () => {
+  it("leaves out plan blocks: only appointments and Google events are listed", () => {
+    const plan = { ...own(2, TODAY, 780), kind: "plan" as const };
+    const appt = { ...own(3, TODAY, 840), kind: "appointment" as const };
+    const up = selectUpcoming([own(1, TODAY, 720), plan, appt, g("standup", TODAY, 900)], TODAY, 600);
+    expect(titles(up.rows)).toEqual(["own1", "own3", "standup"]);
+  });
   it("lists everything in time order when it fits: day, all-day first, then start", () => {
     const up = selectUpcoming([g("late", "2026-11-22", 900), own(1, "2026-11-22", 600), g("holiday", "2026-11-22", 0, { allDay: true, endMin: 1440 }), g("first", TODAY, 1200)], TODAY, 600);
     expect(titles(up.rows)).toEqual(["first", "holiday", "own1", "late"]);

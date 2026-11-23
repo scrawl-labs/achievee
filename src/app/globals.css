@@ -1430,3 +1430,9 @@ select { padding-right: 36px; }
 .emo-nearrow .ac-btn { height: 30px; padding: 0 var(--s3); font-size: 13px; }
 .emo-opts .ac-btn { justify-content: flex-start; height: 44px; padding: 0 var(--s4); }
 .dp-foot .ac-btn { height: 32px; font-size: 13px; }
+
+/* own events: a plan block is quieter than an appointment, and the composer picks the kind */
+.ev.own.plan { background: color-mix(in oklab, var(--accent) 12%, var(--surface)); color: var(--fg); border-left: 3px dashed color-mix(in oklab, var(--accent) 60%, transparent); }
+.ev.own.plan span { color: var(--fg-2); }
+.composer-kind { gap: 6px; }
+.composer-kind .ac-chip { height: 28px; padding: 0 10px; font-size: 12.5px; }

@@ -5,12 +5,17 @@ import {
 } from "@/lib/nativeEvents";
 import type { DayData, DayEvent } from "@/lib/types";
 
-const create = { date: "2026-10-14", startMin: 600, endMin: 660, title: "Planning" };
+const create = { date: "2026-10-14", startMin: 600, endMin: 660, title: "Planning", kind: "plan" as const };
 const day = (date: string, over: Partial<DayData> = {}): DayData => ({ date, done: 0, total: 0, events: 0, tasks: [], eventList: [], ...over });
 
 describe("parseNativeCreate", () => {
   it("accepts a valid event and trims the title", () => {
     expect(parseNativeCreate({ ...create, title: "  Planning  " })).toEqual({ ok: true, value: create });
+  });
+  it("makes an appointment when no kind is sent (what clients did before kinds existed), and rejects an unknown kind", () => {
+    const { kind: _k, ...noKind } = create;
+    expect(parseNativeCreate(noKind)).toEqual({ ok: true, value: { ...create, kind: "appointment" } });
+    expect(parseNativeCreate({ ...create, kind: "meeting" }).ok).toBe(false);
   });
   it.each([
     ["not an object", null], ["missing title", { ...create, title: undefined }], ["blank title", { ...create, title: "   " }],
@@ -25,6 +30,10 @@ describe("parseNativeCreate", () => {
 });
 
 describe("parseNativePatch", () => {
+  it("changes the kind alone, and rejects an unknown kind", () => {
+    expect(parseNativePatch({ id: 3, kind: "appointment" })).toEqual({ ok: true, value: { id: 3, kind: "appointment" } });
+    expect(parseNativePatch({ id: 3, kind: "x" }).ok).toBe(false);
+  });
   it("accepts a title-only, a date-only and a time change", () => {
     expect(parseNativePatch({ id: 3, title: "New" })).toEqual({ ok: true, value: { id: 3, title: "New" } });
     expect(parseNativePatch({ id: 3, date: "2026-10-15" })).toEqual({ ok: true, value: { id: 3, date: "2026-10-15" } });
@@ -48,9 +57,9 @@ describe("parseNativeId", () => {
 });
 
 describe("toDayEvent / nativeIdOf", () => {
-  const row: NativeEventRow = { id: 12, date: "2026-10-14", startMin: 600, endMin: 660, title: "Planning" };
+  const row: NativeEventRow = { id: 12, date: "2026-10-14", startMin: 600, endMin: 660, title: "Planning", kind: "plan" };
   it("draws like any other event, marked native, with an id that cannot clash with Google ids", () => {
-    expect(toDayEvent(row)).toMatchObject({ id: "n12", source: "native", allDay: false, startMin: 600, endMin: 660, title: "Planning", calendar: "Achievee" });
+    expect(toDayEvent(row)).toMatchObject({ id: "n12", source: "native", allDay: false, startMin: 600, endMin: 660, title: "Planning", calendar: "Achievee", kind: "plan" });
     expect(toDayEvent(row).link).toBeUndefined();
   });
   it("gives back the numeric id for own events only", () => {
@@ -66,9 +75,9 @@ describe("toDayEvent / nativeIdOf", () => {
 
 describe("mergeNativeIntoMonth", () => {
   const rows: NativeEventRow[] = [
-    { id: 1, date: "2026-10-05", startMin: 600, endMin: 660, title: "own a" },
-    { id: 2, date: "2026-10-05", startMin: 480, endMin: 510, title: "own b" },
-    { id: 3, date: "2026-11-01", startMin: 600, endMin: 660, title: "outside the month" },
+    { id: 1, date: "2026-10-05", startMin: 600, endMin: 660, title: "own a", kind: "appointment" },
+    { id: 2, date: "2026-10-05", startMin: 480, endMin: 510, title: "own b", kind: "appointment" },
+    { id: 3, date: "2026-11-01", startMin: 600, endMin: 660, title: "outside the month", kind: "appointment" },
   ];
   it("adds to the count and list in time order, ignores other months, never touches the input", () => {
     const days = { "2026-10-05": day("2026-10-05", { events: 1, eventList: [{ title: "g", time: "09:00" }] }), "2026-10-06": day("2026-10-06") };

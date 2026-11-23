@@ -1,4 +1,5 @@
 "use client";
+import type { EventKind } from "@/lib/nativeEvents";
 import { Button, IconButton } from "@achievee/ui";
 import { useEffect, useMemo, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
@@ -120,10 +121,13 @@ function Main() {
     if (date) setSel(date);
   };
   // the Log tab's "Upcoming" strip: a row opens its day, "see all" the list
-  const openSchedule = (date: string, mode: GMode) => {
-    setGmode(mode);
+  // a new own event starts as a plan block; from Upcoming's "add", as an appointment
+  const [newKind, setNewKind] = useState<EventKind>("plan");
+  const openSchedule = (date: string, mode: GMode, kind: EventKind = "plan") => {
+    setGmode(mode); setNewKind(kind);
     go("google", date);
   };
+  useEffect(() => { if (tab !== "google") setNewKind("plan"); }, [tab]);
 
   const deleteData = async () => {
     if (!(await askConfirm({ title: t("account.deleteConfirm") }))) return;
@@ -168,7 +172,7 @@ function Main() {
         {tab === "calendar" && <CalendarView ym={ym} month={month} stats={stats} sel={sel} setSel={setSel} onDiary={() => setTab("diary")} onSchedule={openSchedule} onOpen={setTab} />}
         {tab === "stats" && <StatsView stats={stats} month={month} sel={sel} startDay={startDay} goal={workoutGoal} />}
         {tab === "diary" && <DiaryView ym={ym} sel={sel} setSel={setSel} />}
-        {tab === "google" && <ScheduleView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} onCalendars={() => setTab("integrations")} />}
+        {tab === "google" && <ScheduleView sel={sel} setSel={setSel} mode={gmode} setMode={setGmode} onCalendars={() => setTab("integrations")} newKind={newKind} />}
         {tab === "integrations" && <IntegrationsView googleReturn={gret.result} />}
         {tab === "settings" && <SettingsView user={session?.user} currency={currency} onCurrency={changeCurrency} startDay={startDay} onStartDay={changeStartDay} workoutGoal={workoutGoal} onWorkoutGoal={changeGoal} intakeGoals={intakeGoals} onIntakeGoal={changeIntakeGoal} onOpen={setTab} onSignOut={() => signOut()} onDelete={deleteData} />}
         {tab === "workout" && <WorkoutView sel={sel} setSel={setSel} goal={workoutGoal} onGoal={changeGoal} intakeGoals={intakeGoals} onIntakeGoal={changeIntakeGoal} />}
