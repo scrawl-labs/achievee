@@ -229,11 +229,13 @@ export default function TimeGrid({ days, events, error, onPickDay, header, aside
         <div className="tl" ref={scroller}>
           <div className="tl-in" style={{ height: 24 * H }}>
             {Array.from({ length: 24 }, (_, h) => (
-              <div key={h} className="hour" style={{ top: h * H, height: H }}><span>{h === 0 ? "" : t("hour", { h })}</span></div>
+              <div key={h} className="hour" style={{ top: h * H, height: H }}><span>{h === 0 || (nowMin >= 0 && Math.abs(h * 60 - nowMin) < 14) ? "" : t("hour", { h })}</span></div>
             ))}
+            {/* the time now, in red in the hour gutter (the hour label it would touch steps aside) */}
+            {nowMin >= 0 && <div className="nowtime" style={{ top: (nowMin / 60) * H }}>{hhmm(nowMin)}</div>}
             <div className="tl-cols" style={cols} ref={colsRef}>
               {days.map((d, i) => (
-                <div key={d} data-date={d} className={`tl-col${onCreate ? " creatable" : ""}${drag?.date === d ? " dragging" : ""}`}
+                <div key={d} data-date={d} className={`tl-col${d === today ? " today" : ""}${dow(d) === 0 || dow(d) === 6 ? " wkend" : ""}${onCreate ? " creatable" : ""}${drag?.date === d ? " dragging" : ""}`}
                   onPointerDown={(ev) => startDrag(ev, d)} onPointerMove={(ev) => moveDrag(ev, d)} onPointerUp={endDrag}
                   onPointerCancel={() => setDrag(null)}>
                   {layout(byDay[d].filter((e) => !e.allDay)).map(({ e, col, cols: n }) => {

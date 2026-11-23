@@ -34,7 +34,7 @@ export default function MonthEventView({ date, onPickDay }: { date: string; onPi
           const list = (by[d] ?? []).sort(order);
           const c = monthCell(list, tasks[d] ?? [], MAX);
           return (
-            <button key={d} className={`mcell${d === date ? " sel" : ""}`} onClick={() => onPickDay(d)}>
+            <button key={d} className={`mcell${d === date ? " sel" : ""}${d === today ? " today" : ""}${dow(d) === 0 || dow(d) === 6 ? " wkend" : ""}`} onClick={() => onPickDay(d)}>
               <span className={`dnum${dow(d) === 6 ? " sat" : dow(d) === 0 ? " sun" : ""}${d === today ? " today" : ""}`}>{Number(d.slice(8))}</span>
               {c.events.map((e) => (
                 <span key={e.id} className={`mev ${eventSource(e) === "native" ? "own" : "gcal"}${e.kind === "plan" ? " plan" : ""}${e.allDay ? " all" : ""}`} style={{ ["--ev" as string]: e.color }}>

@@ -1503,3 +1503,17 @@ input::placeholder, textarea::placeholder { color: var(--fg-3); }
 /* an event squeezed to a sliver keeps only its title, a little smaller */
 .ev { container-type: inline-size; }
 @container (max-width: 72px) { .ev span { display: none; } .ev b { font-size: 11px; -webkit-line-clamp: 4; } }
+
+/* Structure without walls: today and the weekend get a faint wash, the week keeps a whisper of a column line,
+   and the time now is written in the gutter. */
+:root { --hour-line: color-mix(in oklab, var(--fg) 11%, transparent); --wash-weekend: color-mix(in oklab, var(--fg) 2.5%, transparent); --wash-today: color-mix(in oklab, var(--accent) 7%, transparent); }
+.tlw.multi .tl-col.wkend, .mcell.wkend { background: var(--wash-weekend); }
+.tlw.multi .tl-col.today { background: var(--wash-today); }
+.tlw.multi .tl-cols .tl-col + .tl-col { box-shadow: inset 1px 0 0 color-mix(in oklab, var(--fg) 5%, transparent); }
+.mcell.today:not(.sel) { background: var(--wash-today); }
+.nowtime { position: absolute; left: 0; width: 54px; padding-right: 6px; text-align: right; transform: translateY(-50%); font-size: 11.5px; font-weight: 800; color: var(--sun); font-variant-numeric: tabular-nums; z-index: 4; pointer-events: none; }
+/* empty days: their "+" shows on hover (always on touch screens) */
+@media (hover: hover) {
+  .tlw.multi .tk-add { opacity: 0; transition: opacity .12s; }
+  .tlw.multi .adcol:hover .tk-add, .tlw.multi .tk-add:focus-visible, .tlw.multi .tk-add[aria-expanded="true"] { opacity: 1; }
+}
