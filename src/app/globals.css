@@ -1481,3 +1481,25 @@ input::placeholder, textarea::placeholder { color: var(--fg-3); }
 @media (max-width: 1320px) { .sched-actions .gcal-label { display: none; } .sched-actions .gcal { width: 32px; padding: 0; } }
 @media (min-width: 861px) and (max-width: 1100px) { .sched-head .sched-bar { order: 3; flex-basis: 100%; margin: var(--s2) 0 0; } }
 .sched-page .agenda { padding: var(--s3) 0 var(--s6); }
+
+/* Calendar lines, pared back (like a phone calendar): only the hour lines in the time grid and the week lines in the month.
+   No column walls, no bands between the header, the all-day strip and the grid: space does that work. */
+:root { --hour-line: color-mix(in oklab, var(--fg) 9%, transparent); }
+.hour { border-top-color: var(--hour-line); }
+.tl-cols .tl-col + .tl-col, .tl-head button, .tlw.multi .tl-allday .cols > div { border-left: 0; }
+.tl-head, .tl-allday, .daystrip, .daylabel, .tl-hint, .sched-page .tlbox, .sched-page .mgrid { border-top: 0; border-bottom: 0; }
+.tl-allday { padding-bottom: var(--s2); }
+.tl-head button { padding: var(--s2) 0 var(--s3); }
+.tl-head button:hover { background: none; } .tl-head button:hover b { background: var(--surface-2); } .tl-head button.today:hover b { background: var(--accent); }
+.daylabel { padding-top: var(--s2); padding-bottom: var(--s2); }
+.tl-aside { border-left: 0; padding-left: var(--s4); }
+.chipday.gcal { box-shadow: none; }
+/* month: week lines only */
+.mcell { border-left: 0; border-top: 1px solid var(--hour-line); }
+.mgrid .cal-head span { padding-bottom: var(--s2); }
+/* narrow events (several side by side in the week): the title wraps by word and stops at three lines, the time stays on one */
+.ev b { overflow-wrap: anywhere; word-break: keep-all; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+.ev span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* an event squeezed to a sliver keeps only its title, a little smaller */
+.ev { container-type: inline-size; }
+@container (max-width: 72px) { .ev span { display: none; } .ev b { font-size: 11px; -webkit-line-clamp: 4; } }
