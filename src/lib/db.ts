@@ -198,7 +198,7 @@ import type { WorkoutRow } from "./workout";
 import type { BodyRow, BodyValues } from "./body";
 import type { IntakeRow, IntakeKind } from "./intake";
 import { TODO_HARD_LIMIT, type TodoCountRow, type TodoCreate, type TodoPatch, type TodoRow } from "./todos";
-import { NATIVE_EVENT_HARD_LIMIT, type NativeEventCreate, type NativeEventPatch, type NativeEventRow } from "./nativeEvents";
+import { NATIVE_EVENT_HARD_LIMIT, type EventKind, type NativeEventCreate, type NativeEventPatch, type NativeEventRow } from "./nativeEvents";
 import { GOAL_HARD_LIMIT, type GoalCreate, type GoalPatch, type GoalRow, type GoalScope } from "./goals";
 export type SavingRow = { id: number; date: string; kind: "saving" | "invest"; memo: string; amount: number };
 
@@ -582,6 +582,15 @@ export const nativeEvents = {
     const s = await sql();
     const rows = (await s`DELETE FROM native_event WHERE id=${id} AND "user"=${user} RETURNING id`) as { id: number }[];
     return rows.length > 0;
+  },
+  /** Sets the kind of every event with exactly this title (decrypted and compared here); returns how many changed. */
+  async setKindByTitle(user: string, title: string, kind: EventKind): Promise<number> {
+    const s = await sql();
+    const rows = (await s`SELECT id, title FROM native_event WHERE "user"=${user} AND kind <> ${kind}`) as { id: number; title: string }[];
+    const ids = rows.filter((r) => decrypt(r.title).trim() === title).map((r) => r.id);
+    if (ids.length === 0) return 0;
+    const done = (await s`UPDATE native_event SET kind=${kind} WHERE "user"=${user} AND id = ANY(${ids}::int[]) RETURNING id`) as { id: number }[];
+    return done.length;
   },
 };
 

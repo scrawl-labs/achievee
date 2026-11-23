@@ -44,7 +44,7 @@ export default function MonthEventView({ date, onPickDay }: { date: string; onPi
                   {it.tk.done && <span className="sr-only">{t("task.doneSr")}</span>}
                 </span>
               ) : (
-                <span key={it.e.id} className={`mev ${eventSource(it.e) === "native" ? "own" : "gcal"}${it.e.allDay ? " all" : ""}`} style={{ ["--ev" as string]: it.e.color }}>
+                <span key={it.e.id} className={`mev ${eventSource(it.e) === "native" ? "own" : "gcal"}${it.e.kind === "plan" ? " plan" : ""}${it.e.allDay ? " all" : ""}`} style={{ ["--ev" as string]: it.e.color }}>
                   {!it.e.allDay && <time>{hhmm(it.e.startMin)}</time>}{it.e.title || t("common.untitled")}
                 </span>
               ))}

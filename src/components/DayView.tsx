@@ -12,6 +12,6 @@ export default function DayView({ date, newKind }: { date: string; newKind?: Eve
   const { byDate, toggle, add } = useTasksRange(date, date);
   const own = useNativeEvents();
   return <TimeGrid days={[date]} events={events} error={error} tasks={byDate} onToggleTask={toggle} onAddTask={add} badge
-    onCreate={own.create} onRename={(id, title, kind) => own.update({ id, title, kind })} newKind={newKind} onRemove={own.remove}
+    onCreate={own.create} onRename={own.rename} newKind={newKind} onRemove={own.remove}
     onMove={(id, to) => own.update({ id, ...to })} />;
 }

@@ -55,6 +55,16 @@ export function parseNativePatch(b: unknown): Parsed<NativeEventPatch> {
   return Object.keys(value).length > 1 ? { ok: true, value } : fail("nothing to update");
 }
 
+/** Bulk kind change: every own event whose title is exactly this one (titles are encrypted, so the match is done after decrypting). */
+export type NativeKindByTitle = { title: string; kind: EventKind };
+export function parseNativeKindByTitle(b: unknown): Parsed<NativeKindByTitle> {
+  if (!isRecord(b)) return fail("bad input");
+  const t = parseText(b.title);
+  if (!t.ok) return t;
+  if (!isEventKind(b.kind)) return fail("bad kind");
+  return { ok: true, value: { title: t.value, kind: b.kind } };
+}
+
 export function parseNativeId(raw: string | null): Parsed<number> {
   const id = raw && /^\d+$/.test(raw) ? Number(raw) : NaN;
   return isGoalId(id) ? { ok: true, value: id } : fail("bad id");

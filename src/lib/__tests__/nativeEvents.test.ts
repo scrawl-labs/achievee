@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { mergeEvents } from "@/lib/calendarSources";
 import {
-  mergeNativeIntoMonth, nativeIdOf, parseNativeCreate, parseNativeId, parseNativePatch, toDayEvent, type NativeEventRow,
+  mergeNativeIntoMonth, nativeIdOf, parseNativeCreate, parseNativeId, parseNativeKindByTitle, parseNativePatch, toDayEvent, type NativeEventRow,
 } from "@/lib/nativeEvents";
 import type { DayData, DayEvent } from "@/lib/types";
 
@@ -92,5 +92,14 @@ describe("mergeNativeIntoMonth", () => {
   it("keeps all-day Google entries (no time) first", () => {
     const days = { "2026-10-05": day("2026-10-05", { events: 1, eventList: [{ title: "trip", time: null }] }) };
     expect(mergeNativeIntoMonth(days, rows)["2026-10-05"].eventList[0].title).toBe("trip");
+  });
+});
+
+describe("parseNativeKindByTitle", () => {
+  it("takes a trimmed title and a kind, and rejects anything else", () => {
+    expect(parseNativeKindByTitle({ title: "  운동 ", kind: "plan" })).toEqual({ ok: true, value: { title: "운동", kind: "plan" } });
+    expect(parseNativeKindByTitle({ title: "운동", kind: "x" }).ok).toBe(false);
+    expect(parseNativeKindByTitle({ title: "   ", kind: "plan" }).ok).toBe(false);
+    expect(parseNativeKindByTitle(null).ok).toBe(false);
   });
 });

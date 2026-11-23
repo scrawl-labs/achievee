@@ -19,7 +19,7 @@ export default function AgendaView({ date, onPickDay }: { date: string; onPickDa
   const days = [...new Set([...Object.keys(evBy), ...Object.keys(tasks)])].filter((d) => d >= first && d < next).sort();
   const event = (e: DayEvent) => (
     <li key={e.id}>
-      <a href={e.link} target="_blank" rel="noreferrer" className={eventSource(e) === "native" ? "own" : "gcal"}>
+      <a href={e.link} target="_blank" rel="noreferrer" className={eventSource(e) === "native" ? `own${e.kind === "plan" ? " plan" : ""}` : "gcal"}>
         <i style={eventSource(e) === "native" ? undefined : { background: e.color }} />
         <time>{e.allDay ? t("common.allDay") : `${hhmm(e.startMin)} - ${hhmm(e.endMin)}`}</time>
         <b>{e.title || t("common.untitled")}</b>

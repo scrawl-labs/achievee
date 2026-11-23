@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getUser } from "@/lib/auth";
 import { nativeEvents } from "@/lib/db";
 import { bad, unauthorized } from "@/lib/api";
-import { parseNativeCreate, parseNativeId, parseNativePatch } from "@/lib/nativeEvents";
+import { parseNativeCreate, parseNativeId, parseNativeKindByTitle, parseNativePatch } from "@/lib/nativeEvents";
 
 export const dynamic = "force-dynamic";
 const notFound = () => NextResponse.json({ error: "not found" }, { status: 404 });
@@ -33,6 +33,17 @@ export async function PATCH(req: Request) {
   if (!patch.ok) return bad(patch.error);
   const row = await nativeEvents.update(u.id, patch.value);
   return row ? NextResponse.json(row) : notFound();
+}
+
+/** Bulk: { title, kind } sets the kind of every own event with that exact title. Answers how many changed. */
+export async function PUT(req: Request) {
+  const u = await getUser();
+  if (!u) return unauthorized();
+  const j = await readJson(req);
+  if (!j.ok) return bad("bad json");
+  const input = parseNativeKindByTitle(j.body);
+  if (!input.ok) return bad(input.error);
+  return NextResponse.json({ changed: await nativeEvents.setKindByTitle(u.id, input.value.title, input.value.kind) });
 }
 
 export async function DELETE(req: Request) {

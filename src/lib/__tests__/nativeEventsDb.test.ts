@@ -82,4 +82,15 @@ describe("nativeEvents db layer", () => {
     await deleteUserData("me");
     expect(calls.some((c) => c.text.includes('DELETE FROM native_event WHERE "user"='))).toBe(true);
   });
+  it("setKindByTitle matches titles after decrypting, updates only those ids, and skips the update when none match", async () => {
+    queue.v = [[{ id: 3, title: encrypt("운동") }, { id: 4, title: encrypt("치과") }, { id: 5, title: encrypt(" 운동 ") }], [{ id: 3 }, { id: 5 }]];
+    expect(await nativeEvents.setKindByTitle("me", "운동", "plan")).toBe(2);
+    expect(calls[0].params).toEqual(["me", "plan"]);
+    expect(last().text).toMatch(/UPDATE native_event SET kind=/);
+    expect(last().params).toEqual(["plan", "me", [3, 5]]);
+    calls.length = 0;
+    queue.v = [[{ id: 4, title: encrypt("치과") }]];
+    expect(await nativeEvents.setKindByTitle("me", "운동", "plan")).toBe(0);
+    expect(calls).toHaveLength(1);
+  });
 });

@@ -1409,4 +1409,10 @@ input::placeholder, textarea::placeholder { color: var(--fg-3); }
 .ev.own.plan { background: color-mix(in oklab, var(--accent) 12%, var(--surface)); color: var(--fg); border-left: 3px dashed color-mix(in oklab, var(--accent) 60%, transparent); }
 .ev.own.plan span { color: var(--fg-2); }
 .composer-kind { gap: 6px; }
+.composer-same { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--fg-2); cursor: pointer; }
+.mev.own.plan { background: color-mix(in oklab, var(--accent) 12%, var(--surface)); color: var(--fg); border-left: 3px dashed color-mix(in oklab, var(--accent) 60%, transparent); font-weight: 500; }
+.mev.own.plan time { color: var(--fg-2); }
+.agenda li a.own.plan { background: color-mix(in oklab, var(--accent) 10%, var(--surface)); color: var(--fg); box-shadow: inset 0 0 0 1.5px color-mix(in oklab, var(--accent) 35%, transparent); }
+.agenda li a.own.plan time, .agenda li a.own.plan small { color: var(--fg-2); }
+.agenda li a.own.plan i { background: transparent; box-shadow: inset 0 0 0 2px var(--accent); }
 .composer-kind .ac-chip { height: 28px; padding: 0 10px; font-size: 12.5px; }

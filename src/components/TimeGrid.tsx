@@ -58,7 +58,7 @@ const SAME = (a: Pick, b: Pick) => a.date === b.date && a.start === b.start && a
 export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TASKS, onToggleTask, badge = false, onCreate, onRename, onRemove, newKind = "plan", onMove, onAddTask }: {
   days: string[]; events: DayEvent[] | null; error?: boolean; onPickDay?: (d: string) => void;
   tasks?: Record<string, TaskEntry[]>; onToggleTask?: (id: number, done: boolean) => void; badge?: boolean;
-  onCreate?: (e: NativeEventCreate) => Promise<boolean>; onRename?: (id: number, title: string, kind?: EventKind) => Promise<boolean>;
+  onCreate?: (e: NativeEventCreate) => Promise<boolean>; onRename?: (id: number, title: string, kind?: EventKind, sameTitle?: boolean) => Promise<boolean>;
   /** Kind of a new own event made by clicking or dragging an empty slot (dropping a to-do always makes a plan). */
   newKind?: EventKind; onRemove?: (id: number) => Promise<boolean>;
   onMove?: (id: number, to: { date: string; startMin: number; endMin: number }) => Promise<boolean>;
@@ -244,9 +244,9 @@ export default function TimeGrid({ days, events, error, onPickDay, tasks = NO_TA
                             onPointerDown={(ev) => beginGesture(ev, own, e, "resize")} onPointerMove={moveGesture} onPointerUp={endGesture} onPointerCancel={() => setGesture(null)} />}
                         </button>
                         {editing === own && (
-                          <EventComposer initial={e.title} kind={e.kind ?? "appointment"} when={`${fmt.monthDay(e.date)} ${hhmm(e.startMin)} - ${hhmm(e.endMin)}`} align={side(i)} top={(e.startMin / 60) * H}
+                          <EventComposer initial={e.title} kind={e.kind ?? "appointment"} offerSameTitle when={`${fmt.monthDay(e.date)} ${hhmm(e.startMin)} - ${hhmm(e.endMin)}`} align={side(i)} top={(e.startMin / 60) * H}
                             onCancel={() => setEditing(null)}
-                            onSave={async (title, kind) => { const ok = (await onRename?.(own, title, kind)) ?? false; if (ok) setEditing(null); return ok; }}
+                            onSave={async (title, kind, sameTitle) => { const ok = (await onRename?.(own, title, kind, sameTitle)) ?? false; if (ok) setEditing(null); return ok; }}
                             onDelete={onRemove ? async () => { const ok = await onRemove(own); if (ok) setEditing(null); return ok; } : undefined} />
                         )}
                       </div>
