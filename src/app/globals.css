@@ -205,7 +205,10 @@ button.item:hover, button.item.on { border-color: var(--accent); }
 .mtasks.all { color: var(--accent); }
 
 /* Time grid (day / week): one hairline colour for every line, hour labels in their own gutter (lines start after them) */
-:root { --grid-line: color-mix(in oklab, var(--fg) 14%, transparent); }
+:root { --grid-line: color-mix(in oklab, var(--fg) 14%, transparent); --sched-bg: var(--surface); }
+/* dark: the schedule sits on the darkest layer, like the rest of the app, not on the lighter card colour */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --sched-bg: var(--bg); } }
+:root[data-theme="dark"] { --sched-bg: var(--bg); }
 .tlbox { border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); overflow: hidden; }
 .tlscroll { overflow-x: auto; } .tlw.multi { min-width: 720px; }
 .gut { flex: none; width: 60px; }
@@ -255,9 +258,9 @@ button.mcell:hover { background: var(--surface-2); } .mcell.sel { background: co
 
 /* Agenda */
 .agenda { display: flex; flex-direction: column; gap: var(--s5); max-width: 760px; }
-.agenda section { display: grid; grid-template-columns: 120px 1fr; gap: var(--s3); }
-.agenda-day { display: flex; align-items: baseline; gap: var(--s2); align-self: start; }
-.agenda-day b { font-size: 24px; font-weight: 700; } .agenda-day span { color: var(--fg-3); font-size: 13px; }
+.agenda section { display: grid; grid-template-columns: 128px 1fr; gap: var(--s3); }
+.agenda-day { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; align-self: start; text-align: left; }
+.agenda-day b { font-size: 24px; font-weight: 700; line-height: 1.1; } .agenda-day span { color: var(--fg-3); font-size: 12.5px; white-space: nowrap; }
 .agenda ul { list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--s2); }
 .agenda li a { display: grid; grid-template-columns: 10px 112px 1fr auto; gap: var(--s3); align-items: center; padding: var(--s3) var(--s4); border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); }
 .agenda li a:hover { border-color: var(--fg-3); }
@@ -1397,7 +1400,7 @@ input::placeholder, textarea::placeholder { color: var(--fg-3); }
 /* Schedule tab, calendar-app style: a white page, the toolbar in the header, the grid running to the edges and filling the height */
 .tl-main { display: flex; min-height: 0; }
 .tl-main > .tlscroll { flex: 1; min-width: 0; }
-.page.sched-page { background: var(--surface); max-width: none; height: 100dvh; min-height: 0; padding-left: 0; padding-right: 0; padding-bottom: 0; }
+.page.sched-page { background: var(--sched-bg); max-width: none; height: 100dvh; min-height: 0; padding-left: 0; padding-right: 0; padding-bottom: 0; }
 .sched-page .pagehead, .sched-page .glink, .sched-page .agenda, .sched-page .pagebody > .error { margin-left: var(--s6); margin-right: var(--s6); }
 .sched-page .pagebody { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; padding-bottom: 0; }
 .sched-head { flex-wrap: wrap; justify-content: flex-start; margin-bottom: var(--s4); }
@@ -1422,15 +1425,16 @@ input::placeholder, textarea::placeholder { color: var(--fg-3); }
 .tl-aside { width: 300px; flex: none; border-left: 1px solid var(--grid-line); padding: var(--s4) var(--s5); overflow-y: auto; display: flex; flex-direction: column; gap: var(--s6); }
 .mini-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); margin-bottom: var(--s2); }
 .mini-head b { font-size: 14px; font-weight: 800; } .mini-head small { font-size: 13px; font-weight: 600; color: var(--fg-3); } .mini-head span { display: inline-flex; }
-.mini-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); row-gap: 2px; text-align: center; }
+.mini-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); row-gap: 6px; justify-items: center; text-align: center; }
 .mini-grid small { font-size: 11.5px; font-weight: 600; color: var(--fg-3); padding-bottom: 4px; }
-.mini-grid button { position: relative; width: 32px; height: 32px; margin: 0 auto; border-radius: 99px; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.mini-grid button { position: relative; width: 32px; height: 32px; padding: 0; display: grid; place-items: center; border-radius: 99px; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1; }
 .mini-grid button:hover { background: var(--surface-2); }
 .mini-grid button.out { color: var(--fg-3); opacity: .55; }
 .mini-grid button.today { color: var(--accent); }
 .mini-grid button.on { background: var(--fg); color: var(--bg); }
 .mini-grid button.on.today { background: var(--accent); color: var(--accent-fg); }
-.mini-grid button.busy::after { content: ""; position: absolute; left: 50%; bottom: 3px; width: 4px; height: 4px; margin-left: -2px; border-radius: 9px; background: currentColor; opacity: .55; }
+.mini-grid button.busy::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 4px; height: 4px; margin-left: -2px; border-radius: 9px; background: var(--fg-3); }
+.mini-grid button.on.busy::after, .mini-grid button.today.busy::after { background: var(--accent); }
 .daytasks-list { display: flex; flex-direction: column; gap: 4px; }
 .daytasks .tkc { font-size: 13.5px; padding: 8px 10px; border-radius: 8px; }
 .daytasks-add { position: relative; margin-top: var(--s2); }
@@ -1471,3 +1475,9 @@ input::placeholder, textarea::placeholder { color: var(--fg-3); }
 .budget-alert { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); padding: 10px 8px 10px 14px; border-radius: 12px; font-size: 14px; font-weight: 700; }
 .budget-alert.near { background: color-mix(in oklab, #e08a00 14%, var(--surface)); color: color-mix(in oklab, #e08a00 70%, var(--fg)); }
 .budget-alert.over { background: color-mix(in oklab, var(--sun) 12%, var(--surface)); color: var(--sun); }
+
+.sched-page .tlbox, .sched-page .mgrid, .sched-page .tl-aside { background: transparent; }
+/* mid widths: the Google link is just its logo, and below 1100px the view switch takes its own row */
+@media (max-width: 1320px) { .sched-actions .gcal-label { display: none; } .sched-actions .gcal { width: 32px; padding: 0; } }
+@media (min-width: 861px) and (max-width: 1100px) { .sched-head .sched-bar { order: 3; flex-basis: 100%; margin: var(--s2) 0 0; } }
+.sched-page .agenda { padding: var(--s3) 0 var(--s6); }
