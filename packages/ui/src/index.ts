@@ -1,4 +1,5 @@
 export { Button, type ButtonProps, type ButtonVariant } from "./Button";
+export { IconButton, type IconButtonProps } from "./IconButton";
 export { Chip, ChipRow, type ChipProps } from "./Chip";
 export { Field, Paper, Label, SaveStatus } from "./Field";
 export { Surface } from "./Surface";

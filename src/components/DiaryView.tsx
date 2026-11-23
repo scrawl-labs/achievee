@@ -102,7 +102,7 @@ function DayDiary({ ym, sel, setSel }: Props) {
                 {r.emotions && r.emotions.length > 0 && <span className="emo-tags">{r.emotions.map((id) => <i key={id}>{wordText(id, lang)}</i>)}</span>}
                 <p>{r.body}</p>
               </button>
-              {isOpen && <div className="row end"><button type="button" className="btn" onClick={() => { setSel(r.date); window.scrollTo({ top: 0, behavior: "smooth" }); }}>{t("common.edit")}</button></div>}
+              {isOpen && <div className="row end"><Button type="button" onClick={() => { setSel(r.date); window.scrollTo({ top: 0, behavior: "smooth" }); }}>{t("common.edit")}</Button></div>}
             </div>
           );
         })}

@@ -1,4 +1,5 @@
 "use client";
+import { Button, IconButton } from "@achievee/ui";
 import { useEffect, useMemo, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import type { MonthData } from "@/lib/types";
@@ -155,9 +156,9 @@ function Main() {
             <CommandBar go={go} />
             {tab !== "integrations" && tab !== "settings" && (
               <div className="datenav" role="group">
-                <button className="btn icon" onClick={() => shift(-1)} aria-label={t("common.prev")}><Icon name="left" /></button>
-                <button className="btn" onClick={() => setSel(todayStr())}>{t("common.today")}</button>
-                <button className="btn icon" onClick={() => shift(1)} aria-label={t("common.next")}><Icon name="right" /></button>
+                <IconButton label={t("common.prev")} icon={<Icon name="left" />} type="submit" onClick={() => shift(-1)} />
+                <Button type="submit" onClick={() => setSel(todayStr())}>{t("common.today")}</Button>
+                <IconButton label={t("common.next")} icon={<Icon name="right" />} type="submit" onClick={() => shift(1)} />
               </div>
             )}
           </div>

@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@achievee/ui";
 import { useMemo } from "react";
 import { dow } from "@/lib/dates";
 import { FAMILIES, WORDS, emoLang, familyById, wordById, wordText } from "@/lib/emotions";
@@ -93,7 +94,7 @@ export default function EmotionStats() {
             {delta !== null && delta !== 0 && <li>{t("emo.mDelta", { d: `${delta > 0 ? "+" : "−"}${Math.abs(delta)}` })}</li>}
             {mon.newWords.length > 0 && data.some((d) => d.date < mon.month) && <li>{t("emo.mNew", { w: mon.newWords.slice(0, 5).map((id) => wordText(id, lang)).join(", ") })}</li>}
           </ul>
-          <button type="button" className="btn" onClick={saveCard}>{t("emo.shareBtn")}</button>
+          <Button type="button" onClick={saveCard}>{t("emo.shareBtn")}</Button>
         </section>
       )}
 

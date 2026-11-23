@@ -1,4 +1,5 @@
 "use client";
+import { IconButton } from "@achievee/ui";
 import { useRef, useState } from "react";
 import type { Key } from "@/lib/i18n";
 import { useI18n } from "./I18n";
@@ -26,7 +27,7 @@ export default function GoalItem({ goal, toggleKey = "goal.toggle", editKey = "g
       ) : (
         <button type="button" ref={textBtn} className="goal-text" aria-label={t(editKey, { text: goal.text })} onClick={() => setEditing(true)}>{goal.text}</button>
       )}
-      <button type="button" className="btn icon ghost" onClick={onRemove} aria-label={t("common.delete")} title={t("common.delete")}><Icon name="close" size={16} /></button>
+      <IconButton label={t("common.delete")} icon={<Icon name="close" size={16} />} type="button" onClick={onRemove} />
     </li>
   );
 }

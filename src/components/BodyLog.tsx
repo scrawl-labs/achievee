@@ -1,4 +1,5 @@
 "use client";
+import { Button, Field, IconButton } from "@achievee/ui";
 import { useState } from "react";
 import { METRICS, type BodyRow, type Metric, latestChange, show } from "@/lib/body";
 import type { Key } from "@/lib/i18n";
@@ -64,7 +65,7 @@ export default function BodyLog({ sel, setSel }: { sel: string; setSel: (d: stri
   };
   const del = async (id: number, date: string) => { if (!(await askConfirm({ title: t("confirm.delete"), detail: fmt.monthDay(date) }))) return; await send(`/api/body?id=${id}`, "DELETE"); reload(); };
   const fields = (v: Form, set: (v: Form) => void) => METRICS.map((m) => (
-    <input key={m} placeholder={`${t(label(m))} (${UNIT[m]})`} inputMode="decimal" value={v[m]} onChange={(e) => set({ ...v, [m]: e.target.value })} aria-label={t(label(m))} />
+    <Field key={m} placeholder={`${t(label(m))} (${UNIT[m]})`} inputMode="decimal" value={v[m]} onChange={(e) => set({ ...v, [m]: e.target.value })} aria-label={t(label(m))} />
   ));
   const tiles = METRICS.map((m) => ({ m, c: latestChange(rows, m) })).filter((x) => x.c);
 
@@ -72,13 +73,13 @@ export default function BodyLog({ sel, setSel }: { sel: string; setSel: (d: stri
     <section className="bodylog">
       <div className="sechead">
         <h3>{t("body.title")}</h3>
-        <button type="button" className={`btn icon add${open ? " open" : ""}`} aria-expanded={open} aria-label={open ? t("common.close") : t("body.addAria")} onClick={() => setOpen(!open)}><Icon name="plus" /></button>
+        <IconButton variant="soft" className={`add${open ? " open" : ""}`} aria-expanded={open} label={open ? t("common.close") : t("body.addAria")} icon={<Icon name="plus" />} onClick={() => setOpen(!open)} />
       </div>
       {open && (
         <form className="panel entry" onSubmit={add}>
           <DatePicker value={sel} onChange={setSel} />
           {fields(f, setF)}
-          <button className="btn primary" disabled={!filled(f)}>{t("common.add")}</button>
+          <Button variant="primary" type="submit" disabled={!filled(f)}>{t("common.add")}</Button>
         </form>
       )}
 
@@ -104,8 +105,8 @@ export default function BodyLog({ sel, setSel }: { sel: string; setSel: (d: stri
             <DatePicker value={draft.date} onChange={(d) => setDraft({ ...draft, date: d })} />
             {fields(draft, setDraft)}
             <div className="edit-actions">
-              <button type="button" className="btn" onClick={() => setEditId(null)}>{t("common.cancel")}</button>
-              <button className="btn primary" disabled={!filled(draft)}>{t("common.save")}</button>
+              <Button type="button" onClick={() => setEditId(null)}>{t("common.cancel")}</Button>
+              <Button variant="primary" type="submit" disabled={!filled(draft)}>{t("common.save")}</Button>
             </div>
           </form>
         ) : (
@@ -116,8 +117,8 @@ export default function BodyLog({ sel, setSel }: { sel: string; setSel: (d: stri
             </div>
             <div className="eside solo">
               <span className="acts">
-                <button className="btn icon ghost" onClick={() => { setEditId(r.id); setDraft({ date: r.date, weight: r.weight !== undefined ? show(r.weight) : "", fat: r.fat !== undefined ? show(r.fat) : "", muscle: r.muscle !== undefined ? show(r.muscle) : "" }); }} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
-                <button className="btn icon ghost" onClick={() => del(r.id, r.date)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button>
+                <IconButton label={t("common.edit")} icon={<Icon name="edit" size={16} />} type="submit" onClick={() => { setEditId(r.id); setDraft({ date: r.date, weight: r.weight !== undefined ? show(r.weight) : "", fat: r.fat !== undefined ? show(r.fat) : "", muscle: r.muscle !== undefined ? show(r.muscle) : "" }); }} />
+                <IconButton label={t("common.delete")} icon={<Icon name="close" size={16} />} type="submit" onClick={() => del(r.id, r.date)} />
               </span>
             </div>
           </div>

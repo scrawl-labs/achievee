@@ -1,5 +1,5 @@
 "use client";
-import { Chip, ChipRow } from "@achievee/ui";
+import { Button, Chip, ChipRow } from "@achievee/ui";
 import { useState } from "react";
 import { FAMILIES, MAX_EMOTIONS, emoLang, wordById, wordText, wordsOfFamily } from "@/lib/emotions";
 import { useI18n } from "./I18n";
@@ -86,9 +86,9 @@ export default function EmotionPicker({ value, onChange }: { value: string[]; on
                     return (
                       <div className="emo-nearrow" key={id}>
                         <div><b>{w[lang][0]}</b><span>{w[lang][1]}</span></div>
-                        <button type="button" className={`btn${on ? " primary" : ""}`} disabled={!on && full} onClick={() => toggle(id)}>
+                        <Button variant={on ? "primary" : "soft"} disabled={!on && full} onClick={() => toggle(id)}>
                           {on ? t("emo.chosen") : t("emo.choose")}
-                        </button>
+                        </Button>
                       </div>
                     );
                   })}

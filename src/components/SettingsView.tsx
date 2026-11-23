@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@achievee/ui";
 import { useState } from "react";
 import Link from "next/link";
 import { GOAL_RANGE, type IntakeKind } from "@/lib/intake";
@@ -50,7 +51,7 @@ export default function SettingsView({ user, currency, onCurrency, startDay, onS
           {user?.name && user?.email && <small className="muted">{user.email}</small>}
           {words && words.length > 0 && <small className="muted">{t("set.vocab", { n: words.length })}</small>}
         </div>
-        <button type="button" className="btn" onClick={onSignOut}>{t("account.signOut")}</button>
+        <Button type="button" onClick={onSignOut}>{t("account.signOut")}</Button>
       </section>
 
       <section className="panel">
@@ -101,7 +102,7 @@ export default function SettingsView({ user, currency, onCurrency, startDay, onS
         <h3>{t("nav.integrations")}</h3>
         <div className="set-row">
           <div><b>{t("set.links")}</b><small className="muted">{t("set.linksDesc")}</small></div>
-          <button type="button" className="btn" onClick={() => onOpen("integrations")}>{t("set.manage")}</button>
+          <Button type="button" onClick={() => onOpen("integrations")}>{t("set.manage")}</Button>
         </div>
       </section>
 
@@ -114,7 +115,7 @@ export default function SettingsView({ user, currency, onCurrency, startDay, onS
         </div>
         <div className="set-row set-danger">
           <div><b>{t("account.delete")}</b><small className="muted">{t("set.deleteDesc")}</small></div>
-          <button type="button" className="btn danger" onClick={onDelete}>{t("account.delete")}</button>
+          <Button variant="danger" type="button" onClick={onDelete}>{t("account.delete")}</Button>
         </div>
       </section>
     </div>

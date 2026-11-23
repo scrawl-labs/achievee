@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@achievee/ui";
 import { useEffect, useRef, useState } from "react";
 import { googleCardModel, returnMessageKey, type GoogleReturn, type GoogleStatus } from "@/lib/googleStatus";
 import { useI18n } from "./I18n";
@@ -34,7 +35,7 @@ export default function GoogleConnectCard({ status, notice }: { status: GoogleSt
           {m.state === "revoked" && <small className="intwarn"><i />{t("gc.revoked")}</small>}
           <small className="muted">{t("gc.perm")}</small>
         </div>
-        {m.action && <button className="btn primary" onClick={startGoogleConnect}>{t(m.action === "connect" ? "gc.connect" : "gc.reconnect")}</button>}
+        {m.action && <Button variant="primary" type="submit" onClick={startGoogleConnect}>{t(m.action === "connect" ? "gc.connect" : "gc.reconnect")}</Button>}
         {m.canDisconnect && !confirming && (
           <button className={m.action ? "btn ghost" : "btn quiet"} aria-label={t("gc.disconnectAria")} aria-expanded={confirming} onClick={() => setConfirming(true)}>{t("int.disconnect")}</button>
         )}
@@ -44,8 +45,8 @@ export default function GoogleConnectCard({ status, notice }: { status: GoogleSt
         <div className="intstate" role="group" aria-label={t("gc.disconnectAria")} onKeyDown={(e) => { if (e.key === "Escape") setConfirming(false); }}>
           <p>{t("gc.confirm")}</p>
           <div className="row gap-2">
-            <button className="btn danger" disabled={busy} onClick={disconnect}>{t("int.disconnect")}</button>
-            <button className="btn" ref={cancelRef} disabled={busy} onClick={() => { setConfirming(false); setFailed(false); }}>{t("common.cancel")}</button>
+            <Button variant="danger" type="submit" disabled={busy} onClick={disconnect}>{t("int.disconnect")}</Button>
+            <Button type="submit" ref={cancelRef} disabled={busy} onClick={() => { setConfirming(false); setFailed(false); }}>{t("common.cancel")}</Button>
           </div>
         </div>
       )}

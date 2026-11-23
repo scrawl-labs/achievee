@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@achievee/ui";
 import { useRef, useState } from "react";
 import type { GoalScope } from "@/lib/goals";
 import { GOAL_HARD_LIMIT } from "@/lib/goals";
@@ -38,7 +39,7 @@ export default function GoalList({ scope, periodStart, label }: Props) {
       {draft !== null ? (
         <GoalInput initial={draft} allowUnchanged label={t("goal.new")} placeholder={t("goal.placeholder")} returnFocus={addBtn} onSubmit={submit} onCancel={() => setDraft(null)} />
       ) : (
-        <button type="button" ref={addBtn} className="btn ghost goal-add" onClick={() => setDraft("")}><Icon name="plus" size={16} />{t("goal.add")}</button>
+        <Button variant="ghost" className="goal-add" type="button" ref={addBtn} onClick={() => setDraft("")}><Icon name="plus" size={16} />{t("goal.add")}</Button>
       )}
       {showSoftHint(rows.length) && <small className="muted" role="note">{t("goal.softHint")}</small>}
       {error && <small className="goal-msg" role="alert">{error === "limit" ? t("goal.limit", { n: GOAL_HARD_LIMIT }) : t("goal.failed")}</small>}

@@ -793,7 +793,7 @@ select {
 .intnote .error { margin-bottom: 0; }
 .glink { display: block; margin: calc(var(--s2) * -1) 0 var(--s3); padding: var(--s1) 0; background: none; border: 0; color: var(--fg-2); font: inherit; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .glink:hover { color: var(--fg); }
-@media (max-width: 560px) { .intcard { flex-wrap: wrap; } .intcard .intbody { flex-basis: calc(100% - 44px - var(--s3)); } .intcard .btn { margin-left: calc(44px + var(--s3)); } }
+@media (max-width: 560px) { .intcard { flex-wrap: wrap; } .intcard .intbody { flex-basis: calc(100% - 44px - var(--s3)); } .intcard .btn, .intcard .ac-btn { margin-left: calc(44px + var(--s3)); } }
 @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) .intok { color: #1f9d55; } :root:not([data-theme="dark"]) .intok i { background: #1f9d55; } }
 :root[data-theme="light"] .intok { color: #1f9d55; }
 :root[data-theme="light"] .intok i { background: #1f9d55; }
@@ -1411,3 +1411,22 @@ select { padding-right: 36px; }
 .ex-ic { width: 20px; height: 20px; flex: none; color: inherit; }
 .ex-sum { gap: 0; }
 .diary-editor .emo-head small { display: none; }
+
+/* hooks for the package's buttons (@achievee/ui) in app layouts */
+.datenav .ac-btn, .datenav .ac-iconbtn { height: 36px; border-radius: 0; background: transparent; color: var(--fg); }
+.datenav > * + * { box-shadow: inset 1px 0 0 var(--line); }
+@media (max-width: 860px) { .pagehead .ac-btn, .pagehead .ac-iconbtn { height: 32px; } .pagehead .ac-iconbtn { width: 32px; } .datenav .ac-btn { padding: 0 var(--s3); font-size: 13px; } }
+.panel.entry .ac-btn { grid-column: span 2; }
+.panel.entry .edit-actions .ac-btn { grid-column: auto; }
+.ac-iconbtn.add svg { transition: transform .25s cubic-bezier(.34, 1.56, .64, 1); } .ac-iconbtn.add.open svg { transform: rotate(45deg); }
+.acts .ac-iconbtn, .goal .ac-iconbtn { width: 30px; height: 30px; }
+.intcard .ac-btn { flex: none; }
+.dayDiary .ac-btn { height: 28px; padding: 0 var(--s3); font-size: 12px; }
+.composer-actions .ac-btn { height: 30px; padding: 0 var(--s3); font-size: 13px; }
+.up-add.ac-btn { height: 28px; padding: 0 var(--s2); gap: 4px; font-size: 13px; color: var(--accent); }
+.goal-add.ac-btn { align-self: flex-start; height: 30px; padding: 0 var(--s3); font-size: 13px; color: var(--fg-3); }
+.set-row > .ac-btn { flex: none; }
+.ac-btn svg { flex: none; }
+.emo-nearrow .ac-btn { height: 30px; padding: 0 var(--s3); font-size: 13px; }
+.emo-opts .ac-btn { justify-content: flex-start; height: 44px; padding: 0 var(--s4); }
+.dp-foot .ac-btn { height: 32px; font-size: 13px; }

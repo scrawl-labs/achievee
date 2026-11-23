@@ -1,4 +1,5 @@
 "use client";
+import { Button, Field } from "@achievee/ui";
 import { useState } from "react";
 import type { Provider, WorkItem } from "@/lib/integrations/types";
 import type { Key } from "@/lib/i18n";
@@ -57,8 +58,8 @@ export default function IntegrationsView({ googleReturn = null }: { googleReturn
               : <small className="muted">{t(desc)}</small>}
           </div>
           {c
-            ? <button className="btn quiet" onClick={() => disconnect(provider)}>{t("int.disconnect")}</button>
-            : <button className="btn" aria-expanded={open === provider} onClick={() => setOpen(open === provider ? null : provider)}>{t("int.connect")}</button>}
+            ? <Button variant="quiet" type="submit" onClick={() => disconnect(provider)}>{t("int.disconnect")}</Button>
+            : <Button type="submit" aria-expanded={open === provider} onClick={() => setOpen(open === provider ? null : provider)}>{t("int.connect")}</Button>}
         </div>
         {c && work && (
           <div className="intstate">
@@ -75,7 +76,7 @@ export default function IntegrationsView({ googleReturn = null }: { googleReturn
             <p className="muted"><a href={link} target="_blank" rel="noreferrer">{t("int.createToken")}</a></p>
             {form}
             {error === provider && <p className="error">{t("int.invalid")}</p>}
-            <button className="btn primary" disabled={!ready || busy === provider}>{busy === provider ? "…" : t("int.connect")}</button>
+            <Button variant="primary" type="submit" disabled={!ready || busy === provider}>{busy === provider ? "…" : t("int.connect")}</Button>
           </form>
         )}
       </div>
@@ -102,17 +103,17 @@ export default function IntegrationsView({ googleReturn = null }: { googleReturn
       <h3 className="intsec">{t("int.secDev")}</h3>
       <div className="intgrid">
         {tool("github", <GithubMark size={22} />, "GitHub", "int.ghDesc", GITHUB_TOKEN_URL,
-          <input type="password" placeholder={t("int.token")} value={f.ghToken} onChange={(e) => setF({ ...f, ghToken: e.target.value })} aria-label={t("int.token")} />,
+          <Field type="password" placeholder={t("int.token")} value={f.ghToken} onChange={(e) => setF({ ...f, ghToken: e.target.value })} aria-label={t("int.token")} />,
           () => connect("github", { token: f.ghToken }), f.ghToken.trim().length > 0)}
         {tool("jira", <JiraMark size={22} />, "Jira", "int.jiraDesc", JIRA_TOKEN_URL,
           <>
-            <input placeholder={t("int.site")} value={f.site} onChange={(e) => setF({ ...f, site: e.target.value })} aria-label={t("int.site")} />
-            <input type="email" placeholder={t("int.email")} value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} aria-label={t("int.email")} />
-            <input type="password" placeholder={t("int.token")} value={f.jiraToken} onChange={(e) => setF({ ...f, jiraToken: e.target.value })} aria-label={t("int.token")} />
+            <Field placeholder={t("int.site")} value={f.site} onChange={(e) => setF({ ...f, site: e.target.value })} aria-label={t("int.site")} />
+            <Field type="email" placeholder={t("int.email")} value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} aria-label={t("int.email")} />
+            <Field type="password" placeholder={t("int.token")} value={f.jiraToken} onChange={(e) => setF({ ...f, jiraToken: e.target.value })} aria-label={t("int.token")} />
           </>,
           () => connect("jira", { site: f.site, email: f.email, token: f.jiraToken }), f.site.trim() !== "" && f.email.trim() !== "" && f.jiraToken.trim() !== "")}
         {tool("notion", <NotionMark size={22} />, "Notion", "int.notionDesc", NOTION_TOKEN_URL,
-          <input type="password" placeholder={t("int.token")} value={f.notionToken} onChange={(e) => setF({ ...f, notionToken: e.target.value })} aria-label={t("int.token")} />,
+          <Field type="password" placeholder={t("int.token")} value={f.notionToken} onChange={(e) => setF({ ...f, notionToken: e.target.value })} aria-label={t("int.token")} />,
           () => connect("notion", { token: f.notionToken }), f.notionToken.trim().length > 0)}
       </div>
 

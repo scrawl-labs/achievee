@@ -1,4 +1,5 @@
 "use client";
+import { Button, IconButton } from "@achievee/ui";
 import { useEffect, useMemo, useState } from "react";
 import type { MonthData } from "@/lib/types";
 import { addDays, mondayOf } from "@/lib/dates";
@@ -98,9 +99,9 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
   return (
     <div className="wk">
       <div className="wk-head">
-        <button className="btn icon" onClick={() => setSel(addDays(sel, -7))} aria-label={t("common.prev")}><Icon name="left" /></button>
+        <IconButton label={t("common.prev")} icon={<Icon name="left" />} type="submit" onClick={() => setSel(addDays(sel, -7))} />
         <h2>{range}</h2>
-        <button className="btn icon" onClick={() => setSel(addDays(sel, 7))} aria-label={t("common.next")}><Icon name="right" /></button>
+        <IconButton label={t("common.next")} icon={<Icon name="right" />} type="submit" onClick={() => setSel(addDays(sel, 7))} />
       </div>
 
       <Summary items={[
@@ -143,7 +144,7 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
           {question("note", t("wk.note"), 2)}
           <div className="row end gap-2">
             {saved && <small className="muted">{t("wk.saved")}</small>}
-            <button className="btn primary" disabled={!dirty} onClick={save}>{t("common.save")}</button>
+            <Button variant="primary" type="submit" disabled={!dirty} onClick={save}>{t("common.save")}</Button>
           </div>
         </section>
 
@@ -162,7 +163,7 @@ export default function WeeklyReview({ sel, setSel }: { sel: string; setSel: (d:
                 {isOpen && (
                   <div className="entry-body">
                     {answers.filter(([, v]) => v).map(([label, v]) => <div key={label}><small>{label}</small><p>{v}</p></div>)}
-                    <div className="row end"><button type="button" className="btn" onClick={() => { setSel(r.week); window.scrollTo({ top: 0, behavior: "smooth" }); }}>{t("common.edit")}</button></div>
+                    <div className="row end"><Button type="button" onClick={() => { setSel(r.week); window.scrollTo({ top: 0, behavior: "smooth" }); }}>{t("common.edit")}</Button></div>
                   </div>
                 )}
               </div>

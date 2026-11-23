@@ -8,7 +8,7 @@ import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 import Icon from "./Icon";
 import { askConfirm } from "./Confirm";
-import { Button, List, ListRow, Tabs } from "@achievee/ui";
+import { Button, Field, IconButton, List, ListRow, Tabs } from "@achievee/ui";
 import Summary from "./Summary";
 import DatePicker from "./DatePicker";
 import BodyLog from "./BodyLog";
@@ -87,14 +87,14 @@ export default function WorkoutView({ sel, setSel, goal, onGoal, intakeGoals, on
           <section>
             <div className={`sechead${open ? "" : " flush"}`}>
               <h3>{t("wo.new")}</h3>
-              <button type="button" className={`btn icon add${open ? " open" : ""}`} aria-expanded={open} aria-label={open ? t("common.close") : t("wo.addAria")} onClick={() => setOpen(!open)}><Icon name="plus" /></button>
+              <IconButton variant="soft" className={`add${open ? " open" : ""}`} aria-expanded={open} label={open ? t("common.close") : t("wo.addAria")} icon={<Icon name="plus" />} onClick={() => setOpen(!open)} />
             </div>
             {open && (
               <form className="panel entry" onSubmit={add}>
                 <DatePicker value={sel} onChange={setSel} />
                 {kindSelect(kind, setKind)}
-                <input placeholder={t("wo.minutes")} inputMode="numeric" value={minutes} onChange={(e) => setMinutes(e.target.value)} autoFocus />
-                <input className="wide" placeholder={t("exp.memo")} value={memo} onChange={(e) => setMemo(e.target.value)} />
+                <Field placeholder={t("wo.minutes")} inputMode="numeric" value={minutes} onChange={(e) => setMinutes(e.target.value)} autoFocus />
+                <Field className="wide" placeholder={t("exp.memo")} value={memo} onChange={(e) => setMemo(e.target.value)} />
                 <Button type="submit" variant="primary">{t("common.add")}</Button>
               </form>
             )}
@@ -108,8 +108,8 @@ export default function WorkoutView({ sel, setSel, goal, onGoal, intakeGoals, on
                 <form className="panel entry" key={r.id} onSubmit={save}>
                   <DatePicker value={draft.date} onChange={(d) => setDraft({ ...draft, date: d })} />
                   {kindSelect(draft.kind, (k) => setDraft({ ...draft, kind: k }))}
-                  <input placeholder={t("wo.minutes")} inputMode="numeric" value={draft.minutes} onChange={(e) => setDraft({ ...draft, minutes: e.target.value })} autoFocus />
-                  <input className="wide" placeholder={t("exp.memo")} value={draft.memo} onChange={(e) => setDraft({ ...draft, memo: e.target.value })} />
+                  <Field placeholder={t("wo.minutes")} inputMode="numeric" value={draft.minutes} onChange={(e) => setDraft({ ...draft, minutes: e.target.value })} autoFocus />
+                  <Field className="wide" placeholder={t("exp.memo")} value={draft.memo} onChange={(e) => setDraft({ ...draft, memo: e.target.value })} />
                   <div className="edit-actions">
                     <Button onClick={() => setEditId(null)}>{t("common.cancel")}</Button>
                     <Button type="submit" variant="primary">{t("common.save")}</Button>
@@ -119,8 +119,8 @@ export default function WorkoutView({ sel, setSel, goal, onGoal, intakeGoals, on
                 <ListRow key={r.id} title={t(kindKey(r.kind))} meta={r.memo ? `${fmt.monthDay(r.date)} · ${r.memo}` : fmt.monthDay(r.date)} amount={dur(r.minutes)}
                   open={openRow === r.id} onClick={() => setOpenRow(openRow === r.id ? null : r.id)}
                   actions={<>
-                    <button type="button" className="btn icon ghost" onClick={() => { setEditId(r.id); setDraft({ date: r.date, kind: r.kind, minutes: String(r.minutes), memo: r.memo }); }} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
-                    <button type="button" className="btn icon ghost" onClick={() => del(r)} aria-label={t("common.delete")} title={t("common.delete")}><Icon name="close" size={16} /></button>
+                    <IconButton label={t("common.edit")} icon={<Icon name="edit" size={16} />} type="button" onClick={() => { setEditId(r.id); setDraft({ date: r.date, kind: r.kind, minutes: String(r.minutes), memo: r.memo }); }} />
+                    <IconButton label={t("common.delete")} icon={<Icon name="close" size={16} />} type="button" onClick={() => del(r)} />
                   </>} />
               ))}
             </List>

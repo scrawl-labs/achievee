@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@achievee/ui";
 import { useRef, useState } from "react";
 import type { TaskItem } from "@/lib/types";
 import { mergeTasks, taskCounts } from "@/lib/taskList";
@@ -47,7 +48,7 @@ export default function TodoList({ date, google, label }: { date: string; google
       {draft !== null ? (
         <GoalInput initial={draft} allowUnchanged label={t("task.new")} placeholder={t("todo.placeholder")} returnFocus={addBtn} onSubmit={submit} onCancel={() => setDraft(null)} />
       ) : (
-        <button type="button" ref={addBtn} className="btn ghost goal-add" onClick={() => setDraft("")}><Icon name="plus" size={16} />{t("task.add")}</button>
+        <Button variant="ghost" className="goal-add" type="button" ref={addBtn} onClick={() => setDraft("")}><Icon name="plus" size={16} />{t("task.add")}</Button>
       )}
       {error && <small className="goal-msg" role="alert">{error === "limit" ? t("todo.limit") : t("goal.failed")}</small>}
     </section>

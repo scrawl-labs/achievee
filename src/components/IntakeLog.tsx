@@ -1,4 +1,5 @@
 "use client";
+import { Button, Field, IconButton } from "@achievee/ui";
 import { useState } from "react";
 import { INTAKE_KINDS, type IntakeKind, type IntakeRow, dayTotal, daysMet, liters } from "@/lib/intake";
 import type { Key } from "@/lib/i18n";
@@ -51,25 +52,25 @@ export default function IntakeLog({ sel, goals, onGoal }: { sel: string; goals: 
             <div className="panel intake-card" key={k}>
               <div className="row between">
                 <b>{t(`in.${k}` as Key)}</b>
-                <button type="button" className="btn icon ghost" onClick={() => { setEditing(k); setExact(String(total)); }} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
+                <IconButton label={t("common.edit")} icon={<Icon name="edit" size={16} />} type="button" onClick={() => { setEditing(k); setExact(String(total)); }} />
               </div>
               {editing === k ? (
                 <form className="intake-exact" onSubmit={(e) => saveExact(e, k)}>
-                  <input inputMode="numeric" value={exact} onChange={(e) => setExact(e.target.value)} autoFocus aria-label={t(`in.${k}` as Key)} />
+                  <Field inputMode="numeric" value={exact} onChange={(e) => setExact(e.target.value)} autoFocus aria-label={t(`in.${k}` as Key)} />
                   <span className="muted">{k === "water" ? "ml" : "g"}</span>
-                  <button className="btn primary">{t("common.save")}</button>
-                  <button type="button" className="btn" onClick={() => setEditing(null)}>{t("common.cancel")}</button>
+                  <Button variant="primary" type="submit">{t("common.save")}</Button>
+                  <Button type="button" onClick={() => setEditing(null)}>{t("common.cancel")}</Button>
                 </form>
               ) : (
                 <div className="intake-val"><strong>{fmtAmount(k, total)}</strong><span> / {fmtAmount(k, goal)}</span></div>
               )}
               <div className="intake-bar" role="progressbar" aria-valuenow={total} aria-valuemax={goal}><i className={total >= goal ? "met" : ""} style={{ width: `${Math.min(100, (total / goal) * 100)}%` }} /></div>
               <div className="intake-quick">
-                {QUICK[k].map((n) => <button type="button" className="btn" key={n} onClick={() => add(k, n)}>+{n}{k === "water" ? "ml" : "g"}</button>)}
+                {QUICK[k].map((n) => <Button type="button" key={n} onClick={() => add(k, n)}>+{n}{k === "water" ? "ml" : "g"}</Button>)}
               </div>
               <form className="intake-custom" onSubmit={(e) => addCustom(e, k)}>
-                <input inputMode="numeric" placeholder={`${t("in.custom")} (${k === "water" ? "ml" : "g"})`} value={custom[k]} onChange={(e) => setCustom({ ...custom, [k]: e.target.value })} aria-label={t("in.custom")} />
-                <button className="btn" disabled={!custom[k].trim()}>{t("common.add")}</button>
+                <Field inputMode="numeric" placeholder={`${t("in.custom")} (${k === "water" ? "ml" : "g"})`} value={custom[k]} onChange={(e) => setCustom({ ...custom, [k]: e.target.value })} aria-label={t("in.custom")} />
+                <Button type="submit" disabled={!custom[k].trim()}>{t("common.add")}</Button>
               </form>
               <div className="period">
                 <label htmlFor={`goal-${k}`}>{t("in.goal")}</label>

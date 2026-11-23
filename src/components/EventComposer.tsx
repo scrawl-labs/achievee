@@ -1,4 +1,5 @@
 "use client";
+import { Button, Field } from "@achievee/ui";
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "./I18n";
 
@@ -26,14 +27,14 @@ export default function EventComposer({ initial = "", when, onSave, onCancel, on
       onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}
       onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); onCancel(); } }}
       onSubmit={(e) => { e.preventDefault(); if (title.trim() && !busy) run(() => onSave(title.trim())); }}>
-      <input ref={input} value={title} maxLength={200} placeholder={label} aria-label={label} onChange={(e) => setTitle(e.target.value)} />
+      <Field ref={input} value={title} maxLength={200} placeholder={label} aria-label={label} onChange={(e) => setTitle(e.target.value)} />
       <small className="muted">{when}</small>
       {failed && <small className="error">{t("common.loadFail")}</small>}
       <div className="composer-actions">
-        {onDelete && <button type="button" className="btn danger" disabled={busy} onClick={() => run(onDelete)}>{t("common.delete")}</button>}
+        {onDelete && <Button variant="danger" type="button" disabled={busy} onClick={() => run(onDelete)}>{t("common.delete")}</Button>}
         <span className="grow" />
-        <button type="button" className="btn" onClick={onCancel}>{t("common.cancel")}</button>
-        <button className="btn primary" disabled={busy || !title.trim()}>{t("common.save")}</button>
+        <Button type="button" onClick={onCancel}>{t("common.cancel")}</Button>
+        <Button variant="primary" type="submit" disabled={busy || !title.trim()}>{t("common.save")}</Button>
       </div>
     </form>
   );

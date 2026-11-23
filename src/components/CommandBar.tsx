@@ -1,4 +1,5 @@
 "use client";
+import { IconButton } from "@achievee/ui";
 import { useEffect, useRef } from "react";
 import type { Tab } from "@/lib/commandBar";
 import CommandItem from "./CommandItem";
@@ -30,7 +31,7 @@ export default function CommandBar({ go }: { go: (tab: Tab, date?: string) => vo
   const placeholder = touch ? hint.replace(/\s*[(（][^()（）]*[)）]\s*$/, "") : hint;
   return (
     <>
-      <button className="btn icon" onClick={c.show} aria-label={t("cmd.open")} aria-haspopup="dialog" title={t("cmd.open")}><Icon name="search" /></button>
+      <IconButton label={t("cmd.open")} icon={<Icon name="search" />} type="submit" onClick={c.show} aria-haspopup="dialog" />
       {c.open && (
         <div className="cmd-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) c.close(); }}>
           <div className="cmd" role="dialog" aria-modal="true" aria-label={t("cmd.dialog")} onKeyDown={c.onKeyDown}

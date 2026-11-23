@@ -89,3 +89,13 @@
 @keyframes ac-in { from { opacity: 0; } }
 @keyframes ac-pop { from { opacity: 0; transform: scale(.96) translateY(6px); } }
 @media (prefers-reduced-motion: reduce) { .ac-dim, .ac-dialog { animation: none; } .ac-btn, .ac-chip { transition: none; } }
+
+/* IconButton */
+.ac-iconbtn { flex: none; width: 36px; height: 36px; padding: 0; border: 0; border-radius: var(--ac-radius-control); background: transparent; color: var(--ac-ink-3); display: inline-grid; place-items: center; cursor: pointer; transition: background-color .15s, color .15s, transform .15s; }
+.ac-iconbtn:hover { background: var(--ac-surface-sunk); color: var(--ac-ink); }
+.ac-iconbtn:active { transform: scale(.94); }
+.ac-iconbtn--soft { background: var(--ac-surface-sunk); color: var(--ac-ink); }
+.ac-iconbtn--soft:hover { filter: brightness(.97); }
+.ac-iconbtn--sm { width: 30px; height: 30px; }
+.ac-iconbtn:disabled { opacity: .4; cursor: default; transform: none; }
+.ac-iconbtn:focus-visible { outline: 2px solid var(--ac-focus); outline-offset: 2px; }

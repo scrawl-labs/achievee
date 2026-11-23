@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@achievee/ui";
 import { useEffect, useRef, useState } from "react";
 import { addDays, addMonths, dow } from "@/lib/dates";
 import { todayStr } from "@/lib/clientTime";
@@ -77,7 +78,7 @@ export default function DatePicker({ value, onChange, marksUrl, label }: Props) 
               );
             })}
           </div>
-          <div className="dp-foot"><button type="button" className="btn" onClick={() => pick(today)}>{t("common.today")}</button></div>
+          <div className="dp-foot"><Button type="button" onClick={() => pick(today)}>{t("common.today")}</Button></div>
         </div>
       )}
     </div>

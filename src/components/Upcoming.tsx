@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@achievee/ui";
 import { useEffect, useMemo, useState } from "react";
 import { addDays } from "@/lib/dates";
 import { todayStr } from "@/lib/clientTime";
@@ -37,7 +38,7 @@ export default function Upcoming({ onOpen }: { onOpen: (date: string, mode: "DAY
     <section className="upcoming" aria-labelledby="up-title">
       <div className="up-head">
         <h4 id="up-title">{t("up.title")} <small>{t("up.sub")}</small></h4>
-        <button type="button" className="btn ghost up-add" onClick={() => onOpen(today, "DAY")}><Icon name="plus" size={14} />{t("up.add")}</button>
+        <Button variant="ghost" className="up-add" type="button" onClick={() => onOpen(today, "DAY")}><Icon name="plus" size={14} />{t("up.add")}</Button>
       </div>
       {error && <p className="error">{t("common.loadFail")}</p>}
       {up && up.rows.length === 0 && !rest && (

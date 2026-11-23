@@ -9,7 +9,7 @@ import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 import DatePicker from "./DatePicker";
 import { askConfirm } from "./Confirm";
-import { Button, Chip, ChipRow, DayHeader, List, ListRow, Surface } from "@achievee/ui";
+import { Button, Chip, ChipRow, DayHeader, Field, IconButton, List, ListRow, Surface } from "@achievee/ui";
 import CategoryGlyph from "./CategoryGlyph";
 
 type Row = { id: number; date: string; category: string; memo: string; amount: number; need: number };
@@ -143,7 +143,7 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
           <section>
             <div className={`sechead${open ? "" : " flush"}`}>
               <h3>{t("exp.new")}</h3>
-              <button type="button" className={`btn icon add${open ? " open" : ""}`} aria-expanded={open} aria-label={open ? t("common.close") : t("exp.addAria")} onClick={() => setOpen(!open)}><Icon name="plus" /></button>
+              <IconButton variant="soft" className={`add${open ? " open" : ""}`} aria-expanded={open} label={open ? t("common.close") : t("exp.addAria")} icon={<Icon name="plus" />} onClick={() => setOpen(!open)} />
             </div>
             {open && (
               <form className="panel entry" onSubmit={add}>
@@ -153,8 +153,8 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
                   <option value="need">{t("exp.needOpt")}</option>
                   <option value="waste">{t("exp.wasteOpt")}</option>
                 </select>
-                <input placeholder={t("exp.amount")} inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} autoFocus />
-                <input className="wide" placeholder={t("exp.memo")} value={memo} onChange={(e) => setMemo(e.target.value)} />
+                <Field placeholder={t("exp.amount")} inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value)} autoFocus />
+                <Field className="wide" placeholder={t("exp.memo")} value={memo} onChange={(e) => setMemo(e.target.value)} />
                 <Button type="submit" variant="primary">{t("common.add")}</Button>
               </form>
             )}
@@ -190,8 +190,8 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
                           <option value="need">{t("exp.needOpt")}</option>
                           <option value="waste">{t("exp.wasteOpt")}</option>
                         </select>
-                        <input placeholder={t("exp.amount")} inputMode="numeric" value={draft.amount} onChange={(e) => setDraft({ ...draft, amount: e.target.value })} autoFocus />
-                        <input className="wide" placeholder={t("exp.memo")} value={draft.memo} onChange={(e) => setDraft({ ...draft, memo: e.target.value })} />
+                        <Field placeholder={t("exp.amount")} inputMode="numeric" value={draft.amount} onChange={(e) => setDraft({ ...draft, amount: e.target.value })} autoFocus />
+                        <Field className="wide" placeholder={t("exp.memo")} value={draft.memo} onChange={(e) => setDraft({ ...draft, memo: e.target.value })} />
                         <div className="edit-actions">
                           <Button onClick={() => setEditId(null)}>{t("common.cancel")}</Button>
                           <Button type="submit" variant="primary">{t("common.save")}</Button>
@@ -205,8 +205,8 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
                           open={openRow === r.id} onClick={() => setOpenRow(openRow === r.id ? null : r.id)}
                           actions={<>
                             <Button variant="ghost" size="sm" onClick={() => toggle(r)}>{r.need ? t("exp.toWaste") : t("exp.toNeed")}</Button>
-                            <button type="button" className="btn icon ghost" onClick={() => startEdit(r)} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
-                            <button type="button" className="btn icon ghost" onClick={() => del(r)} aria-label={t("common.delete")} title={t("common.delete")}><Icon name="close" size={16} /></button>
+                            <IconButton label={t("common.edit")} icon={<Icon name="edit" size={16} />} type="button" onClick={() => startEdit(r)} />
+                            <IconButton label={t("common.delete")} icon={<Icon name="close" size={16} />} type="button" onClick={() => del(r)} />
                           </>} />
                       );
                     })())}
@@ -219,13 +219,13 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
           <section>
             <div className={`sechead${iOpen ? "" : " flush"}`}>
               <h3>{t("inc.income")}</h3>
-              <button type="button" className={`btn icon add${iOpen ? " open" : ""}`} aria-expanded={iOpen} aria-label={iOpen ? t("common.close") : t("inc.addAria")} onClick={() => setIOpen(!iOpen)}><Icon name="plus" /></button>
+              <IconButton variant="soft" className={`add${iOpen ? " open" : ""}`} aria-expanded={iOpen} label={iOpen ? t("common.close") : t("inc.addAria")} icon={<Icon name="plus" />} onClick={() => setIOpen(!iOpen)} />
             </div>
             {iOpen && (
               <form className="panel entry" onSubmit={addInc}>
                 <DatePicker value={sel} onChange={setSel} />
-                <input placeholder={t("exp.amount")} inputMode="numeric" value={iAmount} onChange={(e) => setIAmount(e.target.value)} autoFocus />
-                <input className="wide" placeholder={t("exp.memo")} value={iMemo} onChange={(e) => setIMemo(e.target.value)} />
+                <Field placeholder={t("exp.amount")} inputMode="numeric" value={iAmount} onChange={(e) => setIAmount(e.target.value)} autoFocus />
+                <Field className="wide" placeholder={t("exp.memo")} value={iMemo} onChange={(e) => setIMemo(e.target.value)} />
                 <Button type="submit" variant="primary">{t("common.add")}</Button>
               </form>
             )}
@@ -234,8 +234,8 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
               {incRows.map((r) => iEditId === r.id ? (
                 <form className="panel entry" key={r.id} onSubmit={saveInc}>
                   <DatePicker value={iDraft.date} onChange={(d) => setIDraft({ ...iDraft, date: d })} />
-                  <input placeholder={t("exp.amount")} inputMode="numeric" value={iDraft.amount} onChange={(e) => setIDraft({ ...iDraft, amount: e.target.value })} autoFocus />
-                  <input className="wide" placeholder={t("exp.memo")} value={iDraft.memo} onChange={(e) => setIDraft({ ...iDraft, memo: e.target.value })} />
+                  <Field placeholder={t("exp.amount")} inputMode="numeric" value={iDraft.amount} onChange={(e) => setIDraft({ ...iDraft, amount: e.target.value })} autoFocus />
+                  <Field className="wide" placeholder={t("exp.memo")} value={iDraft.memo} onChange={(e) => setIDraft({ ...iDraft, memo: e.target.value })} />
                   <div className="edit-actions">
                     <Button onClick={() => setIEditId(null)}>{t("common.cancel")}</Button>
                     <Button type="submit" variant="primary">{t("common.save")}</Button>
@@ -250,8 +250,8 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
                   <div className="eside">
                     <b className="num inc">{fmt.money(r.amount)}</b>
                     <span className="acts">
-                      <button className="btn icon ghost" onClick={() => { setIEditId(r.id); setIDraft({ date: r.date, amount: String(r.amount), memo: r.memo }); }} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
-                      <button className="btn icon ghost" onClick={() => delInc(r)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button>
+                      <IconButton label={t("common.edit")} icon={<Icon name="edit" size={16} />} type="submit" onClick={() => { setIEditId(r.id); setIDraft({ date: r.date, amount: String(r.amount), memo: r.memo }); }} />
+                      <IconButton label={t("common.delete")} icon={<Icon name="close" size={16} />} type="submit" onClick={() => delInc(r)} />
                     </span>
                   </div>
                 </div>
@@ -262,7 +262,7 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
           <section>
             <div className={`sechead${sOpen ? "" : " flush"}`}>
               <h3>{t("sav.title")}{incomeTotal > 0 && savedTotal > 0 && <small className="sav-rate">{t("sav.rate", { p: Math.round((savedTotal / incomeTotal) * 100) })}</small>}</h3>
-              <button type="button" className={`btn icon add${sOpen ? " open" : ""}`} aria-expanded={sOpen} aria-label={sOpen ? t("common.close") : t("sav.addAria")} onClick={() => setSOpen(!sOpen)}><Icon name="plus" /></button>
+              <IconButton variant="soft" className={`add${sOpen ? " open" : ""}`} aria-expanded={sOpen} label={sOpen ? t("common.close") : t("sav.addAria")} icon={<Icon name="plus" />} onClick={() => setSOpen(!sOpen)} />
             </div>
             {sOpen && (
               <form className="panel entry" onSubmit={addSav}>
@@ -271,8 +271,8 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
                   <option value="saving">{t("sav.saving")}</option>
                   <option value="invest">{t("sav.invest")}</option>
                 </select>
-                <input placeholder={t("exp.amount")} inputMode="numeric" value={sAmount} onChange={(e) => setSAmount(e.target.value)} autoFocus />
-                <input className="wide" placeholder={t("exp.memo")} value={sMemo} onChange={(e) => setSMemo(e.target.value)} />
+                <Field placeholder={t("exp.amount")} inputMode="numeric" value={sAmount} onChange={(e) => setSAmount(e.target.value)} autoFocus />
+                <Field className="wide" placeholder={t("exp.memo")} value={sMemo} onChange={(e) => setSMemo(e.target.value)} />
                 <Button type="submit" variant="primary">{t("common.add")}</Button>
               </form>
             )}
@@ -285,8 +285,8 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
                     <option value="saving">{t("sav.saving")}</option>
                     <option value="invest">{t("sav.invest")}</option>
                   </select>
-                  <input placeholder={t("exp.amount")} inputMode="numeric" value={sDraft.amount} onChange={(e) => setSDraft({ ...sDraft, amount: e.target.value })} autoFocus />
-                  <input className="wide" placeholder={t("exp.memo")} value={sDraft.memo} onChange={(e) => setSDraft({ ...sDraft, memo: e.target.value })} />
+                  <Field placeholder={t("exp.amount")} inputMode="numeric" value={sDraft.amount} onChange={(e) => setSDraft({ ...sDraft, amount: e.target.value })} autoFocus />
+                  <Field className="wide" placeholder={t("exp.memo")} value={sDraft.memo} onChange={(e) => setSDraft({ ...sDraft, memo: e.target.value })} />
                   <div className="edit-actions">
                     <Button onClick={() => setSEditId(null)}>{t("common.cancel")}</Button>
                     <Button type="submit" variant="primary">{t("common.save")}</Button>
@@ -301,8 +301,8 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
                   <div className="eside">
                     <b className="num sav">{fmt.money(r.amount)}</b>
                     <span className="acts">
-                      <button className="btn icon ghost" onClick={() => { setSEditId(r.id); setSDraft({ date: r.date, kind: r.kind, amount: String(r.amount), memo: r.memo }); }} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
-                      <button className="btn icon ghost" onClick={() => delSav(r)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button>
+                      <IconButton label={t("common.edit")} icon={<Icon name="edit" size={16} />} type="submit" onClick={() => { setSEditId(r.id); setSDraft({ date: r.date, kind: r.kind, amount: String(r.amount), memo: r.memo }); }} />
+                      <IconButton label={t("common.delete")} icon={<Icon name="close" size={16} />} type="submit" onClick={() => delSav(r)} />
                     </span>
                   </div>
                 </div>
@@ -326,7 +326,7 @@ export default function ExpenseView({ sel, setSel, startDay, overrides, onOverri
                   <select id={`pay-${month}`} value={day} onChange={(e) => { const d = Number(e.target.value); onOverride(month, d === startDay ? null : d); }}>
                     {DAYS.map((d) => <option key={d} value={d}>{t("inc.day", { n: d })}</option>)}
                   </select>
-                  {custom && <button type="button" className="btn ghost" onClick={() => onOverride(month, null)}>{t("inc.payReset", { n: periodStart(month, startDay).slice(8) })}</button>}
+                  {custom && <Button variant="ghost" type="button" onClick={() => onOverride(month, null)}>{t("inc.payReset", { n: periodStart(month, startDay).slice(8) })}</Button>}
                 </div>
               );
             })}
