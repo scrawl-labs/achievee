@@ -1,4 +1,5 @@
 "use client";
+import { Chip, ChipRow } from "@achievee/ui";
 import { useState } from "react";
 import { FAMILIES, MAX_EMOTIONS, emoLang, wordById, wordText, wordsOfFamily } from "@/lib/emotions";
 import { useI18n } from "./I18n";
@@ -38,14 +39,12 @@ export default function EmotionPicker({ value, onChange }: { value: string[]; on
         <small>{t("emo.hint")}</small>
       </div>
 
-      <div className="emo-sel">
+      <ChipRow className="emo-sel">
         {value.map((id) => (
-          <button key={id} type="button" className="emo-chip on" onClick={() => onChange(value.filter((x) => x !== id))} title={t("common.delete")}>
-            {wordText(id, lang)}<span aria-hidden="true">×</span>
-          </button>
+          <Chip key={id} selected removable onClick={() => onChange(value.filter((x) => x !== id))} title={t("common.delete")}>{wordText(id, lang)}</Chip>
         ))}
-        <button type="button" className="btn" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? t("common.close") : t("emo.pick")}</button>
-      </div>
+        <Chip add aria-expanded={open} onClick={() => setOpen(!open)}>{open ? t("common.close") : t("emo.pick")}</Chip>
+      </ChipRow>
 
       {open && (
         <div className="emo-panel">

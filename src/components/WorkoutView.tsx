@@ -8,6 +8,7 @@ import { useI18n } from "./I18n";
 import { useApi } from "./useApi";
 import Icon from "./Icon";
 import { askConfirm } from "./Confirm";
+import { Button, List, ListRow, Tabs } from "@achievee/ui";
 import Summary from "./Summary";
 import DatePicker from "./DatePicker";
 import BodyLog from "./BodyLog";
@@ -41,6 +42,7 @@ export default function WorkoutView({ sel, setSel, goal, onGoal, intakeGoals, on
   const [minutes, setMinutes] = useState("");
   const [memo, setMemo] = useState("");
   const [editId, setEditId] = useState<number | null>(null);
+  const [openRow, setOpenRow] = useState<number | null>(null); // the row whose actions are showing (tap on touch screens)
   const [draft, setDraft] = useState({ date: "", kind: "run" as WorkoutKind, minutes: "", memo: "" });
 
   const dur = (min: number) => (min >= 60 ? t("foc.dur", { h: Math.floor(min / 60), m: min % 60 }) : t("foc.min", { m: min }));
@@ -71,13 +73,7 @@ export default function WorkoutView({ sel, setSel, goal, onGoal, intakeGoals, on
   return (
     <>
       <div className="sechead">
-        <div className="tabs-t" role="tablist">
-          {(["log", "intake", "body"] as const).map((k) => (
-            <button key={k} role="tab" aria-selected={mode === k} className={mode === k ? "on" : ""} onClick={() => setMode(k)}>
-              {t(k === "log" ? "nav.workout" : k === "intake" ? "in.title" : "body.title")}
-            </button>
-          ))}
-        </div>
+        <Tabs value={mode} onChange={setMode} items={(["log", "intake", "body"] as const).map((k) => ({ value: k, label: t(k === "log" ? "nav.workout" : k === "intake" ? "in.title" : "body.title") }))} />
       </div>
 
       {mode === "log" && (
@@ -99,15 +95,15 @@ export default function WorkoutView({ sel, setSel, goal, onGoal, intakeGoals, on
                 {kindSelect(kind, setKind)}
                 <input placeholder={t("wo.minutes")} inputMode="numeric" value={minutes} onChange={(e) => setMinutes(e.target.value)} autoFocus />
                 <input className="wide" placeholder={t("exp.memo")} value={memo} onChange={(e) => setMemo(e.target.value)} />
-                <button className="btn primary">{t("common.add")}</button>
+                <Button type="submit" variant="primary">{t("common.add")}</Button>
               </form>
             )}
           </section>
 
           <section>
             <div className="sechead"><h3>{t("exp.history")}</h3></div>
-            <div className="list">
-              {monthRows.length === 0 && <p className="muted">{t("wo.empty")}</p>}
+            {monthRows.length === 0 && <p className="muted">{t("wo.empty")}</p>}
+            <List className="ex-card" hidden={monthRows.length === 0}>
               {monthRows.map((r) => editId === r.id ? (
                 <form className="panel entry" key={r.id} onSubmit={save}>
                   <DatePicker value={draft.date} onChange={(d) => setDraft({ ...draft, date: d })} />
@@ -115,26 +111,19 @@ export default function WorkoutView({ sel, setSel, goal, onGoal, intakeGoals, on
                   <input placeholder={t("wo.minutes")} inputMode="numeric" value={draft.minutes} onChange={(e) => setDraft({ ...draft, minutes: e.target.value })} autoFocus />
                   <input className="wide" placeholder={t("exp.memo")} value={draft.memo} onChange={(e) => setDraft({ ...draft, memo: e.target.value })} />
                   <div className="edit-actions">
-                    <button type="button" className="btn" onClick={() => setEditId(null)}>{t("common.cancel")}</button>
-                    <button className="btn primary">{t("common.save")}</button>
+                    <Button onClick={() => setEditId(null)}>{t("common.cancel")}</Button>
+                    <Button type="submit" variant="primary">{t("common.save")}</Button>
                   </div>
                 </form>
               ) : (
-                <div className="item static erow noChip" key={r.id}>
-                  <div className="emain">
-                    <span className="etop"><b>{fmt.monthDay(r.date)}</b><span className="ecat">{t(kindKey(r.kind))}</span></span>
-                    {r.memo && <span className="ememo">{r.memo}</span>}
-                  </div>
-                  <div className="eside">
-                    <b className="num">{dur(r.minutes)}</b>
-                    <span className="acts">
-                      <button className="btn icon ghost" onClick={() => { setEditId(r.id); setDraft({ date: r.date, kind: r.kind, minutes: String(r.minutes), memo: r.memo }); }} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
-                      <button className="btn icon ghost" onClick={() => del(r)} aria-label={t("common.delete")}><Icon name="close" size={16} /></button>
-                    </span>
-                  </div>
-                </div>
+                <ListRow key={r.id} title={t(kindKey(r.kind))} meta={r.memo ? `${fmt.monthDay(r.date)} · ${r.memo}` : fmt.monthDay(r.date)} amount={dur(r.minutes)}
+                  open={openRow === r.id} onClick={() => setOpenRow(openRow === r.id ? null : r.id)}
+                  actions={<>
+                    <button type="button" className="btn icon ghost" onClick={() => { setEditId(r.id); setDraft({ date: r.date, kind: r.kind, minutes: String(r.minutes), memo: r.memo }); }} aria-label={t("common.edit")} title={t("common.edit")}><Icon name="edit" size={16} /></button>
+                    <button type="button" className="btn icon ghost" onClick={() => del(r)} aria-label={t("common.delete")} title={t("common.delete")}><Icon name="close" size={16} /></button>
+                  </>} />
               ))}
-            </div>
+            </List>
           </section>
         </div>
 

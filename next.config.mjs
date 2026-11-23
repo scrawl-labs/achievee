@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 export default {
+  // the design system package ships TypeScript source; Next compiles it with the app
+  transpilePackages: ["@achievee/ui"],
   async redirects() {
     // the character used to be called Bori: old links still land on the new page
     return [

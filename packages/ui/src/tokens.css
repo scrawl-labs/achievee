@@ -1,0 +1,96 @@
+/* Achievee design system tokens. Generated from tokens.json by scripts/build-tokens.mjs: do not edit by hand. */
+:root, [data-theme="light"] {
+  --ac-bg: #f6f5f2;
+  --ac-surface: #ffffff;
+  --ac-surface-sunk: #f0efeb;
+  --ac-line: #e7e5e0;
+  --ac-ink: #1a1917;
+  --ac-ink-2: #5c5a55;
+  --ac-ink-3: #6b6861;
+  --ac-accent: #4a5bf0;
+  --ac-on-accent: #ffffff;
+  --ac-accent-soft: #eceefe;
+  --ac-accent-ink: #3442c9;
+  --ac-petal: #fb78a2;
+  --ac-petal-peach: #ffb199;
+  --ac-petal-butter: #ffd980;
+  --ac-petal-mint: #9be3b4;
+  --ac-petal-lilac: #c3a6ff;
+  --ac-petal-sky: #8fb8ff;
+  --ac-good: #1a7d48;
+  --ac-danger: #c9353b;
+  --ac-on-danger: #ffffff;
+  --ac-focus: #4a5bf0;
+  --ac-shadow-surface: 0 1px 2px rgba(26,25,23,0.05), 0 10px 28px -14px rgba(26,25,23,0.16);
+  --ac-shadow-float: 0 2px 6px rgba(26,25,23,0.08), 0 24px 48px -16px rgba(26,25,23,0.28);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ac-bg: #0f0f0e;
+    --ac-surface: #191918;
+    --ac-surface-sunk: #242422;
+    --ac-line: #2e2d2a;
+    --ac-ink: #efeee9;
+    --ac-ink-2: #a8a6a0;
+    --ac-ink-3: #8d8a83;
+    --ac-accent: #8b96ff;
+    --ac-on-accent: #0e1030;
+    --ac-accent-soft: #262a52;
+    --ac-accent-ink: #c0c7ff;
+    --ac-petal: #fb78a2;
+    --ac-petal-peach: #ffb199;
+    --ac-petal-butter: #ffd980;
+    --ac-petal-mint: #9be3b4;
+    --ac-petal-lilac: #c3a6ff;
+    --ac-petal-sky: #8fb8ff;
+    --ac-good: #5fd394;
+    --ac-danger: #ff7b7f;
+    --ac-on-danger: #2a0607;
+    --ac-focus: #9aa5ff;
+    --ac-shadow-surface: 0 1px 0 rgba(255,255,255,0.04), 0 12px 32px -14px rgba(0,0,0,0.7);
+    --ac-shadow-float: 0 2px 6px rgba(0,0,0,0.5), 0 24px 48px -16px rgba(0,0,0,0.8);
+    color-scheme: dark;
+  }
+}
+[data-theme="dark"] {
+  --ac-bg: #0f0f0e;
+  --ac-surface: #191918;
+  --ac-surface-sunk: #242422;
+  --ac-line: #2e2d2a;
+  --ac-ink: #efeee9;
+  --ac-ink-2: #a8a6a0;
+  --ac-ink-3: #8d8a83;
+  --ac-accent: #8b96ff;
+  --ac-on-accent: #0e1030;
+  --ac-accent-soft: #262a52;
+  --ac-accent-ink: #c0c7ff;
+  --ac-petal: #fb78a2;
+  --ac-petal-peach: #ffb199;
+  --ac-petal-butter: #ffd980;
+  --ac-petal-mint: #9be3b4;
+  --ac-petal-lilac: #c3a6ff;
+  --ac-petal-sky: #8fb8ff;
+  --ac-good: #5fd394;
+  --ac-danger: #ff7b7f;
+  --ac-on-danger: #2a0607;
+  --ac-focus: #9aa5ff;
+  --ac-shadow-surface: 0 1px 0 rgba(255,255,255,0.04), 0 12px 32px -14px rgba(0,0,0,0.7);
+  --ac-shadow-float: 0 2px 6px rgba(0,0,0,0.5), 0 24px 48px -16px rgba(0,0,0,0.8);
+  color-scheme: dark;
+}
+:root {
+  --ac-space-1: 4px;
+  --ac-space-2: 8px;
+  --ac-space-3: 12px;
+  --ac-space-4: 16px;
+  --ac-space-5: 24px;
+  --ac-space-6: 32px;
+  --ac-space-7: 48px;
+  --ac-radius-control: 10px;
+  --ac-radius-surface: 18px;
+  --ac-radius-pill: 999px;
+  --ac-font-sans: "Pretendard Variable", Pretendard, -apple-system, system-ui, sans-serif;
+  --ac-font-display: Dunggeun, "Pretendard Variable", sans-serif;
+  --ac-font-mark: AchieveeMark, Dunggeun, sans-serif;
+}

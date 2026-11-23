@@ -10,6 +10,7 @@ import EmotionPicker from "./EmotionPicker";
 import EmotionDictionary from "./EmotionDictionary";
 import EmotionStats from "./EmotionStats";
 import BoriFab from "./BoriFab";
+import { Button, Paper, SaveStatus, Tabs } from "@achievee/ui";
 import { emoLang, wordText } from "@/lib/emotions";
 import { dow, mondayOf } from "@/lib/dates";
 import { todayStr } from "@/lib/clientTime";
@@ -86,12 +87,9 @@ function DayDiary({ ym, sel, setSel }: Props) {
       <section className="panel diary-editor">
         <DatePicker value={sel} onChange={setSel} marksUrl={(m) => `/api/diary?ym=${m}`} />
         <EmotionPicker value={emotions} onChange={(v) => { setEmotions(v); edit(); }} />
-        <textarea aria-label={t("nav.diary")} placeholder={t("diary.placeholder")} value={body} onChange={(e) => { setBody(e.target.value); edit(); }} />
-        <div className="diary-foot" aria-live="polite">
-          <small>{t("diary.chars", { n: [...body].length })}</small>
-          {state === "failed" ? <button type="button" className="btn quiet" onClick={save}>{t("diary.retry")}</button>
-            : <small className={saved ? "saved" : ""}>{state === "saving" || !saved ? t("diary.saving") : t("wk.saved")}</small>}
-        </div>
+        <Paper aria-label={t("nav.diary")} placeholder={t("diary.placeholder")} value={body} onChange={(e) => { setBody(e.target.value); edit(); }} />
+        <SaveStatus count={t("diary.chars", { n: [...body].length })} state={state === "failed" ? "failed" : state === "saving" || !saved ? "saving" : "saved"}
+          labels={{ saved: t("wk.saved"), saving: t("diary.saving"), retry: t("diary.retry") }} onRetry={save} />
       </section>
       <BoriFab beforeOpen={saved ? undefined : save} onSaved={() => { setSel(todayStr()); void reload(); }} />
       <section className="list">
@@ -124,17 +122,12 @@ export default function DiaryView(props: Props) {
   return (
     <>
       <div className="sechead">
-        <div className="tabs-t" role="tablist">
-          <button role="tab" aria-selected={mode === "day"} className={mode === "day" ? "on" : ""} onClick={() => setMode("day")}>{t("nav.diary")}</button>
-          <button role="tab" aria-selected={mode === "week"} className={mode === "week" ? "on" : ""} onClick={() => setMode("week")}>{t("wk.tab")}</button>
-          <button role="tab" aria-selected={mode === "stats"} className={mode === "stats" ? "on" : ""} onClick={() => setMode("stats")}>{t("emo.statsTab")}</button>
-          <button role="tab" aria-selected={mode === "dict"} className={mode === "dict" ? "on" : ""} onClick={() => setMode("dict")}>{t("emo.dictTab")}</button>
-        </div>
+        <Tabs value={mode} onChange={setMode} items={[{ value: "day", label: t("nav.diary") }, { value: "week", label: t("wk.tab") }, { value: "stats", label: t("emo.statsTab") }, { value: "dict", label: t("emo.dictTab") }]} />
       </div>
       {nudge && (
         <div className="nudge">
           <div><b>{t("wk.sundayTitle")}</b><small>{t("wk.sundaySub")}</small></div>
-          <button className="btn primary" onClick={() => { props.setSel(today); setMode("week"); }}>{t("wk.write")}</button>
+          <Button variant="primary" onClick={() => { props.setSel(today); setMode("week"); }}>{t("wk.write")}</Button>
         </div>
       )}
       {mode === "day" ? <DayDiary {...props} /> : mode === "week" ? <WeeklyReview sel={props.sel} setSel={props.setSel} /> : mode === "stats" ? <EmotionStats /> : <EmotionDictionary />}

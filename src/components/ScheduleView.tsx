@@ -1,4 +1,5 @@
 "use client";
+import { Tabs } from "@achievee/ui";
 import GCalLogo from "./GCalLogo";
 import DayView from "./DayView";
 import WeekView from "./WeekView";
@@ -23,11 +24,7 @@ export default function ScheduleView({ sel, setSel, mode, setMode, onCalendars }
   return (
     <>
       <div className="sechead">
-        <div className="tabs-t" role="tablist">
-          {GMODES.map(([k, label]) => (
-            <button key={k} role="tab" aria-selected={mode === k} className={mode === k ? "on" : ""} onClick={() => setMode(k as GMode)}>{t(label)}</button>
-          ))}
-        </div>
+        <Tabs value={mode} onChange={setMode} items={GMODES.map(([k, label]) => ({ value: k as GMode, label: t(label) }))} />
         <a className="btn gcal" href="https://calendar.google.com/calendar/u/0/r" target="_blank" rel="noreferrer">
           <GCalLogo size={18} />{t("g.open")}
         </a>

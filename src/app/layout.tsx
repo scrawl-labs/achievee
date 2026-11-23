@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { cookies, headers } from "next/headers";
 import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
+import "@achievee/ui/tokens.css";
+import "@achievee/ui/styles.css";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import { getSession } from "@/lib/auth";
