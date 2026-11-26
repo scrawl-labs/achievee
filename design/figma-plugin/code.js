@@ -764,6 +764,352 @@ async function stepCover() {
   return "완료";
 }
 
+// ---------- app patterns (built from the components above) ----------
+const SETS = {};
+async function loadSets() {
+  for (const [k, id] of Object.entries({ button: IDS.button, iconButton: IDS.iconButton, checkbox: IDS.checkbox, chip: IDS.chip })) SETS[k] = await figma.getNodeByIdAsync(id);
+  for (const k of ["Tabs", "Tabs.Item", "Tag", "ListRow", "DayHeader", "EventRow", "EntryCard", "DayFlower", "AppHeader", "TabBar", "TabBar.Item", "TodoRow"]) if (HAVE[k]) SETS[k] = HAVE[k];
+}
+/** Instance of a set's variant, with properties set by their names (TEXT/BOOLEAN/INSTANCE_SWAP prefixes). */
+function use(set, variant, props) {
+  if (!set) throw new Error("component missing");
+  const base = set.type === "COMPONENT_SET" ? pick(set, variant || {}) : set;
+  const i = base.createInstance();
+  if (props) {
+    const defs = set.componentPropertyDefinitions;
+    for (const [name, v] of Object.entries(props)) {
+      const k = propKey(set, name); if (!k) continue;
+      const val = defs[k].type === "VARIANT" ? String(v) : defs[k].type === "BOOLEAN" ? !!v : v;
+      try { i.setProperties({ [k]: val }); } catch (e) { log("· " + set.name + "." + name + " 건너뜀: " + e.message); }
+    }
+  }
+  return i;
+}
+const btn = (label, o) => use(SETS.button, { variant: (o && o.variant) || ["ghost", "quiet", "default"], size: (o && o.size) || "sm", disabled: "false", "state(design only)": "default" },
+  Object.assign({ Label: label, "Show icon": !!(o && o.icon) }, o && o.icon ? { Icon: icon(o.icon).id } : {}));
+const iconBtn = (name, o) => use(SETS.iconButton, { variant: (o && o.variant) || ["ghost", "default"], size: (o && o.size) || "md", disabled: "false", "state(design only)": "default" }, { Icon: icon(name).id });
+
+async function cAppHeader() {
+  const c = autoComp("AppHeader", "HORIZONTAL", { width: 390, align: "CENTER", justify: "SPACE_BETWEEN", pad: [16, 16, 12, 16], gap: 8 });
+  c.appendChild(await txt("2026년 11월", "Text/title", "foreground/normal", { name: "Title" }));
+  const right = al("Actions", "HORIZONTAL", { gap: 8, align: "CENTER" }); c.appendChild(right);
+  const s = iconBtn("search"); s.name = "Search"; right.appendChild(s);
+  const nav = al("Date nav", "HORIZONTAL", { align: "CENTER" }); fill(nav, "background/sunk"); rad(nav, "control"); right.appendChild(nav);
+  const prev = iconBtn("left", { size: "sm" }); prev.name = "Prev"; nav.appendChild(prev);
+  const today = al("Today", "HORIZONTAL", { pad: [0, 8, 0, 8] }); today.appendChild(await txt("오늘", "Text/label", "foreground/normal", { name: "Today label" })); nav.appendChild(today);
+  const next = iconBtn("right", { size: "sm" }); next.name = "Next"; nav.appendChild(next);
+  wire(c, "Title", "characters", c.addComponentProperty("Title", "TEXT", "2026년 11월"));
+  wire(c, "Actions", "visible", c.addComponentProperty("Show actions", "BOOLEAN", true));
+  c.description = "Phone page header: the page title (month or page name), search, and the day stepper with 오늘.";
+  return c;
+}
+
+async function cTabBar() {
+  const make = async (selected) => {
+    const c = autoComp("selected=" + selected, "VERTICAL", { align: "CENTER", gap: 4, pad: [8, 0, 10, 0] });
+    c.resize(78, 56); c.primaryAxisSizingMode = "AUTO"; c.counterAxisSizingMode = "FIXED";
+    const col = selected ? "accent/normal" : "foreground/alternative";
+    c.appendChild(iconInst("home", 20, col));
+    c.appendChild(await txt("홈", "Text/caption", col, { name: "Label" }));
+    return c;
+  };
+  const items = [await make(false), await make(true)];
+  for (const c of items) PAGE.appendChild(c);
+  const item = combine(items, "TabBar.Item", PAGE, 480, "One destination in the phone tab bar.");
+  wire(item, "Label", "characters", item.addComponentProperty("Label", "TEXT", "홈"));
+  wire(item, "Icon", "mainComponent", item.addComponentProperty("Icon", "INSTANCE_SWAP", icon("home").id, { preferredValues: ICONS.map((i) => ({ type: "COMPONENT", key: i.key })) }));
+  const bar = autoComp("TabBar", "HORIZONTAL", { width: 390, justify: "SPACE_BETWEEN", pad: [0, 4, 16, 4] });
+  fill(bar, "background/surface");
+  bar.strokes = [paint(L["border/line"])]; bar.strokeAlign = "INSIDE"; bar.strokeTopWeight = 1; bar.strokeLeftWeight = 0; bar.strokeRightWeight = 0; bar.strokeBottomWeight = 0;
+  const lk = propKey(item, "Label", "TEXT"), ik = propKey(item, "Icon", "INSTANCE_SWAP");
+  [["홈", "home"], ["일정", "calendar"], ["일기", "book"], ["지출", "wallet"], ["더보기", "more"]].forEach(([l, ic], i) => {
+    const it = pick(item, { selected: i === 0 ? "true" : "false" }).createInstance();
+    it.name = "Tab · " + l; bar.appendChild(it);
+    it.setProperties({ [lk]: l, [ik]: icon(ic).id });
+  });
+  bar.description = "Phone bottom navigation. Set the shown page's item to selected=true.";
+  PAGE.appendChild(bar);
+  return [item, bar];
+}
+
+async function cTodoRow() {
+  const make = async (done) => {
+    const c = autoComp("done=" + done, "HORIZONTAL", { width: 326, align: "CENTER", gap: 12, pad: [8, 0, 8, 0] });
+    const cb = use(SETS.checkbox, { shape: ["circle", "round"], checked: done ? "true" : "false", disabled: "false", "state(design only)": "default" });
+    cb.name = "Check"; c.appendChild(cb);
+    const t = await txt("은행 서류 제출", "Text/body", done ? "foreground/hint" : "foreground/normal", { name: "Text" });
+    add(c, t, "FILL"); wrapText(t); if (done) t.textDecoration = "STRIKETHROUGH";
+    const src = al("Source", "HORIZONTAL", { pad: [2, 8, 2, 8] }); rad(src, "pill"); fill(src, "background/sunk");
+    src.appendChild(await txt("Google", "Text/caption-strong", "foreground/alternative", { name: "Source label" }));
+    c.appendChild(src);
+    return c;
+  };
+  const comps = [await make(false), await make(true)];
+  for (const c of comps) PAGE.appendChild(c);
+  const set = combine(comps, "TodoRow", PAGE, 760, "A to-do of the day: check, text (struck through when done), and where it came from (Google) when it was not made here.");
+  wire(set, "Text", "characters", set.addComponentProperty("Text", "TEXT", "은행 서류 제출"));
+  wire(set, "Source label", "characters", set.addComponentProperty("Source", "TEXT", "Google"));
+  wire(set, "Source", "visible", set.addComponentProperty("Show source", "BOOLEAN", true));
+  return set;
+}
+
+async function cPatterns() {
+  await loadSets();
+  const head = await cAppHeader(); PAGE.appendChild(head);
+  const [item, bar] = await cTabBar();
+  const todo = await cTodoRow();
+  HAVE["AppHeader"] = head; HAVE["TabBar"] = bar; HAVE["TabBar.Item"] = item; HAVE["TodoRow"] = todo;
+  place("App patterns", [head, bar, item, todo]);
+  return head;
+}
+
+// ---------- screens ----------
+function box(name, o) {
+  o = o || {};
+  const f = al(name, o.dir || "VERTICAL", { gap: o.gap == null ? 12 : o.gap, pad: o.pad || [16, 16, 16, 16], align: o.align, justify: o.justify });
+  fill(f, o.fill || "background/surface");
+  if (o.fill === "background/sunk") rad(f, "control"); else rad(f, "surface");
+  return f;
+}
+async function shadow(f) { await f.setEffectStyleIdAsync(EFX["Shadow/surface"].id); }
+const fillW = (parent, child) => add(parent, child, "FILL");
+async function rowLR(left, right) { const r = al("Row", "HORIZONTAL", { align: "CENTER", justify: "SPACE_BETWEEN", gap: 8 }); r.appendChild(left); r.appendChild(right); return r; }
+
+async function screen(title, tab, build) {
+  const s = al("휴대폰 · " + title, "VERTICAL", { gap: 0, pad: [0, 0, 96, 0] });
+  s.resize(390, 100); s.counterAxisSizingMode = "FIXED"; s.primaryAxisSizingMode = "AUTO"; s.clipsContent = true;
+  fill(s, "background/canvas");
+  const h = use(SETS.AppHeader, null, { Title: "2026년 11월" }); fillW(s, h);
+  const body = al("Body", "VERTICAL", { gap: 16, pad: [4, 16, 16, 16] }); fillW(s, body);
+  await build(body);
+  const bar = SETS.TabBar.createInstance(); bar.name = "TabBar";
+  absolute(s, bar, 0, s.height - 72, 390, bar.height, { horizontal: "STRETCH", vertical: "MAX" });
+  bar.y = s.height - bar.height;
+  for (const it of bar.children) if (it.type === "INSTANCE") {
+    const k = propKey(SETS["TabBar.Item"], "selected") || "selected";
+    it.setProperties({ [k]: it.name === "Tab · " + tab ? "true" : "false" });
+  }
+  return s;
+}
+
+async function homeBody(b) {
+  // three stats
+  const stats = box("Stats", { dir: "HORIZONTAL", gap: 0, pad: [0, 0, 0, 0] }); await shadow(stats); fillW(b, stats); stats.clipsContent = true;
+  let i = 0;
+  for (const [k, v] of [["달성률", "35%"], ["완료", "17 / 48"], ["연속 달성", "0일"]]) {
+    const cell = al(k, "VERTICAL", { gap: 2, pad: [12, 12, 12, 12] }); fillW(stats, cell);
+    if (i++) { cell.strokes = [paint(L["border/line"])]; cell.strokeAlign = "INSIDE"; cell.strokeLeftWeight = 1; cell.strokeTopWeight = 0; cell.strokeRightWeight = 0; cell.strokeBottomWeight = 0; }
+    cell.appendChild(await txt(k, "Text/caption", "foreground/alternative"));
+    cell.appendChild(await txt(v, "Text/dialog-title", "foreground/normal"));
+  }
+  // upcoming
+  const up = box("Upcoming", { gap: 8 }); await shadow(up); fillW(b, up);
+  const left = al("Title", "HORIZONTAL", { gap: 6, align: "CENTER" });
+  left.appendChild(await txt("다가오는 일정", "Text/heading", "foreground/normal")); left.appendChild(await txt("앞으로 2주", "Text/caption", "foreground/hint"));
+  const head = await rowLR(left, btn("일정 추가", { icon: "plus" })); fillW(up, head);
+  for (const [bt, badge, t, m] of [["now", "오늘", "치과 예약", "11. 26. (목) · 18:00"], ["default", "D-2", "할아버지 제사", "11. 28. (토) · 19:15"], ["default", "D-5", "골프 라운딩", "12. 1. (화) · 07:00"]]) {
+    const e = use(SETS.EventRow, { tone: "own", badgeTone: bt }, { Badge: badge, Title: t, Meta: m }); fillW(up, e);
+  }
+  up.appendChild(await txt("Google 일정 7개 · 전체 보기", "Text/caption", "foreground/alternative"));
+  // month of flowers
+  const mon = box("Month", { gap: 6 }); await shadow(mon); fillW(b, mon);
+  const wk = al("Weekdays", "HORIZONTAL"); fillW(mon, wk);
+  for (const [d, c] of [["월"], ["화"], ["수"], ["목"], ["금"], ["토", "accent/normal"], ["일", "status/danger"]]) {
+    const t = await txt(d, "Text/caption", c || "foreground/alternative"); fillW(wk, t); t.textAlignHorizontal = "CENTER";
+  }
+  const levels = [3, 0, 1, 2, 0, 3, 4, 1, 0, 2, 3, 0, 1, 2, 3, 0, 0, 1, 3, 2, 0, 1, 2, 3, 1, 0, 0, 0, 0, 0];
+  const counts = [2, 0, 1, 2, 0, 2, 3, 1, 0, 2, 1, 0, 1, 2, 2, 0, 0, 1, 2, 2, 0, 1, 2, 1, 0, 0, null, null, null, null];
+  const days = [null, null, null, null, null, null, 1]; for (let d = 2; d <= 30; d++) days.push(d);
+  while (days.length % 7) days.push(null);
+  for (let w = 0; w < days.length / 7; w++) {
+    const row = al("Week " + (w + 1), "HORIZONTAL"); fillW(mon, row);
+    for (let c = 0; c < 7; c++) {
+      const d = days[w * 7 + c];
+      const cell = al(d ? String(d) : "empty", "VERTICAL", { gap: 2, align: "CENTER", pad: [4, 0, 4, 0] }); fillW(row, cell);
+      if (!d) continue;
+      const lv = d <= 26 ? levels[d - 1] : 0;
+      const f = use(SETS.DayFlower, { level: String(lv) }, { Count: String(counts[d - 1] ?? 0), "Show count": counts[d - 1] != null && d <= 26 });
+      cell.appendChild(f); f.rescale(0.8);
+      const n = await txt(String(d), "Text/caption-strong", c === 5 ? "accent/normal" : c === 6 ? "status/danger" : "foreground/alternative");
+      if (d === 26) { const dot = al("Today", "HORIZONTAL", { justify: "CENTER", align: "CENTER" }); dot.resize(22, 22); dot.primaryAxisSizingMode = "FIXED"; dot.counterAxisSizingMode = "FIXED"; rad(dot, "pill"); fill(dot, "accent/normal"); n.fills = [paint(L["accent/on-accent"])]; dot.appendChild(n); cell.appendChild(dot); fill(cell, "accent/soft"); cell.cornerRadius = 10; }
+      else cell.appendChild(n);
+    }
+  }
+  // the day
+  const day = box("Day", { gap: 12, pad: [20, 16, 20, 16] }); await shadow(day); fillW(b, day);
+  const dh = al("Date", "HORIZONTAL", { gap: 8, align: "CENTER" });
+  dh.appendChild(await txt("11월 26일", "Text/title", "foreground/normal")); dh.appendChild(await txt("목요일", "Text/caption", "foreground/hint")); day.appendChild(dh);
+  fillW(day, await rowLR(await txt("오늘 할 일", "Text/label", "foreground/normal"), await txt("3/5", "Text/caption-strong", "foreground/alternative")));
+  for (const [t, done, src] of [["은행 서류 제출", false, null], ["영어 단어", false, "Google"], ["택배 반품", true, null], ["운동 30분", true, "Google"], ["책 20쪽", true, "Google"]]) {
+    const r = use(SETS.TodoRow, { done: String(done) }, { Text: t, Source: src || "", "Show source": !!src }); fillW(day, r);
+  }
+  day.appendChild(btn("투두 추가", { icon: "plus" }));
+  const tiles = al("Tiles", "VERTICAL", { gap: 8 }); fillW(day, tiles);
+  for (const pair of [[["운동", "러닝 30분"], ["지출", "₩12,000"]], [["물", "1.2L"], ["단백질", "40g"]]]) {
+    const r = al("Tile row", "HORIZONTAL", { gap: 8 }); fillW(tiles, r);
+    for (const [k, v] of pair) { const t = box(k, { fill: "background/sunk", gap: 2, pad: [12, 12, 12, 12] }); fillW(r, t); t.appendChild(await txt(k, "Text/caption", "foreground/alternative")); t.appendChild(await txt(v, "Text/heading", "foreground/normal")); }
+  }
+  const diary = box("Diary", { fill: "background/sunk", gap: 8, pad: [14, 14, 14, 14] }); fillW(day, diary);
+  fillW(diary, await rowLR(await txt("일기", "Text/label", "foreground/normal"), await txt("수정 ›", "Text/caption", "foreground/alternative")));
+  const tags = al("Tags", "HORIZONTAL", { gap: 6 }); for (const w of ["joy", "relief"]) tags.appendChild(use(SETS.Tag, { size: "md" }, { Label: w, "Show count": false })); diary.appendChild(tags);
+  const p = await txt("오늘은 회사에서 발표가 있었는데 생각보다 잘 끝났다. 저녁엔 친구랑 떡볶이.", "Text/preview", "foreground/alternative"); fillW(diary, p); wrapText(p);
+}
+
+async function spendBody(b) {
+  const sum = box("Summary", { gap: 0, pad: [0, 0, 0, 0] }); await shadow(sum); fillW(b, sum); sum.clipsContent = true;
+  const cells = [["수입", "₩3,200,000"], ["지출", "₩83,550"], ["저축·투자", "₩0"], ["남은 돈", "₩3,116,450"]];
+  for (let r = 0; r < 2; r++) {
+    const row = al("Row", "HORIZONTAL"); fillW(sum, row);
+    if (r) { row.strokes = [paint(L["border/line"])]; row.strokeAlign = "INSIDE"; row.strokeTopWeight = 1; row.strokeLeftWeight = 0; row.strokeRightWeight = 0; row.strokeBottomWeight = 0; }
+    for (let c = 0; c < 2; c++) {
+      const [k, v] = cells[r * 2 + c];
+      const cell = al(k, "VERTICAL", { gap: 2, pad: [12, 12, 12, 12] }); fillW(row, cell);
+      if (c) { cell.strokes = [paint(L["border/line"])]; cell.strokeAlign = "INSIDE"; cell.strokeLeftWeight = 1; cell.strokeTopWeight = 0; cell.strokeRightWeight = 0; cell.strokeBottomWeight = 0; }
+      cell.appendChild(await txt(k, "Text/caption", "foreground/alternative")); cell.appendChild(await txt(v, "Text/dialog-title", "foreground/normal"));
+    }
+  }
+  const bud = box("Budget", { gap: 16, pad: [20, 16, 20, 16] }); await shadow(bud); fillW(b, bud);
+  const bl = al("Title", "HORIZONTAL", { gap: 6, align: "CENTER" }); bl.appendChild(await txt("지출 목표", "Text/heading", "foreground/normal")); bl.appendChild(await txt("고정비 제외", "Text/caption", "foreground/hint"));
+  fillW(bud, await rowLR(bl, btn("수정")));
+  for (const [k, range, spent, limit, ratio, msg] of [["주", "11월 23일 – 11월 29일", "₩27,850", "₩189,000", 0.15, "남은 돈 ₩161,150"], ["월", "11월 1일 – 11월 30일", "₩79,050", "₩810,000", 0.1, "남은 돈 ₩730,950"]]) {
+    const line = al("Goal · " + k, "VERTICAL", { gap: 6 }); fillW(bud, line);
+    const l = al("Label", "HORIZONTAL", { gap: 6, align: "CENTER" }); l.appendChild(await txt(k, "Text/body-strong", "foreground/normal")); l.appendChild(await txt(range, "Text/caption", "foreground/hint"));
+    const r = al("Amount", "HORIZONTAL", { gap: 2, align: "CENTER" }); r.appendChild(await txt(spent, "Text/body-strong", "foreground/normal")); r.appendChild(await txt(" / " + limit, "Text/caption", "foreground/hint"));
+    fillW(line, await rowLR(l, r));
+    const track = al("Bar", "HORIZONTAL"); fillW(line, track); track.resize(track.width, 8); track.counterAxisSizingMode = "FIXED"; track.primaryAxisSizingMode = "FIXED"; fill(track, "background/sunk"); rad(track, "pill"); track.clipsContent = true;
+    track.layoutSizingHorizontal = "FILL";
+    const bar = figma.createRectangle(); bar.name = "Spent"; bar.resize(Math.round(326 * ratio), 8); fill(bar, "accent/normal"); rad(bar, "pill"); track.appendChild(bar);
+    line.appendChild(await txt(msg, "Text/caption", "foreground/alternative"));
+  }
+  fillW(b, await rowLR(await txt("새 지출", "Text/label", "foreground/normal"), iconBtn("plus", { variant: ["soft", "ghost"] })));
+  const chips = al("Filters", "HORIZONTAL", { gap: 8 }); b.appendChild(chips);
+  ["전체", "불필요만", "식비", "문화", "카페"].forEach((l, i) => chips.appendChild(use(SETS.chip, { variant: i === 0 ? ["selected", "on", "active"] : ["default"], disabled: "false", "state(design only)": "default" }, { Label: l, Removable: false })));
+  const data = [["11월 26일 (목)", "−₩12,000", [["점심", "식비", "₩12,000", true, "food"]]], ["11월 25일 (수)", "−₩4,500", [["아메리카노", "카페", "₩4,500", false, "cafe"]]], ["11월 24일 (화)", "−₩1,450", [["지하철", "교통", "₩1,450", true, "bus"]]], ["11월 23일 (월)", "−₩9,900", [["양말", "쇼핑", "₩9,900", false, "bag"]]]];
+  for (const [d, total, rows] of data) {
+    const g = al("Day · " + d, "VERTICAL", { gap: 0 }); fillW(b, g);
+    fillW(g, use(SETS.DayHeader, null, { Day: d, Total: total }));
+    const list = box("List", { gap: 0, pad: [0, 0, 0, 0] }); await shadow(list); fillW(g, list); list.clipsContent = true;
+    rows.forEach(([t, k, a, flag], i) => fillW(list, use(SETS.ListRow, { flag: String(flag), tone: "default", "state(design only)": "default" }, { Title: t, Category: k, Amount: a, Divider: i > 0 })));
+  }
+}
+
+async function scheduleBody(b) {
+  const ctl = al("Controls", "HORIZONTAL", { gap: 12, align: "CENTER", justify: "SPACE_BETWEEN" }); fillW(b, ctl);
+  ctl.appendChild(use(SETS.Tabs, { variant: "segment" }));
+  ctl.appendChild(btn("캘린더 선택"));
+  const strip = al("Week strip", "HORIZONTAL"); fillW(b, strip);
+  const wd = ["월", "화", "수", "목", "금", "토", "일"];
+  for (let i = 0; i < 7; i++) {
+    const d = 23 + i;
+    const cell = al(String(d), "VERTICAL", { gap: 4, align: "CENTER" }); fillW(strip, cell);
+    cell.appendChild(await txt(wd[i], "Text/caption", i === 5 ? "accent/normal" : i === 6 ? "status/danger" : "foreground/alternative"));
+    const n = await txt(String(d), "Text/title", d === 26 ? "accent/on-accent" : "foreground/normal");
+    const dot = al("Day", "HORIZONTAL", { justify: "CENTER", align: "CENTER" }); dot.resize(36, 36); dot.primaryAxisSizingMode = "FIXED"; dot.counterAxisSizingMode = "FIXED"; rad(dot, "pill");
+    if (d === 26) fill(dot, "accent/normal");
+    dot.appendChild(n); cell.appendChild(dot);
+  }
+  const lab = al("Day label", "HORIZONTAL", { justify: "CENTER", pad: [10, 0, 10, 0] }); fillW(b, lab);
+  lab.strokes = [paint(L["border/line"])]; lab.strokeAlign = "INSIDE"; lab.strokeTopWeight = 1; lab.strokeBottomWeight = 1; lab.strokeLeftWeight = 0; lab.strokeRightWeight = 0;
+  lab.appendChild(await txt("11월 26일 목요일", "Text/heading", "foreground/normal"));
+  const chips = al("Tasks", "HORIZONTAL", { gap: 8, align: "CENTER" }); b.appendChild(chips);
+  chips.appendChild(use(SETS.Tag, { size: "lg" }, { Label: "사무실", "Show count": false }));
+  for (const [t, done] of [["은행 서류 제출", false], ["영어 단어", false]]) {
+    const c = al("Task · " + t, "HORIZONTAL", { gap: 6, align: "CENTER", pad: [6, 12, 6, 8] }); rad(c, "pill"); fill(c, "background/sunk");
+    c.appendChild(use(SETS.checkbox, { shape: ["circle", "round"], checked: String(done), disabled: "false", "state(design only)": "default" }));
+    c.appendChild(await txt(t, "Text/chip", "foreground/normal"));
+    chips.appendChild(c);
+  }
+  // the time grid
+  const H = 60, first = 5, hours = 7;
+  const grid = figma.createFrame(); grid.name = "Time grid"; grid.fills = []; grid.clipsContent = true;
+  fillW(b, grid); grid.resize(358, H * hours); grid.layoutSizingVertical = "FIXED"; grid.layoutSizingHorizontal = "FILL";
+  for (let h = 0; h < hours; h++) {
+    const y = h * H + 10;
+    const t = await txt((first + h) + "시", "Text/caption-strong", "foreground/alternative"); grid.appendChild(t);
+    t.textAutoResize = "NONE"; t.resize(36, 16); t.textAlignHorizontal = "RIGHT"; t.x = 0; t.y = y - 8;
+    const ln = figma.createRectangle(); ln.name = "Hour line"; grid.appendChild(ln); ln.resize(358 - 44, 1); ln.x = 44; ln.y = y; fill(ln, "border/line"); ln.constraints = { horizontal: "STRETCH", vertical: "MIN" };
+  }
+  const nowY = 10 + (55 / 60) * H;
+  const nl = figma.createRectangle(); nl.name = "Now line"; grid.appendChild(nl); nl.resize(358 - 44, 2); nl.x = 44; nl.y = nowY - 1; fill(nl, "status/danger"); nl.constraints = { horizontal: "STRETCH", vertical: "MIN" };
+  const nd = figma.createEllipse(); nd.name = "Now dot"; grid.appendChild(nd); nd.resize(8, 8); nd.x = 41; nd.y = nowY - 4; fill(nd, "status/danger");
+  const nt = await txt("05:55", "Text/caption-strong", "status/danger", { name: "Now time" }); grid.appendChild(nt); nt.x = 0; nt.y = nowY - 8;
+  const ev = al("Event · 보고서 초안", "VERTICAL", { gap: 2, pad: [6, 8, 6, 10] }); grid.appendChild(ev);
+  ev.resize(160, 2 * H - 2); ev.primaryAxisSizingMode = "FIXED"; ev.counterAxisSizingMode = "FIXED"; ev.x = 48; ev.y = 10 + 4 * H + 1;
+  fill(ev, "accent/soft"); ev.cornerRadius = 8;
+  ev.strokes = [paint(L["accent/normal"])]; ev.strokeAlign = "INSIDE"; ev.strokeLeftWeight = 3; ev.strokeTopWeight = 0; ev.strokeRightWeight = 0; ev.strokeBottomWeight = 0; ev.dashPattern = [4, 3];
+  ev.appendChild(await txt("보고서 초안", "Text/body-medium", "accent/on-soft")); ev.appendChild(await txt("09:00 - 11:00", "Text/caption", "accent/on-soft"));
+}
+
+async function diaryBody(b) {
+  const tabs = use(SETS.Tabs, { variant: "line" }); b.appendChild(tabs);
+  const lk = propKey(SETS["Tabs.Item"], "Label", "TEXT");
+  ["일기", "주간 회고", "내 감정"].forEach((l, i) => { const t = tabs.children[i]; if (t && t.type === "INSTANCE" && lk) t.setProperties({ [lk]: l }); });
+  const card = box("Today", { gap: 14, pad: [20, 16, 20, 16] }); await shadow(card); fillW(b, card);
+  const date = box("Date", { dir: "HORIZONTAL", fill: "background/sunk", justify: "SPACE_BETWEEN", align: "CENTER", pad: [12, 14, 12, 14] }); fillW(card, date);
+  date.appendChild(await txt("2026년 11월 26일", "Text/body-medium", "foreground/normal")); date.appendChild(iconInst("calendar", 16, "foreground/alternative"));
+  card.appendChild(await txt("지금 어떤 감정일까요?", "Text/label", "foreground/alternative"));
+  const ch = al("Feelings", "HORIZONTAL", { gap: 8 }); card.appendChild(ch);
+  for (const w of ["joy", "relief"]) ch.appendChild(use(SETS.chip, { variant: ["selected", "on", "active"], disabled: "false", "state(design only)": "default" }, { Label: w, Removable: true }));
+  ch.appendChild(use(SETS.chip, { variant: ["add", "default"], disabled: "false", "state(design only)": "default" }, { Label: "단어 고르기", Removable: false }));
+  const paper = box("Paper", { fill: "background/sunk", pad: [14, 16, 14, 16] }); fillW(card, paper); paper.cornerRadius = 14;
+  paper.resize(paper.width, 220); paper.primaryAxisSizingMode = "FIXED"; paper.layoutSizingHorizontal = "FILL";
+  const w = await txt("오늘은 회사에서 발표가 있었는데 생각보다 잘 끝났다. 저녁엔 친구랑 떡볶이.", "Text/writing", "foreground/normal"); fillW(paper, w); wrapText(w);
+  const st = al("Status", "HORIZONTAL", { justify: "SPACE_BETWEEN", align: "CENTER" }); fillW(card, st);
+  st.appendChild(await txt("42자", "Text/caption", "foreground/hint"));
+  const saved = al("Saved", "HORIZONTAL", { gap: 6, align: "CENTER" }); const dot = figma.createEllipse(); dot.resize(6, 6); fill(dot, "status/good"); saved.appendChild(dot); saved.appendChild(await txt("저장됐어요", "Text/caption", "foreground/hint")); st.appendChild(saved);
+  for (const [t, cur, prev, tags] of [["11월 26일", true, "오늘은 회사에서 발표가 있었는데 생각보다 잘 끝났다. 저녁엔 친구랑 떡볶이.", true], ["11월 25일", false, "비가 와서 하루 종일 집에 있었다. 밀린 책을 읽었다.", false], ["11월 24일", false, "운동을 다시 시작했다. 몸이 무겁지만 기분은 좋다.", true]]) {
+    fillW(b, use(SETS.EntryCard, { open: "false", current: String(cur) }, { Title: t, Preview: prev, "Show tags": tags, "Show mood": false }));
+  }
+}
+
+/** A copy of a light frame with every Light colour swapped for the Dark one of the same name, and shadows for their dark versions. */
+async function toDark(frame) {
+  const d = frame.clone(); d.name = frame.name + " · Dark";
+  const byId = {}; for (const [n, v] of Object.entries(L)) if (DK[n]) byId[v.id] = DK[n];
+  const fx = { [EFX["Shadow/surface"].id]: EFX["Shadow/surface (dark)"], [EFX["Shadow/float"].id]: EFX["Shadow/float (dark)"] };
+  let n = 0;
+  for (const node of [d, ...d.findAll(() => true)]) {
+    for (const prop of ["fills", "strokes"]) {
+      const ps = node[prop];
+      if (!Array.isArray(ps) || !ps.some((p) => p.boundVariables && p.boundVariables.color && byId[p.boundVariables.color.id])) continue;
+      node[prop] = ps.map((p) => { const id = p.boundVariables && p.boundVariables.color && p.boundVariables.color.id; return id && byId[id] ? figma.variables.setBoundVariableForPaint(p, "color", byId[id]) : p; });
+      n++;
+    }
+    if (typeof node.effectStyleId === "string" && fx[node.effectStyleId] && fx[node.effectStyleId]) { await node.setEffectStyleIdAsync(fx[node.effectStyleId].id); n++; }
+  }
+  return d;
+}
+
+async function stepScreens() {
+  await loadSets();
+  for (const k of ["AppHeader", "TabBar", "TabBar.Item", "TodoRow", "Tabs", "Tabs.Item", "Tag", "ListRow", "DayHeader", "EventRow", "EntryCard", "DayFlower"]) if (!SETS[k]) throw new Error(k + " 컴포넌트가 없어요");
+  const page = await figma.getNodeByIdAsync(IDS.cover);
+  await page.loadAsync(); await figma.setCurrentPageAsync(page);
+  if (page.children.some((n) => n.name === "Screens · Light")) return "이미 있음";
+  if (page.name === "Cover" || page.name === "🖼 Cover") page.name = "Cover · Screens";
+  let right = 0; for (const n of page.children) right = Math.max(right, n.x + n.width);
+  const before = new Set(page.children.map((n) => n.id));
+  const made = [];
+  try {
+    const frames = [];
+    frames.push(await screen("홈", "홈", homeBody));
+    frames.push(await screen("일정 · 일", "일정", scheduleBody));
+    frames.push(await screen("지출", "지출", spendBody));
+    frames.push(await screen("일기", "일기", diaryBody));
+    made.push(...frames);
+    const darks = []; for (const f of frames) darks.push(await toDark(f));
+    made.push(...darks);
+    const lay = (name, list, y) => {
+      const sec = figma.createSection(); sec.name = name; page.appendChild(sec); made.push(sec);
+      let x = 80, h = 0; for (const f of list) { sec.appendChild(f); f.x = x; f.y = 96; x += f.width + 80; h = Math.max(h, f.height); }
+      sec.resizeWithoutConstraints(x, h + 176); sec.x = right + 400; sec.y = y; return sec;
+    };
+    const s1 = lay("Screens · Light", frames, 0);
+    lay("Screens · Dark", darks, s1.height + 160);
+    return "휴대폰 화면 " + frames.length + "개 × Light/Dark";
+  } catch (e) { for (const n of [...page.children]) if (!before.has(n.id)) n.remove(); throw e; }
+}
+
 // ---------- run ----------
 /** Runs a page builder; if it throws, removes the half-built frame so the next run starts clean. */
 async function clean(name, pageId, fn) {
@@ -798,7 +1144,10 @@ async function step(name, fn) {
   if (tag) await build("EntryCard", () => cEntryCard(tag));
   await build("ConfirmDialog", cDialog);
   await build("DayFlower", cDayFlower);
+  await build("AppHeader", cPatterns);
   await step("Foundations 페이지", () => clean("Foundations · Tokens", IDS.foundations, stepFoundations));
   await step("Cover", () => clean("Cover · Achievee DS", IDS.cover, stepCover));
+  await compsPage();
+  await step("화면 조립 (휴대폰 · Light/Dark)", stepScreens);
   log("끝. ✗ 줄이 있으면 '로그 복사'를 눌러 붙여 주세요. 다시 실행해도 이미 된 건 건너뜁니다.");
 })();
