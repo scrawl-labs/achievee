@@ -635,7 +635,9 @@ async function flower(level) {
   if (level === 0) t.visible = false;
   const n = await txt("3", "Text/count", "foreground/alternative", level === 0 ? { name: "Count" } : { name: "Count", raw: { r: 42 / 255, g: 34 / 255, b: 48 / 255 } });
   c.appendChild(n); n.textAutoResize = "NONE"; n.resize(44, 44); n.x = 0; n.y = 0; n.textAlignHorizontal = "CENTER"; n.textAlignVertical = "CENTER";
-  for (const k of c.children) k.constraints = { horizontal: "SCALE", vertical: "SCALE" };
+  // boolean shapes have no constraints of their own; their circles do
+  const scale = (k) => { if ("constraints" in k) k.constraints = { horizontal: "SCALE", vertical: "SCALE" }; else for (const ch of k.children || []) scale(ch); };
+  for (const k of c.children) scale(k);
   return c;
 }
 
@@ -742,13 +744,19 @@ async function stepFoundations() {
 async function stepCover() {
   const page = await figma.getNodeByIdAsync(IDS.cover);
   await page.loadAsync(); await figma.setCurrentPageAsync(page);
-  if (page.children.some((n) => n.name === "Cover · Achievee DS")) return "이미 있음";
+  const old = page.children.find((n) => n.name === "Cover · Achievee DS");
+  const fl = HAVE && HAVE["DayFlower"];
+  const flowerOf = (f) => { const i = pick(fl, { level: "3" }).createInstance(); i.setProperties({ [propKey(fl, "Show count", "BOOLEAN")]: false }); f.insertChild(0, i); i.rescale(2.5); };
+  if (old) {
+    // an earlier run made the cover before DayFlower existed: add the flower now
+    if (fl && fl.type === "COMPONENT_SET" && !old.findOne((n) => n.type === "INSTANCE")) { flowerOf(old); return "꽃 추가"; }
+    return "이미 있음";
+  }
   let right = 0; for (const n of page.children) right = Math.max(right, n.x + n.width);
   const f = al("Cover · Achievee DS", "VERTICAL", { gap: 24, pad: [120, 120, 120, 120], justify: "CENTER" });
   f.resize(1600, 960); f.primaryAxisSizingMode = "FIXED"; f.counterAxisSizingMode = "FIXED";
   fill(f, "background/canvas"); page.appendChild(f); f.x = right ? right + 200 : 0; f.y = 0;
-  const fl = HAVE && HAVE["DayFlower"];
-  if (fl && fl.type === "COMPONENT_SET") { const i = pick(fl, { level: "3" }).createInstance(); i.setProperties({ [propKey(fl, "Show count", "BOOLEAN")]: false }); f.appendChild(i); i.rescale(2.5); }
+  if (fl && fl.type === "COMPONENT_SET") flowerOf(f);
   f.appendChild(await txt("Achievee Design System", "Display/display-1", "foreground/normal"));
   f.appendChild(await txt("토큰 · 컴포넌트 · 화면 — Light / Dark", "Text/writing", "foreground/alternative"));
   f.appendChild(await txt("v2 · 2026.11 · Noto Sans KR (Pretendard 대체) · 코드: packages/ui", "Text/caption", "foreground/hint"));
