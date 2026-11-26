@@ -1105,18 +1105,7 @@ async function scheduleBody(b) {
 /** A copy of a light frame with every Light colour swapped for the Dark one of the same name, and shadows for their dark versions. */
 async function toDark(frame) {
   const d = frame.clone(); d.name = frame.name + " · Dark";
-  const byId = {}; for (const [n, v] of Object.entries(L)) if (DK[n]) byId[v.id] = DK[n];
-  const fx = { [EFX["Shadow/surface"].id]: EFX["Shadow/surface (dark)"], [EFX["Shadow/float"].id]: EFX["Shadow/float (dark)"] };
-  let n = 0;
-  for (const node of [d, ...d.findAll(() => true)]) {
-    for (const prop of ["fills", "strokes"]) {
-      const ps = node[prop];
-      if (!Array.isArray(ps) || !ps.some((p) => p.boundVariables && p.boundVariables.color && byId[p.boundVariables.color.id])) continue;
-      node[prop] = ps.map((p) => { const id = p.boundVariables && p.boundVariables.color && p.boundVariables.color.id; return id && byId[id] ? figma.variables.setBoundVariableForPaint(p, "color", byId[id]) : p; });
-      n++;
-    }
-    if (typeof node.effectStyleId === "string" && fx[node.effectStyleId] && fx[node.effectStyleId]) { await node.setEffectStyleIdAsync(fx[node.effectStyleId].id); n++; }
-  }
+  await darken(d);
   return d;
 }
 
@@ -1170,8 +1159,7 @@ async function cWebPatterns() {
   nav.resize(224, 900); nav.primaryAxisSizingMode = "FIXED"; nav.counterAxisSizingMode = "FIXED";
   fill(nav, "background/canvas"); edge(nav, "right");
   const logo = al("Logo", "HORIZONTAL", { gap: 8, align: "CENTER", pad: [0, 12, 24, 12] }); nav.appendChild(logo);
-  if (SETS.DayFlower) { const f = use(SETS.DayFlower, { level: "3" }, { "Show count": false }); logo.appendChild(f); f.rescale(0.7); }
-  logo.appendChild(await txt("Achievee", "Display/display-2", "foreground/normal", { name: "Wordmark" }));
+  if (HAVE["Logo"]) logo.appendChild(HAVE["Logo"].createInstance());
   const lk = propKey(item, "Label", "TEXT"), ik = propKey(item, "Icon", "INSTANCE_SWAP");
   NAV.forEach(([l, ic], i) => { const it = pick(item, { selected: i === 0 ? "true" : "false" }).createInstance(); it.name = "Nav · " + l; add(nav, it, "FILL"); it.setProperties({ [lk]: l, [ik]: icon(ic).id }); });
   nav.description = "Web side navigation. Set the shown page's item to selected=true.";
@@ -1353,6 +1341,79 @@ async function stepWeb() {
   } catch (e) { for (const n of [...page.children]) if (!before.has(n.id)) n.remove(); throw e; }
 }
 
+
+// ---------- logo (the real mark and wordmark, as vectors) ----------
+const MARK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="29" height="27.2" viewBox="152 200 950 890"><g fill="#FB78A2"><circle cx="625" cy="388" r="187"/><circle cx="333" cy="585" r="187"/><circle cx="922" cy="585" r="187"/><circle cx="435" cy="905" r="187"/><circle cx="815" cy="905" r="187"/><circle cx="627" cy="665" r="235"/></g><path d="M490 668L585 770L790 577" fill="none" stroke="#F8F7F2" stroke-width="100" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const WORDMARK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="124.0" height="22" viewBox="30 120 4406 782"><path fill="#1A1917" d="M347 129Q364 129 379.0 135.0Q394 141 405.5 149.0Q417 157 424.5 165.5Q432 174 435 179Q449 204 468.0 247.0Q487 290 508.5 343.5Q530 397 552.5 457.0Q575 517 596.0 576.5Q617 636 635.0 690.0Q653 744 665 785Q669 802 666.5 818.5Q664 835 656.5 849.0Q649 863 636.5 873.0Q624 883 608 887Q585 893 566.5 890.0Q548 887 534.5 878.5Q521 870 512.0 857.0Q503 844 498 830Q489 801 476.0 758.0Q463 715 448.0 667.0Q433 619 417.5 570.0Q402 521 388.5 479.0Q375 437 364.0 406.5Q353 376 348 366Q344 374 337.5 393.0Q331 412 322.0 439.0Q313 466 302.5 498.5Q292 531 281 567H353Q367 567 377.5 574.5Q388 582 395.5 594.0Q403 606 406.5 621.5Q410 637 410 652Q410 665 407.5 679.5Q405 694 398.0 706.5Q391 719 380.0 727.0Q369 735 352 735H228Q220 763 212.0 787.5Q204 812 199 830Q195 844 186.0 857.0Q177 870 164.0 879.0Q151 888 133.5 891.0Q116 894 94 888Q53 878 38.5 849.0Q24 820 33 785Q45 744 63.0 690.0Q81 636 102.0 576.5Q123 517 145.5 457.0Q168 397 189.5 343.5Q211 290 230.5 247.0Q250 204 264 179Q267 174 274.0 165.5Q281 157 292.0 149.0Q303 141 317.0 135.0Q331 129 347 129Z M970 901Q904 898 852.5 874.5Q801 851 766.0 812.0Q731 773 713.5 719.5Q696 666 699 602Q701 536 724.5 483.5Q748 431 787.0 394.5Q826 358 879.5 339.0Q933 320 995 320Q1005 320 1020.0 320.5Q1035 321 1051.5 321.5Q1068 322 1083.5 323.5Q1099 325 1110 328Q1144 335 1159.0 358.5Q1174 382 1169 417Q1164 452 1143.5 476.5Q1123 501 1087 496Q1079 495 1066.0 493.5Q1053 492 1039.0 491.0Q1025 490 1012.5 489.5Q1000 489 993 489Q965 489 942.5 498.5Q920 508 904.0 524.5Q888 541 879.5 563.0Q871 585 871 609Q871 630 876.5 651.0Q882 672 894.0 689.0Q906 706 925.5 717.5Q945 729 973 732Q1005 735 1035.5 728.5Q1066 722 1089 714Q1106 709 1121.5 710.5Q1137 712 1150.5 720.0Q1164 728 1173.0 741.5Q1182 755 1185 773Q1189 792 1185.5 807.0Q1182 822 1174.5 833.5Q1167 845 1157.0 853.5Q1147 862 1138 867Q1106 887 1060.5 895.0Q1015 903 970 901Z M1592 587Q1592 564 1589.5 546.5Q1587 529 1579.0 517.5Q1571 506 1556.0 500.0Q1541 494 1517 494Q1488 494 1471.5 470.0Q1455 446 1455 410Q1455 392 1460.5 377.0Q1466 362 1474.5 351.0Q1483 340 1493.5 333.5Q1504 327 1515 327H1573Q1672 327 1718.0 386.0Q1764 445 1764 548Q1764 572 1763.5 610.5Q1763 649 1762.5 689.5Q1762 730 1761.5 766.5Q1761 803 1761 823Q1761 830 1757.5 842.0Q1754 854 1744.5 864.5Q1735 875 1718.5 883.0Q1702 891 1675 891Q1653 891 1636.5 884.5Q1620 878 1609.5 868.0Q1599 858 1594.0 846.0Q1589 834 1589 823Q1590 799 1590.5 766.0Q1591 733 1591.5 699.5Q1592 666 1592.0 636.0Q1592 606 1592 587ZM1264 184Q1266 170 1275.0 159.0Q1284 148 1297.0 140.5Q1310 133 1326.0 130.0Q1342 127 1357 129Q1372 131 1386.5 137.0Q1401 143 1412.0 153.0Q1423 163 1428.5 177.0Q1434 191 1432 208Q1429 242 1426.5 290.0Q1424 338 1423.0 393.0Q1422 448 1422.0 506.5Q1422 565 1423.0 621.0Q1424 677 1426.5 727.0Q1429 777 1432 815Q1434 831 1428.0 844.5Q1422 858 1411.0 868.0Q1400 878 1385.5 884.0Q1371 890 1355 891Q1319 893 1292.5 877.5Q1266 862 1263 831Q1260 803 1257.5 756.5Q1255 710 1253.5 652.5Q1252 595 1251.5 531.0Q1251 467 1252.0 404.5Q1253 342 1256.0 284.5Q1259 227 1264 184Z M2059 404Q2062 502 2063.0 603.5Q2064 705 2059 824Q2058 838 2049.5 850.5Q2041 863 2028.0 872.5Q2015 882 1998.5 887.0Q1982 892 1966 891Q1933 889 1909.5 868.5Q1886 848 1886 817Q1888 761 1888.5 710.0Q1889 659 1889.0 609.5Q1889 560 1888.5 510.5Q1888 461 1887 408Q1887 378 1909.5 359.0Q1932 340 1964 337Q1981 335 1998.0 339.0Q2015 343 2028.5 351.0Q2042 359 2050.5 372.5Q2059 386 2059 404ZM2060 218Q2059 236 2050.5 249.0Q2042 262 2029.0 270.5Q2016 279 1999.0 282.5Q1982 286 1964 285Q1931 282 1910.0 265.5Q1889 249 1888 225L1887 186Q1886 170 1894.0 157.5Q1902 145 1914.5 137.0Q1927 129 1941.5 124.5Q1956 120 1969 120Q2001 120 2029.5 133.5Q2058 147 2060 175Z M2155 611Q2155 549 2173.0 495.5Q2191 442 2226.5 403.0Q2262 364 2314.0 341.5Q2366 319 2433 319Q2483 319 2530.0 336.0Q2577 353 2613.5 386.5Q2650 420 2673.0 470.5Q2696 521 2698 588Q2699 635 2678.0 660.5Q2657 686 2613 686H2428Q2400 686 2387.0 665.0Q2374 644 2374 616Q2374 588 2389.0 565.5Q2404 543 2430 543H2525Q2525 531 2520.5 517.0Q2516 503 2506.5 491.5Q2497 480 2480.0 472.5Q2463 465 2437 465Q2386 465 2357.0 499.5Q2328 534 2328 611Q2328 685 2358.0 719.0Q2388 753 2443 756Q2470 758 2500.5 752.5Q2531 747 2560 731Q2575 724 2591.0 723.0Q2607 722 2621.0 727.0Q2635 732 2645.5 744.0Q2656 756 2661 774Q2666 791 2662.0 805.5Q2658 820 2650.5 831.0Q2643 842 2634.0 849.5Q2625 857 2619 860Q2582 882 2533.0 893.0Q2484 904 2433 901Q2359 897 2306.0 872.5Q2253 848 2219.5 809.0Q2186 770 2170.5 719.0Q2155 668 2155 611Z M2998 891Q2962 891 2939.0 880.0Q2916 869 2902 846Q2887 823 2864.0 774.5Q2841 726 2815.5 666.0Q2790 606 2766.0 541.5Q2742 477 2727 421Q2721 402 2725.5 387.0Q2730 372 2740.0 360.5Q2750 349 2764.0 341.0Q2778 333 2791 330Q2822 322 2851.5 331.5Q2881 341 2892 374Q2901 402 2911.0 437.5Q2921 473 2932.0 510.0Q2943 547 2954.5 583.5Q2966 620 2978 651Q2986 671 2997.0 671.0Q3008 671 3016 652Q3028 621 3040.5 584.5Q3053 548 3065.0 511.0Q3077 474 3087.5 438.5Q3098 403 3105 375Q3113 346 3141.5 334.0Q3170 322 3205 330Q3220 333 3234.5 341.5Q3249 350 3259.0 362.5Q3269 375 3273.0 391.0Q3277 407 3272 426Q3254 491 3230.0 556.0Q3206 621 3180.5 677.5Q3155 734 3130.5 778.5Q3106 823 3088 847Q3075 867 3052.5 879.0Q3030 891 2998 891Z M3296 611Q3296 549 3314.0 495.5Q3332 442 3367.5 403.0Q3403 364 3455.0 341.5Q3507 319 3574 319Q3624 319 3671.0 336.0Q3718 353 3754.5 386.5Q3791 420 3814.0 470.5Q3837 521 3839 588Q3840 635 3819.0 660.5Q3798 686 3754 686H3569Q3541 686 3528.0 665.0Q3515 644 3515 616Q3515 588 3530.0 565.5Q3545 543 3571 543H3666Q3666 531 3661.5 517.0Q3657 503 3647.5 491.5Q3638 480 3621.0 472.5Q3604 465 3578 465Q3527 465 3498.0 499.5Q3469 534 3469 611Q3469 685 3499.0 719.0Q3529 753 3584 756Q3611 758 3641.5 752.5Q3672 747 3701 731Q3716 724 3732.0 723.0Q3748 722 3762.0 727.0Q3776 732 3786.5 744.0Q3797 756 3802 774Q3807 791 3803.0 805.5Q3799 820 3791.5 831.0Q3784 842 3775.0 849.5Q3766 857 3760 860Q3723 882 3674.0 893.0Q3625 904 3574 901Q3500 897 3447.0 872.5Q3394 848 3360.5 809.0Q3327 770 3311.5 719.0Q3296 668 3296 611Z M3893 611Q3893 549 3911.0 495.5Q3929 442 3964.5 403.0Q4000 364 4052.0 341.5Q4104 319 4171 319Q4221 319 4268.0 336.0Q4315 353 4351.5 386.5Q4388 420 4411.0 470.5Q4434 521 4436 588Q4437 635 4416.0 660.5Q4395 686 4351 686H4166Q4138 686 4125.0 665.0Q4112 644 4112 616Q4112 588 4127.0 565.5Q4142 543 4168 543H4263Q4263 531 4258.5 517.0Q4254 503 4244.5 491.5Q4235 480 4218.0 472.5Q4201 465 4175 465Q4124 465 4095.0 499.5Q4066 534 4066 611Q4066 685 4096.0 719.0Q4126 753 4181 756Q4208 758 4238.5 752.5Q4269 747 4298 731Q4313 724 4329.0 723.0Q4345 722 4359.0 727.0Q4373 732 4383.5 744.0Q4394 756 4399 774Q4404 791 4400.0 805.5Q4396 820 4388.5 831.0Q4381 842 4372.0 849.5Q4363 857 4357 860Q4320 882 4271.0 893.0Q4222 904 4171 901Q4097 897 4044.0 872.5Q3991 848 3957.5 809.0Q3924 770 3908.5 719.0Q3893 668 3893 611Z"/></svg>`;
+/** A component from an SVG: its layers moved in, sized to the SVG. */
+function svgComp(name, svg) {
+  const n = figma.createNodeFromSvg(svg);
+  const c = figma.createComponent(); c.name = name; c.resize(n.width, n.height); c.fills = []; c.clipsContent = false;
+  for (const k of [...n.children]) c.appendChild(k);
+  n.remove();
+  return c;
+}
+/** Light paints inside `root` swapped for their Dark twins (by variable name); shadows for their dark styles. */
+async function darken(root) {
+  const byId = {}; for (const [n, v] of Object.entries(L)) if (DK[n]) byId[v.id] = DK[n];
+  const fx = { [EFX["Shadow/surface"].id]: EFX["Shadow/surface (dark)"], [EFX["Shadow/float"].id]: EFX["Shadow/float (dark)"] };
+  let n = 0;
+  for (const node of [root, ...root.findAll(() => true)]) {
+    for (const prop of ["fills", "strokes"]) {
+      const ps = node[prop];
+      if (!Array.isArray(ps) || !ps.some((p) => p.boundVariables && p.boundVariables.color && byId[p.boundVariables.color.id])) continue;
+      node[prop] = ps.map((p) => { const id = p.boundVariables && p.boundVariables.color && p.boundVariables.color.id; return id && byId[id] ? figma.variables.setBoundVariableForPaint(p, "color", byId[id]) : p; });
+      n++;
+    }
+    if (typeof node.effectStyleId === "string" && fx[node.effectStyleId]) { await node.setEffectStyleIdAsync(fx[node.effectStyleId].id); n++; }
+  }
+  return n;
+}
+async function cLogo() {
+  const mark = svgComp("Logo/Mark", MARK_SVG);
+  for (const n of mark.findAll((x) => x.type === "ELLIPSE" || (x.fills && x.fills.length && x.type !== "VECTOR"))) if (n.type === "ELLIPSE") fill(n, "petal/pink");
+  for (const n of mark.findAll((x) => x.type === "GROUP" || x.type === "FRAME")) if (n.fills && n.fills.length) n.fills = [];
+  mark.description = "The flower mark: pink petals with a check. Use at 20px or larger.";
+  const word = svgComp("Logo/Wordmark", WORDMARK_SVG);
+  for (const n of word.findAll((x) => x.type === "VECTOR" || x.type === "BOOLEAN_OPERATION")) fill(n, "foreground/normal");
+  word.description = "The Achievee wordmark (AchieveeMark face, outlined). Its colour follows foreground/normal.";
+  const lock = autoComp("Logo", "HORIZONTAL", { align: "CENTER" }); lock.itemSpacing = 9;
+  lock.appendChild(mark.createInstance()); lock.appendChild(word.createInstance());
+  lock.description = "Mark + wordmark lockup (mark left, gap 0.4 × wordmark height).";
+  for (const c of [mark, word, lock]) PAGE.appendChild(c);
+  HAVE["Logo/Mark"] = mark; HAVE["Logo/Wordmark"] = word;
+  place("Logo", [lock, mark, word]);
+  return lock;
+}
+/** Put the real logo where an earlier run used the flower and a text stand-in, and fix the dark screens' colours. */
+async function stepLogoFix() {
+  const lock = HAVE["Logo"], mark = HAVE["Logo/Mark"];
+  if (!lock) throw new Error("Logo 컴포넌트가 없어요");
+  const out = [];
+  const nav = HAVE["SideNav"];
+  if (nav) {
+    const slot = nav.findOne((n) => n.name === "Logo" && n.type === "FRAME");
+    let has = false;
+    if (slot) for (const n of slot.findAll((x) => x.type === "INSTANCE")) { const m = await n.getMainComponentAsync(); if (m && m.id === lock.id) has = true; }
+    if (slot && !has) {
+      for (const k of [...slot.children]) k.remove();
+      slot.appendChild(lock.createInstance()); out.push("SideNav 로고 교체");
+    }
+  }
+  const cover = await figma.getNodeByIdAsync(IDS.cover);
+  await cover.loadAsync();
+  const cf = cover.children.find((n) => n.name === "Cover · Achievee DS");
+  if (cf && mark) {
+    let old = null;
+    for (const n of cf.children) if (n.type === "INSTANCE") { const m = await n.getMainComponentAsync(); if (m && m.parent && m.parent.name === "DayFlower") old = n; }
+    if (old) { const i = mark.createInstance(); cf.insertChild(cf.children.indexOf(old), i); old.remove(); i.rescale(96 / i.width); out.push("Cover 마크 교체"); }
+  }
+  let fixed = 0;
+  for (const sec of cover.children) if (sec.type === "SECTION" && / · Dark$/.test(sec.name)) fixed += await darken(sec);
+  if (fixed) out.push("다크 화면 색 " + fixed + "곳 정리");
+  return out.join(", ") || "바꿀 것 없음";
+}
+
 // ---------- run ----------
 /** Runs a page builder; if it throws, removes the half-built frame so the next run starts clean. */
 async function clean(name, pageId, fn) {
@@ -1387,6 +1448,7 @@ async function step(name, fn) {
   if (tag) await build("EntryCard", () => cEntryCard(tag));
   await build("ConfirmDialog", cDialog);
   await build("DayFlower", cDayFlower);
+  await build("Logo", cLogo);
   await build("AppHeader", cPatterns);
   await build("SideNav", cWebPatterns);
   await step("Foundations 페이지", () => clean("Foundations · Tokens", IDS.foundations, stepFoundations));
@@ -1394,5 +1456,6 @@ async function step(name, fn) {
   await compsPage();
   await step("화면 조립 (휴대폰 · Light/Dark)", stepScreens);
   await step("화면 조립 (웹 · Light/Dark)", stepWeb);
+  await step("로고 교체 · 다크 색 정리", stepLogoFix);
   log("끝. ✗ 줄이 있으면 '로그 복사'를 눌러 붙여 주세요. 다시 실행해도 이미 된 건 건너뜁니다.");
 })();
