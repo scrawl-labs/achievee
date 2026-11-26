@@ -1194,7 +1194,7 @@ async function webScreen(title, navLabel, build, o) {
   const nav = SETS.SideNav.createInstance(); nav.name = "SideNav"; s.appendChild(nav);
   for (const it of nav.children) if (it.type === "INSTANCE" && it.name.startsWith("Nav · ")) it.setProperties({ selected: it.name === "Nav · " + navLabel ? "true" : "false" });
   const main = al("Main", "VERTICAL", { gap: 24, pad: [32, 32, 48, 32] }); fillW(s, main);
-  if (!o.customHeader) fillW(main, use(SETS.PageHeader, null, { Title: "2026년 11월" }));
+  if (!o.customHeader) fillW(main, use(SETS.PageHeader, null, { Title: o.title || "2026년 11월", "Show actions": o.actions !== false }));
   await build(main);
   nav.resize(224, Math.max(900, main.height));
   return s;
@@ -1439,6 +1439,243 @@ async function stepPages() {
   return out.join(", ") || "이미 정리됨";
 }
 
+// ---------- web, second set: schedule day and month, workout, settings ----------
+async function schedHeader(m, sel) {
+  const head = al("Header", "HORIZONTAL", { gap: 24, align: "CENTER" }); fillW(m, head);
+  head.appendChild(await txt("2026년 11월", "Display/display-2", "foreground/normal", { name: "Title" }));
+  const tabs = use(SETS.Tabs, { variant: "segment" }); head.appendChild(tabs);
+  tabs.children.forEach((t, i) => { if (t.type === "INSTANCE") t.setProperties({ selected: i === sel ? "true" : "false" }); });
+  const spacer = al("Spacer", "HORIZONTAL"); fillW(head, spacer);
+  head.appendChild(btn("캘린더 선택"));
+  head.appendChild(btn("Google Calendar에서 보기", { icon: "external" }));
+  head.appendChild(await dateNav());
+}
+/** A timed block: soft fill, a coloured left edge (dashed for our own plans). */
+async function evBlock(parent, x, y, w, h, title, time, color, edgeColor) {
+  const f = al("Event · " + title, "VERTICAL", { gap: 2, pad: [6, 8, 6, 10] }); parent.appendChild(f); f.x = x; f.y = y;
+  f.resize(w, h); f.primaryAxisSizingMode = "FIXED"; f.counterAxisSizingMode = "FIXED"; f.clipsContent = true;
+  fill(f, color, color === "accent/soft" ? 1 : 0.45); f.cornerRadius = 6;
+  f.strokes = [paint(L[edgeColor])]; f.strokeAlign = "INSIDE"; f.strokeLeftWeight = 3; f.strokeTopWeight = 0; f.strokeRightWeight = 0; f.strokeBottomWeight = 0;
+  if (color === "accent/soft") f.dashPattern = [4, 3];
+  const tt = await txt(title, "Text/body-medium", "foreground/normal"); fillW(f, tt); wrapText(tt);
+  if (time) { const tm = await txt(time, "Text/caption", "foreground/alternative"); fillW(f, tm); wrapText(tm); }
+}
+async function miniMonth() {
+  const box2 = al("Mini month", "VERTICAL", { gap: 8 });
+  const head = al("Head", "HORIZONTAL", { align: "CENTER", justify: "SPACE_BETWEEN" }); fillW(box2, head);
+  head.appendChild(await txt("2026년 11월", "Text/heading", "foreground/normal"));
+  const nav = al("Nav", "HORIZONTAL", { gap: 0 }); nav.appendChild(iconBtn("left", { size: "sm" })); nav.appendChild(iconBtn("right", { size: "sm" })); head.appendChild(nav);
+  const grid = al("Grid", "VERTICAL", { gap: 2 }); fillW(box2, grid);
+  const wk = al("Weekdays", "HORIZONTAL"); fillW(grid, wk);
+  for (const d of ["월", "화", "수", "목", "금", "토", "일"]) { const t = await txt(d, "Text/caption", "foreground/hint"); fillW(wk, t); t.textAlignHorizontal = "CENTER"; }
+  const cells = []; for (let d = 26; d <= 31; d++) cells.push([d, true]); for (let d = 1; d <= 30; d++) cells.push([d, false]); for (let d = 1; d <= 6; d++) cells.push([d, true]);
+  const busy = new Set([23, 24, 25, 26, 27, 28, 29, 30]);
+  for (let w = 0; w < 6; w++) {
+    const row = al("Week", "HORIZONTAL"); fillW(grid, row);
+    for (let c = 0; c < 7; c++) {
+      const [d, out] = cells[w * 7 + c];
+      const cell = al(String(d), "VERTICAL", { gap: 2, align: "CENTER", pad: [3, 0, 3, 0] }); fillW(row, cell);
+      const dot = al("Day", "HORIZONTAL", { justify: "CENTER", align: "CENTER" }); dot.resize(30, 30); dot.primaryAxisSizingMode = "FIXED"; dot.counterAxisSizingMode = "FIXED"; rad(dot, "pill");
+      const today = !out && d === 26;
+      if (today) fill(dot, "accent/normal");
+      dot.appendChild(await txt(String(d), today ? "Text/label-strong" : "Text/label", today ? "accent/on-accent" : out ? "foreground/hint" : "foreground/normal"));
+      cell.appendChild(dot);
+      const b = figma.createEllipse(); b.name = "Busy"; b.resize(4, 4); fill(b, "foreground/alternative"); if (out || !busy.has(d)) b.opacity = 0; cell.appendChild(b);
+    }
+  }
+  return box2;
+}
+async function webDay(m) {
+  await schedHeader(m, 0);
+  const lab = al("Day label", "HORIZONTAL", { pad: [0, 0, 12, 0] }); fillW(m, lab); edge(lab, "bottom");
+  lab.appendChild(await txt("11월 26일 목요일", "Text/heading", "foreground/normal"));
+  const row = columns("Columns"); fillW(m, row);
+  // the day's grid
+  const W = 840, G = 56, H = 56, HOURS = 12, BAND = 40;
+  const g = figma.createFrame(); g.name = "Day grid"; g.fills = []; g.clipsContent = true; fillW(row, g);
+  g.resize(W, BAND + 16 + HOURS * H); g.layoutSizingHorizontal = "FILL";
+  const at = (n, x, y, w, h, cons) => { g.appendChild(n); n.x = x; n.y = y; if (w) n.resize(w, h); if (cons) n.constraints = cons; return n; };
+  const office = al("사무실", "HORIZONTAL", { pad: [4, 10, 4, 10] }); office.cornerRadius = 6; fill(office, "petal/lilac", 0.35);
+  office.appendChild(await txt("사무실", "Text/caption", "foreground/alternative")); at(office, G, 6); office.resize(W - G - 4, 26); office.primaryAxisSizingMode = "FIXED"; office.constraints = { horizontal: "STRETCH", vertical: "MIN" };
+  const top = BAND + 16;
+  for (let h = 0; h < HOURS; h++) {
+    const y = top + h * H;
+    const t = await txt((5 + h) + "시", "Text/caption-strong", "foreground/alternative"); at(t, 0, y - 8); t.textAutoResize = "NONE"; t.resize(G - 10, 16); t.textAlignHorizontal = "RIGHT";
+    const ln = figma.createRectangle(); ln.name = "Hour line"; at(ln, G, y, W - G, 1, { horizontal: "STRETCH", vertical: "MIN" }); fill(ln, "border/line");
+  }
+  const nowY = top + (53 / 60) * H;
+  const nl = figma.createRectangle(); nl.name = "Now line"; at(nl, G, nowY - 1, W - G, 2, { horizontal: "STRETCH", vertical: "MIN" }); fill(nl, "status/danger");
+  const nd = figma.createEllipse(); nd.name = "Now dot"; at(nd, G - 4, nowY - 4, 8, 8); fill(nd, "status/danger");
+  const nt = await txt("05:53", "Text/caption-strong", "status/danger", { name: "Now time" }); at(nt, 0, nowY - 8); nt.textAutoResize = "NONE"; nt.resize(G - 10, 16); nt.textAlignHorizontal = "RIGHT";
+  const span = W - G - 4, y = (hr) => top + (hr - 5) * H + 1;
+  await evBlock(g, G + 2, y(9), span / 2 - 2, 2 * H - 2, "보고서 초안", "09:00 - 11:00", "accent/soft", "accent/normal");
+  await evBlock(g, G + 2 + span / 2, y(10), span / 2 - 2, H - 2, "주간 회의", "10:00 - 11:00", "petal/mint", "status/good");
+  const q = span / 4;
+  await evBlock(g, G + 2, y(13), q - 2, 3.75 * H - 2, "[DLAI] 마이페이지 반응형 추가", "13:00 - 16:45", "accent/soft", "accent/normal");
+  await evBlock(g, G + 2 + q, y(13), q - 2, 3 * H - 2, "[goorm-data-warehouse] 병합 준비", "13:00 - 16:00", "accent/soft", "accent/normal");
+  await evBlock(g, G + 2 + 2 * q, y(13), q - 2, 3 * H - 2, "[k-digital-backoffice] classTmc 3자리로 고정", "13:00 - 16:00", "accent/soft", "accent/normal");
+  await evBlock(g, G + 2 + 3 * q, y(14), q - 2, H / 2 - 2, "1:1 with 민지", "", "petal/mint", "status/good");
+  // side: a small month and the day's to-dos
+  const side = column("Side", 260, 24); row.appendChild(side);
+  fillW(side, await miniMonth());
+  const tasks = al("Tasks", "VERTICAL", { gap: 6 }); fillW(side, tasks);
+  fillW(tasks, await rowLR(await txt("할 일", "Text/label", "foreground/normal"), await txt("3/5", "Text/caption-strong", "foreground/alternative")));
+  for (const [t, done, src] of [["은행 서류 제출", false, null], ["영어 단어", false, "Google"], ["택배 반품", true, null], ["운동 30분", true, "Google"], ["책 20쪽", true, "Google"]]) {
+    const w = al("Task", "HORIZONTAL", { pad: [2, 10, 2, 10] }); fill(w, "background/sunk"); rad(w, "control"); fillW(tasks, w);
+    fillW(w, use(SETS.TodoRow, { done: String(done) }, { Text: t, Source: src || "", "Show source": !!src }));
+  }
+  tasks.appendChild(btn("할 일 추가", { icon: "plus" }));
+  m.appendChild(await txt("빈 시간을 드래그하면 일정이 만들어져요. 클릭하면 1시간짜리가 만들어져요. 할 일을 시간 칸으로 끌어다 놓으면 일정이 돼요.", "Text/caption", "foreground/alternative"));
+}
+
+async function webMonth(m) {
+  await schedHeader(m, 2);
+  const W = 1152, C = W / 7, HEAD = 32, R = 116;
+  const days = [null, null, null, null, null, null, 1]; for (let d = 2; d <= 30; d++) days.push(d); while (days.length % 7) days.push(null);
+  const rows = days.length / 7;
+  const g = figma.createFrame(); g.name = "Month"; g.fills = []; g.clipsContent = true; fillW(m, g);
+  g.resize(W, HEAD + rows * R); g.layoutSizingHorizontal = "FILL";
+  const at = (n, x, y, w, h) => { g.appendChild(n); n.x = x; n.y = y; if (w) n.resize(w, h); return n; };
+  const rect = (name, x, y, w, h, color, op) => { const r = figma.createRectangle(); r.name = name; at(r, x, y, w, h); fill(r, color, op); return r; };
+  const ev = { 23: [["19:00", "팀 회식", "petal/mint", "status/good"]], 24: [["", "엄마 생신", "petal/butter", "petal/butter"]], 26: [["", "사무실", "petal/lilac", "petal/lilac"], ["09:00", "보고서 초안", "accent/soft", "accent/normal"], ["10:00", "주간 회의", "petal/mint", "status/good"]], 27: [["", "사무실", "petal/lilac", "petal/lilac"], ["07:00", "운동", "accent/soft", "accent/normal"], ["15:00", "디자인 리뷰", "petal/mint", "status/good"]], 28: [["19:15", "할아버지 제사", "accent/normal", "accent/normal"]], 29: [["12:00", "점심 약속", "petal/butter", "petal/butter"]], 30: [["10:00", "스프린트 플래닝", "petal/mint", "status/good"]] };
+  for (let r = 0; r < rows; r++) for (let c = 0; c < 7; c++) {
+    const d = days[r * 7 + c]; if (!d) continue;
+    if (c >= 5) rect("Weekend", c * C, HEAD + r * R, C, R, "background/sunk", 0.6);
+    if (d === 26) rect("Today", c * C, HEAD + r * R, C, R, "accent/soft", 0.8);
+  }
+  const wd = ["월", "화", "수", "목", "금", "토", "일"];
+  for (let c = 0; c < 7; c++) { const t = await txt(wd[c], "Text/caption", "foreground/alternative"); at(t, c * C, 6); t.textAutoResize = "NONE"; t.resize(C, 16); t.textAlignHorizontal = "CENTER"; }
+  rect("Head line", 0, HEAD - 1, W, 1, "border/line");
+  for (let r = 1; r < rows; r++) rect("Week line", 0, HEAD + r * R, W, 1, "border/line");
+  for (let r = 0; r < rows; r++) for (let c = 0; c < 7; c++) {
+    const d = days[r * 7 + c]; if (!d) continue;
+    const x = c * C, y = HEAD + r * R;
+    const color = c === 5 ? "accent/normal" : c === 6 ? "status/danger" : "foreground/normal";
+    if (d === 26) { const o = figma.createEllipse(); o.name = "Today circle"; at(o, x + 8, y + 8, 24, 24); fill(o, "accent/normal"); }
+    const n = await txt(String(d), "Text/label-strong", d === 26 ? "accent/on-accent" : color); at(n, x + 8, y + 11); n.textAutoResize = "NONE"; n.resize(24, 18); n.textAlignHorizontal = "CENTER";
+    let ey = y + 38;
+    for (const [time, title, fc, ec] of ev[d] || []) {
+      const chip = al(title, "HORIZONTAL", { gap: 6, align: "CENTER", pad: [1, 6, 1, 8] }); at(chip, x + 8, ey); chip.resize(C - 16, 18); chip.primaryAxisSizingMode = "FIXED"; chip.counterAxisSizingMode = "FIXED"; chip.cornerRadius = 4; chip.clipsContent = true;
+      const solid = fc === "accent/normal";
+      fill(chip, fc, solid ? 1 : fc === "accent/soft" ? 1 : 0.45);
+      chip.strokes = [paint(L[ec])]; chip.strokeAlign = "INSIDE"; chip.strokeLeftWeight = 3; chip.strokeTopWeight = 0; chip.strokeRightWeight = 0; chip.strokeBottomWeight = 0;
+      if (time) chip.appendChild(await txt(time, "Text/caption", solid ? "accent/on-accent" : "foreground/alternative"));
+      chip.appendChild(await txt(title, "Text/caption-strong", solid ? "accent/on-accent" : "foreground/normal"));
+      ey += 21;
+    }
+    if (d >= 6 && d <= 27) {
+      const t = al("Tasks", "HORIZONTAL", { gap: 4, align: "CENTER" }); at(t, x + 10, y + R - 24);
+      const o = figma.createEllipse(); o.resize(10, 10); o.fills = []; stroke(o, "foreground/hint", 1.2); t.appendChild(o);
+      t.appendChild(await txt("할 일 2/3", "Text/caption", "foreground/alternative"));
+    }
+  }
+}
+
+async function webWorkout(m) {
+  m.appendChild(lineTabs(["운동", "오늘 섭취", "인바디"]));
+  fillW(m, await statsBox([["이번 주 · 목표 3회", "4회 ✓"], ["이번 주 시간", "2시간 30분"], ["이번 달", "6회"], ["이번 달 시간", "4시간 15분"]], 4, "Display/display-2"));
+  const row = columns("Columns"); fillW(m, row);
+  const left = column("Left", null, 16); fillW(row, left);
+  fillW(left, await newRow("운동 기록"));
+  left.appendChild(await txt("내역", "Text/label", "foreground/normal"));
+  const list = box("List", { gap: 0, pad: [0, 0, 0, 0] }); await shadow(list); fillW(left, list); list.clipsContent = true;
+  [["러닝", "11월 26일", "30분"], ["웨이트", "11월 25일", "35분"], ["걷기", "11월 24일", "40분"], ["러닝", "11월 23일", "45분"], ["웨이트", "11월 22일", "50분"], ["걷기", "11월 21일", "55분"]].forEach(([t, d, a], i) =>
+    fillW(list, use(SETS.ListRow, { flag: "false", tone: "default", "state(design only)": "default" }, { Title: t, Category: d, Amount: a, "Show icon": false, Divider: i > 0 })));
+  const right = column("Right", 470, 0); row.appendChild(right);
+  const wk = box("This week", { gap: 20, pad: [24, 24, 24, 24] }); await shadow(wk); fillW(right, wk);
+  wk.appendChild(await txt("주간 현황", "Text/label", "foreground/normal"));
+  const days = al("Days", "HORIZONTAL", { justify: "SPACE_BETWEEN" }); fillW(wk, days);
+  for (const [i, d] of ["월", "화", "수", "목", "금", "토", "일"].entries()) {
+    const c = al(d, "VERTICAL", { gap: 6, align: "CENTER" }); days.appendChild(c);
+    const o = al("Dot", "HORIZONTAL", { justify: "CENTER", align: "CENTER" }); o.resize(40, 40); o.primaryAxisSizingMode = "FIXED"; o.counterAxisSizingMode = "FIXED"; rad(o, "pill");
+    fill(o, i < 4 ? "petal/mint" : "background/sunk");
+    if (i < 4) o.appendChild(iconInst("check", 16, "foreground/normal"));
+    c.appendChild(o);
+    c.appendChild(await txt(d, i === 3 ? "Text/caption-strong" : "Text/caption", i === 3 ? "foreground/normal" : "foreground/alternative"));
+  }
+  const goal = al("Goal", "VERTICAL", { gap: 8, pad: [20, 0, 0, 0] }); fillW(wk, goal); edge(goal, "top");
+  goal.appendChild(await txt("주간 목표", "Text/label", "foreground/alternative"));
+  if (SETS.select) fillW(goal, use(SETS.select, { "state(design only)": "default", disabled: "false" }, { Value: "주 3회" }));
+  goal.appendChild(await txt("목표를 달성했어요!", "Text/caption", "foreground/alternative"));
+}
+
+async function settingRow(parent, title, desc, control) {
+  const r = al(title, "HORIZONTAL", { gap: 24, align: "CENTER", justify: "SPACE_BETWEEN" }); fillW(parent, r);
+  const l = al("Text", "VERTICAL", { gap: 2 }); fillW(r, l);
+  l.appendChild(await txt(title, "Text/body-strong", "foreground/normal"));
+  if (desc) { const d = await txt(desc, "Text/caption", "foreground/alternative"); fillW(l, d); wrapText(d); }
+  if (control) { r.appendChild(control); }
+  return r;
+}
+const selectOf = (v) => { const s = use(SETS.select, { "state(design only)": "default", disabled: "false" }, { Value: v }); s.resize(132, s.height); return s; };
+const fieldOf = (v) => { const f = use(SETS.field, { "state(design only)": "default", disabled: "false" }, { Value: v }); f.resize(132, f.height); return f; };
+async function settingCard(m, label) {
+  const c = box(label, { gap: 16, pad: [24, 24, 24, 24] }); await shadow(c); fillW(m, c);
+  if (label) c.appendChild(await txt(label, "Text/caption", "foreground/alternative"));
+  return c;
+}
+async function webSettings(m) {
+  const prof = box("Profile", { dir: "HORIZONTAL", gap: 16, align: "CENTER", pad: [24, 24, 24, 24] }); await shadow(prof); fillW(m, prof);
+  const av = al("Avatar", "HORIZONTAL", { justify: "CENTER", align: "CENTER" }); av.resize(52, 52); av.primaryAxisSizingMode = "FIXED"; av.counterAxisSizingMode = "FIXED"; rad(av, "pill"); fill(av, "background/sunk");
+  av.appendChild(await txt("T", "Text/title", "foreground/alternative")); prof.appendChild(av);
+  const who = al("Who", "VERTICAL", { gap: 2 }); fillW(prof, who);
+  who.appendChild(await txt("T", "Text/heading", "foreground/normal")); who.appendChild(await txt("지금까지 감정 단어 8개를 써봤어요.", "Text/caption", "foreground/alternative"));
+  prof.appendChild(btn("로그아웃", { variant: ["default", "secondary"], size: "md" }));
+  const n = await settingCard(m, "알림"); await settingRow(n, "밤 9시 알림", "그날 감정 단어를 아직 고르지 않았다면 밤 9시에 알려드려요.");
+  const look = await settingCard(m, "화면과 언어");
+  await settingRow(look, "언어", null, selectOf("한국어")); await settingRow(look, "화면 모드", null, selectOf("시스템"));
+  const goals = await settingCard(m, "목표와 기준");
+  await settingRow(goals, "통화", "기호만 바뀌고, 입력한 금액은 환산되지 않아요.", selectOf("대한민국 원"));
+  await settingRow(goals, "지출 월 시작일", "지출·수입을 한 달로 묶어 계산하는 기준일이에요. 월급일로 맞추면 다음 달 전날까지가 한 달이에요.", selectOf("1일"));
+  await settingRow(goals, "주간 운동 목표", null, selectOf("주 3회"));
+  await settingRow(goals, "하루 물 목표 (ml)", null, fieldOf("2000"));
+  await settingRow(goals, "하루 단백질 목표 (g)", null, fieldOf("60"));
+  const links = await settingCard(m, "연동"); await settingRow(links, "연동", "Google Calendar, GitHub, Jira, Notion", btn("관리", { variant: ["default", "secondary"], size: "md" }));
+  const info = await settingCard(m, "정보");
+  const lk = al("Links", "HORIZONTAL", { gap: 16 }); info.appendChild(lk);
+  lk.appendChild(await txt("개인정보처리방침", "Text/label", "foreground/alternative")); lk.appendChild(await txt("이용약관", "Text/label", "foreground/alternative"));
+  const del = await settingRow(info, "내 데이터 삭제", "Achievee에 저장한 모든 기록이 지워져요.", btn("내 데이터 삭제", { variant: ["danger"], size: "md" }));
+  del.paddingTop = 16; edge(del, "top");
+}
+
+async function stepWeb2() {
+  await loadSets();
+  SETS.select = await figma.getNodeByIdAsync(IDS.select); SETS.field = await figma.getNodeByIdAsync(IDS.field);
+  for (const k of ["SideNav", "PageHeader", "TodoRow", "Tabs", "Tabs.Item", "ListRow", "select", "field"]) if (!SETS[k]) throw new Error(k + " 컴포넌트가 없어요");
+  const page = await figma.getNodeByIdAsync(IDS.screens);
+  await page.loadAsync(); await figma.setCurrentPageAsync(page);
+  const lightSec = page.children.find((n) => n.name === "Web · Light"), darkSec = page.children.find((n) => n.name === "Web · Dark");
+  if (!lightSec || !darkSec) throw new Error("웹 화면 섹션이 아직 없어요");
+  if (lightSec.children.some((n) => n.name === "웹 · 설정")) return "이미 있음";
+  const before = new Set(page.children.map((n) => n.id));
+  const made = [];
+  try {
+    const frames = [];
+    frames.push(await webScreen("일정 · 일", "일정", webDay, { customHeader: true }));
+    frames.push(await webScreen("일정 · 월", "일정", webMonth, { customHeader: true }));
+    frames.push(await webScreen("운동", "운동", webWorkout));
+    frames.push(await webScreen("설정", "설정", webSettings, { title: "설정", actions: false }));
+    made.push(...frames);
+    const darks = []; for (const f of frames) darks.push(await toDark(f));
+    made.push(...darks);
+    const append = (sec, list) => {
+      let x = 0, h = 0; for (const n of sec.children) { x = Math.max(x, n.x + n.width); h = Math.max(h, n.y + n.height); }
+      x += 120;
+      for (const f of list) { sec.appendChild(f); f.x = x; f.y = 96; x += f.width + 120; h = Math.max(h, f.y + f.height); }
+      sec.resizeWithoutConstraints(x - 40, h + 80);
+    };
+    append(lightSec, frames);
+    // the dark row sits under the light one: move it down if the light row grew taller
+    darkSec.y = Math.max(darkSec.y, lightSec.y + lightSec.height + 160);
+    append(darkSec, darks);
+    return "웹 화면 " + frames.length + "개 더 × Light/Dark";
+  } catch (e) {
+    for (const n of made) if (!n.removed) n.remove();
+    for (const n of [...page.children]) if (!before.has(n.id)) n.remove();
+    throw e;
+  }
+}
+
 // ---------- run ----------
 /** Runs a page builder; if it throws, removes the half-built frame so the next run starts clean. */
 async function clean(name, pageId, fn) {
@@ -1482,6 +1719,7 @@ async function step(name, fn) {
   await compsPage();
   await step("화면 조립 (휴대폰 · Light/Dark)", stepScreens);
   await step("화면 조립 (웹 · Light/Dark)", stepWeb);
+  await step("화면 조립 (웹 · 일정 일/월 · 운동 · 설정)", stepWeb2);
   await step("로고 교체 · 다크 색 정리", stepLogoFix);
   log("끝. ✗ 줄이 있으면 '로그 복사'를 눌러 붙여 주세요. 다시 실행해도 이미 된 건 건너뜁니다.");
 })();
