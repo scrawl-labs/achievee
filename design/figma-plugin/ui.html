@@ -1,0 +1,22 @@
+<style>
+  body { font: 12px/1.5 -apple-system, system-ui, sans-serif; margin: 0; padding: 12px; color: #1a1917; background: #f6f5f2; }
+  h1 { font-size: 13px; margin: 0 0 8px; }
+  #log { white-space: pre-wrap; font: 11px/1.5 ui-monospace, Menlo, monospace; background: #fff; border-radius: 8px; padding: 10px; height: 400px; overflow: auto; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+  .ok { color: #1a7d48; } .err { color: #c9353b; } .skip { color: #6b6861; }
+  button { margin-top: 8px; font: inherit; font-weight: 600; border: 0; border-radius: 8px; padding: 8px 12px; background: #4a5bf0; color: #fff; cursor: pointer; }
+</style>
+<h1>Achievee DS Builder</h1>
+<div id="log"></div>
+<button id="copy">로그 복사</button>
+<script>
+  const el = document.getElementById("log");
+  onmessage = (e) => {
+    const m = e.data.pluginMessage; if (!m) return;
+    const line = document.createElement("div");
+    line.className = m.s.startsWith("✓") ? "ok" : m.s.startsWith("✗") ? "err" : m.s.startsWith("·") ? "skip" : "";
+    line.textContent = m.s; el.appendChild(line); el.scrollTop = el.scrollHeight;
+  };
+  document.getElementById("copy").onclick = () => {
+    const ta = document.createElement("textarea"); ta.value = el.innerText; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove();
+  };
+</script>
